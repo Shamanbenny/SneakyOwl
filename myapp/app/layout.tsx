@@ -1,8 +1,10 @@
-import { Exo } from "next/font/google";
+import { Roboto_Mono, Exo } from "next/font/google";
 import "./globals.css";
 import Loader from "./Loader";
 
-const inter = Exo({ subsets: ["latin"] });
+const bodyFont = Exo({ subsets: ["latin"] });
+
+const monoFont = Roboto_Mono({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -23,12 +25,12 @@ export default function RootLayout({
         <meta name="author" content="SneakyOwl" />
         <title>SneakyOwl</title>
       </head>
-      <body className={inter.className}>
+      <body className={bodyFont.className}>
         <div
-          className="spinner"
+          className={"loader " + monoFont.className}
           style={{ opacity: "1", transition: "opacity 1s" }}
         >
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+          <h1 className="loader_string"></h1>
         </div>
         <Loader />
         <div className="apps" style={{ display: "none" }}>

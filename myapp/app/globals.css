@@ -26,7 +26,7 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-.spinner {
+.loader {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -35,9 +35,11 @@ body {
   z-index: 9999;
 }
 
-.spinner div {
+.loader_string {
   top: 50%;
-  left: 50%;
+  width: 100%;
+  font-size: 4rem;
+  text-align: center;
   position: absolute;
 }
 
