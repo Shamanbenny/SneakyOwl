@@ -67,7 +67,7 @@ const NavBar: React.FC = () => {
             <div className="sidebar-icon logo group">
               <FaEarlybirds size="40" className="fa-navbar" />
               <span className="sidebar-tooltip group-hover:scale-x-100">
-                SneakyOwl's Personal Website
+                SneakyOwl.net
               </span>
             </div>
             <Divider />

@@ -7,11 +7,33 @@ body {
   @apply bg-neutral-900;
 }
 
+/* ---------- [START] Loader ---------- */
+.loader {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  z-index: 9999;
+  @apply bg-neutral-900;
+}
+
+.loader_string {
+  top: 50%;
+  width: 100%;
+  font-size: 4rem;
+  text-align: center;
+  position: absolute;
+  @apply text-emerald-500;
+}
+/* ---------- [END] Loader ---------- */
+
+/* ---------- [START] Navbar ---------- */
 .sidebar {
   @apply fixed top-0 left-0 h-screen w-16 m-0 flex flex-col 
     bg-neutral-300 text-emerald-700 dark:bg-neutral-900 
     dark:text-emerald-500 shadow-lg transition-all duration-150 
-    ease-linear border-r-2 border-neutral-900 dark:border-emerald-500;
+    ease-linear border-r-2 border-neutral-900 dark:border-emerald-500
+    z-[9999];
 
   @apply lg:w-20;
 }
@@ -62,31 +84,49 @@ body {
   @apply lg:pl-10 lg:pr-10 lg:text-lg;
 }
 
-.loader {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 1;
-  z-index: 9999;
-  @apply bg-neutral-900;
-}
-
-.loader_string {
-  top: 50%;
-  width: 100%;
-  font-size: 4rem;
-  text-align: center;
-  position: absolute;
-  @apply text-emerald-500;
-}
+/* ---------- [END] Navbar ---------- */
 
 .apps {
   @apply pl-16 bg-neutral-300 text-neutral-900 
     dark:bg-neutral-900 dark:text-neutral-300 w-screen h-screen
-    transition-all duration-150 ease-linear;
+    transition-colors duration-150 ease-linear overflow-x-hidden;
 
   @apply lg:pl-20;
 }
+
+/* ---------- [START] Slider ---------- */
+.slider {
+  @apply w-full h-full;
+}
+
+.slide {
+  @apply items-center w-full h-full flex;
+}
+
+.svgCard {
+  @apply bg-neutral-400 dark:bg-neutral-800 w-1/3 p-8 my-14 mr-10 min-h-32 min-w-32 border border-neutral-600 flex flex-col justify-between stroke-[2] hover:stroke-[4];
+
+  @apply lg:border-2 lg:p-10 xl:mr-auto max-w-max rounded-[25%];
+}
+
+.slideContent {
+  @apply w-2/3 px-10 flex flex-col text-right;
+
+  @apply md:px-20 lg:px-32;
+}
+
+.slideContent h1 {
+  @apply text-lg pb-3;
+
+  @apply md:text-2xl md:pb-4 lg:text-4xl lg:pb-5 xl:text-5xl;
+}
+
+.slideContent p {
+  @apply hidden;
+
+  @apply lg:block lg:text-sm xl:text-lg;
+}
+/* ---------- [END] Slider ---------- */
 
 @layer utilities {
   .text-balance {

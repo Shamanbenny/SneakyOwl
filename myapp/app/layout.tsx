@@ -1,7 +1,7 @@
 import { Roboto_Mono, Poppins } from "next/font/google";
 import "./globals.css";
-import Loader from "./Loader";
-import NavBar from "./NavBar";
+import Loader from "./components/Loader";
+import NavBar from "./components/NavBar";
 
 const bodyFont = Poppins({ weight: "400", subsets: ["latin"] });
 
