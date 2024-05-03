@@ -1,8 +1,9 @@
-import { Roboto_Mono, Exo } from "next/font/google";
+import { Roboto_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import Loader from "./Loader";
+import NavBar from "./NavBar";
 
-const bodyFont = Exo({ subsets: ["latin"] });
+const bodyFont = Poppins({ weight: "400", subsets: ["latin"] });
 
 const monoFont = Roboto_Mono({ subsets: ["latin"] });
 
@@ -25,14 +26,15 @@ export default function RootLayout({
         <meta name="author" content="SneakyOwl" />
         <title>SneakyOwl</title>
       </head>
-      <body className={bodyFont.className}>
+      <body className={bodyFont.className + " dark"}>
         <div
           className={"loader " + monoFont.className}
-          style={{ opacity: "1", transition: "opacity 1s" }}
+          style={{ opacity: "1", transition: "opacity 0.5s" }}
         >
           <h1 className="loader_string"></h1>
         </div>
         <Loader />
+        <NavBar />
         <div className="apps" style={{ display: "none" }}>
           {children}
         </div>

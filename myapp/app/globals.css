@@ -2,37 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply bg-neutral-900;
+}
+
+.sidebar {
+  @apply fixed top-0 left-0 h-screen w-16 m-0 flex flex-col 
+    bg-neutral-300 text-emerald-700 dark:bg-neutral-900 
+    dark:text-emerald-500 shadow-lg transition-all duration-150 
+    ease-linear border-r-2 border-neutral-900 dark:border-emerald-500;
+
+  @apply lg:w-20;
+}
+
+.fa-navbar {
+  height: 75%;
+}
+
+.sidebar-icon {
+  @apply flex items-center justify-center h-12 w-12 mt-2 mb-2 
+    mx-auto shadow-lg bg-[#b3b3b3] dark:bg-neutral-800 
+    hover:bg-emerald-700 hover:text-neutral-300 
+    dark:hover:bg-emerald-500 dark:hover:text-neutral-800 
+    rounded-3xl hover:rounded-xl transition-all duration-150 
+    ease-linear cursor-pointer;
+
+  @apply lg:h-16 lg:w-16;
+}
+
+.sidebar-tooltip {
+  @apply absolute w-auto p-2 m-2 min-w-max left-16 rounded-md 
+    shadow-md text-emerald-700 dark:text-emerald-500 
+    bg-neutral-300 dark:bg-neutral-800 text-sm font-bold
+    transition-all duration-150 ease-linear scale-x-0 origin-left;
+
+  @apply lg:left-20 lg:text-lg;
+}
+
+.logo {
+  @apply dark:bg-emerald-500 dark:text-neutral-800 
+  dark:hover:bg-emerald-400;
+}
+
+.sidebar-hr {
+  @apply border border-[#b3b3b3] dark:border-neutral-800 rounded-full
+    mx-2 transition-all duration-150 ease-linear;
+}
+
+.successAlert {
+  @apply absolute w-screen top-5 text-center transition-opacity 
+    duration-150 ease-linear;
+}
+
+.successAlert span {
+  @apply bg-emerald-400 pl-5 pr-5 pt-2 pb-2 text-sm rounded-xl 
+    border-4 border-emerald-600;
+
+  @apply lg:pl-10 lg:pr-10 lg:text-lg;
 }
 
 .loader {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: black;
   opacity: 1;
   z-index: 9999;
+  @apply bg-neutral-900;
 }
 
 .loader_string {
@@ -41,6 +77,15 @@ body {
   font-size: 4rem;
   text-align: center;
   position: absolute;
+  @apply text-emerald-500;
+}
+
+.apps {
+  @apply pl-16 bg-neutral-300 text-neutral-900 
+    dark:bg-neutral-900 dark:text-neutral-300 w-screen h-screen
+    transition-all duration-150 ease-linear;
+
+  @apply lg:pl-20;
 }
 
 @layer utilities {
