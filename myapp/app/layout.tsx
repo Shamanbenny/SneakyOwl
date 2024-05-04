@@ -1,7 +1,6 @@
 import { Roboto_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import Loader from "./components/Loader";
-import NavBar from "./components/NavBar";
 
 const bodyFont = Poppins({ weight: "400", subsets: ["latin"] });
 
@@ -34,7 +33,6 @@ export default function RootLayout({
           <h1 className="loader_string"></h1>
         </div>
         <Loader />
-        <NavBar />
         <div className="apps" style={{ display: "none" }}>
           {children}
         </div>

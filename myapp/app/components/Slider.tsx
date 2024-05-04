@@ -1,5 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import OwlSVG from "./svgComponents/OwlSVG";
+
+/**
+ * Slider component [CSS className used]:
+ * .slider .slide .slideContent .svgCard .owlCard
+ */
 
 const Slider: React.FC = () => {
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
@@ -44,15 +49,15 @@ const Slider: React.FC = () => {
           <h1 className="text-emerald-700 dark:text-emerald-500">
             Fueled by Coffee, Powered by Code
           </h1>
-          <p>
-            Studying for my Degree in Information Security within National
-            University of Singapore (NUS), I was fortunate enough to have met a
-            wonderful Teaching Assistant who'd pique my interest in learning
-            more about the world of practical problem solving and optimization.
-            Therefore, I hope to do the same for others by providing resources
-            necessary to help facilitate the learning of applicable real-world
-            solutions!
-          </p>
+          <a href="/about/">
+            <button
+              className="dark:bg-emerald-600 dark:border-emerald-500 
+              dark:hover:bg-emerald-500 dark:hover:border-emerald-700 
+              justify-center relative flex ml-auto py-1 px-5 rounded-md border"
+            >
+              About Me
+            </button>
+          </a>
         </div>
         <div
           className="svgCard owlCard"

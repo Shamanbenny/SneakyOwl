@@ -1,7 +1,7 @@
 "use client";
 
-import { Index } from "./components/Index";
-import NavBar from "./components/NavBar";
+import { Index } from "../components/Index";
+import NavBar from "../components/NavBar";
 import { Route, Routes } from "react-router-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 

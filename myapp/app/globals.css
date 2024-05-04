@@ -53,6 +53,11 @@ body {
   @apply lg:h-16 lg:w-16;
 }
 
+.sidebar-icon:has(> .fa-navbar.active) {
+  /* Apply styles to the parent element */
+  @apply dark:border-emerald-500 dark:border-2;
+}
+
 .sidebar-tooltip {
   @apply absolute w-auto p-2 m-2 min-w-max left-16 rounded-md 
     shadow-md text-emerald-700 dark:text-emerald-500 
@@ -86,9 +91,9 @@ body {
 
 /* ---------- [END] Navbar ---------- */
 
-.apps {
+.apps .appContent {
   @apply pl-16 bg-neutral-300 text-neutral-900 
-    dark:bg-neutral-900 dark:text-neutral-300 w-screen h-screen
+    dark:bg-neutral-900 dark:text-neutral-300 w-full h-screen
     transition-colors duration-150 ease-linear overflow-x-hidden;
 
   @apply lg:pl-20;

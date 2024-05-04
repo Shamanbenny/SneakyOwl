@@ -13,6 +13,6 @@ Customize the default import alias: No
 
 ## NPM Installed Modules
 
-npm install next react react-dom tailwindcss react-icons
+npm install next react react-dom react-router-dom tailwindcss react-icons
 
 npm run dev

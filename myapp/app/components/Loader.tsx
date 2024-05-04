@@ -1,16 +1,22 @@
 "use client";
+// useState, therefore use client
 
 import React, { useEffect, useState } from "react";
 
 let keyboardSound: any;
 let enteringSound: any;
 
+/**
+ * Loader component [CSS className used]:
+ * Referenced => .loader .loader_string
+ */
+
 const Loader: React.FC = () => {
   const [counter, setCounter] = useState(5);
   const counterPerChar = 5;
-  let hasSeenAnimation = false;
 
   useEffect(() => {
+    let hasSeenAnimation = false;
     if (counter == 5) {
       let sessionCheck = localStorage.getItem("hasSeenAnimation");
       if (sessionCheck) {

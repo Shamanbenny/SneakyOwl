@@ -1,6 +1,5 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Link } from "react-router-dom";
 import {
   FaEarlybirds,
   FaHome,
@@ -11,10 +10,17 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
+/**
+ * NavBar component [CSS className used]:
+ * .sidebar .sidebar-icon .logo .fa-navbar .sidebar-tooltip .sidebar-hr .successAlert
+ */
+
 const NavBar: React.FC = () => {
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
+    togglePageChange("");
+
     const darkTheme = localStorage.getItem("dark-theme");
     if (darkTheme) {
       const newDarkMode = darkTheme === "true";
@@ -64,23 +70,30 @@ const NavBar: React.FC = () => {
       <nav>
         <div className="flex">
           <div className="sidebar">
-            <div className="sidebar-icon logo group">
+            <Link
+              to="/"
+              className="sidebar-icon logo group"
+              onClick={(e) => togglePageChange("/")}
+            >
               <FaEarlybirds size="40" className="fa-navbar" />
               <span className="sidebar-tooltip group-hover:scale-x-100">
                 SneakyOwl.net
               </span>
-            </div>
+            </Link>
             <Divider />
             <SideBarIcon
-              icon={<FaHome size="36" className="fa-navbar" />}
+              icon={<FaHome size="36" className="fa-navbar home-tab" />}
+              linkPath="/"
               text="Home Page"
             />
             <SideBarIcon
-              icon={<FaUser size="28" className="fa-navbar" />}
+              icon={<FaUser size="28" className="fa-navbar about-tab" />}
+              linkPath="/about"
               text="About Me"
             />
             <SideBarIcon
-              icon={<FaThList size="28" className="fa-navbar" />}
+              icon={<FaThList size="28" className="fa-navbar dsa-tab" />}
+              linkPath="/dsa"
               text="DSA Page"
             />
             <Divider />
@@ -110,17 +123,43 @@ const NavBar: React.FC = () => {
 
 const SideBarIcon = ({
   icon,
+  linkPath,
   text,
 }: {
   icon: React.ReactNode;
+  linkPath: string;
   text: string;
 }) => (
-  <div className="sidebar-icon group">
+  <Link
+    to={linkPath}
+    className="sidebar-icon group"
+    onClick={(e) => togglePageChange(linkPath)}
+  >
     {icon}
     <span className="sidebar-tooltip group-hover:scale-x-100">{text}</span>
-  </div>
+  </Link>
 );
 
 const Divider = () => <hr className="sidebar-hr" />;
+
+const togglePageChange = (tab: string) => {
+  if (tab == "") {
+    if (window) tab = window.location.pathname;
+  }
+  document.querySelector(".fa-navbar.active")?.classList.remove("active");
+  switch (tab) {
+    case "/":
+      document.querySelector(".home-tab")?.classList.add("active");
+      break;
+    case "/about":
+      document.querySelector(".about-tab")?.classList.toggle("active");
+      break;
+    case "/dsa":
+      document.querySelector(".dsa-tab")?.classList.toggle("active");
+      break;
+    default:
+      break;
+  }
+};
 
 export default NavBar;
