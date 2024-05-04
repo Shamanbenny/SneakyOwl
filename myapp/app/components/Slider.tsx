@@ -1,5 +1,16 @@
 import React, { useState } from "react";
 import OwlSVG from "./svgComponents/OwlSVG";
+import { Link } from "react-router-dom";
+import { togglePageChange } from "./NavBar";
+import { FaLinkedin, FaInstagram, FaGithub, FaLink } from "react-icons/fa";
+import {
+  CarouselProvider,
+  Slider as CarouselSlider,
+  Slide,
+  ButtonBack,
+  ButtonNext,
+} from "pure-react-carousel";
+import "pure-react-carousel/dist/react-carousel.es.css";
 
 /**
  * Slider component [CSS className used]:
@@ -19,61 +30,93 @@ const Slider: React.FC = () => {
     });
   };
 
-  const [slideCountdown, setSlideCountdown] = useState(5);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const slides = [
-    {
-      id: 1,
-      image: "path/to/image1.jpg",
-      caption: "Slide 1",
-    },
-  ];
-
-  const nextSlide = () => {
-    setCurrentSlide((prevSlide) =>
-      prevSlide === slides.length - 1 ? 0 : prevSlide + 1
-    );
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prevSlide) =>
-      prevSlide === 0 ? slides.length - 1 : prevSlide - 1
-    );
-  };
-
   return (
-    <div className="slider">
-      <div className="slide">
-        <div className="slideContent">
-          <h1>Welcome to Benny's personal website</h1>
-          <h1 className="text-emerald-700 dark:text-emerald-500">
-            Fueled by Coffee, Powered by Code
-          </h1>
-          <a href="/about/">
-            <button
-              className="dark:bg-emerald-600 dark:border-emerald-500 
-              dark:hover:bg-emerald-500 dark:hover:border-emerald-700 
-              justify-center relative flex ml-auto py-1 px-5 rounded-md border"
-            >
-              About Me
-            </button>
-          </a>
-        </div>
-        <div
-          className="svgCard owlCard"
-          onMouseEnter={() => setMouseOnCard(0)}
-          onMouseLeave={() => setMouseOnCard(-1)}
-          onMouseMove={(event) => handleMouseMove(event)}
-        >
-          <OwlSVG
-            id={0}
-            cursor={cursor}
-            cardClass="owlCard"
-            mouseOnCard={mouseOnCard}
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      <CarouselProvider
+        naturalSlideHeight={8}
+        naturalSlideWidth={16}
+        totalSlides={2}
+      >
+        <CarouselSlider>
+          <Slide index={0}>
+            <div className="slide">
+              <div className="slideContent">
+                <h1>Welcome to Benny's personal website</h1>
+                <h1 className="text-emerald-700 dark:text-emerald-500 emerald-highlight">
+                  Fueled by Coffee, Powered by Code
+                </h1>
+                <div className="w-full flex">
+                  <a
+                    href="https://www.linkedin.com/in/shamanbenny/"
+                    className="ml-auto md:mr-3 lg:mr-5 group"
+                  >
+                    <FaLinkedin className="socialIcons" />
+                    <span className="socialSpans">LinkedIn</span>
+                  </a>
+                  <a
+                    href="https://www.instagram.com/shamanbenny/"
+                    className="md:mr-3 lg:mr-5 group"
+                  >
+                    <FaInstagram className="socialIcons" />
+                    <span className="socialSpans">Instagram</span>
+                  </a>
+                  <a
+                    href="https://github.com/Shamanbenny"
+                    className="md:mr-3 lg:mr-5 group"
+                  >
+                    <FaGithub className="socialIcons" />
+                    <span className="socialSpans">GitHub</span>
+                  </a>
+                  <Link
+                    to="/about"
+                    className="themeButton"
+                    onClick={(e) => togglePageChange("/about")}
+                  >
+                    About Me
+                  </Link>
+                </div>
+              </div>
+              <div
+                className="svgCard owlCard"
+                onMouseEnter={() => setMouseOnCard(0)}
+                onMouseLeave={() => setMouseOnCard(-1)}
+                onMouseMove={(event) => handleMouseMove(event)}
+              >
+                <OwlSVG
+                  id={0}
+                  cursor={cursor}
+                  cardClass="owlCard"
+                  mouseOnCard={mouseOnCard}
+                />
+              </div>
+            </div>
+          </Slide>
+          <Slide index={1}>
+            <div className="slide-reverse">
+              <div
+                className="svgCard owlCard"
+                onMouseEnter={() => setMouseOnCard(0)}
+                onMouseLeave={() => setMouseOnCard(-1)}
+                onMouseMove={(event) => handleMouseMove(event)}
+              >
+                <OwlSVG
+                  id={0}
+                  cursor={cursor}
+                  cardClass="owlCard"
+                  mouseOnCard={mouseOnCard}
+                />
+              </div>
+              <div className="slideContent">
+                <h1>LeetCode Solution Showcase</h1>
+                <h1 className="text-emerald-700 dark:text-emerald-500 emerald-highlight">
+                  Work in Progress...
+                </h1>
+              </div>
+            </div>
+          </Slide>
+        </CarouselSlider>
+      </CarouselProvider>
+    </>
   );
 };
 

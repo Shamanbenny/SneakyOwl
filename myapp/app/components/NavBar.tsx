@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   FaEarlybirds,
   FaHome,
@@ -45,7 +45,7 @@ const NavBar: React.FC = () => {
   const [alertVisible, setAlertVisible] = useState<boolean>(false);
 
   const copyEmail = () => {
-    navigator.clipboard.writeText("SneakyOwl_Official@proton.me");
+    navigator.clipboard.writeText("lee.jia.quan@u.nus.edu");
 
     // Perform the clipboard copy operation here
     // For the sake of the example, let's assume the copy was successful
@@ -142,7 +142,7 @@ const SideBarIcon = ({
 
 const Divider = () => <hr className="sidebar-hr" />;
 
-const togglePageChange = (tab: string) => {
+export const togglePageChange = (tab: string) => {
   if (tab == "") {
     if (window) tab = window.location.pathname;
   }

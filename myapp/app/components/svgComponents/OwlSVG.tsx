@@ -1,4 +1,4 @@
-import { RefObject, use, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   id: number;
