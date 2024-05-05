@@ -2,6 +2,7 @@ import { Roboto_Mono } from "next/font/google";
 
 import NavBar from "./components/NavBar";
 import Loader from "./components/Loader";
+import { Index } from "./components/Index";
 
 const monoFont = Roboto_Mono({ subsets: ["latin"] });
 
@@ -28,9 +29,7 @@ export default function Home() {
           <div className="appContent">
             {/* [START] Page Components - Unique Per Page */}
             {/* Path: "/" */}
-            <h1 className="h-[1600px] pt-[1600px] text-neutral-300">
-              Welcome Home!!!
-            </h1>
+            <Index />
             {/* [END] Page Components - Unique Per Page */}
           </div>
         </div>
