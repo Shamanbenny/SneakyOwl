@@ -111,7 +111,7 @@ const NavBar: React.FC = () => {
     <>
       <div>
         {/* [RESPONSIVE DESIGN] Mobile View */}
-        <div className={clientWidth <= 640 ? "block" : "hidden"}>
+        <div className={clientWidth < 640 ? "block" : "hidden"}>
           {/* [START] Copy Email Alert */}
           <CopyEmailAlert />
           {/* [END] Copy Email Alert */}
@@ -139,7 +139,7 @@ const NavBar: React.FC = () => {
                 {/* [START] Home Tab */}
                 <Link
                   href="/"
-                  className="topbar_element home-tab text-[24px] 
+                  className="topbar_element home-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={() => togglePageChange("/")}
@@ -151,7 +151,7 @@ const NavBar: React.FC = () => {
                 {/* [START] About Me */}
                 <Link
                   href="/about"
-                  className="topbar_element about-tab text-[24px] 
+                  className="topbar_element about-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={() => togglePageChange("/about")}
@@ -163,7 +163,7 @@ const NavBar: React.FC = () => {
                 {/* [START] DSA Tab */}
                 <Link
                   href="/dsa"
-                  className="topbar_element dsa-tab text-[24px] 
+                  className="topbar_element dsa-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={() => togglePageChange("/dsa")}
@@ -205,7 +205,8 @@ const NavBar: React.FC = () => {
                 onClick={() => setHamburgerMenu(hamburgerMenu ? false : true)}
               >
                 <FaBars
-                  className="mx-auto group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] dark:group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]"
+                  className="mx-auto group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] 
+                  dark:group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]"
                   size={"32"}
                 />
                 <hr
@@ -219,7 +220,7 @@ const NavBar: React.FC = () => {
         </div>
 
         {/* [RESPONSIVE DESIGN] PC View */}
-        <div className={clientWidth > 640 ? "block" : "hidden"}>
+        <div className={clientWidth >= 640 ? "block" : "hidden"}>
           {/* [START] Copy Email Alert */}
           <CopyEmailAlert />
           {/* [END] Copy Email Alert */}
@@ -227,9 +228,9 @@ const NavBar: React.FC = () => {
             <div className="flex">
               <div
                 className="sidebar fixed left-0 top-0 z-[9998] m-0 flex h-screen w-16 
-              flex-col border-neutral-900 bg-neutral-300 text-emerald-700
-              shadow-lg transition-all duration-150 ease-linear lg:w-20 
-              dark:border-emerald-500 dark:bg-neutral-900 dark:text-emerald-500"
+              flex-col border-r border-neutral-900 bg-neutral-300
+              text-emerald-700 shadow-lg transition-all duration-150 ease-linear 
+              dark:border-emerald-500 dark:bg-neutral-900 dark:text-emerald-500 lg:w-20"
               >
                 {/* [START] Logo */}
                 <div className="sidebar-icon logo group" onClick={pressLogo}>

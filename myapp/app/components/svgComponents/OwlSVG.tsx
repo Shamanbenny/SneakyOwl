@@ -1,58 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-interface Props {
-  id: number;
-  cursor: { x: number; y: number };
-  cardClass: string;
-  mouseOnCard: number;
-}
-
-const OwlSVG = ({ id, cursor, cardClass, mouseOnCard }: Props) => {
-  const [gradientCenter, setGradientCenter] = useState({
-    cx: "50%",
-    cy: "50%",
-  });
+const OwlSVG = () => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGRadialGradientElement>(null);
+  const [mouseOnCard, setMouseOnCard] = useState(false);
+  const [gradientCenter, setGradientCenter] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
-    if (mouseOnCard === id) {
-      const card = document.querySelector(`.${cardClass}`) as HTMLElement;
-      card.clientLeft;
-      const cxPercentage =
-        ((cursor.x - card.offsetLeft) / card.clientWidth) * 200 - 50;
-      const cyPercentage =
-        ((cursor.y - card.offsetTop) / card.clientHeight) * 200 - 50;
-      console.log(mouseOnCard, id, cxPercentage, cyPercentage);
-      setGradientCenter({
-        cx: `${cxPercentage}%`,
-        cy: `${cyPercentage}%`,
-      });
+    svgRef.current?.setAttribute("cx", `${gradientCenter.x}%`);
+    svgRef.current?.setAttribute("cy", `${gradientCenter.y}%`);
+  }, [gradientCenter]);
+
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    let x = event.clientX;
+    let y = event.clientY;
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const cxPercentage = ((x - rect.left) / rect.width) * 200 - 50;
+      const cyPercentage = ((y - rect.top) / rect.height) * 200 - 50;
+      setGradientCenter({ x: cxPercentage, y: cyPercentage });
     }
-  }, [cursor]);
+  };
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 480 512"
-      className="h-full w-full transition-all duration-150"
+    <div
+      className="owlCard"
+      ref={cardRef}
+      onMouseEnter={() => setMouseOnCard(true)}
+      onMouseLeave={() => setMouseOnCard(false)}
+      onMouseMove={(event) => handleMouseMove(event)}
     >
-      {/* Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com License 
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 480 512"
+        className="h-full w-full transition-all duration-150 ease-linear"
+      >
+        {/* Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com License 
           - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) */}
-      <defs>
-        <radialGradient
-          id="emeraldGradient"
-          gradientUnits="userSpaceOnUse"
-          r={"75%"}
-          cx={mouseOnCard === id ? gradientCenter.cx : "50%"}
-          cy={mouseOnCard === id ? gradientCenter.cy : "50%"}
-        >
-          {mouseOnCard === id && <stop stopColor="#10b981" />}
-          <stop offset={1} stopColor="#404040" />
-        </radialGradient>
-      </defs>
-      <path
-        className="fill-neutral-700 dark:fill-neutral-900"
-        stroke="url(#emeraldGradient)"
-        d="M313.2 47.5c1.2-13 21.3-14 36.6-8.7.9.3 26.2 9.7 19 15.2-27.9-7.4-56.4 18.2-55.6-6.5zm-201 
+        <defs>
+          <radialGradient
+            ref={svgRef}
+            id="emeraldGradient"
+            gradientUnits="userSpaceOnUse"
+            r={"75%"}
+          >
+            {mouseOnCard && <stop stopColor="#10b981" />}
+            <stop offset={1} stopColor="#404040" />
+          </radialGradient>
+        </defs>
+        <path
+          className="fill-neutral-700 dark:fill-neutral-900"
+          stroke="url(#emeraldGradient)"
+          d="M313.2 47.5c1.2-13 21.3-14 36.6-8.7.9.3 26.2 9.7 19 15.2-27.9-7.4-56.4 18.2-55.6-6.5zm-201 
           6.9c30.7-8.1 62 20 61.1-7.1-1.3-14.2-23.4-15.3-40.2-9.6-1 .3-28.7 10.5-20.9 16.7zM319.4 160c-8.8 0-16 
           7.2-16 16s7.2 16 16 16 16-7.2 16-16-7.2-16-16-16zm-159.7 0c-8.8 0-16 7.2-16 16s7.2 16 16 16 16-7.2 
           16-16-7.2-16-16-16zm318.5 163.2c-9.9 24-40.7 11-63.9-1.2-13.5 69.1-58.1 111.4-126.3 124.2.3.9-2-.1 
@@ -69,8 +70,9 @@ const OwlSVG = ({ id, cursor, cardClass, mouseOnCard }: Props) => {
           101.2 9.8 4.7 73.4 7.9 86.3-7.1 8.2-9.4 15-49.4 14.6-67.7zm52 58.3c-4.3-12.4-6-30.1-15.3-32.7-2-.5-9-.5-11 0-10 
           2.8-10.8 22.1-17 37.2 15.4 0 19.3 9.7 23.7 9.7 4.3 0 6.3-11.3 19.6-14.2zm135.7-84.7c-6.6-12.1-24.8-12.9-46.5-13.9-40.2-1.9-78.2-3.8-77.3 
           40.3-.5 18.3 5 58.3 13.2 67.8 13 14.9 76.6 11.8 86.3 7.1 15.8-7.6 36.5-78.9 24.3-101.3z"
-      />
-    </svg>
+        />
+      </svg>
+    </div>
   );
 };
 

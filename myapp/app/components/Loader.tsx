@@ -75,7 +75,7 @@ const Loader: React.FC = () => {
           }
 
           setCounter(counter + 1);
-        }, 50);
+        }, 20);
 
         if (counter == 79) {
           const currTime = new Date();

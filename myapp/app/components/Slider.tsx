@@ -1,128 +1,139 @@
-import React, { useState } from "react";
+import React, { RefObject, useEffect } from "react";
 import OwlSVG from "./svgComponents/OwlSVG";
 import Link from "next/link";
 import { togglePageChange } from "./NavBar";
-import { FaLinkedin, FaInstagram, FaGithub, FaLink } from "react-icons/fa";
-import {
-  CarouselProvider,
-  Slider as CarouselSlider,
-  Slide,
-  ButtonBack,
-  ButtonNext,
-  Dot,
-} from "pure-react-carousel";
-import "pure-react-carousel/dist/react-carousel.es.css";
+import { FaLinkedin, FaInstagram, FaGithub } from "react-icons/fa";
 
 /**
  * Slider component [CSS className used]:
  * .slider .slide .slideContent .svgCard .owlCard
  */
 
-const Slider: React.FC = () => {
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
-  const [mouseOnCard, setMouseOnCard] = useState(-1);
+interface SliderProps {
+  clientWidth: number;
+  clientHeight: number;
+}
 
-  const handleMouseMove = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-  ) => {
-    setCursor({
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
+const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
+  const carouselRef = React.createRef<HTMLDivElement>();
+  const slideNumber = 2;
+  const slideRefs: RefObject<HTMLDivElement>[] = [];
+  for (let i = 0; i < slideNumber; i++) {
+    slideRefs.push(React.createRef<HTMLDivElement>());
+  }
+
+  useEffect(() => {
+    if (clientWidth < 640) {
+      const carouselTop = (clientHeight - 700 - 58) / 2;
+      carouselRef.current?.style.setProperty("padding-top", `${carouselTop}px`);
+    } else {
+      carouselRef.current?.style.removeProperty("padding-top");
+    }
+  }, [clientHeight, clientWidth]);
 
   return (
     <>
-      <CarouselProvider
-        naturalSlideWidth={16}
-        naturalSlideHeight={8}
-        totalSlides={2}
-        touchEnabled={false}
-        dragEnabled={false}
-        isPlaying={true}
-        interval={10000}
-      >
-        <CarouselSlider>
-          <Slide index={0}>
-            <div className="slide">
-              <div className="slideContent">
-                <h1>Welcome to Benny's personal website</h1>
-                <h1 className="emerald-highlight text-emerald-700 dark:text-emerald-500">
-                  Fueled by Coffee, Powered by Code
-                </h1>
-                <div className="flex w-full">
-                  <a
-                    href="https://www.linkedin.com/in/shamanbenny/"
-                    className="group ml-auto md:mr-3 lg:mr-5"
+      <div ref={carouselRef}>
+        {/* [START] Slide 1 - slideRefs[0] */}
+        <div
+          className="mx-auto grid h-screen w-full grid-cols-1 items-center 
+          transition-all duration-150 ease-linear max-sm:max-h-[700px] max-sm:max-w-[300px] 
+          sm:max-w-[576px] sm:grid-cols-3 sm:gap-4 sm:px-5 md:max-w-[704px] md:px-5 
+          lg:max-w-[944px] lg:gap-8 lg:px-10 xl:max-w-[1200px] xl:px-[60px]"
+          ref={slideRefs[0]}
+        >
+          <div className="col-span-2 text-right max-sm:mt-5 max-sm:text-center">
+            <h1
+              className="transition-all duration-150 ease-linear max-sm:text-[1.8rem] 
+              sm:text-[2.1rem] md:text-[2.6rem] lg:text-[3.4rem] xl:text-[4.4rem]"
+            >
+              Welcome to Benny's personal website
+            </h1>
+            <h1
+              className="emerald-highlight text-emerald-700 transition-all 
+              duration-150 ease-linear dark:text-emerald-500 max-sm:text-[1.05rem] 
+              sm:text-[1.2rem] md:text-[1.5rem] lg:text-[2rem] xl:text-[2.5rem]"
+            >
+              Fueled by Coffee, Powered by Code
+            </h1>
+            <div
+              className="mt-3 flex items-center transition-all duration-150 ease-linear 
+              max-sm:mx-auto max-sm:mt-7 max-sm:w-1/2 max-sm:flex-col sm:ml-auto sm:w-3/4 
+              md:w-3/5 lg:w-1/2 xl:w-[70%]"
+            >
+              <div className="flex w-full max-sm:w-[220px]">
+                <a
+                  href="https://www.linkedin.com/in/shamanbenny/"
+                  className="group mx-auto ml-0"
+                >
+                  <FaLinkedin
+                    className="transition-all duration-150  ease-linear group-hover:scale-125 
+                  group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
+                  max-sm:w-[3rem] sm:h-10 sm:w-10 xl:h-[4rem] xl:w-[4rem]"
+                  />
+                  <span
+                    className="absolute mt-1 flex scale-y-0 items-center justify-center 
+                    text-sm transition-all duration-150 ease-linear group-hover:scale-y-100 
+                    xl:pt-3 xl:text-[1.2rem]"
                   >
-                    <FaLinkedin className="socialIcons" />
-                    <span className="socialSpans">LinkedIn</span>
-                  </a>
-                  <a
-                    href="https://www.instagram.com/shamanbenny/"
-                    className="group md:mr-3 lg:mr-5"
+                    LinkedIn
+                  </span>
+                </a>
+                <a
+                  href="https://www.instagram.com/shamanbenny/"
+                  className="group mx-auto"
+                >
+                  <FaInstagram
+                    className="transition-all duration-150  ease-linear group-hover:scale-125 
+                    group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
+                    max-sm:w-[3rem] sm:h-10 sm:w-10 xl:h-[4rem] xl:w-[4rem]"
+                  />
+                  <span
+                    className="absolute mt-1 flex scale-y-0 items-center justify-center 
+                    text-sm transition-all duration-150 ease-linear group-hover:scale-y-100 
+                    xl:pt-3 xl:text-[1.2rem]"
                   >
-                    <FaInstagram className="socialIcons" />
-                    <span className="socialSpans">Instagram</span>
-                  </a>
-                  <a
-                    href="https://github.com/Shamanbenny"
-                    className="group md:mr-3 lg:mr-5"
+                    Instagram
+                  </span>
+                </a>
+                <a
+                  href="https://github.com/Shamanbenny"
+                  className="group mx-auto max-sm:mr-0"
+                >
+                  <FaGithub
+                    className="transition-all duration-150 ease-linear group-hover:scale-125 
+                    group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
+                    max-sm:w-[3rem] sm:h-10 sm:w-10 xl:h-[4rem] xl:w-[4rem]"
+                  />
+                  <span
+                    className="absolute mt-1 flex scale-y-0 items-center justify-center 
+                    text-sm transition-all duration-150 ease-linear group-hover:scale-y-100 
+                    xl:pt-4 xl:text-[1.2rem]"
                   >
-                    <FaGithub className="socialIcons" />
-                    <span className="socialSpans">GitHub</span>
-                  </a>
-                  <Link
-                    href="/about"
-                    className="themeButton"
-                    onClick={(e) => togglePageChange("/about")}
-                  >
-                    About Me
-                  </Link>
-                </div>
+                    GitHub
+                  </span>
+                </a>
               </div>
-              <div
-                className="svgCard owlCard"
-                onMouseEnter={() => setMouseOnCard(0)}
-                onMouseLeave={() => setMouseOnCard(-1)}
-                onMouseMove={(event) => handleMouseMove(event)}
+              <Link
+                href="/about"
+                className="items-center rounded-md border border-emerald-500 bg-emerald-700 
+                  px-3 py-1 text-center text-sm text-neutral-300 transition-all duration-150 
+                  ease-linear hover:scale-110 hover:border-emerald-700 hover:bg-emerald-600 
+                  dark:border-emerald-500 dark:bg-emerald-600 dark:hover:border-emerald-700 
+                  dark:hover:bg-emerald-500 max-sm:mt-7 max-sm:w-40 max-sm:py-2 max-sm:text-[20px] 
+                  sm:mx-auto sm:ml-2 sm:mr-0 sm:h-8 sm:w-36 xl:ml-4 xl:h-10 xl:w-40 xl:py-2 xl:text-[20px]"
+                onClick={(e) => togglePageChange("/about")}
               >
-                <OwlSVG
-                  id={0}
-                  cursor={cursor}
-                  cardClass="owlCard"
-                  mouseOnCard={mouseOnCard}
-                />
-              </div>
+                About Me
+              </Link>
             </div>
-          </Slide>
-          <Slide index={1}>
-            <div className="slide-reverse">
-              <div
-                className="svgCard owlCard"
-                onMouseEnter={() => setMouseOnCard(0)}
-                onMouseLeave={() => setMouseOnCard(-1)}
-                onMouseMove={(event) => handleMouseMove(event)}
-              >
-                <OwlSVG
-                  id={0}
-                  cursor={cursor}
-                  cardClass="owlCard"
-                  mouseOnCard={mouseOnCard}
-                />
-              </div>
-              <div className="slideContent">
-                <h1>LeetCode Solution Showcase</h1>
-                <h1 className="emerald-highlight text-emerald-700 dark:text-emerald-500">
-                  Work in Progress...
-                </h1>
-              </div>
-            </div>
-          </Slide>
-        </CarouselSlider>
-        <ButtonBack>Back</ButtonBack>
-        <ButtonNext>Next</ButtonNext>
-      </CarouselProvider>
+          </div>
+          <div className="w-full text-center">
+            <OwlSVG />
+          </div>
+        </div>
+        {/* [END] Slide 1 */}
+      </div>
     </>
   );
 };

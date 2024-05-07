@@ -62,68 +62,17 @@ body *::selection {
 
 /* ---------- [END] Navbar ---------- */
 
-/* ---------- [START] Slider ---------- */
-.slide,
-.slide-reverse {
-  @apply absolute left-0 flex h-full w-full items-center px-32;
-}
-
-.slide .svgCard {
-  @apply my-14 mr-10 flex min-h-32 w-1/3 min-w-32 flex-col justify-between border border-neutral-600 bg-neutral-400 stroke-[2] p-8 hover:stroke-[4] dark:bg-neutral-800;
-
-  @apply max-w-max rounded-[25%] lg:border-2 lg:p-10 xl:mr-auto;
-}
-
-.slide-reverse .svgCard {
-  @apply my-14 ml-10 flex min-h-32 w-1/3 min-w-32 flex-col justify-between border border-neutral-600 bg-neutral-400 stroke-[2] p-8 hover:stroke-[4] dark:bg-neutral-800;
-
-  @apply max-w-max rounded-[25%] lg:border-2 lg:p-10 xl:ml-auto;
-}
-
-.slide .slideContent {
-  @apply flex w-2/3 flex-col px-10 text-right;
-
-  @apply md:px-20 lg:px-28;
-}
-
-.slide-reverse .slideContent {
-  @apply flex w-2/3 flex-col px-10 text-left;
-
-  @apply md:px-20 lg:px-28;
-}
-
-.slide .slideContent h1,
-.slide-reverse .slideContent h1 {
-  @apply pb-3 text-sm;
-
-  @apply sm:text-lg md:pb-4 md:text-2xl lg:pb-5 lg:text-4xl xl:text-5xl;
-}
-
 .emerald-highlight::selection {
   @apply bg-emerald-700/75 text-neutral-100 dark:bg-emerald-700/75 dark:text-neutral-900;
 }
 
-.socialIcons {
-  @apply relative flex h-8 min-h-8 w-8 min-w-8 transition-all duration-150 ease-linear group-hover:scale-125 group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)];
+/* ---------- [START] OwlSVG ---------- */
+.owlCard {
+  @apply my-14 mr-10 flex min-h-32 w-full min-w-32 flex-col justify-between border border-neutral-600 bg-neutral-400 stroke-[3] p-8 hover:stroke-[6] dark:bg-neutral-800;
 
-  @apply md:h-12 md:w-12 lg:mr-5 lg:h-12 lg:w-12 lg:max-w-12;
+  @apply max-w-max rounded-[25%] lg:border-2 lg:p-10 xl:mr-auto;
 }
-
-.socialSpans {
-  @apply absolute flex h-8 min-h-8 w-8 min-w-8 scale-y-0 items-center justify-center transition-all duration-150 ease-linear group-hover:scale-y-100;
-
-  @apply md:h-12 md:w-12 lg:h-12 lg:w-12 lg:max-w-12;
-}
-
-.themeButton {
-  @apply ml-4 flex min-w-24 
-              justify-center rounded-md border 
-              border-emerald-500 bg-emerald-700 px-3 
-              py-2 text-xs text-neutral-300 transition-all duration-150 ease-linear hover:scale-110 hover:border-emerald-700 hover:bg-emerald-600 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:border-emerald-700 dark:hover:bg-emerald-500;
-
-  @apply md:py-3 lg:min-w-32 lg:px-3 lg:py-3 lg:text-sm;
-}
-/* ---------- [END] Slider ---------- */
+/* ---------- [END] OwlSVG ---------- */
 
 @layer utilities {
   .text-balance {
