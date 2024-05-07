@@ -334,19 +334,25 @@ export const togglePageChange = (tab: string) => {
   document.querySelector(".topbar_element.active")?.classList.remove("active");
   switch (tab) {
     case "/":
-      document.querySelector(".home-tab")?.classList.add("active");
+      document
+        .querySelector(".navbar_element.home-tab")
+        ?.classList.add("active");
       document
         .querySelector(".topbar_element.home-tab")
         ?.classList.add("active");
       break;
     case "/about":
-      document.querySelector(".about-tab")?.classList.toggle("active");
+      document
+        .querySelector(".navbar_element.about-tab")
+        ?.classList.toggle("active");
       document
         .querySelector(".topbar_element.about-tab")
         ?.classList.add("active");
       break;
     case "/dsa":
-      document.querySelector(".dsa-tab")?.classList.toggle("active");
+      document
+        .querySelector(".navbar_element.dsa-tab")
+        ?.classList.toggle("active");
       document
         .querySelector(".topbar_element.dsa-tab")
         ?.classList.add("active");

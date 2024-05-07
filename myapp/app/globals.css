@@ -41,6 +41,10 @@ body *::selection {
   @apply dark:border-2 dark:border-emerald-500;
 }
 
+.topbar_element.active {
+  @apply underline;
+}
+
 .sidebar-tooltip {
   @apply absolute left-16 m-2 w-auto min-w-max origin-left scale-x-0 
     rounded-md bg-neutral-300 p-2 
