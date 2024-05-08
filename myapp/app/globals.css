@@ -70,13 +70,17 @@ body *::selection {
   @apply bg-emerald-700/75 text-neutral-100 dark:bg-emerald-700/75 dark:text-neutral-900;
 }
 
-/* ---------- [START] OwlSVG ---------- */
-.owlCard {
-  @apply my-14 mr-10 flex min-h-32 w-full min-w-32 flex-col justify-between border border-neutral-600 bg-neutral-400 stroke-[3] p-8 hover:stroke-[6] dark:bg-neutral-800;
+/* ---------- [START] SVG Components ---------- */
+.svgCards {
+  @apply my-14 mr-10 flex min-h-32 w-full min-w-32 flex-col justify-between border border-neutral-600 bg-neutral-400 stroke-[2] p-8 hover:stroke-[4] dark:bg-neutral-800;
 
   @apply max-w-max rounded-[25%] lg:border-2 lg:p-10 xl:mr-auto;
 }
-/* ---------- [END] OwlSVG ---------- */
+/* ---------- [END] SVG Components ---------- */
+
+.slide-left-transition {
+  transition: left 0.75s ease-in-out;
+}
 
 @layer utilities {
   .text-balance {

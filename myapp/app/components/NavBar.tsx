@@ -44,7 +44,6 @@ const NavBar: React.FC = () => {
       "hamburgerMenu",
     )[0] as HTMLElement;
     let topBarHeight = mobileTopBar?.clientHeight;
-    console.log(topBarHeight);
     if (hamburgerMenu) {
       mobileTopBar.style.top = "0px";
       hamburgerElement.style.top = topBarHeight + "px";
