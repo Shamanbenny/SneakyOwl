@@ -280,7 +280,7 @@ const NavBar: React.FC = () => {
                     className="navbar_element dsa-tab h-3/4"
                   />
                   <span className="sidebar-tooltip group-hover:scale-x-100">
-                    About Me
+                    Data Structures & Algorithms
                   </span>
                 </Link>
                 {/* [END] DSA Tab */}
