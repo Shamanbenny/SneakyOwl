@@ -38,7 +38,7 @@ body *::selection {
 
 .sidebar-icon:has(> .navbar_element.active) {
   /* Apply styles to the parent element */
-  @apply dark:border-2 dark:border-emerald-500;
+  @apply border-2 border-emerald-700 dark:border-emerald-500;
 }
 
 .topbar_element.active {
@@ -77,6 +77,32 @@ body *::selection {
   @apply max-w-max rounded-[25%] lg:border-2 lg:p-10 xl:mr-auto;
 }
 /* ---------- [END] SVG Components ---------- */
+
+/* ---------- [START] Index Background  ---------- */
+.index-bg li {
+  position: absolute;
+  display: block;
+  list-style: none;
+  animation: animate-index-bg 25s linear infinite;
+  bottom: -150px;
+
+  @apply bg-neutral-700/25 dark:bg-emerald-500/15;
+}
+
+@keyframes animate-index-bg {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+    border-radius: 0;
+  }
+
+  100% {
+    transform: translateY(-1000px) rotate(720deg);
+    opacity: 0;
+    border-radius: 50%;
+  }
+}
+/* ---------- [END] Index Background  ---------- */
 
 .slide-left-transition {
   transition: left 0.75s ease-in-out;

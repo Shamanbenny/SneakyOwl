@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Slider from "./Slider";
+import Index_BG from "./Index_BG";
 
 export const Index: React.FC = () => {
   /* AppContent Divider Size Rendering based on User's Width*/
@@ -22,6 +23,7 @@ export const Index: React.FC = () => {
 
   return (
     <>
+      <Index_BG />
       <div
         className={
           clientWidth < 640

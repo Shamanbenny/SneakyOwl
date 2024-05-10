@@ -18,3 +18,7 @@ npm install next react react-dom tailwindcss react-icons
 npm install -D prettier prettier-plugin-tailwindcss
 
 npm run dev
+
+## Useful Information
+
+rafce

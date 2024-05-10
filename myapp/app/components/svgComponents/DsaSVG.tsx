@@ -36,7 +36,7 @@ const DsaSVG = () => {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512"
-        className="h-full w-full transition-all duration-150 ease-linear hover:scale-110"
+        className="h-full w-full transition-all duration-150 ease-linear hover:scale-[105%]"
       >
         {/* [IMPT Lesson] Need to use unique radialGradient ID per SVGs*/}
         {/* <!-- Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com 
