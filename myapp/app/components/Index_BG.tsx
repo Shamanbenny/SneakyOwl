@@ -1,6 +1,18 @@
 import React from "react";
 
+/**
+ * Component that renders the Index Page Background with animated elements.
+ */
 const Index_BG = () => {
+  /**
+   * Array of objects containing information about the individual animated elements.
+   * Each object contains the following properties:
+   * - left: The left position of the element as a percentage.
+   * - size: The size of the element in pixels.
+   * - delay: The delay before the element starts animating in seconds.
+   * - duration: The duration of the animation in seconds.
+   *        If set to -1, the animated element will move up in a predefined speed.
+   */
   const array = [
     { left: 25, size: 80, delay: 0, duration: -1 },
     { left: 10, size: 20, delay: 2, duration: 12 },

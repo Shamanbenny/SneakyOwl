@@ -9,7 +9,7 @@ let enteringSound: any;
 /**
  * Loader component that displays a start-up animation.
  *
- * Session Cooldown: 24 hours
+ * Animation Cooldown via Session: 24 hours
  */
 const Loader: React.FC = () => {
   const [counter, setCounter] = useState(5);

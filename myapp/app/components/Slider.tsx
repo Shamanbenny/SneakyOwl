@@ -2,12 +2,24 @@ import React, { RefObject, useEffect, useState } from "react";
 import OwlSVG from "./svgComponents/OwlSVG";
 import Link from "next/link";
 import { togglePageChange } from "./NavBar";
-import { FaLinkedin, FaInstagram, FaGithub } from "react-icons/fa";
+import {
+  FaLinkedin,
+  FaInstagram,
+  FaGithub,
+  FaAngleLeft,
+  FaAngleRight,
+} from "react-icons/fa";
 import DsaSVG from "./svgComponents/DsaSVG";
 
 /**
- * Slider component [CSS className used]:
- * .slider .slide .slideContent .svgCard .owlCard
+ * This component represents a slider that displays multiple slides.
+ * It includes functionality to change slides automatically and adjust padding for small screens.
+ * The slides contain text and SVG components.
+ * The slider can be customized using CSS classes.
+ *
+ * Props:
+ * - clientWidth: The width of the client window
+ * - clientHeight: The height of the client window
  */
 
 interface SliderProps {
@@ -26,6 +38,10 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     slideRefs.push(React.createRef<HTMLDivElement>());
   }
 
+  const changeSlideValue = (value: number) => {
+    setCurrSlide((currSlide + value) % numberOfSlides);
+  };
+
   // On Slide Change, set the left property of the carousel to show the current slide
   // Reset any existing Timeout and set a new Timeout to change the slide after 7.5 seconds
   useEffect(() => {
@@ -34,7 +50,12 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     const id = setTimeout(() => {
       setCurrSlide((currSlide + 1) % numberOfSlides);
       console.log("Slide changed to: ", (currSlide + 1) % numberOfSlides);
-    }, 15000); // 7.5 seconds
+      if ((currSlide + 1) % numberOfSlides == 0) {
+        if (slideRefs[0].current)
+          slideRefs[0].current.children[0].children[0].textContent =
+            "Welcome to Benny's personal website";
+      }
+    }, 15000); // 15 seconds
     setTimeoutId(id);
   }, [currSlide]);
 
@@ -55,8 +76,93 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     }
   }, [clientHeight, clientWidth]);
 
+  /* [START] Mouse Over and Mouse Leave Event Handlers for Benny versus SneakyOwl (Interchangable) */
+  const mouseOverIndexBenny = () => {
+    const intendedText = "SneakyOwl";
+    let iterations = 0;
+    let iterationMinusOffset = 0;
+    const interval = setInterval(() => {
+      if (slideRefs[0].current && iterations <= 13) {
+        if (iterations > 4) iterationMinusOffset = iterations - 4;
+        if (iterations <= 4) {
+          slideRefs[0].current.children[0].children[0].textContent =
+            "Welcome to " +
+            intendedText.substring(0, iterationMinusOffset) +
+            Math.random()
+              .toString(36)
+              .substring(2, 11 - iterationMinusOffset - (4 - iterations)) +
+            "'s personal website";
+        }
+        if (iterations > 4 && iterations < 13) {
+          slideRefs[0].current.children[0].children[0].textContent =
+            "Welcome to " +
+            intendedText.substring(0, iterationMinusOffset) +
+            Math.random()
+              .toString(36)
+              .substring(2, 11 - iterationMinusOffset) +
+            "'s personal website";
+        }
+        if (iterations === 13) {
+          slideRefs[0].current.children[0].children[0].textContent =
+            "Welcome to " + intendedText + "'s personal website";
+        }
+      }
+
+      if (iterations > 13) clearInterval(interval);
+
+      iterations++;
+    }, 20);
+  };
+
+  const mouseLeaveIndexBenny = () => {
+    const intendedText = "Benny";
+    let iterations = 0;
+    let iterationMinusOffset = 0;
+    let excessTextLen = 0;
+    const interval = setInterval(() => {
+      if (slideRefs[0].current && iterations <= 9) {
+        if (iterations > 4) iterationMinusOffset = iterations - 4;
+        if (iterations < 9) {
+          slideRefs[0].current.children[0].children[0].textContent =
+            "Welcome to " +
+            intendedText.substring(0, iterationMinusOffset) +
+            Math.random()
+              .toString(36)
+              .substring(2, 11 - iterationMinusOffset - excessTextLen) +
+            "'s personal website";
+        } else {
+          slideRefs[0].current.children[0].children[0].textContent =
+            "Welcome to " + intendedText + "'s personal website";
+        }
+      }
+
+      if (iterations > 9) clearInterval(interval);
+
+      if (excessTextLen < 4) excessTextLen++;
+      iterations++;
+    }, 20);
+  };
+  /* [END] Mouse Over and Mouse Leave Event Handlers for Benny versus SneakyOwl (Interchangable) */
+
   return (
     <>
+      <div
+        className="absolute top-0 z-10 flex h-full w-[75px] cursor-pointer items-center 
+          from-emerald-700/25 to-emerald-700/0 transition-all duration-150 ease-linear 
+          hover:bg-gradient-to-r dark:from-emerald-500/10 dark:to-emerald-500/0 max-sm:left-0 
+          sm:left-[64px] lg:left-[80px]"
+        onClick={() => changeSlideValue(-1)}
+      >
+        <FaAngleLeft className="mx-auto h-[50px] w-[50px]" />
+      </div>
+      <div
+        className="absolute right-0 top-0 z-10 flex h-full w-[75px] cursor-pointer items-center 
+          from-emerald-700/25 to-emerald-700/0 transition-all duration-150 ease-linear 
+          hover:bg-gradient-to-l dark:from-emerald-500/10 dark:to-emerald-500/0"
+        onClick={() => changeSlideValue(1)}
+      >
+        <FaAngleRight className="mx-auto h-[50px] w-[50px]" />
+      </div>
       <div ref={carouselRef} className="slide-left-transition relative flex">
         {/* [START] Slide 1 - slideRefs[0] */}
         <div
@@ -68,8 +174,10 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
         >
           <div className="col-span-2 text-right max-sm:mt-5 max-sm:text-center">
             <h1
-              className="transition-all duration-150 ease-linear max-sm:text-[1.8rem] 
-              sm:text-[2.1rem] md:text-[2.6rem] lg:text-[3.4rem] xl:text-[4.4rem]"
+              className="transition-all duration-150 ease-linear max-sm:text-[1.5rem] 
+              sm:text-[2rem] md:text-[2.4rem] lg:text-[3.2rem] xl:text-[4rem]"
+              onMouseOver={() => mouseOverIndexBenny()}
+              onMouseLeave={() => mouseLeaveIndexBenny()}
             >
               Welcome to Benny's personal website
             </h1>

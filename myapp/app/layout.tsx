@@ -1,7 +1,7 @@
-import { Roboto_Mono, Poppins } from "next/font/google";
+import { Ubuntu_Mono } from "next/font/google";
 import "./globals.css";
 
-const bodyFont = Poppins({ weight: "400", subsets: ["latin"] });
+const bodyFont = Ubuntu_Mono({ weight: "400", subsets: ["latin"] });
 
 export default function RootLayout({
   children,

@@ -14,8 +14,7 @@ import {
 } from "react-icons/fa";
 
 /**
- * NavBar component [CSS className used]:
- * .sidebar .sidebar-icon .logo .navbar_element .sidebar-tooltip .sidebar-hr .successAlert
+ * NavBar Component containing the ability to navigate between pages, toggle dark mode, and copy email to clipboard.
  */
 
 const NavBar: React.FC = () => {

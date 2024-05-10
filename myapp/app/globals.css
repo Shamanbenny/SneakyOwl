@@ -78,7 +78,7 @@ body *::selection {
 }
 /* ---------- [END] SVG Components ---------- */
 
-/* ---------- [START] Index Background  ---------- */
+/* ---------- [START] Index Background ---------- */
 .index-bg li {
   position: absolute;
   display: block;
@@ -102,7 +102,7 @@ body *::selection {
     border-radius: 50%;
   }
 }
-/* ---------- [END] Index Background  ---------- */
+/* ---------- [END] Index Background ---------- */
 
 .slide-left-transition {
   transition: left 0.75s ease-in-out;
