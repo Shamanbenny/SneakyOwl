@@ -108,6 +108,44 @@ body *::selection {
   transition: left 0.75s ease-in-out;
 }
 
+/* ---------- [START] /about: Personality Animation ---------- */
+.personality-animation {
+  @apply text-neutral-950/30 dark:text-neutral-50/10;
+}
+
+.personality-animation::before {
+  content: attr(data-text);
+  position: absolute;
+  max-width: fit-content;
+  white-space: nowrap;
+  overflow: hidden;
+  @apply border-r-[#059669] text-emerald-600 dark:border-r-[#10b981] dark:text-emerald-500 max-sm:border-r-[1px] sm:border-r-[1px] md:border-r-2 lg:border-r-[3px] xxl:border-r-4;
+  filter: drop-shadow(0 0 6px) drop-shadow(0 0 24px);
+  animation:
+    personality-animate 3s linear infinite,
+    typeBlinker 0.5s steps(1) infinite;
+}
+
+@keyframes personality-animate {
+  0%,
+  5%,
+  90%,
+  100% {
+    width: 0;
+  }
+  50%,
+  60% {
+    width: 50%;
+  }
+}
+
+@keyframes typeBlinker {
+  50% {
+    border-color: transparent;
+  }
+}
+/* ---------- [END] /about: Personality Animation ---------- */
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

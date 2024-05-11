@@ -12,8 +12,6 @@ export const Index: React.FC = () => {
   useEffect(() => {
     handleResize();
     window.addEventListener("resize", handleResize);
-
-    document.body.classList.add("overflow-hidden");
   });
 
   const handleResize = () => {
@@ -27,12 +25,12 @@ export const Index: React.FC = () => {
       <div
         className={
           clientWidth < 640
-            ? `h-screen bg-neutral-300 pl-0 pt-[56px] text-neutral-900 
-            transition-colors duration-150 ease-linear dark:bg-neutral-900 
-            dark:text-neutral-300`
-            : `h-screen bg-neutral-300 pl-[64px] pt-0 text-neutral-900 
-            transition-colors duration-150 ease-linear dark:bg-neutral-900 
-            dark:text-neutral-300 lg:pl-[80px]`
+            ? `h-screen overflow-hidden bg-neutral-300 pl-0 pt-[56px] 
+            text-neutral-900 transition-colors duration-150 ease-linear 
+            dark:bg-neutral-900 dark:text-neutral-300`
+            : `h-screen overflow-hidden bg-neutral-300 pl-[64px] pt-0 
+            text-neutral-900 transition-colors duration-150 ease-linear 
+            dark:bg-neutral-900 dark:text-neutral-300 lg:pl-[80px]`
         }
       >
         <Slider clientWidth={clientWidth} clientHeight={clientHeight} />

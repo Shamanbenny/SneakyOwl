@@ -34,12 +34,14 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
   const [currSlide, setCurrSlide] = useState(0);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const slideRefs: RefObject<HTMLDivElement>[] = [];
+  let intervalArray = Array(2).fill(null);
   for (let i = 0; i < numberOfSlides; i++) {
     slideRefs.push(React.createRef<HTMLDivElement>());
   }
 
   const changeSlideValue = (value: number) => {
-    setCurrSlide((currSlide + value) % numberOfSlides);
+    if (currSlide + value < 0) setCurrSlide(numberOfSlides + value);
+    else setCurrSlide((currSlide + value) % numberOfSlides);
   };
 
   // On Slide Change, set the left property of the carousel to show the current slide
@@ -49,7 +51,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     if (timeoutId) clearTimeout(timeoutId as NodeJS.Timeout);
     const id = setTimeout(() => {
       setCurrSlide((currSlide + 1) % numberOfSlides);
-      console.log("Slide changed to: ", (currSlide + 1) % numberOfSlides);
+      // console.log("Slide changed to: ", (currSlide + 1) % numberOfSlides);
       if ((currSlide + 1) % numberOfSlides == 0) {
         if (slideRefs[0].current)
           slideRefs[0].current.children[0].children[0].textContent =
@@ -81,7 +83,9 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     const intendedText = "SneakyOwl";
     let iterations = 0;
     let iterationMinusOffset = 0;
-    const interval = setInterval(() => {
+    if (intervalArray[1]) clearInterval(intervalArray[1]);
+
+    intervalArray[0] = setInterval(() => {
       if (slideRefs[0].current && iterations <= 13) {
         if (iterations > 4) iterationMinusOffset = iterations - 4;
         if (iterations <= 4) {
@@ -108,7 +112,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
         }
       }
 
-      if (iterations > 13) clearInterval(interval);
+      if (iterations > 13) clearInterval(intervalArray[0]);
 
       iterations++;
     }, 20);
@@ -119,7 +123,9 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     let iterations = 0;
     let iterationMinusOffset = 0;
     let excessTextLen = 0;
-    const interval = setInterval(() => {
+    if (intervalArray[0]) clearInterval(intervalArray[0]);
+
+    intervalArray[1] = setInterval(() => {
       if (slideRefs[0].current && iterations <= 9) {
         if (iterations > 4) iterationMinusOffset = iterations - 4;
         if (iterations < 9) {
@@ -136,7 +142,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
         }
       }
 
-      if (iterations > 9) clearInterval(interval);
+      if (iterations > 9) clearInterval(intervalArray[1]);
 
       if (excessTextLen < 4) excessTextLen++;
       iterations++;

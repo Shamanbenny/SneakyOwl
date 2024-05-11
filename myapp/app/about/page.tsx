@@ -1,10 +1,11 @@
-import { Roboto_Mono } from "next/font/google";
+import { Roboto_Mono, Poppins } from "next/font/google";
 
 import NavBar from "../components/NavBar";
 import Loader from "../components/Loader";
 import { About } from "../components/About";
 
 const monoFont = Roboto_Mono({ subsets: ["latin"] });
+const aboutMeFont = Poppins({ weight: "400", subsets: ["latin"] });
 
 export default function Home() {
   return (
@@ -26,7 +27,7 @@ export default function Home() {
           <NavBar />
           {/* [END] NavBar Components - Repeated Per Page */}
 
-          <div className="appContent">
+          <div className={"appContent " + aboutMeFont.className}>
             {/* [START] Page Components - Unique Per Page */}
             {/* Path: "/" */}
             <About />

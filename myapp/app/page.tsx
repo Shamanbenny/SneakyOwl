@@ -14,7 +14,7 @@ export default function Home() {
         <div
           className={
             monoFont.className +
-            " loader absolute z-[9999] h-full w-full bg-neutral-900 opacity-100 transition-opacity duration-[50ms] ease-linear"
+            " loader absolute z-[9999] h-full w-full bg-neutral-900 opacity-100 transition-opacity duration-[350ms] ease-linear"
           }
         >
           <h1 className="loader_string absolute top-[45%] w-full text-center text-[2.5rem] text-emerald-500 sm:text-[4rem]"></h1>

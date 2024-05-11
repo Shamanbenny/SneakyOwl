@@ -94,7 +94,7 @@ const Loader: React.FC = () => {
 
           setTimeout(() => {
             loader.style.display = "none";
-          }, 500);
+          }, 350);
         }
 
         return () => {
