@@ -152,6 +152,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
 
   return (
     <>
+      {/* Remove the Slider Arrow Button for First and Last Slide eventually */}
       <div
         className="absolute top-0 z-10 flex h-full w-[75px] cursor-pointer items-center 
           from-emerald-700/25 to-emerald-700/0 transition-all duration-150 ease-linear 

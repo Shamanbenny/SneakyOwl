@@ -139,7 +139,7 @@ export const About: React.FC = () => {
           <div className="w-full  max-sm:mx-auto">
             <h1
               className=" max-sm:text-[1.8rem] 
-              sm:text-[1.6rem] md:text-[2rem] lg:text-[2.6rem] xl:text-[3.2rem] xxl:text-[4rem]"
+              sm:text-[1.5rem] md:text-[1.9rem] lg:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
             >
               Lee Jia Quan, Benny
             </h1>
@@ -156,8 +156,8 @@ export const About: React.FC = () => {
                   key={index}
                   ref={personalityRefs[index]}
                   className="personality-animation hidden transition-all duration-150 
-                    ease-linear max-sm:pl-[4px] max-sm:text-[1rem] sm:pl-[4px] sm:text-[14px] 
-                    md:pl-[5px] md:text-[17px] lg:pl-[7px] lg:text-[1.4rem] xl:pl-[8px] xl:text-[1.7rem] xxl:pl-[10px] xxl:text-[36px]"
+                    ease-linear max-sm:pl-[4px] max-sm:text-[1rem] sm:pl-[4px] sm:text-[13px] 
+                    md:pl-[5px] md:text-[17px] lg:pl-[7px] lg:text-[1.35rem] xl:pl-[8px] xl:text-[1.7rem] xxl:pl-[10px] xxl:text-[34px]"
                 >
                   {element}
                 </span>

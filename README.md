@@ -13,7 +13,7 @@ Customize the default import alias: No
 
 ## NPM Installed Modules
 
-npm install next react react-dom tailwindcss react-icons
+npm install next react react-dom tailwindcss react-icons aos
 
 npm install -D prettier prettier-plugin-tailwindcss
 
