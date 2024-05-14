@@ -54,7 +54,6 @@ export const About: React.FC = () => {
       else prevPersonalityIndex = personality.length - 1;
       personalityRefs[personalityIndex].current?.classList.remove("hidden");
       personalityRefs[prevPersonalityIndex].current?.classList.add("hidden");
-      // Following warning can be ignored...
       const curr_personalityRef = personalityRefs[personalityIndex].current;
       if (curr_personalityRef)
         curr_personalityRef.dataset.text = personality[personalityIndex];
