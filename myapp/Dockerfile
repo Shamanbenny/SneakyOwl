@@ -1,8 +1,8 @@
 # Use an official Node runtime as a parent image
-FROM node:14
+FROM node:20.13.1
 
 # Set the working directory in the container
-WORKDIR /home/overthrow/miscellaneous/SneakyOwl_Docker/
+WORKDIR /SneakyOwl_Docker/app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./

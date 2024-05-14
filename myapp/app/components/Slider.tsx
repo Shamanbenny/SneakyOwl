@@ -186,7 +186,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
               onMouseOver={() => mouseOverIndexBenny()}
               onMouseLeave={() => mouseLeaveIndexBenny()}
             >
-              Welcome to Benny's personal website
+              Welcome to Benny&#39;s personal website
             </h1>
             <h1
               className="emerald-highlight text-emerald-700 transition-all 

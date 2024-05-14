@@ -178,7 +178,7 @@ const AboutTimeline = () => {
             data-aos="fade-right"
             data-aos-offset="200"
           >
-            <h1>Singapore Polytechnic's Internship Program</h1>
+            <h1>Singapore Polytechnic&#39;s Internship Program</h1>
             <h2>DSO National Laboratories</h2>
             <hr
               className="rounded-full border border-neutral-900/40
@@ -316,7 +316,7 @@ const AboutTimeline = () => {
               transition-all duration-150 ease-linear dark:border-neutral-300/60"
             />
             <p>
-              For the Gryphon CTF 2020 event held by Singapore Polytechnic's
+              For the Gryphon CTF 2020 event held by Singapore Polytechnic&#39;s
               Gryphons Club, my team and I had placed 2nd out of the 41 teams
               that participated in the competition.
             </p>
@@ -395,9 +395,9 @@ const AboutTimeline = () => {
               transition-all duration-150 ease-linear dark:border-neutral-300/60"
             />
             <p>
-              Having scored well for his GCE "N"-Level Examination, I was given
-              the opportunity to go through PFP in place of taking the GCE
-              "O"-Level Examination.
+              Having scored well for his GCE &#34;N&#34;-Level Examination, I
+              was given the opportunity to go through PFP in place of taking the
+              GCE &#34;O&#34;-Level Examination.
             </p>
           </div>
         </div>
@@ -408,7 +408,7 @@ const AboutTimeline = () => {
             data-aos="fade-right"
             data-aos-offset="200"
           >
-            <h1>GCE "N"-Level Examination</h1>
+            <h1>GCE &#34;N&#34;-Level Examination</h1>
             <h2>Greenridge Secondary School</h2>
             <hr
               className="rounded-full border border-neutral-900/40

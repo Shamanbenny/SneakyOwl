@@ -1,6 +1,7 @@
 "use client";
 
 import React, { RefObject, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   FaAngleRight,
   FaGithub,
@@ -129,8 +130,10 @@ export const About: React.FC = () => {
             lg:gap-8 lg:px-10 xl:min-h-[700px] xl:max-w-[1200px] xl:px-[60px] xxl:min-h-[810px] xxl:max-w-[1520px] xxl:px-[80px]"
         >
           <div className="flex h-full w-full items-center justify-center text-center duration-0 max-sm:flex sm:hidden">
-            <img
+            <Image
               src="/sneakyOwl_1.jpg"
+              width={512}
+              height={512}
               alt="Profile Picture"
               className="h-[250px] w-[250px] rounded-[50%] duration-0 max-sm:mt-[100px] md:h-[310px] md:w-[310px] 
                 lg:h-[400px] lg:w-[400px] xl:h-[512px] xl:w-[512px] xl:scale-100 xxl:scale-125"
@@ -149,7 +152,7 @@ export const About: React.FC = () => {
                 className=" 
                 dark:text-neutral-400 max-sm:text-[1rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
               >
-                I'm
+                I&#39;m
               </h1>
               {personality.map((element, index) => (
                 <span
@@ -218,8 +221,10 @@ export const About: React.FC = () => {
             </div>
           </div>
           <div className="h-full w-full items-center justify-center text-center duration-0 max-sm:hidden sm:flex">
-            <img
+            <Image
               src="/sneakyOwl_1.jpg"
+              width={512}
+              height={512}
               alt="Profile Picture"
               className="h-[250px] w-[250px] rounded-[50%] duration-0 md:h-[310px] md:w-[310px] 
                 lg:h-[400px] lg:w-[400px] xl:h-[512px] xl:w-[512px] xl:scale-100 xxl:scale-125"
@@ -269,12 +274,13 @@ export const About: React.FC = () => {
               the vast amount of knowledge made available to us. As I pursue my
               degree in Information Security, my goal is to integrate my
               academic learning with its application in the real world.
-              Throughout my educational journey, I've discovered a passion for
-              educating others, sparking interest in subjects they may initially
-              find irrelevant. Through engaging and meaningful discussions, I've
-              helped others develop a greater understanding and appreciation for
-              topics such as Data Structure & Algorithms, Machine Learning/LLMs,
-              and basic Programming principles.
+              Throughout my educational journey, I&#39;ve discovered a passion
+              for educating others, sparking interest in subjects they may
+              initially find irrelevant. Through engaging and meaningful
+              discussions, I&#39;ve helped others develop a greater
+              understanding and appreciation for topics such as Data Structure &
+              Algorithms, Machine Learning/LLMs, and basic Programming
+              principles.
             </p>
           </div>
         </div>
