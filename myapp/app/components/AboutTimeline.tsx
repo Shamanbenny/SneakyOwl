@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { time } from "console";
 /**
  * AboutTimeline.tsx
  * Relies heavily on two alternating CSS classes to style the timeline.
@@ -20,8 +19,9 @@ const AboutTimeline = () => {
     window.addEventListener("resize", handleResize);
   });
 
-  const timelineWrapper = useRef<HTMLDivElement>(null);
   const timelineDiv = useRef<HTMLDivElement>(null);
+  const timelineDivSmall = useRef<HTMLDivElement>(null);
+  const timelineLineFix = useRef<HTMLDivElement>(null);
   const timelineLine = useRef<HTMLDivElement>(null);
   const handleResize = () => {
     const clientWidth = window.innerWidth;
@@ -39,7 +39,7 @@ const AboutTimeline = () => {
       let clientDivHeight = 0;
       let clientDivTop = 0;
 
-      console.log("clientMediaWidth: ", clientMediaWidth);
+      //console.log("clientMediaWidth: ", clientMediaWidth);
 
       switch (clientMediaWidth) {
         case "xxl":
@@ -58,394 +58,295 @@ const AboutTimeline = () => {
           topOffset = 130;
           btmOffset = 100;
           break;
+        case "sm":
+          topOffset = 105;
+          btmOffset = 90;
+          break;
+        case "max-sm":
+          topOffset = 140;
+          btmOffset = 130;
+          break;
         default:
           topOffset = 0;
           btmOffset = 0;
       }
-
-      if (timelineDiv.current) {
-        clientDivHeight = timelineDiv.current.clientHeight;
-        clientDivTop = timelineDiv.current.offsetTop;
+      if (clientMediaWidth === "max-sm" || clientMediaWidth === "sm") {
+        if (timelineDivSmall.current) {
+          clientDivHeight = timelineDivSmall.current.clientHeight;
+          clientDivTop = timelineDivSmall.current.offsetTop;
+        }
+      } else {
+        if (timelineDiv.current) {
+          clientDivHeight = timelineDiv.current.clientHeight;
+          clientDivTop = timelineDiv.current.offsetTop;
+        }
       }
-      timelineLine.current?.style.setProperty(
-        "height",
-        `${clientDivHeight - topOffset - btmOffset}px`,
-      );
-      timelineLine.current?.style.setProperty(
-        "top",
-        `${clientDivTop + topOffset}px`,
-      );
-      timelineWrapper.current?.style.setProperty(
-        "max-width",
-        `${clientDivHeight}px`,
-      );
     }
   };
 
+  const timelineData = [
+    {
+      title: "B.Comp in Information Security",
+      subtitle: "National University of Singapore (NUS)",
+      content: `Teaching Assistant for CS2040C Since AY2023/24 Semester 2\n\nDistinction in CS2107`,
+      year: "Ongoing (2023 - 2027)",
+      icon: <FaGraduationCap />,
+      color: "bg-emerald-500 dark:bg-emerald-600",
+      position: "left",
+    },
+    {
+      title: "Part-time Software Engineer",
+      subtitle: "DSO National Laboratories",
+      content:
+        "Developed Web App for use by DSO to maximize work flow efficiency.\n\nSkills involved: PhpMyAdmin, AMPPS, Flask",
+      year: "2021",
+      icon: <FaBriefcase />,
+      color: "bg-teal-500 dark:bg-teal-600",
+      position: "right",
+    },
+    {
+      title: `Singapore Polytechnic's Internship Program`,
+      subtitle: "DSO National Laboratories",
+      content:
+        "R&D of commonly used Key Derivation Functions (KDFs) on a Field Programmable Gate Array (FPGA) using VHDL\n\nSkills involved: Cryptography, VHDL, FPGA",
+      year: "2021",
+      icon: <FaBriefcase />,
+      color: "bg-teal-500 dark:bg-teal-600",
+      position: "left",
+    },
+    {
+      title: "Manager, Talent Development Team",
+      subtitle: "Cyber Youth Singapore (CYS)",
+      content:
+        "Volunteering as part of the Talent Development Team for Cyber Youth Singapore, to help create and organize opportunity to allow youths a platform for them to learn more and develop their interest in the Cyber Security Sector.",
+      year: "2020",
+      icon: <FaBriefcase />,
+      color: "bg-teal-500 dark:bg-teal-600",
+      position: "right",
+    },
+    {
+      title: "CDDC 2020 CTF, 36th place",
+      subtitle: "Cyber Defenders Discovery Camp (CDDC)",
+      content:
+        "For the CDDC 2020 CTF competition, a well-known event organized by DSTA, my team and I had placed 36th out of 237 teams that participated.",
+      year: "2020",
+      icon: <FaFlag />,
+      color: "bg-cyan-500 dark:bg-cyan-600",
+      position: "left",
+    },
+    {
+      title: "Gryphons CTF 2020, 2nd place",
+      subtitle: "Singapore Polytechnic Gryphons",
+      content:
+        "For the Gryphon CTF 2020 event held by Singapore Polytechnic&#39;s Gryphons Club, my team and I had placed 2nd out of the 41 teams that participated in the competition.",
+      year: "2020",
+      icon: <FaFlag />,
+      color: "bg-cyan-500 dark:bg-cyan-600",
+      position: "right",
+    },
+    {
+      title: "Diploma in Infocomm Security Management",
+      subtitle: "Singapore Polytechnic",
+      content:
+        "Club Activity: SP Photography and SP Inline Skating\n\nDistinction in Web Client Development, Programming in Python and C, Database Management Systems and Social Innovation Project\n\nCumulative GPA: 3.696",
+      year: "2018 - 2021",
+      icon: <FaGraduationCap />,
+      color: "bg-emerald-500 dark:bg-emerald-600",
+      position: "left",
+    },
+    {
+      title: "Polytechnic Foundation Program (PFP)",
+      subtitle: "Singapore Polytechnic",
+      content:
+        "Having scored well for his GCE &#34;N&#34;-Level Examination, I was given the opportunity to go through PFP in place of taking the GCE &#34;O&#34;-Level Examination.",
+      year: "2017",
+      icon: <FaGraduationCap />,
+      color: "bg-emerald-500 dark:bg-emerald-600",
+      position: "right",
+    },
+    {
+      title: `GCE "N"-Level Examination`,
+      subtitle: "Greenridge Secondary School",
+      content: "Club Activity: GSS Chinese Orchestra\n\nResults: EMB3 of 6",
+      year: "2013 - 2016",
+      icon: <FaGraduationCap />,
+      color: "bg-emerald-500 dark:bg-emerald-600",
+      position: "left",
+    },
+  ];
+
   return (
     <div
-      className="mx-auto mb-10 flex flex-col 
-        transition-all duration-150 ease-linear max-sm:w-[400px] sm:w-[560px] md:w-[680px] 
+      className="mx-auto flex flex-col pb-10 
+         max-sm:w-[400px] sm:w-[560px] md:w-[680px] 
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
-      ref={timelineWrapper}
     >
       <h1
-        className="mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-center text-[1.4rem] transition-all duration-150 ease-linear dark:border-neutral-300 
+        className="z-[6] mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-center text-[1.4rem]  dark:border-neutral-300 
           max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
       >
         Timeline
       </h1>
-      <div ref={timelineDiv}>
-        {/* [START] Timeline Repeatable Components */}
-        <div className="about-timeline-left about-timeline-div">
-          <div
-            className="timeline-content bg-emerald-500 dark:bg-emerald-600"
-            data-aos="fade-right"
-            data-aos-offset="200"
-          >
-            <h1>B.Comp in Information Security</h1>
-            <h2>National University of Singapore (NUS)</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              Teaching Assistant for CS2040C Since AY2023/24 Semester 2<br />
-              <br />
-              Distinction in CS2107
-            </p>
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-right"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-emerald-500 dark:bg-emerald-600"></div>
-          </div>
-          <div
-            className="timeline-icon bg-emerald-500 dark:bg-emerald-600"
-            data-aos="zoom-in"
-          >
-            <FaGraduationCap />
-          </div>
-          <h1 className="timeline-time" data-aos="fade-left">
-            Ongoing (2023 - 2027)
-          </h1>
-        </div>
-
-        <div className="about-timeline-right about-timeline-div">
-          <h1 className="timeline-time" data-aos="fade-right">
-            2021
-          </h1>
-          <div
-            className="timeline-icon bg-teal-500 dark:bg-teal-600"
-            data-aos="zoom-in"
-          >
-            <FaBriefcase />
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-left"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-teal-500 dark:bg-teal-600"></div>
-          </div>
-          <div
-            className="timeline-content bg-teal-500 dark:bg-teal-600"
-            data-aos="fade-left"
-            data-aos-offset="200"
-          >
-            <h1>Part-time Software Engineer</h1>
-            <h2>DSO National Laboratories</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              Developed Web App for use by DSO to maximize work flow efficiency.
-              <br />
-              <br />
-              Skills involved: PhpMyAdmin, AMPPS, Flask
-            </p>
-          </div>
-        </div>
-
-        <div className="about-timeline-left about-timeline-div">
-          <div
-            className="timeline-content bg-teal-500 dark:bg-teal-600"
-            data-aos="fade-right"
-            data-aos-offset="200"
-          >
-            <h1>Singapore Polytechnic&#39;s Internship Program</h1>
-            <h2>DSO National Laboratories</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              R&D of commonly used Key Derivation Functions (KDFs) on a Field
-              Programmable Gate Array (FPGA) using VHDL
-              <br />
-              <br />
-              Skills involved: Cryptography, VHDL, FPGA
-            </p>
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-right"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-teal-500 dark:bg-teal-600"></div>
-          </div>
-          <div
-            className="timeline-icon bg-teal-500 dark:bg-teal-600"
-            data-aos="zoom-in"
-          >
-            <FaBriefcase />
-          </div>
-          <h1 className="timeline-time" data-aos="fade-left">
-            2021
-          </h1>
-        </div>
-
-        <div className="about-timeline-right about-timeline-div">
-          <h1 className="timeline-time" data-aos="fade-right">
-            2020
-          </h1>
-          <div
-            className="timeline-icon bg-teal-500 dark:bg-teal-600"
-            data-aos="zoom-in"
-          >
-            <FaBriefcase />
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-left"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-teal-500 dark:bg-teal-600"></div>
-          </div>
-          <div
-            className="timeline-content bg-teal-500 dark:bg-teal-600"
-            data-aos="fade-left"
-            data-aos-offset="200"
-          >
-            <h1>Manager, Talent Development Team</h1>
-            <h2>Cyber Youth Singapore (CYS)</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              Volunteering as part of the Talent Development Team for Cyber
-              Youth Singapore, to help create and organize opportunity to allow
-              youths a platform for them to learn more and develop their
-              interest in the Cyber Security Sector.
-            </p>
-          </div>
-        </div>
-
-        <div className="about-timeline-left about-timeline-div">
-          <div
-            className="timeline-content bg-cyan-500 dark:bg-cyan-600"
-            data-aos="fade-right"
-            data-aos-offset="200"
-          >
-            <h1>CDDC 2020 CTF, 36th place</h1>
-            <h2>Cyber Defenders Discovery Camp (CDDC)</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              For the CDDC 2020 CTF competition, a well-known event organized by
-              DSTA, my team and I had placed 36th out of 237 teams that
-              participated.
-            </p>
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-right"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-cyan-500 dark:bg-cyan-600"></div>
-          </div>
-          <div
-            className="timeline-icon bg-cyan-500 dark:bg-cyan-600"
-            data-aos="zoom-in"
-          >
-            <FaFlag />
-          </div>
-          <h1 className="timeline-time" data-aos="fade-left">
-            2020
-          </h1>
-        </div>
-
-        <div className="about-timeline-right about-timeline-div">
-          <h1 className="timeline-time" data-aos="fade-right">
-            2020
-          </h1>
-          <div
-            className="timeline-icon bg-cyan-500 dark:bg-cyan-600"
-            data-aos="zoom-in"
-          >
-            <FaFlag />
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-left"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-cyan-500 dark:bg-cyan-600"></div>
-          </div>
-          <div
-            className="timeline-content bg-cyan-500 dark:bg-cyan-600"
-            data-aos="fade-left"
-            data-aos-offset="200"
-          >
-            <h1>Gryphons CTF 2020, 2nd place</h1>
-            <h2>Singapore Polytechnic Gryphons</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              For the Gryphon CTF 2020 event held by Singapore Polytechnic&#39;s
-              Gryphons Club, my team and I had placed 2nd out of the 41 teams
-              that participated in the competition.
-            </p>
-          </div>
-        </div>
-
-        <div className="about-timeline-left about-timeline-div">
-          <div
-            className="timeline-content bg-emerald-500 dark:bg-emerald-600"
-            data-aos="fade-right"
-            data-aos-offset="200"
-          >
-            <h1>Diploma in Infocomm Security Management</h1>
-            <h2>Singapore Polytechnic</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              Club Activity: SP Photography and SP Inline Skating
-              <br />
-              <br />
-              Distinction in Web Client Development, Programming in Python and
-              C, Database Management Systems and Social Innovation Project
-              <br />
-              <br />
-              Cumulative GPA: 3.696
-            </p>
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-right"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-emerald-500 dark:bg-emerald-600"></div>
-          </div>
-          <div
-            className="timeline-icon bg-emerald-500 dark:bg-emerald-600"
-            data-aos="zoom-in"
-          >
-            <FaGraduationCap />
-          </div>
-          <h1 className="timeline-time" data-aos="fade-left">
-            2018 - 2021
-          </h1>
-        </div>
-
-        <div className="about-timeline-right about-timeline-div">
-          <h1 className="timeline-time" data-aos="fade-right">
-            2013 - 2016
-          </h1>
-          <div
-            className="timeline-icon bg-emerald-500 dark:bg-emerald-600"
-            data-aos="zoom-in"
-          >
-            <FaGraduationCap />
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-left"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-emerald-500 dark:bg-emerald-600"></div>
-          </div>
-          <div
-            className="timeline-content bg-emerald-500 dark:bg-emerald-600"
-            data-aos="fade-left"
-            data-aos-offset="200"
-          >
-            <h1>Polytechnic Foundation Program (PFP)</h1>
-            <h2>Singapore Polytechnic</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              Having scored well for his GCE &#34;N&#34;-Level Examination, I
-              was given the opportunity to go through PFP in place of taking the
-              GCE &#34;O&#34;-Level Examination.
-            </p>
-          </div>
-        </div>
-
-        <div className="about-timeline-left about-timeline-div">
-          <div
-            className="timeline-content bg-emerald-500 dark:bg-emerald-600"
-            data-aos="fade-right"
-            data-aos-offset="200"
-          >
-            <h1>GCE &#34;N&#34;-Level Examination</h1>
-            <h2>Greenridge Secondary School</h2>
-            <hr
-              className="rounded-full border border-neutral-900/40
-              transition-all duration-150 ease-linear dark:border-neutral-300/60"
-            />
-            <p>
-              Club Activity: GSS Chinese Orchestra
-              <br />
-              <br />
-              Results: EMB3 of 6
-            </p>
-          </div>
-          <div
-            className="timeline-arrow"
-            data-aos="fade-right"
-            data-aos-delay="500"
-            data-aos-duration="100"
-          >
-            <div className="bg-emerald-500 dark:bg-emerald-600"></div>
-          </div>
-          <div
-            className="timeline-icon bg-emerald-500 dark:bg-emerald-600"
-            data-aos="zoom-in"
-          >
-            <FaGraduationCap />
-          </div>
-          <h1 className="timeline-time" data-aos="fade-left">
-            2018 - 2021
-          </h1>
-        </div>
+      <div
+        ref={timelineDiv}
+        className="z-[5] bg-gradient-to-r from-transparent from-[49.8%] via-neutral-900 via-[50%] to-transparent to-[50.2%] dark:via-neutral-300 max-md:hidden md:block"
+      >
+        {/* [START] Timeline Repeatable Components for "md+" view */}
+        {timelineData.map((data, index) =>
+          data.position === "left" ? (
+            <div
+              key={index}
+              className={
+                "about-timeline-left about-timeline-div about-timeline-idx-" +
+                index
+              }
+            >
+              <div
+                className={"timeline-content " + data.color}
+                data-aos="fade-right"
+                data-aos-offset="200"
+              >
+                <h1>{data.title}</h1>
+                <h2>{data.subtitle}</h2>
+                <hr
+                  className="rounded-full border border-neutral-900/40
+                   dark:border-neutral-300/60"
+                />
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: data.content.split("\n").join("<br />"),
+                  }}
+                ></p>
+              </div>
+              <div
+                className="timeline-arrow"
+                data-aos="fade-right"
+                data-aos-delay="500"
+                data-aos-duration="100"
+              >
+                <div className={data.color}></div>
+              </div>
+              <div className={"timeline-icon " + data.color} data-aos="zoom-in">
+                {data.icon}
+              </div>
+              <h1 className="timeline-time" data-aos="fade-left">
+                {data.year}
+              </h1>
+            </div>
+          ) : (
+            <div
+              key={index}
+              className={
+                "about-timeline-right about-timeline-div about-timeline-idx-" +
+                index
+              }
+            >
+              <h1 className="timeline-time" data-aos="fade-right">
+                {data.year}
+              </h1>
+              <div className={"timeline-icon " + data.color} data-aos="zoom-in">
+                {data.icon}
+              </div>
+              <div
+                className="timeline-arrow"
+                data-aos="fade-left"
+                data-aos-delay="500"
+                data-aos-duration="100"
+              >
+                <div className={data.color}></div>
+              </div>
+              <div
+                className={"timeline-content " + data.color}
+                data-aos="fade-left"
+                data-aos-offset="200"
+              >
+                <h1>{data.title}</h1>
+                <h2>{data.subtitle}</h2>
+                <hr
+                  className="rounded-full border border-neutral-900/40
+               dark:border-neutral-300/60"
+                />
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: data.content.split("\n").join("<br />"),
+                  }}
+                ></p>
+              </div>
+            </div>
+          ),
+        )}
         {/* [END] Timeline Repeatable Components */}
       </div>
+
       <div
-        className="absolute z-[1] h-screen border-r-4 border-neutral-900 dark:border-neutral-300 max-sm:w-[200px] 
-        sm:w-[280px] md:w-[340px] lg:w-[455px] xl:w-[580px] xxl:w-[740px]"
-        ref={timelineLine}
-      ></div>
+        ref={timelineDivSmall}
+        className="z-[7] bg-gradient-to-r from-transparent via-neutral-900 to-transparent dark:via-neutral-300 max-md:block max-sm:from-[69.6%] max-sm:via-[70%] max-sm:to-[70.4%] sm:from-[70.3%] sm:via-[70.6%] sm:to-[70.9%] md:hidden"
+      >
+        {/* [START] Timeline Repeatable Components for "max-md" view */}
+        {timelineData.map((data, index) => (
+          <div
+            key={index}
+            className={
+              "about-timeline-small about-timeline-idx-" +
+              index +
+              " mx-auto my-3 flex w-full flex-row"
+            }
+          >
+            <div
+              className={
+                data.color +
+                " z-[7] rounded-md p-2 max-sm:min-w-[235px] max-sm:max-w-[235px] sm:min-w-[350px] sm:max-w-[350px]"
+              }
+              data-aos="fade-right"
+              data-aos-offset="200"
+            >
+              <h1 className="mb-1 text-[1.2rem] font-bold  dark:drop-shadow-[0_0_2px]">
+                {data.title}
+              </h1>
+              <h2 className="mb-1">{data.subtitle}</h2>
+              <hr
+                className="rounded-full border border-neutral-900/40
+                   dark:border-neutral-300/60"
+              />
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: data.content.split("\n").join("<br />"),
+                }}
+                className="mt-1"
+              ></p>
+            </div>
+            <div
+              className="my-auto "
+              data-aos="fade-right"
+              data-aos-delay="500"
+              data-aos-duration="100"
+            >
+              <div
+                className={
+                  data.color +
+                  " relative left-[-12px] z-[6] h-[20px] w-[20px] rotate-45"
+                }
+              ></div>
+            </div>
+            <div
+              className={
+                data.color +
+                " timeline-icon z-[8] my-auto h-fit rounded-[50%] border-4 border-neutral-900 p-2 dark:border-neutral-300"
+              }
+              data-aos="zoom-in"
+            >
+              {data.icon}
+            </div>
+            <h1
+              className="my-auto ml-[10px] text-left text-[1rem]"
+              data-aos="fade-left"
+            >
+              {data.year}
+            </h1>
+          </div>
+        ))}
+        {/* [END] Timeline Repeatable Components */}
+      </div>
     </div>
   );
 };

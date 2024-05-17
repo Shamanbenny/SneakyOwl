@@ -9,6 +9,7 @@ import {
   FaLinkedin,
 } from "react-icons/fa";
 import AboutTimeline from "./AboutTimeline";
+import About_BG from "./About_BG";
 
 export const About: React.FC = () => {
   /* AppContent Divider Size Rendering based on User's Width*/
@@ -61,7 +62,7 @@ export const About: React.FC = () => {
   }, [personalityIndex]);
   /* [END] Array of string for iterating personality */
 
-  /* [START] Introduction Span */
+  /* [START] Introduction & Career Objective Collapsible Text */
   const introDivRef = useRef<HTMLDivElement>(null);
   const onClickIntro = () => {
     if (introDivRef.current) {
@@ -80,8 +81,10 @@ export const About: React.FC = () => {
       introDivRef.current.children[0].children[0].classList.toggle(
         "rounded-b-md",
       );
-      introDivRef.current.children[1].classList.toggle("max-h-0");
-      introDivRef.current.children[1].classList.toggle("max-h-[500px]");
+
+      const collapsibleElement = introDivRef.current.children[1];
+      collapsibleElement.classList.toggle("max-h-0");
+      collapsibleElement.classList.toggle("max-h-[500px]");
     }
   };
   const careerObjDivRef = useRef<HTMLDivElement>(null);
@@ -102,23 +105,25 @@ export const About: React.FC = () => {
       careerObjDivRef.current.children[0].children[0].classList.toggle(
         "rounded-b-md",
       );
-      careerObjDivRef.current.children[1].classList.toggle("max-h-0");
-      careerObjDivRef.current.children[1].classList.toggle("max-h-[500px]");
+      const collapsibleElement = careerObjDivRef.current.children[1];
+      collapsibleElement.classList.toggle("max-h-0");
+      collapsibleElement.classList.toggle("max-h-[500px]");
     }
   };
-  /* [END] Introduction Span */
+  /* [END] Introduction & Career Objective Collapsible Text */
 
   return (
     <>
+      <About_BG />
       <div
         className={
           clientWidth < 640
-            ? `h-full min-h-screen bg-neutral-300 pl-0 pt-[56px] text-neutral-900 
-            transition-colors duration-150 ease-linear dark:bg-neutral-900 
-            dark:text-neutral-300`
-            : `h-full min-h-screen bg-neutral-300 pl-[64px] pt-0 text-neutral-900 
-            transition-colors duration-150 ease-linear dark:bg-neutral-900 
-            dark:text-neutral-300 lg:pl-[80px]`
+            ? `z-[-1] h-full min-h-screen bg-neutral-300 pl-0 pt-[56px] 
+            text-neutral-900 transition-colors duration-150 ease-linear 
+            dark:bg-neutral-900 dark:text-neutral-300`
+            : `z-[-1] h-full min-h-screen bg-neutral-300 pl-[64px] pt-0 
+            text-neutral-900 transition-colors duration-150 ease-linear 
+            dark:bg-neutral-900 dark:text-neutral-300 lg:pl-[80px]`
         }
       >
         {/* [START] About Me Hero Banner */}
@@ -234,7 +239,7 @@ export const About: React.FC = () => {
         {/* [END] About Me Hero Banner */}
 
         {/* [START] Introduction Span */}
-        <div ref={introDivRef} className="mb-5">
+        <div ref={introDivRef} className="z-[5] mb-5">
           <div
             className="group mx-auto flex cursor-pointer items-center text-center transition-all 
               duration-150 ease-linear max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
@@ -242,11 +247,11 @@ export const About: React.FC = () => {
             onClick={onClickIntro}
           >
             <h1
-              className="mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 py-1 
-              text-[1.4rem] transition-all duration-150 ease-linear group-hover:bg-emerald-600 
-              dark:bg-emerald-600 group-hover:dark:bg-emerald-500 lg:text-[1.8rem] xl:rounded-b-lg 
-              xl:rounded-t-lg xl:py-1.5 xl:text-[2rem] xxl:rounded-b-xl xxl:rounded-t-xl xxl:py-2 
-              xxl:text-[2.4rem]"
+              className="z-[5] mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 
+              py-1 text-[1.4rem] transition-all duration-150 ease-linear 
+              group-hover:bg-emerald-600 dark:bg-emerald-600 group-hover:dark:bg-emerald-500 lg:text-[1.8rem] 
+              xl:rounded-b-lg xl:rounded-t-lg xl:py-1.5 xl:text-[2rem] xxl:rounded-b-xl xxl:rounded-t-xl 
+              xxl:py-2 xxl:text-[2.4rem]"
             >
               Introduction
             </h1>
@@ -287,7 +292,7 @@ export const About: React.FC = () => {
         {/* [END] Introduction Span */}
 
         {/* [START] Career Objective Span */}
-        <div ref={careerObjDivRef} className="mb-5">
+        <div ref={careerObjDivRef} className="z-[5] mb-5">
           <div
             className="group mx-auto flex cursor-pointer items-center text-center transition-all 
               duration-150 ease-linear max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
@@ -319,9 +324,9 @@ export const About: React.FC = () => {
             max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
           >
             <p
-              className="rounded-b-md bg-neutral-400 px-[24px] py-2 text-justify 
-              dark:bg-neutral-800 lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] xl:py-4 
-              xl:text-[1.1rem] xxl:rounded-b-xl xxl:py-5 xxl:text-xl"
+              className="z-[5] rounded-b-md bg-neutral-400 px-[24px] py-2 
+              text-justify dark:bg-neutral-800 lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] 
+              xl:py-4 xl:text-[1.1rem] xxl:rounded-b-xl xxl:py-5 xxl:text-xl"
             >
               I firmly believe in the importance of exploring various aspects of
               cybersecurity rather than confining myself to a single area. My
