@@ -88,7 +88,7 @@ const AboutTimeline = () => {
     {
       title: "B.Comp in Information Security",
       subtitle: "National University of Singapore (NUS)",
-      content: `Teaching Assistant for CS2040C Since AY2023/24 Semester 2\n\nDistinction in CS2107`,
+      content: `Teaching Assistant for CS2040C Since AY2023/24 Semester 2.\n\nDistinction in CS2107`,
       year: "Ongoing (2023 - 2027)",
       icon: <FaGraduationCap />,
       color: "bg-emerald-500 dark:bg-emerald-600",
@@ -108,7 +108,7 @@ const AboutTimeline = () => {
       title: `Singapore Polytechnic's Internship Program`,
       subtitle: "DSO National Laboratories",
       content:
-        "R&D of commonly used Key Derivation Functions (KDFs) on a Field Programmable Gate Array (FPGA) using VHDL\n\nSkills involved: Cryptography, VHDL, FPGA",
+        "R&D of commonly used Key Derivation Functions (KDFs) on a Field Programmable Gate Array (FPGA) using VHDL.\n\nSkills involved: Cryptography, VHDL, FPGA",
       year: "2021",
       icon: <FaBriefcase />,
       color: "bg-teal-500 dark:bg-teal-600",
@@ -137,8 +137,7 @@ const AboutTimeline = () => {
     {
       title: "Gryphons CTF 2020, 2nd place",
       subtitle: "Singapore Polytechnic Gryphons",
-      content:
-        "For the Gryphon CTF 2020 event held by Singapore Polytechnic&#39;s Gryphons Club, my team and I had placed 2nd out of the 41 teams that participated in the competition.",
+      content: `For the Gryphon CTF 2020 event held by Singapore Polytechnic's Gryphons Club, my team and I had placed 2nd out of the 41 teams that participated in the competition.`,
       year: "2020",
       icon: <FaFlag />,
       color: "bg-cyan-500 dark:bg-cyan-600",
@@ -148,7 +147,7 @@ const AboutTimeline = () => {
       title: "Diploma in Infocomm Security Management",
       subtitle: "Singapore Polytechnic",
       content:
-        "Club Activity: SP Photography and SP Inline Skating\n\nDistinction in Web Client Development, Programming in Python and C, Database Management Systems and Social Innovation Project\n\nCumulative GPA: 3.696",
+        "Club Activity: SP Photography and SP Inline Skating.\n\nDistinction in Web Client Development, Programming in Python and C, Database Management Systems and Social Innovation Project.\n\nCumulative GPA: 3.696",
       year: "2018 - 2021",
       icon: <FaGraduationCap />,
       color: "bg-emerald-500 dark:bg-emerald-600",
@@ -167,7 +166,7 @@ const AboutTimeline = () => {
     {
       title: `GCE "N"-Level Examination`,
       subtitle: "Greenridge Secondary School",
-      content: "Club Activity: GSS Chinese Orchestra\n\nResults: EMB3 of 6",
+      content: "Club Activity: GSS Chinese Orchestra.\n\nResults: EMB3 of 6",
       year: "2013 - 2016",
       icon: <FaGraduationCap />,
       color: "bg-emerald-500 dark:bg-emerald-600",
@@ -177,8 +176,8 @@ const AboutTimeline = () => {
 
   return (
     <div
-      className="mx-auto flex flex-col pb-10 
-         max-sm:w-[400px] sm:w-[560px] md:w-[680px] 
+      className="max-xs:w-[230px] mx-auto flex flex-col 
+        pb-10 max-sm:w-[300px] sm:w-[560px] md:w-[680px] 
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
     >
       <h1
@@ -280,9 +279,10 @@ const AboutTimeline = () => {
 
       <div
         ref={timelineDivSmall}
-        className="z-[7] bg-gradient-to-r from-transparent via-neutral-900 to-transparent dark:via-neutral-300 max-md:block max-sm:from-[69.6%] max-sm:via-[70%] max-sm:to-[70.4%] sm:from-[70.3%] sm:via-[70.6%] sm:to-[70.9%] md:hidden"
+        className="max-xs:from-[71.4%] max-xs:via-[72%] max-xs:to-[72.6%] z-[7] bg-gradient-to-r from-transparent via-neutral-900 to-transparent 
+          dark:via-neutral-300 max-md:block max-sm:from-[69.6%] max-sm:via-[70%] max-sm:to-[70.4%] sm:from-[70.3%] sm:via-[70.6%] sm:to-[70.9%] md:hidden"
       >
-        {/* [START] Timeline Repeatable Components for "max-md" view */}
+        {/* [START] Timeline Repeatable Components for "max-md" view {Will not provide AnimateOnScroll effects} */}
         {timelineData.map((data, index) => (
           <div
             key={index}
@@ -295,15 +295,15 @@ const AboutTimeline = () => {
             <div
               className={
                 data.color +
-                " z-[7] rounded-md p-2 max-sm:min-w-[235px] max-sm:max-w-[235px] sm:min-w-[350px] sm:max-w-[350px]"
+                " max-xs:min-w-[140px] max-xs:max-w-[140px] z-[7] rounded-md p-2 max-sm:min-w-[180px] max-sm:max-w-[180px] sm:min-w-[350px] sm:max-w-[350px]"
               }
-              data-aos="fade-right"
-              data-aos-offset="200"
             >
-              <h1 className="mb-1 text-[1.2rem] font-bold  dark:drop-shadow-[0_0_2px]">
+              <h1 className="max-xs:text-[0.9rem] mb-1 font-bold dark:drop-shadow-[0_0_2px] max-sm:text-[1rem]  sm:text-[1.2rem]">
                 {data.title}
               </h1>
-              <h2 className="mb-1">{data.subtitle}</h2>
+              <h2 className="max-xs:text-[0.75rem] mb-1 max-sm:text-[0.9rem]">
+                {data.subtitle}
+              </h2>
               <hr
                 className="rounded-full border border-neutral-900/40
                    dark:border-neutral-300/60"
@@ -312,35 +312,26 @@ const AboutTimeline = () => {
                 dangerouslySetInnerHTML={{
                   __html: data.content.split("\n").join("<br />"),
                 }}
-                className="mt-1"
+                className="max-xs:text-[0.75rem] mt-1 max-sm:text-[0.9rem]"
               ></p>
             </div>
-            <div
-              className="my-auto "
-              data-aos="fade-right"
-              data-aos-delay="500"
-              data-aos-duration="100"
-            >
+            <div className="my-auto">
               <div
                 className={
                   data.color +
-                  " relative left-[-12px] z-[6] h-[20px] w-[20px] rotate-45"
+                  " max-xs:left-[-5px] max-xs:h-[10px] max-xs:w-[10px] relative z-[6] rotate-45 max-sm:left-[-7px] max-sm:h-[12px] max-sm:w-[12px] sm:left-[-12px] sm:h-[20px] sm:w-[20px]"
                 }
               ></div>
             </div>
             <div
               className={
                 data.color +
-                " timeline-icon z-[8] my-auto h-fit rounded-[50%] border-4 border-neutral-900 p-2 dark:border-neutral-300"
+                " timeline-icon max-xs:p-[4px] z-[8] my-auto h-fit rounded-[50%] border-neutral-900 dark:border-neutral-300 max-sm:border-[2px] max-sm:p-[6px] sm:border-4 sm:p-2"
               }
-              data-aos="zoom-in"
             >
               {data.icon}
             </div>
-            <h1
-              className="my-auto ml-[10px] text-left text-[1rem]"
-              data-aos="fade-left"
-            >
+            <h1 className="max-xs:text-[10px] max-xs:ml-[6px] my-auto text-left max-sm:ml-[8px] max-sm:text-[13px] sm:ml-[10px] sm:text-[1rem]">
               {data.year}
             </h1>
           </div>

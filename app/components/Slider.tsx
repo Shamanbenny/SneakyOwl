@@ -154,7 +154,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     <>
       {/* Remove the Slider Arrow Button for First and Last Slide eventually */}
       <div
-        className="slider-arrow-btn absolute top-0 flex h-full w-[75px] cursor-pointer items-center from-emerald-700/25 
+        className="slider-arrow-btn absolute top-0 flex h-screen w-[75px] cursor-pointer items-center from-emerald-700/25 
           to-emerald-700/0 transition-all duration-150 ease-linear hover:bg-gradient-to-r 
           dark:from-emerald-500/10 dark:to-emerald-500/0 max-sm:left-0 
           sm:left-[64px] lg:left-[80px]"
@@ -163,7 +163,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
         <FaAngleLeft className="mx-auto h-[50px] w-[50px] text-neutral-900/25 dark:text-neutral-300/25" />
       </div>
       <div
-        className="slider-arrow-btn absolute right-0 top-0 flex h-full w-[75px] cursor-pointer items-center from-emerald-700/25 
+        className="slider-arrow-btn absolute right-0 top-0 flex h-screen w-[75px] cursor-pointer items-center from-emerald-700/25 
           to-emerald-700/0 transition-all duration-150 ease-linear hover:bg-gradient-to-l 
           dark:from-emerald-500/10 dark:to-emerald-500/0"
         onClick={() => changeSlideValue(1)}
@@ -184,7 +184,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
         >
           <div className="col-span-2 text-right max-sm:mt-[66px] max-sm:text-center">
             <h1
-              className="transition-all duration-150 ease-linear max-sm:text-[1.5rem] 
+              className="max-xs:text-[1.2rem] transition-all duration-150 ease-linear max-sm:text-[1.5rem] 
               sm:text-[2rem] md:text-[2.4rem] lg:text-[3.2rem] xl:text-[4rem]"
               onMouseOver={() => mouseOverIndexBenny()}
               onMouseLeave={() => mouseLeaveIndexBenny()}
@@ -292,7 +292,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
           </div>
           <div className="col-span-2 text-left max-sm:mb-[30px] max-sm:text-center">
             <h1
-              className="transition-all duration-150 ease-linear max-sm:text-[1.6rem] 
+              className="max-xs:text-[1.2rem] transition-all duration-150 ease-linear max-sm:text-[1.6rem] 
               sm:text-[1.7rem] md:text-[2.4rem] lg:text-[2.8rem] xl:text-[4.6rem]"
             >
               Data Structures & Algorithms

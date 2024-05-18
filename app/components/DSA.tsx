@@ -31,10 +31,12 @@ const DSA = () => {
         }
       >
         <div className="my-auto h-full w-full text-center">
-          <h1 className="text-[6rem] text-emerald-700 drop-shadow-[0_0_6px] dark:text-emerald-500">
+          <h1 className="text-[6rem] text-emerald-700 drop-shadow-[0_0_6px] dark:text-emerald-500 max-sm:text-[3rem]">
             /dsa
           </h1>
-          <h2 className="text-[2rem]">Still a work in progress...</h2>
+          <h2 className="text-[2rem] max-sm:text-[1.2rem]">
+            Still a work in progress...
+          </h2>
         </div>
       </div>
     </>

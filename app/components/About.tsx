@@ -83,7 +83,7 @@ export const About: React.FC = () => {
 
       const collapsibleElement = introDivRef.current.children[1];
       collapsibleElement.classList.toggle("max-h-0");
-      collapsibleElement.classList.toggle("max-h-[500px]");
+      collapsibleElement.classList.toggle("max-h-[600px]");
     }
   };
   const careerObjDivRef = useRef<HTMLDivElement>(null);
@@ -106,7 +106,7 @@ export const About: React.FC = () => {
       );
       const collapsibleElement = careerObjDivRef.current.children[1];
       collapsibleElement.classList.toggle("max-h-0");
-      collapsibleElement.classList.toggle("max-h-[500px]");
+      collapsibleElement.classList.toggle("max-h-[600px]");
     }
   };
   /* [END] Introduction & Career Objective Collapsible Text */
@@ -126,8 +126,8 @@ export const About: React.FC = () => {
       >
         {/* [START] About Me Hero Banner */}
         <div
-          className="mx-auto flex w-full items-center  max-sm:h-[50%] 
-            max-sm:min-h-[600px] max-sm:w-[300px] max-sm:grid-cols-1 max-sm:grid-rows-2 max-sm:flex-col sm:h-[50%] 
+          className="max-xs:max-w-[230px] max-xs:min-h-[375px] mx-auto flex w-full items-center 
+            max-sm:h-[50%] max-sm:min-h-[450px] max-sm:w-[300px] max-sm:grid-cols-1 max-sm:grid-rows-2 max-sm:flex-col sm:h-[50%] 
             sm:min-h-[350px] sm:max-w-[570px] sm:grid-cols-2 sm:gap-4 sm:px-5 md:h-[70%] 
             md:min-h-[500px] md:max-w-[704px] md:px-5 lg:h-[90%] lg:min-h-[600px] lg:max-w-[944px] 
             lg:gap-8 lg:px-10 xl:min-h-[700px] xl:max-w-[1200px] xl:px-[60px] xxl:min-h-[810px] xxl:max-w-[1520px] xxl:px-[80px]"
@@ -138,22 +138,22 @@ export const About: React.FC = () => {
               width={512}
               height={512}
               alt="Profile Picture"
-              className="h-[250px] w-[250px] rounded-[50%] duration-0 max-sm:mt-[100px] md:h-[310px] md:w-[310px] 
+              className="max-xs:h-[220px] max-xs:w-[220px] max-xs:mt-[30px] rounded-[50%] duration-0 max-md:h-[250px] max-md:w-[250px] max-sm:mt-[50px] md:h-[310px] md:w-[310px] 
                 lg:h-[400px] lg:w-[400px] xl:h-[512px] xl:w-[512px] xl:scale-100 xxl:scale-125"
             />
           </div>
-          <div className="w-full  max-sm:mx-auto">
+          <div className="w-full max-sm:mx-auto">
             <h1
-              className=" max-sm:text-[1.8rem] 
+              className="max-xs:text-[1.4rem] max-sm:text-[1.8rem] 
               sm:text-[1.5rem] md:text-[1.9rem] lg:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
             >
               Lee Jia Quan, Benny
             </h1>
             <div className="flex items-center ">
-              <FaAngleRight className="w-auto dark:text-neutral-400 max-sm:h-[1rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
+              <FaAngleRight className="max-xs:text-[0.7rem] w-auto dark:text-neutral-400 max-sm:h-[1rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
               <h1
                 className=" 
-                dark:text-neutral-400 max-sm:text-[1rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
+                max-xs:text-[0.7rem] dark:text-neutral-400 max-sm:text-[1rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
               >
                 I&#39;m
               </h1>
@@ -161,27 +161,27 @@ export const About: React.FC = () => {
                 <span
                   key={index}
                   ref={personalityRefs[index]}
-                  className="personality-animation hidden transition-all duration-150 
-                    ease-linear max-sm:pl-[4px] max-sm:text-[1rem] sm:pl-[4px] sm:text-[13px] 
+                  className="personality-animation max-xs:text-[0.7rem] hidden transition-all 
+                    duration-150 ease-linear max-sm:pl-[4px] max-sm:text-[1rem] sm:pl-[4px] sm:text-[13px] 
                     md:pl-[5px] md:text-[17px] lg:pl-[7px] lg:text-[1.35rem] xl:pl-[8px] xl:text-[1.7rem] xxl:pl-[10px] xxl:text-[34px]"
                 >
                   {element}
                 </span>
               ))}
             </div>
-            <div className="flex w-[50%] pt-4  max-sm:w-[70%]">
+            <div className="max-xs:w-[50%] flex w-[50%] pt-4 max-sm:mx-auto max-sm:w-[70%]">
               <a
                 href="https://www.linkedin.com/in/shamanbenny/"
                 className="group mx-auto ml-0"
               >
                 <FaLinkedin
-                  className="transition-all duration-150 ease-linear group-hover:scale-125 
+                  className="max-xs:h-[2rem] max-xs:w-[2rem] transition-all duration-150 ease-linear group-hover:scale-125 
                   group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
                   max-sm:w-[3rem] sm:h-10 sm:w-10 xl:h-[4rem] xl:w-[4rem]"
                 />
                 <span
-                  className="absolute mt-1 flex scale-y-0 items-center justify-center 
-                    text-sm  group-hover:scale-y-100 
+                  className="absolute mt-1 flex scale-y-0 items-center justify-center text-sm group-hover:scale-y-100 
+                    max-sm:hidden sm:block 
                     xl:pt-3 xl:text-[1.2rem]"
                 >
                   LinkedIn
@@ -192,13 +192,13 @@ export const About: React.FC = () => {
                 className="group mx-auto"
               >
                 <FaInstagram
-                  className="transition-all duration-150 ease-linear group-hover:scale-125 
-                    group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
+                  className="max-xs:h-[2rem] max-xs:w-[2rem] transition-all duration-150 
+                    ease-linear group-hover:scale-125 group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
                     max-sm:w-[3rem] sm:h-10 sm:w-10 xl:h-[4rem] xl:w-[4rem]"
                 />
                 <span
-                  className="absolute mt-1 flex scale-y-0 items-center justify-center 
-                    text-sm  group-hover:scale-y-100 
+                  className="absolute mt-1 flex scale-y-0 items-center justify-center text-sm group-hover:scale-y-100 
+                    max-sm:hidden sm:block 
                     xl:pt-3 xl:text-[1.2rem]"
                 >
                   Instagram
@@ -209,13 +209,13 @@ export const About: React.FC = () => {
                 className="group mx-auto max-sm:mr-0"
               >
                 <FaGithub
-                  className="transition-all duration-150 ease-linear group-hover:scale-125 
+                  className="max-xs:h-[2rem] max-xs:w-[2rem] transition-all duration-150 ease-linear group-hover:scale-125 
                     group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] max-sm:h-[3rem] 
                     max-sm:w-[3rem] sm:h-10 sm:w-10 xl:h-[4rem] xl:w-[4rem]"
                 />
                 <span
-                  className="absolute mt-1 flex scale-y-0 items-center justify-center 
-                    text-sm  group-hover:scale-y-100 
+                  className="absolute mt-1 flex scale-y-0 items-center justify-center text-sm group-hover:scale-y-100 
+                    max-sm:hidden sm:block 
                     xl:pt-4 xl:text-[1.2rem]"
                 >
                   GitHub
@@ -239,22 +239,22 @@ export const About: React.FC = () => {
         {/* [START] Introduction Span */}
         <div ref={introDivRef} className="z-[5] mb-5">
           <div
-            className="group mx-auto flex cursor-pointer items-center text-center transition-all 
-              duration-150 ease-linear max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
+            className="max-xs:w-[230px] group mx-auto flex cursor-pointer items-center text-center transition-all 
+              duration-150 ease-linear max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
               xl:w-[1160px] xxl:w-[1480px]"
             onClick={onClickIntro}
           >
             <h1
-              className="z-[5] mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 
-              py-1 text-[1.4rem] transition-all duration-150 ease-linear 
-              group-hover:bg-emerald-600 dark:bg-emerald-600 group-hover:dark:bg-emerald-500 lg:text-[1.8rem] 
+              className="max-xs:text-[1rem] z-[5] mx-auto w-full rounded-b-md rounded-t-md 
+              bg-emerald-700 py-1 transition-all duration-150 ease-linear group-hover:bg-emerald-600 
+              dark:bg-emerald-600 group-hover:dark:bg-emerald-500 max-sm:text-[1.4rem] lg:text-[1.8rem] 
               xl:rounded-b-lg xl:rounded-t-lg xl:py-1.5 xl:text-[2rem] xxl:rounded-b-xl xxl:rounded-t-xl 
               xxl:py-2 xxl:text-[2.4rem]"
             >
               Introduction
             </h1>
             <span
-              className="absolute transition-all duration-150 ease-linear max-sm:pl-[360px] 
+              className="max-xs:pl-[200px] absolute transition-all duration-150 ease-linear max-sm:pl-[260px] 
               sm:pl-[515px] md:pl-[640px] lg:pl-[864px] xl:pl-[1100px] xxl:pl-[1420px]"
             >
               <FaAngleRight
@@ -265,11 +265,11 @@ export const About: React.FC = () => {
             </span>
           </div>
           <div
-            className="mx-auto flex max-h-0 overflow-hidden transition-all duration-150 ease-linear 
-            max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
+            className="max-xs:w-[230px] mx-auto flex max-h-0 overflow-hidden transition-all duration-150 
+            ease-linear max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
           >
             <p
-              className="rounded-b-md bg-neutral-400 px-[24px] py-2 text-justify 
+              className="max-xs:text-[0.8rem] rounded-b-md bg-neutral-400 px-[24px] py-2 text-justify 
               dark:bg-neutral-800 lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] xl:py-4 
               xl:text-[1.1rem] xxl:rounded-b-xl xxl:py-5 xxl:text-xl"
             >
@@ -292,22 +292,22 @@ export const About: React.FC = () => {
         {/* [START] Career Objective Span */}
         <div ref={careerObjDivRef} className="z-[5] mb-5">
           <div
-            className="group mx-auto flex cursor-pointer items-center text-center transition-all 
-              duration-150 ease-linear max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
+            className="max-xs:w-[230px] group mx-auto flex cursor-pointer items-center text-center 
+              transition-all duration-150 ease-linear max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
               xl:w-[1160px] xxl:w-[1480px]"
             onClick={onClickCareerObj}
           >
             <h1
-              className="mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 py-1 
-              text-[1.4rem] transition-all duration-150 ease-linear group-hover:bg-emerald-600 
-              dark:bg-emerald-600 group-hover:dark:bg-emerald-500 lg:text-[1.8rem] xl:rounded-b-lg 
+              className="max-xs:text-[1rem] mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 
+              py-1 transition-all duration-150 ease-linear group-hover:bg-emerald-600 dark:bg-emerald-600 
+              group-hover:dark:bg-emerald-500 max-sm:text-[1.4rem] lg:text-[1.8rem] xl:rounded-b-lg 
               xl:rounded-t-lg xl:py-1.5 xl:text-[2rem] xxl:rounded-b-xl xxl:rounded-t-xl xxl:py-2 
               xxl:text-[2.4rem]"
             >
               Career Objective
             </h1>
             <span
-              className="absolute transition-all duration-150 ease-linear max-sm:pl-[360px] 
+              className="max-xs:pl-[200px] absolute transition-all duration-150 ease-linear max-sm:pl-[260px] 
               sm:pl-[515px] md:pl-[640px] lg:pl-[864px] xl:pl-[1100px] xxl:pl-[1420px]"
             >
               <FaAngleRight
@@ -318,11 +318,11 @@ export const About: React.FC = () => {
             </span>
           </div>
           <div
-            className="mx-auto flex max-h-0 overflow-hidden transition-all duration-150 ease-linear 
-            max-sm:w-[400px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
+            className="max-xs:w-[230px] mx-auto flex max-h-0 overflow-hidden transition-all duration-150 
+            ease-linear max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
           >
             <p
-              className="z-[5] rounded-b-md bg-neutral-400 px-[24px] py-2 
+              className="max-xs:text-[0.8rem] z-[5] rounded-b-md bg-neutral-400 px-[24px] py-2 
               text-justify dark:bg-neutral-800 lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] 
               xl:py-4 xl:text-[1.1rem] xxl:rounded-b-xl xxl:py-5 xxl:text-xl"
             >

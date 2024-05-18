@@ -141,16 +141,32 @@ body *::selection {
     typeBlinker 0.5s steps(1) infinite;
 }
 
-@keyframes personality-animate {
-  0%,
-  5%,
-  90%,
-  100% {
-    width: 0;
+@media (max-width: 639px) {
+  @keyframes personality-animate {
+    0%,
+    5%,
+    90%,
+    100% {
+      width: 0;
+    }
+    50%,
+    60% {
+      width: 100%;
+    }
   }
-  50%,
-  60% {
-    width: 50%;
+}
+@media (min-width: 640px) {
+  @keyframes personality-animate {
+    0%,
+    5%,
+    90%,
+    100% {
+      width: 0;
+    }
+    50%,
+    60% {
+      width: 50%;
+    }
   }
 }
 
@@ -182,7 +198,7 @@ body *::selection {
 }
 
 .about-timeline-left .timeline-content p {
-  @apply mt-1 xl:mt-2;
+  @apply mt-1 text-justify xl:mt-2;
 }
 
 .about-timeline-left .timeline-arrow {
@@ -230,7 +246,7 @@ body *::selection {
 }
 
 .about-timeline-right .timeline-content p {
-  @apply mt-1 xl:mt-2;
+  @apply mt-1 text-justify xl:mt-2;
 }
 
 .about-timeline-right .timeline-arrow {
@@ -258,7 +274,7 @@ body *::selection {
 /* ---------- [END] About Timeline (RIGHT vers) ---------- */
 
 .about-timeline-small svg {
-  @apply z-[8] h-[25px] w-[25px];
+  @apply z-[8] h-[25px] w-[25px] max-sm:h-[20px] max-sm:w-[20px];
 }
 @layer utilities {
   .text-balance {
