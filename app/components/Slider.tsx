@@ -154,7 +154,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
     <>
       {/* Remove the Slider Arrow Button for First and Last Slide eventually */}
       <div
-        className="absolute top-0 z-10 flex h-full w-[75px] cursor-pointer items-center 
+        className="slider-arrow-btn absolute top-0 flex h-full w-[75px] cursor-pointer items-center 
           from-emerald-700/25 to-emerald-700/0 transition-all duration-150 ease-linear 
           hover:bg-gradient-to-r dark:from-emerald-500/10 dark:to-emerald-500/0 max-sm:left-0 
           sm:left-[64px] lg:left-[80px]"
@@ -163,7 +163,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
         <FaAngleLeft className="mx-auto h-[50px] w-[50px]" />
       </div>
       <div
-        className="absolute right-0 top-0 z-10 flex h-full w-[75px] cursor-pointer items-center 
+        className="slider-arrow-btn absolute right-0 top-0 flex h-full w-[75px] cursor-pointer items-center 
           from-emerald-700/25 to-emerald-700/0 transition-all duration-150 ease-linear 
           hover:bg-gradient-to-l dark:from-emerald-500/10 dark:to-emerald-500/0"
         onClick={() => changeSlideValue(1)}
