@@ -25,10 +25,10 @@ export const Index: React.FC = () => {
       <div
         className={
           clientWidth < 640
-            ? `h-screen overflow-hidden bg-neutral-300 pl-0 pt-[56px] 
+            ? `h-screen overflow-hidden bg-neutral-300 pl-0
             text-neutral-900 transition-colors duration-150 ease-linear 
             dark:bg-neutral-900 dark:text-neutral-300`
-            : `h-screen overflow-hidden bg-neutral-300 pl-[64px] pt-0 
+            : `h-screen overflow-hidden bg-neutral-300 pl-[64px] 
             text-neutral-900 transition-colors duration-150 ease-linear 
             dark:bg-neutral-900 dark:text-neutral-300 lg:pl-[80px]`
         }

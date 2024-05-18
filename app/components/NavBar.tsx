@@ -53,6 +53,11 @@ const NavBar: React.FC = () => {
   }, [hamburgerMenu]);
 
   const handleResize = () => {
+    if (clientWidth !== 1600) {
+      if (window.innerWidth !== clientWidth) {
+        setHamburgerMenu(false);
+      }
+    }
     setClientWidth(window.innerWidth);
   };
 
@@ -125,7 +130,7 @@ const NavBar: React.FC = () => {
               >
                 {/* [START] Website Logo */}
                 <div
-                  className="cursor-pointer text-[28px] font-bold text-emerald-500 
+                  className="max-xs:text-[22px] cursor-pointer text-[28px] font-bold text-emerald-500 
                   transition-all duration-150 ease-linear hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] 
                   dark:text-emerald-500 dark:hover:text-emerald-400 dark:hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]"
                   onClick={pressLogo}
@@ -137,7 +142,7 @@ const NavBar: React.FC = () => {
                 {/* [START] Home Tab */}
                 <Link
                   href="/"
-                  className="topbar_element home-tab w-full text-[24px] 
+                  className="max-xs:text-[18px] topbar_element home-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={() => togglePageChange("/")}
@@ -149,7 +154,7 @@ const NavBar: React.FC = () => {
                 {/* [START] About Me */}
                 <Link
                   href="/about"
-                  className="topbar_element about-tab w-full text-[24px] 
+                  className="max-xs:text-[18px] topbar_element about-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={() => togglePageChange("/about")}
@@ -161,7 +166,7 @@ const NavBar: React.FC = () => {
                 {/* [START] DSA Tab */}
                 <Link
                   href="/dsa"
-                  className="topbar_element dsa-tab w-full text-[24px] 
+                  className="max-xs:text-[18px] topbar_element dsa-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={() => togglePageChange("/dsa")}
@@ -172,7 +177,7 @@ const NavBar: React.FC = () => {
                 <Divider />
                 {/* [START] Copy Email Button */}
                 <h1
-                  className="cursor-pointer text-[24px]
+                  className="max-xs:text-[18px] cursor-pointer text-[24px]
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={copyEmail}
@@ -183,7 +188,7 @@ const NavBar: React.FC = () => {
                 <Divider />
                 {/* [START] Dark Mode Button */}
                 <h1
-                  className="cursor-pointer text-[24px]
+                  className="max-xs:text-[18px] cursor-pointer text-[24px]
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
                   onClick={toggleDarkMode}

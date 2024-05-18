@@ -80,8 +80,8 @@ body *::selection {
 
 /* ---------- [START] SVG Components ---------- */
 .svgCards {
-  @apply my-14 mr-10 flex min-h-32 w-full min-w-32 flex-col justify-between border 
-    border-neutral-600 bg-neutral-400 stroke-[2] p-8 hover:stroke-[4] dark:bg-neutral-800;
+  @apply mr-10 flex min-h-32 w-full min-w-32 flex-col justify-between border border-neutral-600 
+    bg-neutral-400 stroke-[2] p-8 hover:stroke-[4] dark:bg-neutral-800 sm:my-14;
 
   @apply max-w-max rounded-[25%] lg:border-2 lg:p-10 xl:mr-auto;
 }
@@ -121,27 +121,6 @@ body *::selection {
   @apply z-10;
 }
 
-/* ---------- [START] /about: Background-Blob ---------- */
-#bg-blob {
-  @apply fixed -left-full z-[0] aspect-square h-[75px] rounded-[50%] bg-gradient-to-r from-emerald-500/50 to-cyan-500/50 
-    dark:from-emerald-500/35 dark:to-cyan-500/35 sm:h-[125px] md:h-[200px] xl:h-[350px];
-
-  animation: blobRotate 10s infinite;
-}
-
-@keyframes blobRotate {
-  0% {
-    rotate: 0deg;
-  }
-  50% {
-    scale: 1 1.5;
-  }
-  100% {
-    rotate: 360deg;
-  }
-}
-/* ---------- [END] /about: Background-Blob ---------- */
-
 /* ---------- [START] /about: Personality Animation ---------- */
 .personality-animation {
   @apply text-neutral-950/30 dark:text-neutral-50/10;
@@ -156,7 +135,7 @@ body *::selection {
   @apply border-r-[#059669] text-emerald-600 dark:border-r-[#10b981] 
     dark:text-emerald-500 max-sm:border-r-[1px] sm:border-r-[1px] md:border-r-2 
     lg:border-r-[3px] xxl:border-r-4;
-  filter: drop-shadow(0 0 6px) drop-shadow(0 0 24px);
+  filter: drop-shadow(0 0 6px);
   animation:
     personality-animate 2s linear infinite,
     typeBlinker 0.5s steps(1) infinite;

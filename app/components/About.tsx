@@ -9,7 +9,6 @@ import {
   FaLinkedin,
 } from "react-icons/fa";
 import AboutTimeline from "./AboutTimeline";
-import About_BG from "./About_BG";
 
 export const About: React.FC = () => {
   /* AppContent Divider Size Rendering based on User's Width*/
@@ -114,7 +113,6 @@ export const About: React.FC = () => {
 
   return (
     <>
-      <About_BG />
       <div
         className={
           clientWidth < 640

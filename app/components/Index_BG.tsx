@@ -31,7 +31,7 @@ const Index_BG = () => {
 
   return (
     <div className="h-full w-full">
-      <ul className="index-bg absolute left-0 top-0 h-full w-full overflow-hidden">
+      <ul className="index-bg absolute left-0 top-0 h-screen w-full overflow-hidden">
         {array.map((element, index) => (
           <li
             key={index}
