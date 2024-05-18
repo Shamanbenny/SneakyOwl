@@ -198,7 +198,7 @@ body *::selection {
 }
 
 .about-timeline-left .timeline-content p {
-  @apply mt-1 text-justify xl:mt-2;
+  @apply mt-1 xl:mt-2;
 }
 
 .about-timeline-left .timeline-arrow {
@@ -246,7 +246,7 @@ body *::selection {
 }
 
 .about-timeline-right .timeline-content p {
-  @apply mt-1 text-justify xl:mt-2;
+  @apply mt-1 xl:mt-2;
 }
 
 .about-timeline-right .timeline-arrow {
