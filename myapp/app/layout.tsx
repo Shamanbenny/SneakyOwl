@@ -17,7 +17,7 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
-        <link rel="icon" href="/fevicon.png" type="image/gif" />
+        <link rel="icon" href="./fevicon.png" type="image/gif" />
         <meta name="keywords" content="SneakyOwl's Personal Website" />
         <meta name="author" content="SneakyOwl" />
         <title>SneakyOwl</title>

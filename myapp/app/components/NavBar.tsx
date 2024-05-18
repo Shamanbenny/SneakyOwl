@@ -63,7 +63,7 @@ const NavBar: React.FC = () => {
 
     localStorage.setItem("dark-theme", newDarkMode.toString());
 
-    const sound = new Audio("/sounds/toggleClick.mp3");
+    const sound = new Audio("./sounds/toggleClick.mp3");
     sound.volume = 0.4;
     sound.play();
   };

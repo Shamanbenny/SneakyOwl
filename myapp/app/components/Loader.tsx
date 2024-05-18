@@ -39,14 +39,14 @@ const Loader: React.FC = () => {
     }
 
     if (!hasSeenAnimation && counter == 6) {
-      keyboardSound = new Audio("/sounds/keyboard.mp3");
+      keyboardSound = new Audio("./sounds/keyboard.mp3");
       keyboardSound.play();
     }
     if (!hasSeenAnimation && counter == 65) {
       keyboardSound.pause();
     }
     if (!hasSeenAnimation && counter == 68) {
-      enteringSound = new Audio("/sounds/entering.mp3");
+      enteringSound = new Audio("./sounds/entering.mp3");
       enteringSound.play();
     }
 

@@ -136,7 +136,7 @@ export const About: React.FC = () => {
         >
           <div className="flex h-full w-full items-center justify-center text-center duration-0 max-sm:flex sm:hidden">
             <Image
-              src="/sneakyOwl_1.jpg"
+              src="./sneakyOwl_1.jpg"
               width={512}
               height={512}
               alt="Profile Picture"
@@ -227,7 +227,7 @@ export const About: React.FC = () => {
           </div>
           <div className="h-full w-full items-center justify-center text-center duration-0 max-sm:hidden sm:flex">
             <Image
-              src="/sneakyOwl_1.jpg"
+              src="./sneakyOwl_1.jpg"
               width={512}
               height={512}
               alt="Profile Picture"
