@@ -60,7 +60,8 @@ const About_BG = () => {
     <>
       <div id="bg-blob" data-active="false" ref={bgBlobRef}></div>
       <div
-        className="fixed left-0 top-0 z-[1] h-screen w-full backdrop-blur-[100px]"
+        className="backdrop-blue-[22px] sm:backdrop-blue-[35px] md:backdrop-blue-[60px] 
+          fixed left-0 top-0 z-[1] h-screen w-full xl:backdrop-blur-[100px]"
         ref={bgBlobBlur}
       ></div>
     </>
