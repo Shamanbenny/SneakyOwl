@@ -27,7 +27,7 @@ interface SliderProps {
   clientHeight: number;
 }
 
-const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
+const HomeSlider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
   const carouselRef = React.createRef<HTMLDivElement>();
   const numberOfSlides = 2;
   let firstRender = true;
@@ -176,15 +176,15 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
       >
         {/* [START] Slide 1 - slideRefs[0] */}
         <div
-          className="max-xs:max-w-[250px] mx-auto grid h-screen w-full grid-cols-1 items-center overflow-hidden 
-          transition-all duration-150 ease-linear max-sm:my-auto max-sm:max-h-[600px] 
-          max-sm:max-w-[300px] sm:max-w-[576px] sm:grid-cols-3 sm:gap-4 sm:px-5 
+          className="mx-auto grid h-screen w-full grid-cols-1 items-center overflow-hidden transition-all 
+          duration-150 ease-linear max-sm:my-auto max-sm:max-h-[600px] max-sm:max-w-[300px] 
+          max-xs:max-w-[250px] sm:max-w-[576px] sm:grid-cols-3 sm:gap-4 sm:px-5 
           md:max-w-[704px] md:px-5 lg:max-w-[944px] lg:gap-8 lg:px-10 xl:max-w-[1200px] xl:px-[60px]"
           ref={slideRefs[0]}
         >
           <div className="col-span-2 text-right max-sm:mt-[66px] max-sm:text-center">
             <h1
-              className="max-xs:text-[1.2rem] transition-all duration-150 ease-linear max-sm:text-[1.5rem] 
+              className="transition-all duration-150 ease-linear max-sm:text-[1.5rem] max-xs:text-[1.2rem] 
               sm:text-[2rem] md:text-[2.4rem] lg:text-[3.2rem] xl:text-[4rem]"
               onMouseOver={() => mouseOverIndexBenny()}
               onMouseLeave={() => mouseLeaveIndexBenny()}
@@ -192,8 +192,8 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
               Welcome to Benny&#39;s personal website
             </h1>
             <h1
-              className="emerald-highlight max-xs:text-[0.94rem] text-emerald-700 
-              transition-all duration-150 ease-linear dark:text-emerald-500 max-sm:text-[1.05rem] 
+              className="emerald-highlight text-emerald-700 transition-all 
+              duration-150 ease-linear dark:text-emerald-500 max-sm:text-[1.05rem] max-xs:text-[0.94rem] 
               sm:text-[1.2rem] md:text-[1.5rem] lg:text-[2rem] xl:text-[2.5rem]"
             >
               Fueled by Coffee, Powered by Code
@@ -258,11 +258,11 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
               </div>
               <Link
                 href="/about"
-                className="max-xs:text-[16px] max-xs:w-[120px] items-center rounded-md border 
-                  border-emerald-500 bg-emerald-700 px-3 py-1 text-center text-sm text-neutral-300 
-                  transition-all duration-150 ease-linear hover:scale-110 
-                  hover:border-emerald-700 hover:bg-emerald-600 dark:border-emerald-500 
-                  dark:bg-emerald-600 dark:hover:border-emerald-700 dark:hover:bg-emerald-500 max-sm:mt-3 max-sm:w-40 max-sm:py-2 max-sm:text-[20px] 
+                className="items-center rounded-md border border-emerald-500 bg-emerald-700 
+                  px-3 py-1 text-center text-sm text-neutral-300 transition-all duration-150 
+                  ease-linear hover:scale-110 hover:border-emerald-700 hover:bg-emerald-600 
+                  dark:border-emerald-500 dark:bg-emerald-600 dark:hover:border-emerald-700 
+                  dark:hover:bg-emerald-500 max-sm:mt-3 max-sm:w-40 max-sm:py-2 max-sm:text-[20px] max-xs:w-[120px] max-xs:text-[16px] 
                   sm:mx-auto sm:ml-2 sm:mr-0 sm:h-8 sm:w-36 xl:ml-4 xl:h-10 xl:w-40 xl:py-2 xl:text-[20px]"
                 onClick={(e) => togglePageChange("/about")}
               >
@@ -270,7 +270,7 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
               </Link>
             </div>
           </div>
-          <div className="max-xs:max-w-[175px] w-full text-center max-sm:mx-auto max-sm:max-h-[290px] max-sm:max-w-[250px]">
+          <div className="w-full text-center max-sm:mx-auto max-sm:max-h-[290px] max-sm:max-w-[250px] max-xs:max-w-[175px]">
             <OwlSVG />
           </div>
         </div>
@@ -278,21 +278,21 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
 
         {/* [START] Slide 2 - slideRefs[1] */}
         <div
-          className="max-xs:max-w-[250px] mx-auto grid h-screen w-full grid-cols-1 items-center 
-          overflow-hidden transition-all duration-150 ease-linear max-sm:max-h-[700px] max-sm:max-w-[300px] 
+          className="mx-auto grid h-screen w-full grid-cols-1 items-center overflow-hidden 
+          transition-all duration-150 ease-linear max-sm:max-h-[700px] max-sm:max-w-[300px] max-xs:max-w-[250px] 
           sm:max-w-[576px] sm:grid-cols-3 sm:gap-4 sm:px-5 md:max-w-[704px] 
           md:px-5 lg:max-w-[944px] lg:gap-8 lg:px-10 xl:max-w-[1200px] xl:px-[60px]"
           ref={slideRefs[1]}
         >
           <div
-            className="max-xs:max-w-[175px] max-xs:max-h-[210px] w-full text-center max-sm:mx-auto max-sm:mb-[30px] 
-            max-sm:mt-[70px] max-sm:max-h-[280px] max-sm:max-w-[250px]"
+            className="w-full text-center max-sm:mx-auto max-sm:mb-[30px] max-sm:mt-[70px] max-sm:max-h-[280px] 
+            max-sm:max-w-[250px] max-xs:max-h-[210px] max-xs:max-w-[175px]"
           >
             <DsaSVG />
           </div>
           <div className="col-span-2 text-left max-sm:mb-[30px] max-sm:text-center">
             <h1
-              className="max-xs:text-[1.2rem] transition-all duration-150 ease-linear max-sm:text-[1.6rem] 
+              className="transition-all duration-150 ease-linear max-sm:text-[1.6rem] max-xs:text-[1.2rem] 
               sm:text-[1.7rem] md:text-[2.4rem] lg:text-[2.8rem] xl:text-[4.6rem]"
             >
               Data Structures & Algorithms
@@ -311,11 +311,11 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
             >
               <Link
                 href="/dsa"
-                className="max-xs:w-[120px] max-xs:py-1 max-xs:text-[16px] items-center rounded-md 
-                  border border-emerald-500 bg-emerald-700 py-1 text-center text-sm 
-                  text-neutral-300 transition-all duration-150 ease-linear 
-                  hover:scale-110 hover:border-emerald-700 hover:bg-emerald-600 
-                  dark:border-emerald-500 dark:bg-emerald-600 dark:hover:border-emerald-700 dark:hover:bg-emerald-500 max-sm:mt-3 max-sm:w-40 max-sm:py-2 max-sm:text-[20px] 
+                className="items-center rounded-md border border-emerald-500 bg-emerald-700 
+                  py-1 text-center text-sm text-neutral-300 transition-all duration-150 
+                  ease-linear hover:scale-110 hover:border-emerald-700 hover:bg-emerald-600 
+                  dark:border-emerald-500 dark:bg-emerald-600 dark:hover:border-emerald-700 
+                  dark:hover:bg-emerald-500 max-sm:mt-3 max-sm:w-40 max-sm:py-2 max-sm:text-[20px] max-xs:w-[120px] max-xs:py-1 max-xs:text-[16px] 
                   sm:h-8 sm:w-36 xl:h-10 xl:w-40 xl:py-2 xl:text-[20px]"
                 onClick={(e) => togglePageChange("/about")}
               >
@@ -330,4 +330,4 @@ const Slider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
   );
 };
 
-export default Slider;
+export default HomeSlider;
