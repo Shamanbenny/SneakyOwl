@@ -273,6 +273,16 @@ body *::selection {
 }
 /* ---------- [END] About Timeline (RIGHT vers) ---------- */
 
+/* ---------- [START] About Swiper Button ---------- */
+.swiper-pagination-bullet-active {
+  background-color: #047857 !important;
+}
+
+.dark .swiper-pagination-bullet:not(.swiper-pagination-bullet-active) {
+  background-color: #e5e5e5 !important;
+}
+/* ---------- [END] About Swiper Button ---------- */
+
 .about-timeline-small svg {
   @apply z-[8] h-[25px] w-[25px] max-sm:h-[20px] max-sm:w-[20px];
 }
