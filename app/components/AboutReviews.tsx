@@ -28,91 +28,47 @@ const AboutReviews = () => {
   const reviewsData = [
     {
       profilePreview: "anonymous.png",
-      name: "Ernest",
-      position: "Software Engineer",
-      date: "25-May-2024",
-      reviewContent: `He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. 
-        He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. 
-        He is smart. He is smart. He is smart.`,
-      link: [
-        {
-          type: "linkedin",
-          url: "https://www.linkedin.com/in/ernest",
-          text: "@ernest",
-        },
-      ],
-    },
-    {
-      profilePreview: "anonymous.png",
       name: "Gaanesh",
-      position: "NUS Information Security since 2023/24",
-      date: "25-May-2024",
-      reviewContent: `Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop 
-        Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop 
-        Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop`,
+      position: ["NUS Information Security since 2023/24"],
+      date: "3-June-2024",
+      reviewContent: `I have had the pleasure of working with Benny since the start of our 
+        undergraduate degree at NUS. His attention to detail and meticulousness surpasses 
+        anyone else I've encountered in school. When Benny sets his mind on accomplishing 
+        a task, he does it and he does it well. A naive solution isn't enough for him; he 
+        aims to optimize everything. His passion for data structures and artificial intelligence 
+        is evident in the projects he has completed. Moreover, Benny cares for the people around 
+        him and aims to make them better. He is an excellent teacher who shares his passion for 
+        the subject with his peers. During group projects, Benny takes charge and knows how to 
+        delegate the workload to fit the strengths of his teammates. He has consistently 
+        demonstrated his leadership skills throughout the time I've known him, and I can 
+        wholeheartedly say he is one of the nicest people I've ever met!`,
       link: [
         {
           type: "linkedin",
-          url: "https://www.linkedin.com/in/gaanesh",
-          text: "@gaanesh",
-        },
-        {
-          type: "github",
-          url: "https://github.com/gaanesh",
-          text: "@gaanesh",
-        },
-        {
-          type: "portfolio",
-          url: "https://gaanesh.com",
-          text: "gaanesh.com",
-        },
-      ],
-    },
-    {
-      profilePreview: "anonymous.png",
-      name: "Kobin",
-      position: "Cyber Security Analyst",
-      date: "25-May-2024",
-      reviewContent: `He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. 
-        He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. 
-        He is smart. He is smart. He is smart.`,
-      link: [
-        {
-          type: "github",
-          url: "https://github.com/kobin",
-          text: "@kobin",
-        },
-      ],
-    },
-    {
-      profilePreview: "anonymous.png",
-      name: "Hui Ting",
-      position: "COO of Cyber Youth Singapore",
-      date: "25-May-2024",
-      reviewContent: `Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop 
-        Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop 
-        Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop Beep Boop`,
-      link: [
-        {
-          type: "linkedin",
-          url: "https://www.linkedin.com/in/HuiTing",
-          text: "@huiting",
+          url: "https://www.linkedin.com/in/gaanesht/",
+          text: "@gaanesht",
         },
       ],
     },
     {
       profilePreview: "anonymous.png",
       name: "Jason",
-      position: "NUS Information Security since 2023/24",
-      date: "25-May-2024",
-      reviewContent: `He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. 
-        He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. He is smart. 
-        He is smart. He is smart. He is smart.`,
+      position: [
+        "CSIT Undergraduate Scholar",
+        "NUS Information Security since 2023/24",
+      ],
+      date: "30-May-2024",
+      reviewContent: `Benny is a standout individual with an insatiable hunger for knowledge and 
+        an unwavering drive. In the year we've worked together, I've seen his proactive approach 
+        to learning and dedication to mastering new skills. He enthusiastically tackles every 
+        challenge, consistently putting forth his best effort and delivering exceptional results. 
+        Benny's collaborative nature and positive attitude make him a pleasure to work with, 
+        fostering a supportive and inclusive environment.`,
       link: [
         {
           type: "linkedin",
-          url: "https://www.linkedin.com/in/jason",
-          text: "@jason",
+          url: "https://www.linkedin.com/in/jasonkkf/",
+          text: "@jasonkkf",
         },
       ],
     },
@@ -135,10 +91,11 @@ const AboutReviews = () => {
     <>
       <Swiper
         ref={mySwiper}
-        mousewheel={true}
+        mousewheel={false}
         speed={500}
         initialSlide={1}
         centeredSlides={true}
+        autoHeight={false}
         pagination={{
           clickable: true,
         }}
@@ -147,15 +104,11 @@ const AboutReviews = () => {
             slidesPerView: 1,
             spaceBetween: 10,
           },
-          640: {
+          1280: {
             slidesPerView: 2,
-            spaceBetween: 20,
+            spaceBetween: 30,
           },
-          768: {
-            slidesPerView: 3,
-            spaceBetween: 40,
-          },
-          1024: {
+          1600: {
             slidesPerView: 3,
             spaceBetween: 50,
           },
@@ -181,10 +134,21 @@ const AboutReviews = () => {
                   />
                   <div className="ml-3 w-full">
                     <div className="flex">
-                      <h1 className="font-bold">{data.name}</h1>
+                      <h1 className="font-bold hover:text-emerald-600 dark:hover:text-emerald-500">
+                        {data.name}
+                      </h1>
                       <p className="ml-auto text-neutral-500">{data.date}</p>
                     </div>
-                    <p>{data.position}</p>
+                    {data.position.map((position, index) => {
+                      return (
+                        <p
+                          key={index}
+                          className="hover:text-emerald-700 dark:hover:text-emerald-500"
+                        >
+                          {position}
+                        </p>
+                      );
+                    })}
                   </div>
                 </div>
                 <p className="mt-5">
