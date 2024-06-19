@@ -50,17 +50,19 @@ const DSA = () => {
               Commit Snake
             </h1>
             <Image
-              src="https://github.com/Shamanbenny/Shamanbenny.github.io/blob/output/snake.svg"
+              src="https://raw.githubusercontent.com/Shamanbenny/Shamanbenny.github.io/6fa578f2711b6e67e76292c588a0b42fcd86dd58/snake.svg"
               alt="Commit Snake"
               width={880}
               height={192}
+              priority={true}
               className="mx-auto block h-auto w-[90%] max-w-[1200px] dark:hidden"
             />
             <Image
-              src="https://github.com/Shamanbenny/Shamanbenny.github.io/blob/output/snake-dark.svg"
+              src="https://raw.githubusercontent.com/Shamanbenny/Shamanbenny.github.io/19aed6caa60622ce02086c52654f7697c3ad2fc4/snake-dark.svg"
               alt="Commit Snake"
               width={880}
               height={192}
+              priority={true}
               className="mx-auto hidden h-auto w-[90%] max-w-[1200px] dark:block"
             />
           </div>
