@@ -13,7 +13,7 @@ Customize the default import alias: No
 
 ## NPM Installed Modules
 
-npm install next react react-dom tailwindcss react-icons aos
+npm install next react react-dom tailwindcss react-icons aos swiper
 
 npm install -D prettier prettier-plugin-tailwindcss
 
@@ -22,3 +22,5 @@ npm run dev
 ## Useful Information
 
 rafce
+
+Before pushing to 'main' branch, ensure 'next.config.mjs' contains 'output: "export",'

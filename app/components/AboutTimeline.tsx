@@ -176,8 +176,8 @@ const AboutTimeline = () => {
 
   return (
     <div
-      className="max-xs:w-[230px] mx-auto flex flex-col 
-        pb-10 max-sm:w-[300px] sm:w-[560px] md:w-[680px] 
+      className="mx-auto flex flex-col pb-10 
+        max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] 
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
     >
       <h1
@@ -279,8 +279,8 @@ const AboutTimeline = () => {
 
       <div
         ref={timelineDivSmall}
-        className="max-xs:from-[71.4%] max-xs:via-[72%] max-xs:to-[72.6%] z-[7] bg-gradient-to-r from-transparent via-neutral-900 to-transparent 
-          dark:via-neutral-300 max-md:block max-sm:from-[69.6%] max-sm:via-[70%] max-sm:to-[70.4%] sm:from-[70.3%] sm:via-[70.6%] sm:to-[70.9%] md:hidden"
+        className="z-[7] bg-gradient-to-r from-transparent via-neutral-900 to-transparent dark:via-neutral-300 max-md:block max-sm:from-[69.6%] 
+          max-sm:via-[70%] max-sm:to-[70.4%] max-xs:from-[71.4%] max-xs:via-[72%] max-xs:to-[72.6%] sm:from-[70.3%] sm:via-[70.6%] sm:to-[70.9%] md:hidden"
       >
         {/* [START] Timeline Repeatable Components for "max-md" view {Will not provide AnimateOnScroll effects} */}
         {timelineData.map((data, index) => (
@@ -295,13 +295,13 @@ const AboutTimeline = () => {
             <div
               className={
                 data.color +
-                " max-xs:min-w-[140px] max-xs:max-w-[140px] z-[7] rounded-md p-2 max-sm:min-w-[180px] max-sm:max-w-[180px] sm:min-w-[350px] sm:max-w-[350px]"
+                " z-[7] rounded-md p-2 max-sm:min-w-[180px] max-sm:max-w-[180px] max-xs:min-w-[140px] max-xs:max-w-[140px] sm:min-w-[350px] sm:max-w-[350px]"
               }
             >
-              <h1 className="max-xs:text-[0.9rem] mb-1 font-bold dark:drop-shadow-[0_0_2px] max-sm:text-[1rem]  sm:text-[1.2rem]">
+              <h1 className="mb-1 font-bold dark:drop-shadow-[0_0_2px] max-sm:text-[1rem] max-xs:text-[0.9rem]  sm:text-[1.2rem]">
                 {data.title}
               </h1>
-              <h2 className="max-xs:text-[0.75rem] mb-1 max-sm:text-[0.9rem]">
+              <h2 className="mb-1 max-sm:text-[0.9rem] max-xs:text-[0.75rem]">
                 {data.subtitle}
               </h2>
               <hr
@@ -312,26 +312,26 @@ const AboutTimeline = () => {
                 dangerouslySetInnerHTML={{
                   __html: data.content.split("\n").join("<br />"),
                 }}
-                className="max-xs:text-[0.75rem] mt-1 max-sm:text-[0.9rem]"
+                className="mt-1 max-sm:text-[0.9rem] max-xs:text-[0.75rem]"
               ></p>
             </div>
             <div className="my-auto">
               <div
                 className={
                   data.color +
-                  " max-xs:left-[-5px] max-xs:h-[10px] max-xs:w-[10px] relative z-[6] rotate-45 max-sm:left-[-7px] max-sm:h-[12px] max-sm:w-[12px] sm:left-[-12px] sm:h-[20px] sm:w-[20px]"
+                  " relative z-[6] rotate-45 max-sm:left-[-7px] max-sm:h-[12px] max-sm:w-[12px] max-xs:left-[-5px] max-xs:h-[10px] max-xs:w-[10px] sm:left-[-12px] sm:h-[20px] sm:w-[20px]"
                 }
               ></div>
             </div>
             <div
               className={
                 data.color +
-                " timeline-icon max-xs:p-[4px] z-[8] my-auto h-fit rounded-[50%] border-neutral-900 dark:border-neutral-300 max-sm:border-[2px] max-sm:p-[6px] sm:border-4 sm:p-2"
+                " timeline-icon z-[8] my-auto h-fit rounded-[50%] border-neutral-900 dark:border-neutral-300 max-sm:border-[2px] max-sm:p-[6px] max-xs:p-[4px] sm:border-4 sm:p-2"
               }
             >
               {data.icon}
             </div>
-            <h1 className="max-xs:text-[10px] max-xs:ml-[6px] my-auto text-left max-sm:ml-[8px] max-sm:text-[13px] sm:ml-[10px] sm:text-[1rem]">
+            <h1 className="my-auto text-left max-sm:ml-[8px] max-sm:text-[13px] max-xs:ml-[6px] max-xs:text-[10px] sm:ml-[10px] sm:text-[1rem]">
               {data.year}
             </h1>
           </div>

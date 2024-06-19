@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Slider from "./Slider";
+import HomeSlider from "./HomeSlider";
 import Index_BG from "./Index_BG";
 
 export const Index: React.FC = () => {
@@ -33,7 +33,7 @@ export const Index: React.FC = () => {
             dark:bg-neutral-900 dark:text-neutral-300 lg:pl-[80px]`
         }
       >
-        <Slider clientWidth={clientWidth} clientHeight={clientHeight} />
+        <HomeSlider clientWidth={clientWidth} clientHeight={clientHeight} />
       </div>
     </>
   );
