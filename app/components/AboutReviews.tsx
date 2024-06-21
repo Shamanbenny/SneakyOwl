@@ -27,7 +27,7 @@ const AboutReviews = () => {
 
   const reviewsData = [
     {
-      profilePreview: "anonymous.png",
+      profilePreview: "gaanesh.jpg",
       name: "Gaanesh",
       position: ["NUS Information Security since 2023/24"],
       date: "3-June-2024",
