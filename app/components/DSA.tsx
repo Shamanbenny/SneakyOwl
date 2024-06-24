@@ -47,7 +47,7 @@ const DSA = () => {
               className="z-[6] mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-left text-[1.4rem] dark:border-neutral-300 
                 max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
             >
-              Commit Snake
+              My GitHub Commit Snake
             </h1>
             <Image
               src="https://raw.githubusercontent.com/Shamanbenny/Shamanbenny.github.io/output/snake.svg"
