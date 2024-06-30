@@ -341,7 +341,6 @@ export const About: React.FC = () => {
           </div>
         </div>
         {/* [END] Career Objective Span */}
-        <AboutTimeline />
         <h1
           className="z-[6] mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-center text-[1.4rem]  dark:border-neutral-300 
           max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
@@ -349,6 +348,7 @@ export const About: React.FC = () => {
           What My Friends Think Of Me
         </h1>
         <AboutReviews />
+        <AboutTimeline />
       </div>
     </>
   );
