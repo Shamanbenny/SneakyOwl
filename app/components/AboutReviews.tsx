@@ -93,7 +93,7 @@ const AboutReviews = () => {
         ref={mySwiper}
         mousewheel={false}
         speed={500}
-        initialSlide={1}
+        initialSlide={0}
         centeredSlides={true}
         autoHeight={false}
         pagination={{
