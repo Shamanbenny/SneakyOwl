@@ -276,11 +276,11 @@ export const About: React.FC = () => {
             >
               I am a naturally inquisitive person, whose easily captivated by
               the vast amount of knowledge made available to us. As I pursue my
-              degree in Information Security, my goal is to integrate my
-              academic learning with its application in the real world.
-              Throughout my educational journey, I&#39;ve discovered a passion
-              for educating others, sparking interest in subjects they may
-              initially find irrelevant. Through engaging and meaningful
+              degree in Information Security & Computer Science, my goal is to
+              integrate my academic learning with its application in the real
+              world. Throughout my educational journey, I&#39;ve discovered a
+              passion for educating others, sparking interest in subjects they
+              may initially find irrelevant. Through engaging and meaningful
               discussions, I&#39;ve helped others develop a greater
               understanding and appreciation for topics such as Data Structure &
               Algorithms, Machine Learning/LLMs, and basic Programming
@@ -334,9 +334,9 @@ export const About: React.FC = () => {
               field. Recently, my growing interest in Data Structure &
               Algorithms, combined with a solid foundation in programming, has
               steered me towards a career as a Software Engineer. Over the next
-              few years, I aim to refine my skills and knowledge, and I plan to
-              create practical, educational content that incorporates essential
-              Software Engineering techniques.
+              few years, I aim to refine my skills and knowledge, while I plan
+              to create practical and educational content that incorporates
+              essential Software Engineering techniques.
             </p>
           </div>
         </div>

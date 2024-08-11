@@ -86,10 +86,19 @@ const AboutTimeline = () => {
 
   const timelineData = [
     {
+      title: "B.Comp in Computer Science",
+      subtitle: "National University of Singapore (NUS)",
+      content: `Course transfered to Computer Science in pursuit of becoming a SWE.\n\nContinuation as Teaching Assistant for CS2040C Since AY2024/25 Semester 1.`,
+      year: "Ongoing (2024 - 2027)",
+      icon: <FaGraduationCap />,
+      color: "bg-emerald-500 dark:bg-emerald-600",
+      position: "right",
+    },
+    {
       title: "B.Comp in Information Security",
       subtitle: "National University of Singapore (NUS)",
-      content: `Teaching Assistant for CS2040C Since AY2023/24 Semester 2.\n\nDistinction in CS2107`,
-      year: "Ongoing (2023 - 2027)",
+      content: `Teaching Assistant for CS2040C for AY2023/24 Semester 2.\n\nDistinction in CS2107`,
+      year: "2023 - 2024",
       icon: <FaGraduationCap />,
       color: "bg-emerald-500 dark:bg-emerald-600",
       position: "left",
