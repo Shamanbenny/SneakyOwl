@@ -37,7 +37,7 @@ const DSA = () => {
         >
           <div className="w-full text-center">
             <h1 className="pt-5 text-[4rem] text-emerald-700 drop-shadow-[0_0_6px] dark:text-emerald-500 max-sm:text-[3rem]">
-              /dsa
+              /dsa - Work In Progress
             </h1>
           </div>
 

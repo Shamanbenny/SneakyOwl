@@ -157,7 +157,7 @@ const AboutTimeline = () => {
       title: "Polytechnic Foundation Program (PFP)",
       subtitle: "Singapore Polytechnic",
       content:
-        "Having scored well for his GCE &#34;N&#34;-Level Examination, I was given the opportunity to go through PFP in place of taking the GCE &#34;O&#34;-Level Examination.",
+        "Having scored well for my GCE &#34;N&#34;-Level Examination, I was given the opportunity to go through PFP in place of taking the GCE &#34;O&#34;-Level Examination.",
       year: "2017",
       icon: <FaGraduationCap />,
       color: "bg-emerald-500 dark:bg-emerald-600",
