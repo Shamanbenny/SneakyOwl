@@ -302,7 +302,7 @@ const HomeSlider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
               duration-150 ease-linear dark:text-emerald-500 max-sm:text-[1.05rem] 
               sm:text-[1.3rem] md:text-[1.5rem] lg:text-[2rem] xl:text-[1.8rem]"
             >
-              Code Snippets with Visualizations on common LeekCode Problems
+              Code Snippets with Visualizations on common LeetCode Problems
             </h1>
             <div
               className="mt-0 flex items-center transition-all duration-150 ease-linear max-sm:mx-auto 
