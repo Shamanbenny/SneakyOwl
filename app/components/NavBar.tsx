@@ -6,7 +6,7 @@ import {
   FaEarlybirds,
   FaHome,
   FaUser,
-  FaThList,
+  FaChess,
   FaSun,
   FaMoon,
   FaEnvelope,
@@ -163,17 +163,17 @@ const NavBar: React.FC = () => {
                 </Link>
                 {/* [END] About Me */}
                 <br />
-                {/* [START] DSA Tab */}
+                {/* [START] Chess Tab */}
                 <Link
-                  href="/dsa"
-                  className="max-xs:text-[18px] topbar_element dsa-tab w-full text-[24px] 
+                  href="/chess"
+                  className="max-xs:text-[18px] topbar_element chess-tab w-full text-[24px] 
                   hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
                   dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
-                  onClick={() => togglePageChange("/dsa")}
+                  onClick={() => togglePageChange("/chess")}
                 >
-                  Data Structure & Algorithm
+                  My Chess Bot
                 </Link>
-                {/* [END] DSA Tab */}
+                {/* [END] Chess Tab */}
                 <Divider />
                 {/* [START] Copy Email Button */}
                 <h1
@@ -279,12 +279,12 @@ const NavBar: React.FC = () => {
                   className="sidebar-icon group"
                   onClick={() => togglePageChange("/dsa")}
                 >
-                  <FaThList
+                  <FaChess
                     size="28"
-                    className="navbar_element dsa-tab h-3/4"
+                    className="navbar_element chess-tab h-3/4"
                   />
                   <span className="sidebar-tooltip group-hover:scale-x-100">
-                    Data Structures & Algorithms
+                    My Chess Bot
                   </span>
                 </Link>
                 {/* [END] DSA Tab */}
@@ -354,10 +354,10 @@ export const togglePageChange = (tab: string) => {
       break;
     case "/dsa":
       document
-        .querySelector(".navbar_element.dsa-tab")
+        .querySelector(".navbar_element.chess-tab")
         ?.classList.toggle("active");
       document
-        .querySelector(".topbar_element.dsa-tab")
+        .querySelector(".topbar_element.chess-tab")
         ?.classList.add("active");
       break;
     default:
