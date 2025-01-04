@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Only enable static export when building
-  ...(process.env.NODE_ENV === 'production' && { output: "export" }),
+  //...(process.env.NODE_ENV === 'production' && { output: "export" }),
+  output: "export",
   images: {
     remotePatterns: [
       {
