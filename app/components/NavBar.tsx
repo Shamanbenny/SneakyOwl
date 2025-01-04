@@ -273,11 +273,11 @@ const NavBar: React.FC = () => {
                 </Link>
                 {/* [END] About Me Tab */}
 
-                {/* [START] DSA Tab */}
+                {/* [START] Chess Tab */}
                 <Link
-                  href="/dsa"
+                  href="/chess"
                   className="sidebar-icon group"
-                  onClick={() => togglePageChange("/dsa")}
+                  onClick={() => togglePageChange("/chess")}
                 >
                   <FaChess
                     size="28"
@@ -287,7 +287,7 @@ const NavBar: React.FC = () => {
                     My Chess Bot
                   </span>
                 </Link>
-                {/* [END] DSA Tab */}
+                {/* [END] Chess Tab */}
                 <Divider />
                 {/* [START] Copy Email Button */}
                 <div className="sidebar-icon group" onClick={copyEmail}>
@@ -352,7 +352,7 @@ export const togglePageChange = (tab: string) => {
         .querySelector(".topbar_element.about-tab")
         ?.classList.add("active");
       break;
-    case "/dsa":
+    case "/chess":
       document
         .querySelector(".navbar_element.chess-tab")
         ?.classList.toggle("active");

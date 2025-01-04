@@ -2,7 +2,7 @@ import { Roboto_Mono, Poppins } from "next/font/google";
 
 import NavBar from "../components/NavBar";
 import Loader from "../components/Loader";
-import Chess from "../components/Chess";
+import ChessPage from "../components/ChessPage";
 
 const monoFont = Roboto_Mono({ subsets: ["latin"] });
 const chessFont = Poppins({ weight: "400", subsets: ["latin"] });
@@ -30,7 +30,7 @@ export default function Home() {
           <div className={"appContent " + chessFont.className}>
             {/* [START] Page Components - Unique Per Page */}
             {/* Path: "/" */}
-            <Chess />
+            <ChessPage />
             {/* [END] Page Components - Unique Per Page */}
           </div>
         </div>
