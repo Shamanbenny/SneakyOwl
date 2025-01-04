@@ -88,7 +88,7 @@ const AboutTimeline = () => {
     {
       title: "B.Comp in Computer Science",
       subtitle: "National University of Singapore (NUS)",
-      content: `Course transfered to Computer Science in pursuit of becoming a SWE.\n\nContinuation as Teaching Assistant for CS2040C Since AY2024/25 Semester 1.`,
+      content: `Course transfered to Computer Science in pursuit of becoming a SWE.\n\nContinuation as Teaching Assistant for CS2040C Since AY2024/25 Semester 1.\n\nDistinction in CS3235\n\nCurrent GPA: 4.46`,
       year: "Ongoing (2024 - 2027)",
       icon: <FaGraduationCap />,
       color: "bg-emerald-500 dark:bg-emerald-600",

@@ -93,7 +93,7 @@ const ChessPage = () => {
               customDarkSquareStyle={{ backgroundColor: "#34d399" }}
               customDropSquareStyle={{ boxShadow: 'inset 0 0 1px 6px rgba(6,95,70,1)' }}
               autoPromoteToQueen={true}
-              animationDuration={300}
+              animationDuration={0}
             />
           </div>
         </div>

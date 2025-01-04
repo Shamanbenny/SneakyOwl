@@ -9,7 +9,7 @@ import {
   FaAngleLeft,
   FaAngleRight,
 } from "react-icons/fa";
-import DsaSVG from "./svgComponents/DsaSVG";
+import ChessSVG from "./svgComponents/ChessSVG";
 
 /**
  * This component represents a slider that displays multiple slides.
@@ -288,21 +288,21 @@ const HomeSlider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
             className="w-full text-center max-sm:mx-auto max-sm:mb-[30px] max-sm:mt-[70px] max-sm:max-h-[280px] 
             max-sm:max-w-[250px] max-xs:max-h-[210px] max-xs:max-w-[175px]"
           >
-            <DsaSVG />
+            <ChessSVG />
           </div>
           <div className="col-span-2 text-left max-sm:mb-[30px] max-sm:text-center">
             <h1
               className="transition-all duration-150 ease-linear max-sm:text-[1.6rem] max-xs:text-[1.2rem] 
-              sm:text-[1.7rem] md:text-[2.4rem] lg:text-[2.8rem] xl:text-[4.6rem]"
+              sm:text-[1.7rem] md:text-[2.2rem] lg:text-[2.8rem] xl:text-[4.6rem]"
             >
-              Data Structures & Algorithms
+              My Chess Bot
             </h1>
             <h1
               className="emerald-highlight text-emerald-700 transition-all 
               duration-150 ease-linear dark:text-emerald-500 max-sm:text-[1.05rem] 
-              sm:text-[1.3rem] md:text-[1.5rem] lg:text-[2rem] xl:text-[1.8rem]"
+              sm:text-[1.3rem] md:text-[1.5rem] lg:text-[1.8rem] xl:text-[2.4rem]"
             >
-              Code Snippets with Visualizations on common LeetCode Problems
+              Implementing algorithm optimization and reinforcement learning for my various Chess Bot versions
             </h1>
             <div
               className="mt-0 flex items-center transition-all duration-150 ease-linear max-sm:mx-auto 
@@ -310,7 +310,7 @@ const HomeSlider: React.FC<SliderProps> = ({ clientWidth, clientHeight }) => {
               md:w-3/5 lg:w-1/2 xl:w-[70%]"
             >
               <Link
-                href="/dsa"
+                href="/chess"
                 className="items-center rounded-md border border-emerald-500 bg-emerald-700 
                   py-1 text-center text-sm text-neutral-300 transition-all duration-150 
                   ease-linear hover:scale-110 hover:border-emerald-700 hover:bg-emerald-600 
