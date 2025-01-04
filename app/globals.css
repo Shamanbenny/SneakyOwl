@@ -286,8 +286,12 @@ body *::selection {
 .about-timeline-small svg {
   @apply z-[8] h-[25px] w-[25px] max-sm:h-[20px] max-sm:w-[20px];
 }
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+
+/* ---------- [START] Chess ---------- */
+/* ---------- [END] Chess ---------- */

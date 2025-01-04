@@ -2,10 +2,10 @@ import { Roboto_Mono, Poppins } from "next/font/google";
 
 import NavBar from "../components/NavBar";
 import Loader from "../components/Loader";
-import DSA from "../components/DSA";
+import ChessPage from "../components/ChessPage";
 
 const monoFont = Roboto_Mono({ subsets: ["latin"] });
-const dsaFont = Poppins({ weight: "400", subsets: ["latin"] });
+const chessFont = Poppins({ weight: "400", subsets: ["latin"] });
 
 export default function Home() {
   return (
@@ -27,10 +27,10 @@ export default function Home() {
           <NavBar />
           {/* [END] NavBar Components - Repeated Per Page */}
 
-          <div className={"appContent " + dsaFont.className}>
+          <div className={"appContent " + chessFont.className}>
             {/* [START] Page Components - Unique Per Page */}
             {/* Path: "/" */}
-            <DSA />
+            <ChessPage />
             {/* [END] Page Components - Unique Per Page */}
           </div>
         </div>
