@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Only enable static export when building
+  // Use this when you want to use "npm run dev" to run the project locally
   //...(process.env.NODE_ENV === 'production' && { output: "export" }),
+  // Use this when you want to publish the project to GitHub Pages
   output: "export",
   images: {
     remotePatterns: [
