@@ -10,6 +10,7 @@ const ChessPage = () => {
   const [clientWidth, setClientWidth] = useState<number>(1600);
   const [clientHeight, setClientHeight] = useState<number>(900);
   const [turnMessage, setTurnMessage] = useState("Your turn");
+  const [pieceDraggable, setPieceDraggable] = useState(true);
 
   useEffect(() => {
     handleResize();
@@ -24,6 +25,19 @@ const ChessPage = () => {
   const [game, setGame] = useState(new Chess());
 
   const onDrop = (sourceSquare: any, targetSquare: any) => {
+    // Get all legal moves for the current position
+    const legalMoves = game.moves({ square: sourceSquare, verbose: true });
+
+    // Check if the target square is a valid destination
+    const isLegalMove = legalMoves.some(
+      (move) => move.to === targetSquare
+    );
+
+    if (!isLegalMove) {
+      console.log(`Illegal move from ${sourceSquare} to ${targetSquare}`);
+      return false; // Reject the move
+    }
+
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,
@@ -39,28 +53,44 @@ const ChessPage = () => {
     return true;
   };
 
-  const makeBotMove = () => {
-    const moves = game.moves();
-    if (moves.length === 0) {
-      if (game.isCheckmate()) {
-        setTurnMessage("Checkmate! You Win!");
-      } else {
-        setTurnMessage("Stalemate! It's a Draw!");
+  const makeBotMove = async () => {
+    setPieceDraggable(false); // Disable piece dragging while bot is playing OR game over
+
+    // Check for Checkmate or Stalemate
+    if (game.isCheckmate()) {
+      setTurnMessage("Checkmate! The game is over.");
+      return; // Stop execution, as the game has ended
+    }
+    if (game.isStalemate()) {
+      setTurnMessage("Stalemate! The game is over.");
+      return; // Stop execution, as the game has ended
+    }
+
+    try {
+      setTurnMessage("Bot's turn");
+      const response = await fetch('/api/chess_v1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fen: game.fen() }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch bot move');
       }
-      return;
-    }; // Game over
-
-    setTurnMessage("Bot's turn");
-    setTimeout(() => {
-      botRandomMove(moves);
-    }, 500);
-  };
-
-  const botRandomMove = (moves: any) => {
-    const randomMove = moves[Math.floor(Math.random() * moves.length)];
-    game.move(randomMove);
-    setGame(new Chess(game.fen()));
-    setTurnMessage("Your turn");
+  
+      const { move } = await response.json();
+      console.log('[Chess V1]:', move);
+  
+      if (move) {
+        game.move(move);
+        setGame(new Chess(game.fen()));
+        setTurnMessage("Your turn");
+        setPieceDraggable(true); // Enable piece dragging after bot's move
+      }
+    } catch (error) {
+      console.error('Error fetching bot move:', error);
+      setTurnMessage("Error fetching bot move");
+    }
   };
 
   return (
@@ -93,6 +123,7 @@ const ChessPage = () => {
               customDarkSquareStyle={{ backgroundColor: "#34d399" }}
               customDropSquareStyle={{ boxShadow: 'inset 0 0 1px 6px rgba(6,95,70,1)' }}
               autoPromoteToQueen={true}
+              arePiecesDraggable={pieceDraggable}
               animationDuration={0}
             />
           </div>
