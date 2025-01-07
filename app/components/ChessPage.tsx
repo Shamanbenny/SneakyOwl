@@ -66,37 +66,22 @@ const ChessPage = () => {
       return; // Stop execution, as the game has ended
     }
 
-    // ---API TESTING---
     try {
-      const response = await fetch('/api/test', {
+      setTurnMessage("Bot's turn");
+      const response = await fetch('https://chess.sneakyowl.net/chess_v1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
         },
-        body: JSON.stringify({ message: 'Checking if the API call works' }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Testing Failed');
-      }
-
-      const data = await response.json();
-      console.log('[Chess V1]:', data);
-    } catch (error) {
-      console.error('Error with API testing:', error);
-    }
-    // ---API TESTING---
-
-    try {
-      setTurnMessage("Bot's turn");
-      const response = await fetch('/api/chess_v1', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fen: game.fen() }),
       });
   
       if (!response.ok) {
-        throw new Error('Failed to fetch bot move');
+        const errorDetails = await response.text();
+        throw new Error(
+          `API Error: ${response.status} ${response.statusText}. ${errorDetails}`
+        );
       }
   
       const { move } = await response.json();
