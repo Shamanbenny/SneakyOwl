@@ -67,7 +67,7 @@ const ChessPage = () => {
     }
 
     try {
-      const response = await fetch('chess.sneakyowl.net/chess_v1', {
+      const response = await fetch('https://chess.sneakyowl.net/chess_v1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
