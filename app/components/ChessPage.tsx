@@ -66,27 +66,27 @@ const ChessPage = () => {
       return; // Stop execution, as the game has ended
     }
 
+    // ---API TESTING---
     try {
-      const response = await fetch('https://chess.sneakyowl.net/chess_v1', {
+      const response = await fetch('https://chess.sneakyowl.net/test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-vercel-protection-bypass': `${process.env.CHESS_API_KEY}`,
         },
-        body: JSON.stringify({ fen: game.fen() }),
+        body: JSON.stringify({ message: 'Checking if the API call works' }),
       });
       
       if (!response.ok) {
         throw new Error('Testing Failed');
       }
 
-      const { move } = await response.json();
-      console.log('[Chess V1]:', move);
-
+      const data = await response.json();
+      console.log('[Chess V1]:', data);
     } catch (error) {
-      console.error('Error fetching bot move:', error);
-      setTurnMessage("Error fetching bot move");
+      console.error('Error with API testing:', error);
     }
+    // ---API TESTING---
 
     try {
       setTurnMessage("Bot's turn");
