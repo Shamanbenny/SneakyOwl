@@ -11,6 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'FEN is required' });
   }
 
+  console.log('[Chess V1] Attempting to fetch best move for FEN:', fen);
+
   try {
     const response = await fetch('https://chess.sneakyowl.net/chess_v1', {
       method: 'POST',
@@ -20,6 +22,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       body: JSON.stringify({ fen }),
     });
+
+    console.log('[Chess V1] Response:', response.status, response.statusText);
 
     // Handle non-200 HTTP responses
     if (!response.ok) {
