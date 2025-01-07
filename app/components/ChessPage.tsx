@@ -68,11 +68,10 @@ const ChessPage = () => {
 
     // ---API TESTING---
     try {
-      const response = await fetch('https://chess.sneakyowl.net/test', {
+      const response = await fetch('/api/test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-vercel-protection-bypass': `${process.env.CHESS_API_KEY}`,
         },
         body: JSON.stringify({ message: 'Checking if the API call works' }),
       });
