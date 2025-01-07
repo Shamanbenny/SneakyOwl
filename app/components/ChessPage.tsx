@@ -67,6 +67,28 @@ const ChessPage = () => {
     }
 
     try {
+      const response = await fetch('chess.sneakyowl.net/chess_v1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-vercel-protection-bypass': `${process.env.CHESS_API_KEY}`,
+        },
+        body: JSON.stringify({ fen: game.fen() }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Testing Failed');
+      }
+
+      const { move } = await response.json();
+      console.log('[Chess V1]:', move);
+
+    } catch (error) {
+      console.error('Error fetching bot move:', error);
+      setTurnMessage("Error fetching bot move");
+    }
+
+    try {
       setTurnMessage("Bot's turn");
       const response = await fetch('/api/chess_v1', {
         method: 'POST',
