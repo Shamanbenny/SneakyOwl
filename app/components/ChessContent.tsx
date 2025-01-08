@@ -54,18 +54,14 @@ const ChessContent = () => {
       setTurnMessage("Bot's turn");
 
       // [API CALL] Fetch the bot's move from the server
-      const response = await fetchWithTimeout(
-        `https://chess.sneakyowl.net/chess_${botVersion}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.CHESS_API_KEY}`,
-          },
-          body: JSON.stringify({ fen: currGame.fen() }),
+      const response = await fetch(`https://chess.sneakyowl.net/chess_${botVersion}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
         },
-        30000 // 30 seconds timeout
-      );
+        body: JSON.stringify({ fen: currGame.fen() }),
+      });
   
       if (!response.ok) {
         const errorDetails = await response.text();
@@ -130,34 +126,6 @@ const ChessContent = () => {
         transition: Slide,
         });
     }
-  };
-
-  const fetchWithTimeout = (
-    url: string,
-    options: RequestInit,
-    timeout: number
-  ): Promise<Response> => {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Request timed out")), timeout);
-  
-      fetch(url, options)
-        .then((response) => {
-          clearTimeout(timer);
-  
-          if (!response.ok) {
-            // Use response type information for detailed errors
-            response.text().then((errorDetails) => {
-              reject(new Error(`API Error: ${response.status} ${response.statusText}. ${errorDetails}`));
-            });
-          } else {
-            resolve(response);
-          }
-        })
-        .catch((error) => {
-          clearTimeout(timer);
-          reject(error);
-        });
-    });
   };
 
   return (
