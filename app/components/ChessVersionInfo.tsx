@@ -12,7 +12,7 @@ const ChessVersionInfo = () => {
     },
     {
       version: '1.0',
-      keyFeatureTitle: 'Minimax Algorithm',
+      keyFeatureTitle: 'Minimax Algorithm [Depth 2]',
       featuresImplemented: ['Uses basic depth-limited decision-making algorithm evaluated by maximizing player pieces and minimizing opponent pieces'],
       avgDecisionTime: '??? seconds',
       noticeableWeakness: ['Takes a long time to make decisions, which exponentially increases with each depth level', 'If depth is not high enough, it may make suboptimal/bad moves'],
