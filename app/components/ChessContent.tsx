@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
+import { ToastContainer, toast, Slide } from 'react-toastify';
 import ChessVersionInfo from './ChessVersionInfo';
 
 const ChessContent = () => {
@@ -70,7 +71,7 @@ const ChessContent = () => {
       }
       
       const { move } = await response.json();
-      console.log('[Chess V1]:', move);
+      console.log(`[Chess ${botVersion}]:`, move);
   
       if (move) {
         currGame.move(move);
@@ -113,8 +114,17 @@ const ChessContent = () => {
         setPieceDraggable(true);
       }
     } catch (error) {
-      console.error("Invalid FEN input:", error);
-      setTurnMessage("Invalid FEN. Please try again.");
+      toast.error('Invalid FEN, please try again!', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: false,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide,
+        });
     }
   };
 
@@ -130,7 +140,7 @@ const ChessContent = () => {
           customDropSquareStyle={{ boxShadow: 'inset 0 0 1px 6px rgba(6,95,70,1)' }}
           autoPromoteToQueen={true}
           arePiecesDraggable={pieceDraggable}
-          animationDuration={0}
+          animationDuration={150}
         />
       </div>
       <div className="text-center mt-4">
@@ -158,9 +168,24 @@ const ChessContent = () => {
         >
           <option value="v0">Chess Bot v0</option>
           <option value="v1">Chess Bot v1</option>
+          <option value="v1-1">Chess Bot v1.1</option>
         </select>
       </div>
       <ChessVersionInfo />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        limit={3}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover
+        theme="dark"
+        transition={Slide}
+        />
     </>
   )
 }

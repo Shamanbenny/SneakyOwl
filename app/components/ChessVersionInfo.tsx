@@ -8,6 +8,7 @@ const ChessVersionInfo = () => {
       keyFeatureTitle: 'Random Moves',
       featuresImplemented: ['None, just random moves XD'],
       avgDecisionTime: '0 seconds',
+      estimatedTimeComplexity: 'O(1)',
       noticeableWeakness: ['Absolutely no strategies involved'],
     },
     {
@@ -15,7 +16,16 @@ const ChessVersionInfo = () => {
       keyFeatureTitle: 'Minimax Algorithm [Depth 2]',
       featuresImplemented: ['Uses basic depth-limited decision-making algorithm evaluated by maximizing player pieces and minimizing opponent pieces'],
       avgDecisionTime: '??? seconds',
+      estimatedTimeComplexity: 'O(b^d), where b is the branching factor and d is the depth',
       noticeableWeakness: ['Takes a long time to make decisions, which exponentially increases with each depth level', 'If depth is not high enough, it may make suboptimal/bad moves'],
+    },
+    {
+      version: '1.1',
+      keyFeatureTitle: 'Minimax Algorithm with Alpha-Beta Pruning [Depth 3]',
+      featuresImplemented: ['Uses depth-limited decision-making algorithm with alpha-beta pruning for faster decision-making', 'Avoids exploring branches that won\'t affect the final decision'],
+      avgDecisionTime: '??? seconds',
+      estimatedTimeComplexity: 'Ω(b^(d/2)), ϴ(b^(3d/4)), O(b^d), where b is the branching factor and d is the depth',
+      noticeableWeakness: ['Substantially faster than Version 1.0, allowing for higher depth limit', 'Does not employ logical strategies, only focuses on maximizing piece count'],
     }
   ];
 
@@ -51,6 +61,10 @@ const ChessVersionInfo = () => {
             <p className="mt-2">
               <span className="font-bold">Average Decision Time:</span>{' '}
               {versionInfo.avgDecisionTime}
+            </p>
+            <p className="mt-2">
+              <span className="font-bold">Estimated Time Complexity:</span>{' '}
+              {versionInfo.estimatedTimeComplexity}
             </p>
             <p className="mt-2">
               <span className="font-bold">Noticeable Weakness:</span>
