@@ -8,7 +8,7 @@ const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
   const [turnMessage, setTurnMessage] = useState("Your turn");
   const [pieceDraggable, setPieceDraggable] = useState(true);
-  const [botVersion, setBotVersion] = useState("v1");
+  const [botVersion, setBotVersion] = useState("v1-1");
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
 
   const onDrop = (sourceSquare: any, targetSquare: any) => {
