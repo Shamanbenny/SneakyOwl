@@ -169,7 +169,7 @@ const ChessContent = () => {
           <option value="v0">Chess Bot v0</option>
           <option value="v1">Chess Bot v1</option>
           <option value="v1-1">Chess Bot v1.1</option>
-          <option value="v1-1">Chess Bot v1.2</option>
+          <option value="v1-2">Chess Bot v1.2</option>
         </select>
       </div>
       <ChessVersionInfo />
