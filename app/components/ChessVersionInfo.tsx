@@ -39,7 +39,7 @@ const ChessVersionInfo = () => {
         'Avoids exploring branches that won\'t affect the final decision',
         'Employs move ordering to prioritize more promising moves (Specifically captures and checks)'],
       avgDecisionTime: '??? seconds',
-      estimatedTimeComplexity: '???',
+      estimatedTimeComplexity: '??? [Needs more time to analyze]',
       noticeableWeakness: ['More consistent in faster decision-making compared to Version 1.1, despite similar depth limit', 
         'Does not employ logical strategies, only focuses on maximizing piece count'],
     }
