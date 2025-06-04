@@ -70,8 +70,8 @@ const ChessContent = () => {
         );
       }
       
-      const { move } = await response.json();
-      console.log(`[Chess ${botVersion}]:`, move);
+      const { move, processing_time, moves_evaluated } = await response.json();
+      console.log(`[Chess ${botVersion}]:`, move, `Processing Time: ${processing_time}ms, Moves Evaluated: ${moves_evaluated}`);
   
       if (move) {
         currGame.move(move);
