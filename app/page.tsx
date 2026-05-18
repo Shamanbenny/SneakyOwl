@@ -1,10 +1,11 @@
-import { Roboto_Mono } from "next/font/google";
+import { Roboto_Mono, Poppins } from "next/font/google";
 
 import NavBar from "./components/NavBar";
 import Loader from "./components/Loader";
-import { Index } from "./components/Index";
+import { About } from "./components/About";
 
 const monoFont = Roboto_Mono({ subsets: ["latin"] });
+const aboutMeFont = Poppins({ weight: "400", subsets: ["latin"] });
 
 export default function Home() {
   return (
@@ -14,7 +15,7 @@ export default function Home() {
         <div
           className={
             monoFont.className +
-            " loader absolute z-[9999] h-full w-full bg-neutral-900 opacity-100 transition-opacity duration-[350ms] ease-linear"
+            " loader absolute z-[9999] h-full w-full bg-neutral-900 opacity-100 transition-opacity duration-[50ms] ease-linear"
           }
         >
           <h1 className="loader_string absolute top-[45%] w-full text-center text-[2.5rem] text-emerald-500 sm:text-[4rem]"></h1>
@@ -26,10 +27,10 @@ export default function Home() {
           <NavBar />
           {/* [END] NavBar Components - Repeated Per Page */}
 
-          <div className="appContent">
+          <div className={"appContent " + aboutMeFont.className}>
             {/* [START] Page Components - Unique Per Page */}
             {/* Path: "/" */}
-            <Index />
+            <About />
             {/* [END] Page Components - Unique Per Page */}
           </div>
         </div>

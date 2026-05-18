@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   FaEarlybirds,
   FaHome,
-  FaUser,
   FaChess,
   FaSun,
   FaMoon,
@@ -157,18 +156,6 @@ const NavBar: React.FC = () => {
                 </Link>
                 {/* [END] Home Tab */}
                 <br />
-                {/* [START] About Me */}
-                <Link
-                  href="/about"
-                  className="max-xs:text-[18px] topbar_element about-tab w-full text-[24px] 
-                  hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
-                  dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
-                  onClick={() => togglePageChange("/about")}
-                >
-                  About Me
-                </Link>
-                {/* [END] About Me */}
-                <br />
                 {/* [START] Chess Tab */}
                 <Link
                   href="/chess"
@@ -263,22 +250,6 @@ const NavBar: React.FC = () => {
                 </Link>
                 {/* [END] Home Tab */}
 
-                {/* [START] About Me Tab */}
-                <Link
-                  href="/about"
-                  className="sidebar-icon group"
-                  onClick={() => togglePageChange("/about")}
-                >
-                  <FaUser
-                    size="28"
-                    className="navbar_element about-tab h-3/4"
-                  />
-                  <span className="sidebar-tooltip group-hover:scale-x-100">
-                    About Me
-                  </span>
-                </Link>
-                {/* [END] About Me Tab */}
-
                 {/* [START] Chess Tab */}
                 <Link
                   href="/chess"
@@ -348,14 +319,6 @@ export const togglePageChange = (tab: string) => {
         ?.classList.add("active");
       document
         .querySelector(".topbar_element.home-tab")
-        ?.classList.add("active");
-      break;
-    case "/about":
-      document
-        .querySelector(".navbar_element.about-tab")
-        ?.classList.toggle("active");
-      document
-        .querySelector(".topbar_element.about-tab")
         ?.classList.add("active");
       break;
     case "/chess":

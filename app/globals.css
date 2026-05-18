@@ -86,40 +86,6 @@ body *::selection {
 }
 /* ---------- [END] SVG Components ---------- */
 
-/* ---------- [START] Index Background ---------- */
-.index-bg li {
-  position: absolute;
-  display: block;
-  list-style: none;
-  animation: animate-index-bg 25s linear infinite;
-  bottom: -150px;
-
-  @apply bg-neutral-700/25 dark:bg-emerald-500/15;
-}
-
-@keyframes animate-index-bg {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-    border-radius: 0;
-  }
-
-  100% {
-    transform: translateY(-1000px) rotate(720deg);
-    opacity: 0;
-    border-radius: 50%;
-  }
-}
-/* ---------- [END] Index Background ---------- */
-
-.slide-left-transition {
-  transition: left 0.75s ease-in-out;
-}
-
-.slider-arrow-btn {
-  @apply z-10;
-}
-
 /* ---------- [START] /about: Personality Animation ---------- */
 .personality-animation {
   @apply text-neutral-950/30 dark:text-neutral-50/10;
