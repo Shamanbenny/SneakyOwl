@@ -5,6 +5,7 @@ const nextConfig = {
   // Use this when you want to publish the project to GitHub Pages
   output: "export",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

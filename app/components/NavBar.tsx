@@ -13,6 +13,12 @@ import {
   FaBars,
 } from "react-icons/fa";
 
+const playAudioSafely = (audio: HTMLAudioElement) => {
+  void audio.play().catch(() => {
+    // Audio playback can still be blocked by the browser in some contexts.
+  });
+};
+
 /**
  * NavBar Component containing the ability to navigate between pages, toggle dark mode, and copy email to clipboard.
  */
@@ -68,9 +74,9 @@ const NavBar: React.FC = () => {
 
     localStorage.setItem("dark-theme", newDarkMode.toString());
 
-    const sound = new Audio("./sounds/toggleClick.mp3");
+    const sound = new Audio("/sounds/toggleClick.mp3");
     sound.volume = 0.4;
-    sound.play();
+    playAudioSafely(sound);
   };
 
   /* [START] Copy Email & Alert */

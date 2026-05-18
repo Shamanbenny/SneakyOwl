@@ -3,8 +3,14 @@
 
 import React, { useEffect, useState } from "react";
 
-let keyboardSound: any;
-let enteringSound: any;
+let keyboardSound: HTMLAudioElement | undefined;
+let enteringSound: HTMLAudioElement | undefined;
+
+const playAudioSafely = (audio: HTMLAudioElement) => {
+  void audio.play().catch(() => {
+    // Browsers may block autoplay until the first user interaction.
+  });
+};
 
 /**
  * Loader component that displays a start-up animation.
@@ -39,15 +45,15 @@ const Loader: React.FC = () => {
     }
 
     if (!hasSeenAnimation && counter == 6) {
-      keyboardSound = new Audio("./sounds/keyboard.mp3");
-      keyboardSound.play();
+      keyboardSound = new Audio("/sounds/keyboard.mp3");
+      playAudioSafely(keyboardSound);
     }
     if (!hasSeenAnimation && counter == 65) {
-      keyboardSound.pause();
+      keyboardSound?.pause();
     }
     if (!hasSeenAnimation && counter == 68) {
-      enteringSound = new Audio("./sounds/entering.mp3");
-      enteringSound.play();
+      enteringSound = new Audio("/sounds/entering.mp3");
+      playAudioSafely(enteringSound);
     }
 
     let stringLen = Math.floor(counter / counterPerChar);
