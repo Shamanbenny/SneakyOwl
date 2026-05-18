@@ -1,7 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FaAngleRight,
   FaGithub,
@@ -10,26 +9,25 @@ import {
 } from "react-icons/fa";
 import AboutTimeline from "./AboutTimeline";
 import AboutReviews from "./AboutReviews";
+import ProfileHoloCard from "./ProfileHoloCard";
 
 export const About: React.FC = () => {
   /* AppContent Divider Size Rendering based on User's Width*/
   const [clientWidth, setClientWidth] = useState<number>(1600);
-  const [clientHeight, setClientHeight] = useState<number>(900);
 
   useEffect(() => {
+    const handleResize = () => {
+      setClientWidth(window.innerWidth);
+    };
+
     handleResize();
     window.addEventListener("resize", handleResize);
-  });
 
-  const handleResize = () => {
-    setClientWidth(window.innerWidth);
-    setClientHeight(window.innerHeight);
-  };
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   /* [START] Array of string for iterating personality */
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [personalityIndex, setPersonalityIndex] = useState<number>(0);
-  const personalityRefs: RefObject<HTMLHeadingElement>[] = [];
   const personality = [
     "an NUS Student",
     "a Software Engineer",
@@ -39,27 +37,14 @@ export const About: React.FC = () => {
     "a LLMs Enthusiast",
     "a Curious Individual!",
   ];
-  for (let i = 0; i < personality.length; i++) {
-    personalityRefs.push(React.createRef<HTMLHeadingElement>());
-  }
 
   useEffect(() => {
     const id = setTimeout(() => {
-      setPersonalityIndex((personalityIndex + 1) % personality.length);
-    }, 2000); // 3 seconds
-    setTimeoutId(id);
+      setPersonalityIndex((currentIndex) => (currentIndex + 1) % personality.length);
+    }, 2000);
 
-    if (personalityRefs[personalityIndex].current) {
-      let prevPersonalityIndex;
-      if (personalityIndex) prevPersonalityIndex = personalityIndex - 1;
-      else prevPersonalityIndex = personality.length - 1;
-      personalityRefs[personalityIndex].current?.classList.remove("hidden");
-      personalityRefs[prevPersonalityIndex].current?.classList.add("hidden");
-      const curr_personalityRef = personalityRefs[personalityIndex].current;
-      if (curr_personalityRef)
-        curr_personalityRef.dataset.text = personality[personalityIndex];
-    }
-  }, [personalityIndex]);
+    return () => clearTimeout(id);
+  }, [personality.length, personalityIndex]);
   /* [END] Array of string for iterating personality */
 
   /* [START] Introduction & Career Objective Collapsible Text */
@@ -127,48 +112,41 @@ export const About: React.FC = () => {
       >
         {/* [START] About Me Hero Banner */}
         <div
-          className="mx-auto flex w-full items-center max-sm:h-[50%] max-sm:min-h-[450px] 
-            max-sm:w-[300px] max-sm:grid-cols-1 max-sm:grid-rows-2 max-sm:flex-col max-xs:min-h-[375px] max-xs:max-w-[230px] sm:h-[50%] 
-            sm:min-h-[350px] sm:max-w-[570px] sm:grid-cols-2 sm:gap-4 sm:px-5 md:h-[70%] 
-            md:min-h-[500px] md:max-w-[704px] md:px-5 lg:h-[90%] lg:min-h-[600px] lg:max-w-[944px] 
-            lg:gap-8 lg:px-10 xl:min-h-[700px] xl:max-w-[1200px] xl:px-[60px] xxl:min-h-[810px] xxl:max-w-[1520px] xxl:px-[80px]"
+          className="mx-auto flex w-full items-center justify-between gap-8 max-sm:min-h-[720px]
+            max-sm:w-[300px] max-sm:flex-col max-sm:justify-center max-xs:min-h-[680px] max-xs:max-w-[230px]
+            sm:min-h-[350px] sm:max-w-[570px] sm:px-5 md:min-h-[500px] md:max-w-[704px] md:px-5
+            lg:min-h-[600px] lg:max-w-[944px] lg:gap-10 lg:px-10 xl:min-h-[700px] xl:max-w-[1200px]
+            xl:px-[60px] xxl:min-h-[810px] xxl:max-w-[1520px] xxl:px-[80px]"
         >
-          <div className="flex h-full w-full items-center justify-center text-center duration-0 max-sm:flex sm:hidden">
-            <Image
-              src="/sneakyOwl_1.jpg"
-              width={512}
-              height={512}
-              alt="Profile Picture"
-              className="rounded-[50%] duration-0 max-md:h-[250px] max-md:w-[250px] max-sm:mt-[50px] max-xs:mt-[30px] max-xs:h-[220px] max-xs:w-[220px] md:h-[310px] md:w-[310px] 
-                lg:h-[400px] lg:w-[400px] xl:h-[512px] xl:w-[512px] xl:scale-100 xxl:scale-125"
+          <div className="order-1 flex h-full w-full items-center justify-center sm:order-2">
+            <ProfileHoloCard
+              name="Lee Jia Quan, Benny"
+              title="Full-stack Engineer"
+              imageSrc="/sneakyOwl_1.jpg"
+              idCode="1337-5T4C-K9001"
             />
           </div>
-          <div className="w-full max-sm:mx-auto">
+          <div className="order-2 w-full max-sm:mx-auto sm:order-1">
             <h1
-              className="max-sm:text-[1.8rem] max-xs:text-[1.4rem] 
+              className="max-sm:text-center max-sm:text-[1.8rem] max-xs:text-[1.4rem] 
               sm:text-[1.5rem] md:text-[1.9rem] lg:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
             >
               Lee Jia Quan, Benny
             </h1>
-            <div className="flex items-center ">
+            <div className="flex items-center max-sm:justify-center">
               <FaAngleRight className="w-auto dark:text-neutral-400 max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
               <h1
-                className=" 
-                dark:text-neutral-400 max-sm:text-[1rem] max-xs:text-[0.7rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
+                className="dark:text-neutral-400 max-sm:text-[1rem] max-xs:text-[0.7rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
               >
                 I&#39;m
               </h1>
-              {personality.map((element, index) => (
-                <span
-                  key={index}
-                  ref={personalityRefs[index]}
-                  className="personality-animation hidden transition-all duration-150 
-                    ease-linear max-sm:pl-[4px] max-sm:text-[1rem] max-xs:text-[0.7rem] sm:pl-[4px] sm:text-[13px] 
-                    md:pl-[5px] md:text-[17px] lg:pl-[7px] lg:text-[1.35rem] xl:pl-[8px] xl:text-[1.7rem] xxl:pl-[10px] xxl:text-[34px]"
-                >
-                  {element}
-                </span>
-              ))}
+              <span
+                key={personalityIndex}
+                data-text={personality[personalityIndex]}
+                className="personality-animation transition-all duration-150 ease-linear max-sm:pl-[4px] max-sm:text-[1rem] max-xs:text-[0.7rem] sm:pl-[4px] sm:text-[13px] md:pl-[5px] md:text-[17px] lg:pl-[7px] lg:text-[1.35rem] xl:pl-[8px] xl:text-[1.7rem] xxl:pl-[10px] xxl:text-[34px]"
+              >
+                {personality[personalityIndex]}
+              </span>
             </div>
             <div className="flex w-[50%] pt-4 max-sm:mx-auto max-sm:w-[70%] max-xs:w-[50%]">
               <a
@@ -223,16 +201,6 @@ export const About: React.FC = () => {
                 </span>
               </a>
             </div>
-          </div>
-          <div className="h-full w-full items-center justify-center text-center duration-0 max-sm:hidden sm:flex">
-            <Image
-              src="/sneakyOwl_1.jpg"
-              width={512}
-              height={512}
-              alt="Profile Picture"
-              className="h-[250px] w-[250px] rounded-[50%] duration-0 md:h-[310px] md:w-[310px] 
-                lg:h-[400px] lg:w-[400px] xl:h-[512px] xl:w-[512px] xl:scale-100 xxl:scale-125"
-            />
           </div>
         </div>
         {/* [END] About Me Hero Banner */}
