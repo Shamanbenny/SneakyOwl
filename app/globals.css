@@ -109,6 +109,32 @@ body *::selection {
   color: var(--site-accent-soft);
 }
 
+.site-tooltip-panel {
+  border: 1px solid var(--site-border-strong);
+  background-color: var(--site-bg-chrome);
+  color: var(--site-text);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+}
+
+.site-tooltip-trigger {
+  transition:
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.site-tooltip-trigger:hover,
+.site-tooltip-trigger:focus-visible {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: var(--site-accent-soft);
+}
+
+.site-tooltip-trigger--icon {
+  border: 1px solid var(--site-border-strong);
+  background-color: var(--site-bg-soft);
+  color: var(--site-text-muted);
+}
+
 .timeline-accent-emerald {
   background-color: var(--site-accent);
   color: var(--site-text-strong);
@@ -159,30 +185,32 @@ body *::selection {
 }
 
 @media (min-width: 640px) and (max-width: 767px) {
-  .about-timeline-line-mobile::after {
-    left: 70.6%;
+.about-timeline-line-mobile::after {
+  left: 70.6%;
   }
+}
+
+.site-location-map-frame .leaflet-container,
+.site-location-map-frame .leaflet-pane,
+.site-location-map-frame .leaflet-tile-container {
+  background-color: var(--site-bg-soft) !important;
+}
+
+.site-location-map-frame .leaflet-container {
+  font-family: inherit;
+}
+
+.site-location-map-frame .leaflet-control-container {
+  display: none;
+}
+
+.site-location-map-frame .leaflet-tile {
+  filter: saturate(0.8) brightness(0.92) contrast(1.08);
 }
 
 /* Original @media: max-sm:w-[300px] sm:w-[640px] md:w-[768px] lg:w-[1024px] xl:w-[1280px] xxl:w-[1600px] */
 /* Navbar: 64px from sm and md; 80px from lg onwards */
 /* Therefore... max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px] */
-
-/* [START] SuccessAlert */
-.successAlert {
-  @apply fixed left-0 top-[4.5rem] z-[9999] w-screen text-center sm:top-[5.25rem]
-    transition-all duration-150 ease-linear;
-}
-
-.successAlert span {
-  @apply rounded-xl border-4 pb-2 pl-5 pr-5 pt-2 text-sm;
-  border-color: var(--site-accent-strong);
-  background-color: var(--site-accent);
-  color: var(--site-selection-text);
-
-  @apply lg:pl-10 lg:pr-10 lg:text-lg;
-}
-/* [END] SuccessAlert */
 
 /* ---------- [START] Dock ---------- */
 .dock-outer {
@@ -271,7 +299,7 @@ body *::selection {
   background: var(--site-bg-strong);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
   color: var(--site-text-strong);
-  font-size: 0.72rem;
+  font-size: 1rem;
   letter-spacing: 0.02em;
 }
 
@@ -718,6 +746,53 @@ body *::selection {
 }
 /* ---------- [END] /about: Personality Animation ---------- */
 
+/* ---------- [START] /about: Hero Rotating Text + Bento ---------- */
+@keyframes cat-click-plus-one {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10%) scale(0.7);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -70%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%) scale(0.88);
+  }
+}
+
+.cat-click-plus-one {
+  animation: cat-click-plus-one 950ms ease-out forwards;
+}
+
+.magic-bento-card--border-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 4px;
+  border-radius: inherit;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.55)) 0%,
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.28)) 35%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---------- [END] /about: Hero Rotating Text + Bento ---------- */
+
 /* ---------- [START] About Timeline (LEFT vers.) ---------- */
 .about-timeline-left {
   @apply mx-auto my-3 flex w-full flex-row xxl:w-[90%];
@@ -835,12 +910,14 @@ body *::selection {
   --glare-opacity: 0.18;
   --card-pattern: none;
   --card-pattern-size: 112px;
+  width: 100%;
+  max-width: 22rem;
   perspective: 2000px;
 }
 
 .holo-profile-card {
   position: relative;
-  width: min(100%, 330px);
+  width: 100%;
   aspect-ratio: 0.665;
   overflow: hidden;
   border-radius: 32px;

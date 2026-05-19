@@ -1,4 +1,5 @@
 import { Ubuntu_Mono, Geist } from "next/font/google";
+import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 

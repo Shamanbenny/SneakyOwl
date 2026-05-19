@@ -60,3 +60,7 @@ public/
 ## Deployment Note
 
 This project is currently configured for static export in [next.config.mjs](./next.config.mjs) with `output: "export"`, which is suitable for GitHub Pages style deployments. Review that configuration before changing deployment targets.
+
+## To-do
+
+- [ ] Create a Project display segment and link to it for the COMPLETED PROJECTS bento cell.

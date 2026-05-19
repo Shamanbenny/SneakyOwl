@@ -3,12 +3,10 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ComponentType } from "react";
 import {
-  FaBullseye,
   FaChess,
   FaEarlybirds,
   FaEnvelope,
   FaHistory,
-  FaIdCard,
   FaQuoteLeft,
 } from "react-icons/fa";
 
@@ -16,7 +14,9 @@ import Dock, { type DockEntry } from "@/components/Dock";
 import StaggeredMenu from "@/components/StaggeredMenu";
 import { cn } from "@/lib/utils";
 
-const LANDING_SECTIONS = ["home", "intro", "objective", "reviews", "timeline"] as const;
+const LANDING_SECTIONS = ["home", "reviews", "timeline"] as const;
+const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
+const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
 const SITE_COLORS = {
   accent: "var(--site-accent)",
   chrome: "var(--site-bg-chrome)",
@@ -66,7 +66,6 @@ const ResponsiveStaggeredMenu = StaggeredMenu as unknown as ComponentType<Stagge
 const NavBar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const [alertVisible, setAlertVisible] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
   const [isViewportReady, setIsViewportReady] = useState(false);
   const [activeDockItem, setActiveDockItem] = useState<ActiveDockItem>(null);
@@ -118,25 +117,8 @@ const NavBar = () => {
     };
   }, [pathname]);
 
-  useEffect(() => {
-    if (!alertVisible) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setAlertVisible(false);
-    }, 2400);
-
-    return () => window.clearTimeout(timeout);
-  }, [alertVisible]);
-
-  const copyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText("lee.jia.quan@u.nus.edu");
-      setAlertVisible(true);
-    } catch {
-      setAlertVisible(false);
-    }
+  const openEmailComposer = () => {
+    window.location.href = EMAIL_HREF;
   };
 
   const navigateToSection = (sectionId: LandingSection) => {
@@ -176,27 +158,15 @@ const NavBar = () => {
       onClick: () => navigateToSection("home"),
     },
     {
-      className: dockItemClass(activeDockItem === "intro"),
-      icon: <FaIdCard size={19} />,
-      label: "> Introduction",
-      onClick: () => navigateToSection("intro"),
-    },
-    {
-      className: dockItemClass(activeDockItem === "objective"),
-      icon: <FaBullseye size={19} />,
-      label: "> Career Objective",
-      onClick: () => navigateToSection("objective"),
-    },
-    {
       className: dockItemClass(activeDockItem === "reviews"),
       icon: <FaQuoteLeft size={18} />,
-      label: "> Reviews",
+      label: "#Reviews",
       onClick: () => navigateToSection("reviews"),
     },
     {
       className: dockItemClass(activeDockItem === "timeline"),
       icon: <FaHistory size={19} />,
-      label: "> Timeline",
+      label: "#Timeline",
       onClick: () => navigateToSection("timeline"),
     },
     { type: "divider" },
@@ -209,7 +179,7 @@ const NavBar = () => {
     {
       icon: <FaEnvelope size={18} />,
       label: "Email Me",
-      onClick: copyEmail,
+      onClick: openEmailComposer,
     },
   ];
 
@@ -219,18 +189,6 @@ const NavBar = () => {
       className: mobileMenuItemClass(activeDockItem === "home"),
       label: "Home",
       onClick: () => navigateToSection("home"),
-    },
-    {
-      ariaLabel: "Jump to the introduction section",
-      className: mobileMenuItemClass(activeDockItem === "intro"),
-      label: "> Introduction",
-      onClick: () => navigateToSection("intro"),
-    },
-    {
-      ariaLabel: "Jump to the career objective section",
-      className: mobileMenuItemClass(activeDockItem === "objective"),
-      label: "> Career Objective",
-      onClick: () => navigateToSection("objective"),
     },
     {
       ariaLabel: "Jump to the reviews section",
@@ -251,18 +209,15 @@ const NavBar = () => {
       onClick: goToChessPage,
     },
     {
-      ariaLabel: "Copy email address to the clipboard",
+      ariaLabel: `Send an email to ${EMAIL_ADDRESS}`,
       className: mobileMenuItemClass(false, true),
       label: "Email Me",
-      onClick: copyEmail,
+      onClick: openEmailComposer,
     },
   ];
 
   return (
     <>
-      <div className={alertVisible ? "successAlert block" : "successAlert hidden"}>
-        <span>Email copied successfully to clipboard.</span>
-      </div>
       {isViewportReady ? (
         isCompact ? (
           <ResponsiveStaggeredMenu
