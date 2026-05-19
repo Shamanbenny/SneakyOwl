@@ -1,337 +1,303 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, type ComponentType } from "react";
 import {
-  FaEarlybirds,
-  FaHome,
+  FaBullseye,
   FaChess,
-  FaSun,
-  FaMoon,
+  FaEarlybirds,
   FaEnvelope,
-  FaBars,
+  FaHistory,
+  FaIdCard,
+  FaQuoteLeft,
 } from "react-icons/fa";
 
-const playAudioSafely = (audio: HTMLAudioElement) => {
-  void audio.play().catch(() => {
-    // Audio playback can still be blocked by the browser in some contexts.
-  });
+import Dock, { type DockEntry } from "@/components/Dock";
+import StaggeredMenu from "@/components/StaggeredMenu";
+import { cn } from "@/lib/utils";
+
+const LANDING_SECTIONS = ["home", "intro", "objective", "reviews", "timeline"] as const;
+const SITE_COLORS = {
+  accent: "var(--site-accent)",
+  chrome: "var(--site-bg-chrome)",
+  chromeLayer: "var(--site-bg-chrome-layer)",
+  text: "var(--site-text-strong)",
+} as const;
+
+type LandingSection = (typeof LANDING_SECTIONS)[number];
+type ActiveDockItem = LandingSection | "chess" | null;
+type MobileMenuItem = {
+  ariaLabel: string;
+  className?: string;
+  label: string;
+  link?: string;
+  onClick?: () => void;
+};
+type StaggeredMenuProps = {
+  accentColor?: string;
+  buttonAriaLabel?: string;
+  changeMenuColorOnOpen?: boolean;
+  className?: string;
+  closeOnItemClick?: boolean;
+  colors?: string[];
+  displayButtonText?: boolean;
+  displayItemNumbering?: boolean;
+  displaySocials?: boolean;
+  hideLogo?: boolean;
+  isFixed?: boolean;
+  items?: MobileMenuItem[];
+  menuButtonColor?: string;
+  openMenuButtonColor?: string;
+  panelAriaLabel?: string;
+  position?: "left" | "right";
 };
 
-/**
- * NavBar Component containing the ability to navigate between pages, toggle dark mode, and copy email to clipboard.
- */
+const dockItemClass = (isActive: boolean) =>
+  cn(isActive && "dock-item--active");
 
-const NavBar: React.FC = () => {
-  const [hamburgerMenu, setHamburgerMenu] = useState<boolean>(false);
-  const [darkMode, setDarkMode] = useState(true);
-  const [clientWidth, setClientWidth] = useState<number>(1600);
+const mobileMenuItemClass = (isActive: boolean, withSectionBreak = false) =>
+  cn(
+    isActive && "sm-panel-itemWrap--active",
+    withSectionBreak && "sm-panel-itemWrap--sectionBreak",
+  );
+
+const ResponsiveStaggeredMenu = StaggeredMenu as unknown as ComponentType<StaggeredMenuProps>;
+
+const NavBar = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
+  const [isViewportReady, setIsViewportReady] = useState(false);
+  const [activeDockItem, setActiveDockItem] = useState<ActiveDockItem>(null);
 
   useEffect(() => {
-    togglePageChange("");
+    const handleResize = () => {
+      setIsCompact(window.innerWidth < 640);
+      setIsViewportReady(true);
+    };
+
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    const darkTheme = localStorage.getItem("dark-theme");
-    if (darkTheme) {
-      const newDarkMode = darkTheme === "true";
-      setDarkMode(newDarkMode);
-      document.body.classList.toggle("dark", newDarkMode);
-    }
-  });
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
-    let mobileTopBar = document.getElementsByClassName(
-      "mobileTopBar",
-    )[0] as HTMLElement;
-    let hamburgerElement = document.getElementsByClassName(
-      "hamburgerMenu",
-    )[0] as HTMLElement;
-    let topBarHeight = mobileTopBar?.clientHeight;
-    if (hamburgerMenu) {
-      mobileTopBar.style.top = "0px";
-      hamburgerElement.style.top = topBarHeight + "px";
-    } else {
-      if (topBarHeight != 0) mobileTopBar.style.top = "-" + topBarHeight + "px";
-      hamburgerElement.style.top = "0px";
+    if (pathname !== "/") {
+      setActiveDockItem(pathname === "/chess" ? "chess" : null);
+      return;
     }
-  }, [hamburgerMenu]);
 
-  const handleResize = () => {
-    if (clientWidth !== 1600) {
-      if (window.innerWidth !== clientWidth) {
-        setHamburgerMenu(false);
+    const updateActiveSection = () => {
+      const offset = 180;
+      let currentSection: LandingSection = "home";
+
+      for (const sectionId of LANDING_SECTIONS) {
+        const section = document.getElementById(sectionId);
+
+        if (!section) {
+          continue;
+        }
+
+        if (section.getBoundingClientRect().top - offset <= 0) {
+          currentSection = sectionId;
+        }
       }
+
+      setActiveDockItem(currentSection);
+    };
+
+    updateActiveSection();
+    window.addEventListener("hashchange", updateActiveSection);
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+
+    return () => {
+      window.removeEventListener("hashchange", updateActiveSection);
+      window.removeEventListener("scroll", updateActiveSection);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!alertVisible) {
+      return;
     }
-    setClientWidth(window.innerWidth);
-  };
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    document.body.classList.toggle("dark", newDarkMode);
-
-    localStorage.setItem("dark-theme", newDarkMode.toString());
-
-    const sound = new Audio("/sounds/toggleClick.mp3");
-    sound.volume = 0.4;
-    playAudioSafely(sound);
-  };
-
-  /* [START] Copy Email & Alert */
-  const [alertVisible, setAlertVisible] = useState<boolean>(false);
-
-  const copyEmail = () => {
-    navigator.clipboard.writeText("lee.jia.quan@u.nus.edu");
-
-    // Perform the clipboard copy operation here
-    // For the sake of the example, let's assume the copy was successful
-    setAlertVisible(true);
-
-    // Hide the alert after a certain duration (e.g., 3 seconds)
-    setTimeout(() => {
+    const timeout = window.setTimeout(() => {
       setAlertVisible(false);
-    }, 3000);
+    }, 2400);
+
+    return () => window.clearTimeout(timeout);
+  }, [alertVisible]);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText("lee.jia.quan@u.nus.edu");
+      setAlertVisible(true);
+    } catch {
+      setAlertVisible(false);
+    }
   };
-  /* [END] Copy Email & Alert */
 
-  const CopyEmailAlert = () => (
-    <>
-      {/* [START] Copy Email Alert */}
+  const navigateToSection = (sectionId: LandingSection) => {
+    if (pathname !== "/") {
+      router.push(sectionId === "home" ? "/" : `/#${sectionId}`);
+      return;
+    }
 
-      <div
-        className={alertVisible ? "successAlert block" : "successAlert hidden"}
-      >
-        <span>Email copied successfully to clipboard!</span>
-      </div>
-      {/* [END] Copy Email Alert */}
-    </>
-  );
+    if (sectionId === "home") {
+      window.history.replaceState(null, "", "/");
+      window.scrollTo({ behavior: "smooth", top: 0 });
+      setActiveDockItem("home");
+      return;
+    }
 
-  const Divider = () => (
-    <hr
-      className="mx-2 rounded-full border border-[#b3b3b3]
-        transition-all duration-150 ease-linear dark:border-neutral-800"
-    />
-  );
+    const section = document.getElementById(sectionId);
+
+    if (!section) {
+      return;
+    }
+
+    window.history.replaceState(null, "", `/#${sectionId}`);
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveDockItem(sectionId);
+  };
+
+  const goToChessPage = () => {
+    setActiveDockItem("chess");
+    router.push("/chess");
+  };
+
+  const dockItems: DockEntry[] = [
+    {
+      className: dockItemClass(activeDockItem === "home"),
+      icon: <FaEarlybirds size={22} />,
+      label: "Home",
+      onClick: () => navigateToSection("home"),
+    },
+    {
+      className: dockItemClass(activeDockItem === "intro"),
+      icon: <FaIdCard size={19} />,
+      label: "> Introduction",
+      onClick: () => navigateToSection("intro"),
+    },
+    {
+      className: dockItemClass(activeDockItem === "objective"),
+      icon: <FaBullseye size={19} />,
+      label: "> Career Objective",
+      onClick: () => navigateToSection("objective"),
+    },
+    {
+      className: dockItemClass(activeDockItem === "reviews"),
+      icon: <FaQuoteLeft size={18} />,
+      label: "> Reviews",
+      onClick: () => navigateToSection("reviews"),
+    },
+    {
+      className: dockItemClass(activeDockItem === "timeline"),
+      icon: <FaHistory size={19} />,
+      label: "> Timeline",
+      onClick: () => navigateToSection("timeline"),
+    },
+    { type: "divider" },
+    {
+      className: dockItemClass(activeDockItem === "chess"),
+      icon: <FaChess size={20} />,
+      label: "Chess Page",
+      onClick: goToChessPage,
+    },
+    {
+      icon: <FaEnvelope size={18} />,
+      label: "Email Me",
+      onClick: copyEmail,
+    },
+  ];
+
+  const mobileMenuItems: MobileMenuItem[] = [
+    {
+      ariaLabel: "Go to the home section",
+      className: mobileMenuItemClass(activeDockItem === "home"),
+      label: "Home",
+      onClick: () => navigateToSection("home"),
+    },
+    {
+      ariaLabel: "Jump to the introduction section",
+      className: mobileMenuItemClass(activeDockItem === "intro"),
+      label: "> Introduction",
+      onClick: () => navigateToSection("intro"),
+    },
+    {
+      ariaLabel: "Jump to the career objective section",
+      className: mobileMenuItemClass(activeDockItem === "objective"),
+      label: "> Career Objective",
+      onClick: () => navigateToSection("objective"),
+    },
+    {
+      ariaLabel: "Jump to the reviews section",
+      className: mobileMenuItemClass(activeDockItem === "reviews"),
+      label: "> Reviews",
+      onClick: () => navigateToSection("reviews"),
+    },
+    {
+      ariaLabel: "Jump to the timeline section",
+      className: mobileMenuItemClass(activeDockItem === "timeline"),
+      label: "> Timeline",
+      onClick: () => navigateToSection("timeline"),
+    },
+    {
+      ariaLabel: "Open the chess page",
+      className: mobileMenuItemClass(activeDockItem === "chess", true),
+      label: "Chess Page",
+      onClick: goToChessPage,
+    },
+    {
+      ariaLabel: "Copy email address to the clipboard",
+      className: mobileMenuItemClass(false, true),
+      label: "Email Me",
+      onClick: copyEmail,
+    },
+  ];
 
   return (
     <>
-      <div>
-        {/* [RESPONSIVE DESIGN] Mobile View */}
-        <div className={clientWidth < 640 ? "block" : "hidden"}>
-          {/* [START] Copy Email Alert */}
-          <CopyEmailAlert />
-          {/* [END] Copy Email Alert */}
-          <nav>
-            <div
-              className="absolute z-[9998] flex w-full flex-col items-center bg-neutral-300 text-center 
-              text-emerald-700 dark:bg-neutral-900 dark:text-neutral-300"
-            >
-              {/* [START] Mobile Top Bar Menu */}
-              <div
-                className="mobileTopBar fixed w-full bg-neutral-300 pt-4 transition-all duration-150 ease-linear dark:bg-neutral-900"
-                style={{ top: "-244px" }}
-              >
-                {/* [START] Website Logo */}
-                <div
-                  className="max-xs:text-[22px] cursor-pointer text-[28px] font-bold text-emerald-500 
-                  transition-all duration-150 ease-linear hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] 
-                  dark:text-emerald-500 dark:hover:text-emerald-400 dark:hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]"
-                  onClick={pressLogo}
-                >
-                  SneakyOwl.net
-                </div>
-                {/* [END] Website Logo */}
-
-                {/* [START] Home Tab */}
-                <Link
-                  href="/"
-                  className="max-xs:text-[18px] topbar_element home-tab w-full text-[24px] 
-                  hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
-                  dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
-                  onClick={() => togglePageChange("/")}
-                >
-                  Home Page
-                </Link>
-                {/* [END] Home Tab */}
-                <br />
-                {/* [START] Chess Tab */}
-                <Link
-                  href="/chess"
-                  className="max-xs:text-[18px] topbar_element chess-tab w-full text-[24px] 
-                  hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
-                  dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
-                  onClick={() => togglePageChange("/chess")}
-                >
-                  My Chess Bot
-                </Link>
-                {/* [END] Chess Tab */}
-                <Divider />
-                {/* [START] Copy Email Button */}
-                <h1
-                  className="max-xs:text-[18px] cursor-pointer text-[24px]
-                  hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
-                  dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
-                  onClick={copyEmail}
-                >
-                  Copy Email to Clipboard
-                </h1>
-                {/* [END] Copy Email Button */}
-                <Divider />
-                {/* [START] Dark Mode Button */}
-                <h1
-                  className="max-xs:text-[18px] cursor-pointer text-[24px]
-                  hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]
-                  dark:hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.75)]"
-                  onClick={toggleDarkMode}
-                >
-                  {darkMode ? "Dark Mode" : "Light Mode"}
-                </h1>
-                {/* [END] Dark Mode Button */}
-                <Divider />
-              </div>
-              {/* [END] Mobile Top Bar Menu */}
-
-              {/* [START] Hamburger Button */}
-              <div
-                className="hamburgerMenu group fixed w-full cursor-pointer bg-neutral-300 pt-3 
-                  transition-all duration-150 ease-linear dark:bg-neutral-900"
-                style={{ top: "0px" }}
-                onClick={() => setHamburgerMenu(hamburgerMenu ? false : true)}
-              >
-                <FaBars
-                  className="mx-auto group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)] 
-                  dark:group-hover:drop-shadow-[0_0_4px_rgba(16,185,129,0.75)]"
-                  size={"32"}
-                />
-                <hr
-                  className="mx-2 mt-3 rounded-full border border-[#b3b3b3]
-                  transition-all duration-150 ease-linear dark:border-neutral-800"
-                />
-              </div>
-              {/* [END] Hamburger Button */}
-            </div>
-          </nav>
-        </div>
-
-        {/* [RESPONSIVE DESIGN] PC View */}
-        <div className={clientWidth >= 640 ? "block" : "hidden"}>
-          {/* [START] Copy Email Alert */}
-          <CopyEmailAlert />
-          {/* [END] Copy Email Alert */}
-          <nav>
-            <div className="flex">
-              <div
-                className="sidebar fixed left-0 top-0 z-[9998] m-0 flex h-screen w-16 
-              flex-col border-r border-neutral-900 bg-neutral-300
-              text-emerald-700 shadow-lg transition-all duration-150 ease-linear 
-              dark:border-emerald-500 dark:bg-neutral-900 dark:text-emerald-500 lg:w-20"
-              >
-                {/* [START] Logo */}
-                <div className="sidebar-icon logo group" onClick={pressLogo}>
-                  <FaEarlybirds size="40" className="navbar_element h-3/4" />
-                  <span className="sidebar-tooltip group-hover:scale-x-100">
-                    SneakyOwl.net
-                  </span>
-                </div>
-                {/* [END] Logo */}
-                <Divider />
-                {/* [START] Home Tab */}
-                <Link
-                  href="/"
-                  className="sidebar-icon group"
-                  onClick={() => togglePageChange("/")}
-                >
-                  <FaHome size="36" className="navbar_element home-tab h-3/4" />
-                  <span className="sidebar-tooltip group-hover:scale-x-100">
-                    Home Page
-                  </span>
-                </Link>
-                {/* [END] Home Tab */}
-
-                {/* [START] Chess Tab */}
-                <Link
-                  href="/chess"
-                  className="sidebar-icon group"
-                  onClick={() => togglePageChange("/chess")}
-                >
-                  <FaChess
-                    size="28"
-                    className="navbar_element chess-tab h-3/4"
-                  />
-                  <span className="sidebar-tooltip group-hover:scale-x-100">
-                    My Chess Bot
-                  </span>
-                </Link>
-                {/* [END] Chess Tab */}
-                <Divider />
-                {/* [START] Copy Email Button */}
-                <div className="sidebar-icon group" onClick={copyEmail}>
-                  <FaEnvelope size="28" className="navbar_element h-3/4" />
-                  <span className="sidebar-tooltip group-hover:scale-x-100">
-                    Copy Email to Clipboard
-                  </span>
-                </div>
-                {/* [END] Copy Email Button */}
-                <Divider />
-                {/* [START] Dark Mode Button */}
-                <div className="sidebar-icon group" onClick={toggleDarkMode}>
-                  {darkMode ? (
-                    <FaMoon size="28" className="navbar_element h-3/4" />
-                  ) : (
-                    <FaSun size="28" className="navbar_element h-3/4" />
-                  )}
-                  <span className="sidebar-tooltip group-hover:scale-x-100">
-                    {darkMode ? "Dark Mode" : "Light Mode"}
-                  </span>
-                </div>
-                {/* [END] Dark Mode Button */}
-              </div>
-            </div>
-          </nav>
-        </div>
+      <div className={alertVisible ? "successAlert block" : "successAlert hidden"}>
+        <span>Email copied successfully to clipboard.</span>
       </div>
+      {isViewportReady ? (
+        isCompact ? (
+          <ResponsiveStaggeredMenu
+            accentColor={SITE_COLORS.accent}
+            buttonAriaLabel="Open navigation menu"
+            changeMenuColorOnOpen={false}
+            className="site-staggered-menu"
+            closeOnItemClick
+            colors={[SITE_COLORS.chromeLayer, SITE_COLORS.chrome]}
+            displayButtonText={false}
+            displayItemNumbering={false}
+            displaySocials={false}
+            hideLogo
+            isFixed
+            items={mobileMenuItems}
+            menuButtonColor={SITE_COLORS.text}
+            openMenuButtonColor={SITE_COLORS.text}
+            panelAriaLabel="Site navigation"
+            position="right"
+          />
+        ) : (
+          <Dock
+            baseItemSize={50}
+            className="sneaky-dock"
+            distance={96}
+            dockHeight={102}
+            items={dockItems}
+            magnification={56}
+            panelHeight={72}
+            position="top"
+          />
+        )
+      ) : null}
     </>
   );
-};
-
-export const pressLogo = () => {
-  document.querySelector(".navbar_element.active")?.classList.remove("active");
-  document.querySelector(".home-tab")?.classList.add("active");
-  let sessionCheck = localStorage.getItem("hasSeenAnimation");
-  if (sessionCheck) {
-    localStorage.removeItem("hasSeenAnimation");
-  }
-  window.location.href = "/";
-};
-
-export const togglePageChange = (tab: string) => {
-  if (tab == "") {
-    if (window) tab = window.location.pathname;
-  }
-  document.querySelector(".navbar_element.active")?.classList.remove("active");
-  document.querySelector(".topbar_element.active")?.classList.remove("active");
-  switch (tab) {
-    case "/":
-      document
-        .querySelector(".navbar_element.home-tab")
-        ?.classList.add("active");
-      document
-        .querySelector(".topbar_element.home-tab")
-        ?.classList.add("active");
-      break;
-    case "/chess":
-      document
-        .querySelector(".navbar_element.chess-tab")
-        ?.classList.toggle("active");
-      document
-        .querySelector(".topbar_element.chess-tab")
-        ?.classList.add("active");
-      break;
-    default:
-      break;
-  }
 };
 
 export default NavBar;

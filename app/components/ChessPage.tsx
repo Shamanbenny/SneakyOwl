@@ -1,40 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import WorkInProgress from "./WorkInProgress";
 import ChessContent from "./ChessContent";
 
 const ChessPage = () => {
-  /* AppContent Divider Size Rendering based on User's Width*/
-  const [clientWidth, setClientWidth] = useState<number>(1600);
-  const [clientHeight, setClientHeight] = useState<number>(900);
-
-  useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-  });
-
-  const handleResize = () => {
-    setClientWidth(window.innerWidth);
-    setClientHeight(window.innerHeight);
-  };
-
   return (
     <>
       <div
-        className={
-          clientWidth < 640
-            ? `z-[-1] h-full min-h-screen bg-neutral-300 pl-0 pt-[56px] 
-            text-neutral-900 transition-colors duration-150 ease-linear 
-            dark:bg-neutral-900 dark:text-neutral-300`
-            : `z-[-1] h-full min-h-screen bg-neutral-300 pl-[64px] pt-0 
-            text-neutral-900 transition-colors duration-150 ease-linear 
-            dark:bg-neutral-900 dark:text-neutral-300 lg:pl-[80px]`
-        }
+        className="site-page-shell z-[-1] min-h-screen pt-[92px]
+          transition-colors duration-150 ease-linear sm:pt-[130px]"
       >
         <div
-          className="mx-auto max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
-              xl:w-[1160px] xxl:w-[1480px] pb-[50px]"
+          id="chess"
+          className="mx-auto pb-[50px] max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
+              xl:w-[1160px] xxl:w-[1480px]"
         >
           <WorkInProgress />
 

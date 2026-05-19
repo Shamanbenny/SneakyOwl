@@ -51,8 +51,7 @@ const DsaSVG = () => {
           </radialGradient>
         </defs>
         <path 
-          className="fill-neutral-700 transition-all duration-150 ease-linear group-hover:fill-emerald-900 
-            dark:fill-neutral-900/90 group-hover:dark:fill-neutral-900"
+          className="fill-neutral-900/90 transition-all duration-150 ease-linear group-hover:fill-neutral-900"
           stroke="url(#emeraldGradient_Chess)"
           d="M144 16c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 16L96 32c-8.8 0-16 7.2-16 16s7.2 16 16 16l16 0 0 32L60.2 
             96C49.1 96 40 105.1 40 116.2c0 2.5 .5 4.9 1.3 7.3L73.8 208 72 208c-13.3 0-24 10.7-24 24s10.7 24 24 24l4 

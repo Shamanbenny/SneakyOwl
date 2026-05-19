@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import React, { useEffect, useRef, useState } from "react";
 import {
   FaAngleRight,
@@ -9,23 +10,12 @@ import {
 } from "react-icons/fa";
 import AboutTimeline from "./AboutTimeline";
 import AboutReviews from "./AboutReviews";
-import ProfileHoloCard from "./ProfileHoloCard";
+
+const ProfileHoloCard = dynamic(() => import("./ProfileHoloCard"), {
+  ssr: false,
+});
 
 export const About: React.FC = () => {
-  /* AppContent Divider Size Rendering based on User's Width*/
-  const [clientWidth, setClientWidth] = useState<number>(1600);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setClientWidth(window.innerWidth);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   /* [START] Array of string for iterating personality */
   const [personalityIndex, setPersonalityIndex] = useState<number>(0);
   const personality = [
@@ -100,25 +90,20 @@ export const About: React.FC = () => {
   return (
     <>
       <div
-        className={
-          clientWidth < 640
-            ? `z-[-1] h-full min-h-screen bg-neutral-300 pl-0 pt-[56px] 
-            text-neutral-900 transition-colors duration-150 ease-linear 
-            dark:bg-neutral-900 dark:text-neutral-300`
-            : `z-[-1] h-full min-h-screen bg-neutral-300 pl-[64px] pt-0 
-            text-neutral-900 transition-colors duration-150 ease-linear 
-            dark:bg-neutral-900 dark:text-neutral-300 lg:pl-[80px]`
-        }
+        className="site-page-shell z-[-1] min-h-screen pt-[92px]
+          transition-colors duration-150 ease-linear sm:pt-[130px]"
       >
         {/* [START] About Me Hero Banner */}
         <div
+          id="home"
           className="mx-auto flex w-full items-center justify-between gap-8 max-sm:min-h-[720px]
-            max-sm:w-[300px] max-sm:flex-col max-sm:justify-center max-xs:min-h-[680px] max-xs:max-w-[230px]
+            scroll-mt-[92px] max-sm:w-[300px] max-sm:flex-col max-sm:justify-center
+            max-xs:min-h-[680px] max-xs:max-w-[230px]
             sm:min-h-[350px] sm:max-w-[570px] sm:px-5 md:min-h-[500px] md:max-w-[704px] md:px-5
             lg:min-h-[600px] lg:max-w-[944px] lg:gap-10 lg:px-10 xl:min-h-[700px] xl:max-w-[1200px]
-            xl:px-[60px] xxl:min-h-[810px] xxl:max-w-[1520px] xxl:px-[80px]"
+            xl:px-[60px] xxl:min-h-[810px] xxl:max-w-[1520px] xxl:px-[80px] sm:scroll-mt-[130px]"
         >
-          <div className="order-1 flex h-full w-full items-center justify-center sm:order-2">
+          <div className="order-1 flex h-full w-full items-center justify-center sm:order-2 sm:relative sm:z-0">
             <ProfileHoloCard
               name="Lee Jia Quan, Benny"
               title="Full-stack Engineer"
@@ -126,7 +111,7 @@ export const About: React.FC = () => {
               idCode="1337-5T4C-K9001"
             />
           </div>
-          <div className="order-2 w-full max-sm:mx-auto sm:order-1">
+          <div className="order-2 w-full max-sm:mx-auto sm:order-1 sm:relative sm:z-[1]">
             <h1
               className="max-sm:text-center max-sm:text-[1.8rem] max-xs:text-[1.4rem] 
               sm:text-[1.5rem] md:text-[1.9rem] lg:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
@@ -134,9 +119,9 @@ export const About: React.FC = () => {
               Lee Jia Quan, Benny
             </h1>
             <div className="flex items-center max-sm:justify-center">
-              <FaAngleRight className="w-auto dark:text-neutral-400 max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
+              <FaAngleRight className="w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
               <h1
-                className="dark:text-neutral-400 max-sm:text-[1rem] max-xs:text-[0.7rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
+                className="text-[color:var(--site-text-muted)] max-sm:text-[1rem] max-xs:text-[0.7rem] sm:text-[14px] md:text-[17px] lg:text-[22.4px] xl:text-[27.2px] xxl:text-[36px]"
               >
                 I&#39;m
               </h1>
@@ -206,7 +191,7 @@ export const About: React.FC = () => {
         {/* [END] About Me Hero Banner */}
 
         {/* [START] Introduction Span */}
-        <div ref={introDivRef} className="z-[5] mb-5">
+        <div id="intro" ref={introDivRef} className="z-[5] mb-5 scroll-mt-[92px] sm:scroll-mt-[130px]">
           <div
             className="group mx-auto flex cursor-pointer items-center text-center transition-all duration-150 
               ease-linear max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
@@ -214,9 +199,8 @@ export const About: React.FC = () => {
             onClick={onClickIntro}
           >
             <h1
-              className="z-[5] mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 
-              py-1 transition-all duration-150 ease-linear group-hover:bg-emerald-600 dark:bg-emerald-600 
-              group-hover:dark:bg-emerald-500 max-sm:text-[1.4rem] max-xs:text-[1rem] lg:text-[1.8rem] 
+              className="site-accent-banner z-[5] mx-auto w-full rounded-b-md rounded-t-md
+              py-1 transition-all duration-150 ease-linear max-sm:text-[1.4rem] max-xs:text-[1rem] lg:text-[1.8rem] 
               xl:rounded-b-lg xl:rounded-t-lg xl:py-1.5 xl:text-[2rem] xxl:rounded-b-xl xxl:rounded-t-xl 
               xxl:py-2 xxl:text-[2.4rem]"
             >
@@ -227,9 +211,8 @@ export const About: React.FC = () => {
               sm:pl-[515px] md:pl-[640px] lg:pl-[864px] xl:pl-[1100px] xxl:pl-[1420px]"
             >
               <FaAngleRight
-                className="h-[25px] w-[25px] rotate-90 rounded-[50%] bg-neutral-900 
-                text-neutral-300 transition-all duration-150 ease-linear dark:bg-neutral-800 
-                dark:text-neutral-300 lg:h-[30px] lg:w-[30px] xl:h-[40px] xl:w-[40px]"
+                className="site-chip-surface h-[25px] w-[25px] rotate-90 rounded-[50%]
+                transition-all duration-150 ease-linear lg:h-[30px] lg:w-[30px] xl:h-[40px] xl:w-[40px]"
               />
             </span>
           </div>
@@ -238,7 +221,7 @@ export const About: React.FC = () => {
             max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
           >
             <p
-              className="rounded-b-md bg-neutral-400 px-[24px] py-2 text-justify dark:bg-neutral-800 
+              className="site-surface-panel rounded-b-md px-[24px] py-2 text-justify
               max-xs:text-[0.8rem] lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] xl:py-4 
               xl:text-[1.1rem] xxl:rounded-b-xl xxl:py-5 xxl:text-xl"
             >
@@ -259,7 +242,11 @@ export const About: React.FC = () => {
         {/* [END] Introduction Span */}
 
         {/* [START] Career Objective Span */}
-        <div ref={careerObjDivRef} className="z-[5] mb-5">
+        <div
+          id="objective"
+          ref={careerObjDivRef}
+          className="z-[5] mb-5 scroll-mt-[92px] sm:scroll-mt-[130px]"
+        >
           <div
             className="group mx-auto flex cursor-pointer items-center text-center transition-all 
               duration-150 ease-linear max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
@@ -267,8 +254,8 @@ export const About: React.FC = () => {
             onClick={onClickCareerObj}
           >
             <h1
-              className="mx-auto w-full rounded-b-md rounded-t-md bg-emerald-700 py-1 
-              transition-all duration-150 ease-linear group-hover:bg-emerald-600 dark:bg-emerald-600 group-hover:dark:bg-emerald-500 
+              className="site-accent-banner mx-auto w-full rounded-b-md rounded-t-md py-1 
+              transition-all duration-150 ease-linear
               max-sm:text-[1.4rem] max-xs:text-[1rem] lg:text-[1.8rem] xl:rounded-b-lg 
               xl:rounded-t-lg xl:py-1.5 xl:text-[2rem] xxl:rounded-b-xl xxl:rounded-t-xl xxl:py-2 
               xxl:text-[2.4rem]"
@@ -280,9 +267,8 @@ export const About: React.FC = () => {
               sm:pl-[515px] md:pl-[640px] lg:pl-[864px] xl:pl-[1100px] xxl:pl-[1420px]"
             >
               <FaAngleRight
-                className="h-[25px] w-[25px] rotate-90 rounded-[50%] bg-neutral-900 
-                text-neutral-300 transition-all duration-150 ease-linear dark:bg-neutral-800 
-                dark:text-neutral-300 lg:h-[30px] lg:w-[30px] xl:h-[40px] xl:w-[40px]"
+                className="site-chip-surface h-[25px] w-[25px] rotate-90 rounded-[50%]
+                transition-all duration-150 ease-linear lg:h-[30px] lg:w-[30px] xl:h-[40px] xl:w-[40px]"
               />
             </span>
           </div>
@@ -291,8 +277,8 @@ export const About: React.FC = () => {
             max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
           >
             <p
-              className="z-[5] rounded-b-md bg-neutral-400 px-[24px] py-2 text-justify 
-              dark:bg-neutral-800 max-xs:text-[0.8rem] lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] 
+              className="site-surface-panel z-[5] rounded-b-md px-[24px] py-2 text-justify
+              max-xs:text-[0.8rem] lg:px-[28px] lg:py-3 xl:rounded-b-lg xl:px-[40px] 
               xl:py-4 xl:text-[1.1rem] xxl:rounded-b-xl xxl:py-5 xxl:text-xl"
             >
               I firmly believe in the importance of exploring various aspects of
@@ -309,14 +295,18 @@ export const About: React.FC = () => {
           </div>
         </div>
         {/* [END] Career Objective Span */}
-        <h1
-          className="z-[6] mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-center text-[1.4rem]  dark:border-neutral-300 
-          max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
-        >
-          What My Friends Think Of Me
-        </h1>
-        <AboutReviews />
-        <AboutTimeline />
+        <div id="reviews" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
+          <h1
+            className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
+            max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
+          >
+            What My Friends Think Of Me
+          </h1>
+          <AboutReviews />
+        </div>
+        <div id="timeline" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
+          <AboutTimeline />
+        </div>
       </div>
     </>
   );

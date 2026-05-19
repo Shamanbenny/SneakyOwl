@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -91,7 +91,7 @@ const AboutTimeline = () => {
       content: `Course transfered to Computer Science in pursuit of becoming a SWE.\n\nContinuation as Teaching Assistant for CS2040C Since AY2024/25 Semester 1.\n\nDistinction in CS3235\n\nCurrent GPA: 4.46`,
       year: "Ongoing (2024 - 2027)",
       icon: <FaGraduationCap />,
-      color: "bg-emerald-500 dark:bg-emerald-600",
+      color: "timeline-accent-emerald",
       position: "right",
     },
     {
@@ -100,7 +100,7 @@ const AboutTimeline = () => {
       content: `Teaching Assistant for CS2040C for AY2023/24 Semester 2.\n\nDistinction in CS2107`,
       year: "2023 - 2024",
       icon: <FaGraduationCap />,
-      color: "bg-emerald-500 dark:bg-emerald-600",
+      color: "timeline-accent-emerald",
       position: "left",
     },
     {
@@ -110,7 +110,7 @@ const AboutTimeline = () => {
         "Developed Web App for use by DSO to maximize work flow efficiency.\n\nSkills involved: PhpMyAdmin, AMPPS, Flask",
       year: "2021",
       icon: <FaBriefcase />,
-      color: "bg-teal-500 dark:bg-teal-600",
+      color: "timeline-accent-teal",
       position: "right",
     },
     {
@@ -120,7 +120,7 @@ const AboutTimeline = () => {
         "R&D of commonly used Key Derivation Functions (KDFs) on a Field Programmable Gate Array (FPGA) using VHDL.\n\nSkills involved: Cryptography, VHDL, FPGA",
       year: "2021",
       icon: <FaBriefcase />,
-      color: "bg-teal-500 dark:bg-teal-600",
+      color: "timeline-accent-teal",
       position: "left",
     },
     {
@@ -130,7 +130,7 @@ const AboutTimeline = () => {
         "Volunteering as part of the Talent Development Team for Cyber Youth Singapore, to help create and organize opportunity to allow youths a platform for them to learn more and develop their interest in the Cyber Security Sector.",
       year: "2020",
       icon: <FaBriefcase />,
-      color: "bg-teal-500 dark:bg-teal-600",
+      color: "timeline-accent-teal",
       position: "right",
     },
     {
@@ -140,7 +140,7 @@ const AboutTimeline = () => {
         "For the CDDC 2020 CTF competition, a well-known event organized by DSTA, my team and I had placed 36th out of 237 teams that participated.",
       year: "2020",
       icon: <FaFlag />,
-      color: "bg-cyan-500 dark:bg-cyan-600",
+      color: "timeline-accent-cyan",
       position: "left",
     },
     {
@@ -149,7 +149,7 @@ const AboutTimeline = () => {
       content: `For the Gryphon CTF 2020 event held by Singapore Polytechnic's Gryphons Club, my team and I had placed 2nd out of the 41 teams that participated in the competition.`,
       year: "2020",
       icon: <FaFlag />,
-      color: "bg-cyan-500 dark:bg-cyan-600",
+      color: "timeline-accent-cyan",
       position: "right",
     },
     {
@@ -159,7 +159,7 @@ const AboutTimeline = () => {
         "Club Activity: SP Photography and SP Inline Skating.\n\nDistinction in Web Client Development, Programming in Python and C, Database Management Systems and Social Innovation Project.\n\nCumulative GPA: 3.696",
       year: "2018 - 2021",
       icon: <FaGraduationCap />,
-      color: "bg-emerald-500 dark:bg-emerald-600",
+      color: "timeline-accent-emerald",
       position: "left",
     },
     {
@@ -169,7 +169,7 @@ const AboutTimeline = () => {
         "Having scored well for my GCE &#34;N&#34;-Level Examination, I was given the opportunity to go through PFP in place of taking the GCE &#34;O&#34;-Level Examination.",
       year: "2017",
       icon: <FaGraduationCap />,
-      color: "bg-emerald-500 dark:bg-emerald-600",
+      color: "timeline-accent-emerald",
       position: "right",
     },
     {
@@ -178,7 +178,7 @@ const AboutTimeline = () => {
       content: "Club Activity: GSS Chinese Orchestra.\n\nResults: EMB3 of 6",
       year: "2013 - 2016",
       icon: <FaGraduationCap />,
-      color: "bg-emerald-500 dark:bg-emerald-600",
+      color: "timeline-accent-emerald",
       position: "left",
     },
   ];
@@ -190,14 +190,14 @@ const AboutTimeline = () => {
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
     >
       <h1
-        className="z-[6] mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-center text-[1.4rem]  dark:border-neutral-300 
+        className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
           max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
       >
         Timeline
       </h1>
       <div
         ref={timelineDiv}
-        className="z-[5] bg-gradient-to-r from-transparent from-[49.8%] via-neutral-900 via-[50%] to-transparent to-[50.2%] dark:via-neutral-300 max-md:hidden md:block"
+        className="about-timeline-line-desktop z-[5] max-md:hidden md:block"
       >
         {/* [START] Timeline Repeatable Components for "md+" view */}
         {timelineData.map((data, index) =>
@@ -217,8 +217,7 @@ const AboutTimeline = () => {
                 <h1>{data.title}</h1>
                 <h2>{data.subtitle}</h2>
                 <hr
-                  className="rounded-full border border-neutral-900/40
-                   dark:border-neutral-300/60"
+                  className="timeline-rule rounded-full border"
                 />
                 <p
                   dangerouslySetInnerHTML={{
@@ -271,8 +270,7 @@ const AboutTimeline = () => {
                 <h1>{data.title}</h1>
                 <h2>{data.subtitle}</h2>
                 <hr
-                  className="rounded-full border border-neutral-900/40
-               dark:border-neutral-300/60"
+                  className="timeline-rule rounded-full border"
                 />
                 <p
                   dangerouslySetInnerHTML={{
@@ -288,8 +286,7 @@ const AboutTimeline = () => {
 
       <div
         ref={timelineDivSmall}
-        className="z-[7] bg-gradient-to-r from-transparent via-neutral-900 to-transparent dark:via-neutral-300 max-md:block max-sm:from-[69.6%] 
-          max-sm:via-[70%] max-sm:to-[70.4%] max-xs:from-[71.4%] max-xs:via-[72%] max-xs:to-[72.6%] sm:from-[70.3%] sm:via-[70.6%] sm:to-[70.9%] md:hidden"
+        className="about-timeline-line-mobile z-[7] max-md:block md:hidden"
       >
         {/* [START] Timeline Repeatable Components for "max-md" view {Will not provide AnimateOnScroll effects} */}
         {timelineData.map((data, index) => (
@@ -307,15 +304,14 @@ const AboutTimeline = () => {
                 " z-[7] rounded-md p-2 max-sm:min-w-[180px] max-sm:max-w-[180px] max-xs:min-w-[140px] max-xs:max-w-[140px] sm:min-w-[350px] sm:max-w-[350px]"
               }
             >
-              <h1 className="mb-1 font-bold dark:drop-shadow-[0_0_2px] max-sm:text-[1rem] max-xs:text-[0.9rem]  sm:text-[1.2rem]">
+              <h1 className="mb-1 font-bold max-sm:text-[1rem] max-xs:text-[0.9rem] sm:text-[1.2rem]">
                 {data.title}
               </h1>
               <h2 className="mb-1 max-sm:text-[0.9rem] max-xs:text-[0.75rem]">
                 {data.subtitle}
               </h2>
               <hr
-                className="rounded-full border border-neutral-900/40
-                   dark:border-neutral-300/60"
+                className="timeline-rule rounded-full border"
               />
               <p
                 dangerouslySetInnerHTML={{
@@ -335,7 +331,7 @@ const AboutTimeline = () => {
             <div
               className={
                 data.color +
-                " timeline-icon z-[8] my-auto h-fit rounded-[50%] border-neutral-900 dark:border-neutral-300 max-sm:border-[2px] max-sm:p-[6px] max-xs:p-[4px] sm:border-4 sm:p-2"
+                " timeline-icon z-[8] my-auto h-fit border-[color:var(--site-border-strong)] max-sm:border-[2px] max-sm:p-[6px] max-xs:p-[4px] sm:border-4 sm:p-2"
               }
             >
               {data.icon}

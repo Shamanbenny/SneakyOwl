@@ -123,7 +123,7 @@ const AboutReviews = () => {
               className="pb-10"
               onClick={() => handleReviewClick(index)}
             >
-              <div className="rounded-2xl bg-[rgb(190,190,190)] p-8 dark:bg-neutral-800">
+              <div className="site-surface-card rounded-2xl p-8">
                 <div className="flex">
                   <Image
                     src={`/reviewImages/${data.profilePreview}`}
@@ -134,7 +134,7 @@ const AboutReviews = () => {
                   />
                   <div className="ml-3 w-full">
                     <div className="flex">
-                      <h1 className="font-bold hover:text-emerald-600 dark:hover:text-emerald-500">
+                      <h1 className="font-bold hover:text-[color:var(--site-accent-soft)]">
                         {data.name}
                       </h1>
                       <p className="ml-auto text-neutral-500">{data.date}</p>
@@ -143,7 +143,7 @@ const AboutReviews = () => {
                       return (
                         <p
                           key={index}
-                          className="hover:text-emerald-700 dark:hover:text-emerald-500"
+                          className="hover:text-[color:var(--site-accent-soft)]"
                         >
                           {position}
                         </p>
@@ -152,9 +152,9 @@ const AboutReviews = () => {
                   </div>
                 </div>
                 <p className="mt-5">
-                  <FaQuoteLeft className="inline-block h-[16px] w-[16px] pb-1 pr-1 text-neutral-600 dark:text-neutral-500" />
+                  <FaQuoteLeft className="inline-block h-[16px] w-[16px] pb-1 pr-1 text-[color:var(--site-text-muted)]" />
                   {data.reviewContent}
-                  <FaQuoteRight className="inline-block h-[16px] w-[16px] pb-1 pl-1 text-neutral-600 dark:text-neutral-500" />
+                  <FaQuoteRight className="inline-block h-[16px] w-[16px] pb-1 pl-1 text-[color:var(--site-text-muted)]" />
                 </p>
                 <div className="flex">
                   {data.link.map((link, index) => {
@@ -162,7 +162,7 @@ const AboutReviews = () => {
                       <a
                         key={index}
                         href={link.url}
-                        className="mr-4 mt-5 text-emerald-700 hover:text-emerald-600 dark:text-emerald-500 dark:hover:text-emerald-400"
+                        className="site-link-accent mr-4 mt-5"
                       >
                         <div className="flex">
                           {handleLinkType(link.type)}

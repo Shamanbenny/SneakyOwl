@@ -46,9 +46,9 @@ const ChessVersionInfo = () => {
   ];
 
   return (
-    <div className="mt-4 p-4 text-neutral-900 dark:text-neutral-300">
+    <div className="mt-4 p-4 text-[color:var(--site-text)]">
       <h1
-        className="z-[6] mx-auto mb-3 w-[90%] border-b-2 border-neutral-900 pt-5 text-center text-[1.4rem]  dark:border-neutral-300 
+        className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
         max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
       >
         Information Panel for Chess Bot Versions
@@ -57,7 +57,7 @@ const ChessVersionInfo = () => {
         {chessVersions.map((versionInfo, index) => (
           <div
             key={index}
-            className="p-4 rounded-lg shadow-md bg-neutral-100 dark:bg-neutral-800"
+            className="site-surface-card rounded-lg p-4"
           >
             <h2 className="text-2xl font-semibold">
               Chess Bot Version {versionInfo.version}

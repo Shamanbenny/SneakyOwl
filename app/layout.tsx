@@ -25,7 +25,7 @@ export default function RootLayout({
         <meta name="author" content="SneakyOwl" />
         <title>SneakyOwl</title>
       </head>
-      <body className={bodyFont.className + " dark"}>{children}</body>
+      <body className={bodyFont.className}>{children}</body>
     </html>
   );
 }

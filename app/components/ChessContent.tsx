@@ -131,7 +131,7 @@ const ChessContent = () => {
   return (
     <>
       <div className="text-center text-2xl mt-4">{turnMessage}</div>
-      <div className="max-sm:w-[230px] max-xs:w-[230px] w-[500px] mx-auto text-center justify-center items-center dark:border-4 border-4 border-neutral-900">
+      <div className="mx-auto w-[500px] items-center justify-center border-4 border-[color:var(--site-border-strong)] text-center max-sm:w-[230px] max-xs:w-[230px]">
         <Chessboard
           position={game.fen()}
           onPieceDrop={onDrop}
@@ -146,14 +146,14 @@ const ChessContent = () => {
       <div className="text-center mt-4">
         <input
           type="text"
-          className="border border-neutral-900 text-neutral-600 p-2 sm:w-[500px] lg:w-[550px] w-60 rounded-md"
+          className="site-input w-60 rounded-md p-2 sm:w-[500px] lg:w-[550px]"
           placeholder="Enter FEN string"
           defaultValue={game.fen()} // Set initial value as the current game's FEN
           ref={fenInputRef} // Attach the ref to the input element
         />
         <br />
         <button
-          className="px-4 py-2 mt-2 dark:bg-emerald-500 dark:hover:bg-emerald-600 bg-emerald-600 hover:bg-emerald-500 text-white rounded"
+          className="site-button-primary mt-2 rounded px-4 py-2"
           onClick={handleFenSubmit}
         >
           Submit FEN
@@ -162,7 +162,7 @@ const ChessContent = () => {
       <div className="text-center mt-4">
         Current Bot Version:
         <select
-          className="p-2 mx-2 border border-neutral-900 rounded text-neutral-900"
+          className="site-select mx-2 rounded p-2"
           value={botVersion}
           onChange={(e) => setBotVersion(e.target.value)}
         >
