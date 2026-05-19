@@ -114,7 +114,7 @@ const LocationMapCard: React.FC = () => {
               href="https://leafletjs.com/"
               target="_blank"
               rel="noreferrer"
-              className="site-link-accent underline decoration-[rgba(110,231,183,0.45)] underline-offset-[3px]"
+              className="site-link-accent site-link-underline-accent underline underline-offset-[3px]"
             >
               Leaflet
             </a>

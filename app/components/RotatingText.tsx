@@ -38,7 +38,7 @@ const RotatingText = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "-70%", opacity: 0 }}
           transition={{ type: "spring", damping: 24, stiffness: 430 }}
-          className="inline-block whitespace-nowrap [filter:drop-shadow(0_0_4px_rgba(16,185,129,0.45))]"
+          className="site-accent-glow inline-block whitespace-nowrap"
         >
           {texts[index]}
         </motion.span>

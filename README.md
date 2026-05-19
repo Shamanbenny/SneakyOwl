@@ -1,11 +1,13 @@
 # SneakyOwl
 
-SneakyOwl is a personal website built with Next.js and the App Router. It includes a landing page, an about page, and a chess section, with a UI composed of reusable React components and static assets served from `public/`.
+SneakyOwl is a personal website built with Next.js and the App Router.
+It includes a landing page, an about page, and a chess section, with a UI
+composed of reusable React components and static assets served from `public/`.
 
 ## Tech Stack
 
 - Next.js 15
-- React 18
+- React 19
 - TypeScript
 - Tailwind CSS
 - ESLint
@@ -59,7 +61,10 @@ public/
 
 ## Deployment Note
 
-This project is currently configured for static export in [next.config.mjs](./next.config.mjs) with `output: "export"`, which is suitable for GitHub Pages style deployments. Review that configuration before changing deployment targets.
+This project is currently configured for static export in
+[next.config.mjs](./next.config.mjs) with `output: "export"`, which is
+suitable for GitHub Pages style deployments. Review that configuration before
+changing deployment targets.
 
 ## To-do
 

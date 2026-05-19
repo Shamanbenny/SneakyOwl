@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FaEnvelope,
-  FaGithub,
-  FaInstagram,
-  FaLinkedin,
-} from "react-icons/fa";
+import { FaEnvelope, FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
 import InfoTooltip from "./InfoTooltip";
 
 type CuriousCatClickTrapProps = {
@@ -28,7 +23,15 @@ const PERSONAL_COUNT_STORAGE_KEY = "sneakyowl-social-clicks";
 const UNIQUE_VIEW_STORAGE_KEY = "sneakyowl-social-unique-views";
 
 const socialLinkClassName =
-  "inline-flex h-11 w-11 items-center justify-center rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] text-[1.05rem] text-[color:var(--site-text-strong)] transition duration-150 ease-linear hover:-translate-y-[1px] hover:border-[rgba(16,185,129,0.45)] hover:text-[color:var(--site-accent-soft)] focus-visible:-translate-y-[1px] focus-visible:border-[rgba(16,185,129,0.45)] focus-visible:text-[color:var(--site-accent-soft)] xxl:h-14 xxl:w-14 xxl:text-[1.35rem] xl:text-[1.2rem] xl:h-12 xl:w-12";
+  "inline-flex h-11 w-11 items-center justify-center rounded-[0.75rem] " +
+  "border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] " +
+  "text-[1.05rem] text-[color:var(--site-text-strong)] transition duration-150 " +
+  "ease-linear hover:-translate-y-[1px] " +
+  "hover:border-[rgba(var(--site-accent-rgb),0.45)] " +
+  "hover:text-[color:var(--site-accent-soft)] focus-visible:-translate-y-[1px] " +
+  "focus-visible:border-[rgba(var(--site-accent-rgb),0.45)] " +
+  "focus-visible:text-[color:var(--site-accent-soft)] xxl:h-14 xxl:w-14 " +
+  "xxl:text-[1.35rem] xl:h-12 xl:w-12 xl:text-[1.2rem]";
 
 const clickButtonClassName =
   "inline-flex h-11 min-w-[6.9rem] items-center justify-center rounded-[0.75rem] border border-[color:var(--site-accent-strong)] bg-[color:var(--site-accent)] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-selection-text)] transition duration-150 ease-linear hover:-translate-y-[1px] hover:border-[color:var(--site-accent-strong)] hover:bg-[color:var(--site-accent-strong)] focus-visible:-translate-y-[1px] focus-visible:border-[color:var(--site-accent-strong)] focus-visible:bg-[color:var(--site-accent-strong)] active:bg-[color:var(--site-accent-strong)] disabled:cursor-not-allowed disabled:opacity-70 xxl:h-14 xxl:min-w-[8.1rem] xxl:text-[1rem]";
@@ -189,10 +192,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
 
   const writePersonalCount = useCallback((nextCount: number) => {
     setPersonalCount(nextCount);
-    window.localStorage.setItem(
-      PERSONAL_COUNT_STORAGE_KEY,
-      String(nextCount),
-    );
+    window.localStorage.setItem(PERSONAL_COUNT_STORAGE_KEY, String(nextCount));
   }, []);
 
   useEffect(() => {
@@ -300,7 +300,8 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
             className="shrink-0"
           >
             <p className="m-0">
-              Human sees button, human clicks button. Cats would respect that instinct.
+              Human sees button, human clicks button. Cats would respect that
+              instinct.
             </p>
             <p className="mt-2 text-[color:var(--site-text-muted)]">
               Powered by{" "}
@@ -308,7 +309,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
                 href={ABACUS_DOCS_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="site-link-accent underline decoration-[rgba(110,231,183,0.45)] underline-offset-[3px]"
+                className="site-link-accent site-link-underline-accent underline underline-offset-[3px]"
               >
                 Abacus
               </a>

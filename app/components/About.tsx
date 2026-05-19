@@ -14,23 +14,38 @@ const ProfileHoloCard = dynamic(() => import("./ProfileHoloCard"), {
   ssr: false,
 });
 
+const eyebrowClassName =
+  "inline-flex items-center gap-[0.45rem] text-[0.65em] uppercase tracking-[0.06em] text-[color:var(--site-text-muted)]";
+const cardValueClassName =
+  "mb-[0.2em] text-[clamp(1.5rem,1.2rem+1.4vw,2.6rem)] font-[500] leading-none text-[color:var(--site-text-strong)]";
+const cardDescriptionClassName =
+  "m-0 max-w-[14ch] text-[0.9em] leading-[1.2] text-[color:var(--site-text-muted)] opacity-90";
+const subheadRowClassName =
+  "flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col sm:flex-row";
+const subheadIconClassName =
+  "w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]";
+const subheadTextClassName =
+  "whitespace-nowrap text-[0.8rem] text-[color:var(--site-text-muted)] sm:text-[1.2rem] lg:text-[1.35rem] xxl:text-[1.5rem]";
+const rotatingTextClassName =
+  "text-[0.8rem] xs:ml-0 sm:ml-1 sm:text-[1.2rem] lg:text-[1.35rem] xxl:text-[1.5rem]";
+
 export const About: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
   const sweValueRotations = [
-    "passion & curiousity",
+    "passion & curiosity",
     "clean system design",
     "clear communication",
     "maintainable codebases",
   ];
 
   const renderCardEyebrow = (label: string, status?: "busy" | "available") => (
-    <span className="inline-flex items-center gap-[0.45rem] text-[0.65em] uppercase tracking-[0.06em] text-[color:var(--site-text-muted)]">
+    <span className={eyebrowClassName}>
       {status ? (
         <span
           className={`h-2 w-2 rounded-full ${
             status === "busy"
-              ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.65)]"
-              : "bg-[color:var(--site-accent)] shadow-[0_0_8px_rgba(16,185,129,0.65)]"
+              ? "site-status-dot site-status-dot--busy"
+              : "site-status-dot site-status-dot--available"
           }`}
         />
       ) : null}
@@ -56,15 +71,13 @@ export const About: React.FC = () => {
         {renderCardEyebrow(label, status)}
       </header>
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <h2 className="mb-[0.2em] text-[clamp(1.5rem,1.2rem+1.4vw,2.6rem)] font-[500] leading-none text-[color:var(--site-text-strong)]">
-          {value}
-        </h2>
+        <h2 className={cardValueClassName}>{value}</h2>
         {description ? (
-          <p className="m-0 max-w-[14ch] text-[0.9em] leading-[1.2] text-[color:var(--site-text-muted)] opacity-90">
-            {description}
-          </p>
+          <p className={cardDescriptionClassName}>{description}</p>
         ) : null}
-        {extraContent ? <div className="mt-[0.65em]">{extraContent}</div> : null}
+        {extraContent ? (
+          <div className="mt-[0.65em]">{extraContent}</div>
+        ) : null}
       </div>
     </div>
   );
@@ -137,11 +150,11 @@ export const About: React.FC = () => {
         {/* [START] About Me Hero Banner */}
         <div
           id="home"
-          className="mx-auto grid w-full items-start gap-6 pb-4
-            max-sm:w-[300px] max-sm:grid-cols-1 max-xs:max-w-[230px]
-            sm:max-w-[560px] sm:grid-cols-1 sm:px-5 md:max-w-[680px] md:px-5
-            lg:max-w-[910px] lg:grid-cols-1 lg:px-10 xl:max-w-[1160px]
-            xl:gap-10 xl:px-[40px] xl:grid-cols-[4fr_1fr] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px] scroll-mt-[92px] sm:scroll-mt-[130px]"
+          className="mx-auto grid w-full scroll-mt-[92px] items-start gap-6
+            pb-4 max-sm:w-[300px] max-sm:grid-cols-1
+            max-xs:max-w-[230px] sm:max-w-[560px] sm:scroll-mt-[130px] sm:grid-cols-1 sm:px-5
+            md:max-w-[680px] md:px-5 lg:max-w-[910px] lg:grid-cols-1
+            lg:px-10 xl:max-w-[1160px] xl:grid-cols-[4fr_1fr] xl:gap-10 xl:px-[40px] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px]"
         >
           {/* [LEFT] BENTO */}
           <div className="order-2 w-full max-sm:mx-auto sm:relative sm:z-[1]">
@@ -151,26 +164,24 @@ export const About: React.FC = () => {
             >
               Lee Jia Quan, Benny
             </h1>
-            <div className="flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col sm:flex-row">
+            <div className={subheadRowClassName}>
               <div className="flex flex-nowrap items-center gap-1">
-                <FaAngleRight className="w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
-                <h1
-                  className="whitespace-nowrap text-[color:var(--site-text-muted)] xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
-                >
+                <FaAngleRight className={subheadIconClassName} />
+                <h1 className={subheadTextClassName}>
                   I&#39;m a Software Engineer who values
                 </h1>
               </div>
               <RotatingText
                 texts={sweValueRotations}
-                className="xs:ml-0 sm:ml-1 xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
+                className={rotatingTextClassName}
                 rotationInterval={2200}
               />
             </div>
-              <MagicBento
-                cards={hireabilityCards}
-                enableBorderGlow={true}
-                glowColor="16, 185, 129"
-              />
+            <MagicBento
+              cards={hireabilityCards}
+              enableBorderGlow={true}
+              glowColor="16, 185, 129"
+            />
           </div>
 
           {/* [RIGHT] Profile Holo Card */}
