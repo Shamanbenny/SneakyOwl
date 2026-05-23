@@ -7,7 +7,6 @@ import {
   SiTypescript,
   SiFirebase,
   SiPython,
-  SiJavascript,
   SiRedis,
   SiDocker,
   SiTerraform,
@@ -17,6 +16,7 @@ import {
   SiOpenapiinitiative,
   SiNodedotjs,
   SiVite,
+  SiFlask,
 } from "react-icons/si";
 
 import FlowingMenu, { type FlowingMenuItemData } from "./FlowingMenu";
@@ -339,7 +339,7 @@ const PROJECTS: ProjectItem[] = [
         priority: 1,
       },
       {
-        icon: <SiPython className="h-4 w-4" />,
+        icon: <SiFlask className="h-4 w-4" />,
         id: "flask",
         label: "Flask",
         priority: 2,
@@ -364,13 +364,15 @@ const PROJECTS: ProjectItem[] = [
   link: project.infoUrl,
 }));
 
+const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
+
 const ProjectPreviewCard = ({ project }: { project: ProjectItem }) => {
   const ctas = getProjectCtas(project);
 
   return (
     <article
-      className="site-surface-card flex flex-col overflow-hidden rounded-[26px] p-3
-        sm:p-4 lg:min-h-[34rem] lg:p-5 xl:h-[750px] xxl:h-[875px]"
+      className={`site-surface-card flex flex-col overflow-hidden rounded-[26px] p-3
+        sm:p-4 lg:p-5 ${PROJECTS_DESKTOP_HEIGHT_CLASS}`}
     >
       <div className="relative overflow-hidden rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)]">
         <div className="absolute right-3 top-3 z-10">
@@ -485,8 +487,8 @@ const ProjectsSection = () => {
         <ProjectPreviewCard project={activeProject} />
 
         <div
-          className="site-surface-card min-h-0 overflow-hidden rounded-[26px]
-            lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]"
+          className={`site-surface-card min-h-0 overflow-hidden rounded-[26px]
+            ${PROJECTS_DESKTOP_HEIGHT_CLASS}`}
         >
           <FlowingMenu<ProjectItem>
             items={PROJECTS}

@@ -12,6 +12,7 @@ import MagicBento from "../components/MagicBento";
 import NavBar from "../components/NavBar";
 import ProjectsSection from "../components/ProjectsSection";
 import RotatingText from "../components/RotatingText";
+import SkillsSection from "../components/SkillsSection";
 
 const ProfileHoloCard = dynamic(() => import("../components/ProfileHoloCard"), {
   ssr: false,
@@ -211,6 +212,7 @@ const LandingPage: React.FC = () => {
         </div>
         {/* [END] Landing Hero Banner */}
         <ProjectsSection />
+        <SkillsSection />
         <div
           id="reviews"
           className="mx-auto scroll-mt-[92px] pb-10 sm:scroll-mt-[130px]

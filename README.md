@@ -71,4 +71,3 @@ Review that configuration before changing deployment targets.
 - [X] Limit the #Reviews to the same width setup as the rest of the page
 - [X] Change lg: to use the same style as xl: when it comes to #Reviews
 - [ ] Add Skills & Technology Section
-- [ ] Add [Gradual Blur](https://www.reactbits.dev/animations/gradual-blur) on the sides for `lg` and `xl` breakpoint for #Reviews
