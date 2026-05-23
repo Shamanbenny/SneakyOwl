@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
-import { ToastContainer, toast, Slide } from 'react-toastify';
-import ChessVersionInfo from './ChessVersionInfo';
+import { ToastContainer, toast, Slide } from "react-toastify";
+import ChessVersionInfo from "./ChessVersionInfo";
 
 const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
@@ -15,7 +15,7 @@ const ChessContent = () => {
     // Get all legal moves for the current position
     const legalMoves = game.moves({ square: sourceSquare, verbose: true });
     // Check if the target square is a valid destination
-    const isLegalMove = legalMoves.some( (move) => move.to === targetSquare );
+    const isLegalMove = legalMoves.some((move) => move.to === targetSquare);
 
     if (!isLegalMove) {
       console.log(`Illegal move from ${sourceSquare} to ${targetSquare}`);
@@ -54,25 +54,32 @@ const ChessContent = () => {
       setTurnMessage("Bot's turn");
 
       // [API CALL] Fetch the bot's move from the server
-      const response = await fetch(`https://chess.sneakyowl.net/chess_${botVersion}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
+      const response = await fetch(
+        `https://chess.sneakyowl.net/chess_${botVersion}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
+          },
+          body: JSON.stringify({ fen: currGame.fen() }),
         },
-        body: JSON.stringify({ fen: currGame.fen() }),
-      });
-  
+      );
+
       if (!response.ok) {
         const errorDetails = await response.text();
         throw new Error(
-          `API Error: ${response.status} ${response.statusText}. ${errorDetails}`
+          `API Error: ${response.status} ${response.statusText}. ${errorDetails}`,
         );
       }
-      
+
       const { move, processing_time, moves_evaluated } = await response.json();
-      console.log(`[Chess ${botVersion}]:`, move, `Processing Time: ${processing_time}ms, Moves Evaluated: ${moves_evaluated}`);
-  
+      console.log(
+        `[Chess ${botVersion}]:`,
+        move,
+        `Processing Time: ${processing_time}ms, Moves Evaluated: ${moves_evaluated}`,
+      );
+
       if (move) {
         currGame.move(move);
         setGame(new Chess(currGame.fen()));
@@ -93,7 +100,7 @@ const ChessContent = () => {
         setPieceDraggable(true); // Enable piece dragging after bot's move
       }
     } catch (error) {
-      console.error('Error fetching bot move:', error);
+      console.error("Error fetching bot move:", error);
       setTurnMessage("Error fetching bot move");
     }
   };
@@ -114,7 +121,7 @@ const ChessContent = () => {
         setPieceDraggable(true);
       }
     } catch (error) {
-      toast.error('Invalid FEN, please try again!', {
+      toast.error("Invalid FEN, please try again!", {
         position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -124,26 +131,28 @@ const ChessContent = () => {
         progress: undefined,
         theme: "dark",
         transition: Slide,
-        });
+      });
     }
   };
 
   return (
     <>
-      <div className="text-center text-2xl mt-4">{turnMessage}</div>
+      <div className="mt-4 text-center text-2xl">{turnMessage}</div>
       <div className="mx-auto w-[500px] items-center justify-center border-4 border-[color:var(--site-border-strong)] text-center max-sm:w-[230px] max-xs:w-[230px]">
         <Chessboard
           position={game.fen()}
           onPieceDrop={onDrop}
           customLightSquareStyle={{ backgroundColor: "#d1fae5" }}
           customDarkSquareStyle={{ backgroundColor: "#34d399" }}
-          customDropSquareStyle={{ boxShadow: 'inset 0 0 1px 6px rgba(6,95,70,1)' }}
+          customDropSquareStyle={{
+            boxShadow: "inset 0 0 1px 6px rgba(6,95,70,1)",
+          }}
           autoPromoteToQueen={true}
           arePiecesDraggable={pieceDraggable}
           animationDuration={150}
         />
       </div>
-      <div className="text-center mt-4">
+      <div className="mt-4 text-center">
         <input
           type="text"
           className="site-input w-60 rounded-md p-2 sm:w-[500px] lg:w-[550px]"
@@ -159,7 +168,7 @@ const ChessContent = () => {
           Submit FEN
         </button>
       </div>
-      <div className="text-center mt-4">
+      <div className="mt-4 text-center">
         Current Bot Version:
         <select
           className="site-select mx-2 rounded p-2"
@@ -186,9 +195,9 @@ const ChessContent = () => {
         pauseOnHover
         theme="dark"
         transition={Slide}
-        />
+      />
     </>
-  )
-}
+  );
+};
 
-export default ChessContent
+export default ChessContent;

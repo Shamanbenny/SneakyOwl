@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FaEnvelope,
-  FaGithub,
-  FaInstagram,
-  FaLinkedin,
-} from "react-icons/fa";
+import { FaEnvelope, FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
 import InfoTooltip from "./InfoTooltip";
 
 type CuriousCatClickTrapProps = {
@@ -189,10 +184,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
 
   const writePersonalCount = useCallback((nextCount: number) => {
     setPersonalCount(nextCount);
-    window.localStorage.setItem(
-      PERSONAL_COUNT_STORAGE_KEY,
-      String(nextCount),
-    );
+    window.localStorage.setItem(PERSONAL_COUNT_STORAGE_KEY, String(nextCount));
   }, []);
 
   useEffect(() => {
@@ -300,7 +292,8 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
             className="shrink-0"
           >
             <p className="m-0">
-              Human sees button, human clicks button. Cats would respect that instinct.
+              Human sees button, human clicks button. Cats would respect that
+              instinct.
             </p>
             <p className="mt-2 text-[color:var(--site-text-muted)]">
               Powered by{" "}
