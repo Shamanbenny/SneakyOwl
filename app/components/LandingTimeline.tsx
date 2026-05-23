@@ -3,11 +3,11 @@ import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
 import AOS from "aos";
 import "aos/dist/aos.css";
 /**
- * AboutTimeline.tsx
+ * LandingTimeline.tsx
  * Relies heavily on two alternating CSS classes to style the timeline.
  * .about-timeline-left and .about-timeline-right
  */
-const AboutTimeline = () => {
+const LandingTimeline = () => {
   const [mediaWidth, setMediaWidth] = useState<string>("");
 
   useEffect(() => {
@@ -347,4 +347,4 @@ const AboutTimeline = () => {
   );
 };
 
-export default AboutTimeline;
+export default LandingTimeline;

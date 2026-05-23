@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { useRef } from "react";
 
-const AboutReviews = () => {
+const LandingReviews = () => {
   const numOfReviews = 8;
   const mySwiper = useRef<SwiperRef>(null);
 
@@ -181,4 +181,4 @@ const AboutReviews = () => {
   );
 };
 
-export default AboutReviews;
+export default LandingReviews;

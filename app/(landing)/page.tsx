@@ -3,27 +3,28 @@
 import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import { FaAngleRight } from "react-icons/fa";
-import AboutTimeline from "./AboutTimeline";
-import AboutReviews from "./AboutReviews";
-import CuriousCatClickTrap from "./CuriousCatClickTrap";
-import DecryptedText from "./DecryptedText";
-import LocationMapCard from "./LocationMapCard";
-import MagicBento from "./MagicBento";
-import RotatingText from "./RotatingText";
+import CuriousCatClickTrap from "../components/CuriousCatClickTrap";
+import DecryptedText from "../components/DecryptedText";
+import LandingReviews from "../components/LandingReviews";
+import LandingTimeline from "../components/LandingTimeline";
+import LocationMapCard from "../components/LocationMapCard";
+import MagicBento from "../components/MagicBento";
+import RotatingText from "../components/RotatingText";
 
-const ProfileHoloCard = dynamic(() => import("./ProfileHoloCard"), {
+const ProfileHoloCard = dynamic(() => import("../components/ProfileHoloCard"), {
   ssr: false,
 });
 
-export const About: React.FC = () => {
+const SWE_VALUE_ROTATIONS = [
+  "passion & curiousity",
+  "clean system design",
+  "clear communication",
+  "maintainable codebases",
+];
+
+const LandingPage: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
   const [isAliasHovered, setIsAliasHovered] = useState(false);
-  const sweValueRotations = [
-    "passion & curiousity",
-    "clean system design",
-    "clear communication",
-    "maintainable codebases",
-  ];
 
   const renderCardEyebrow = (label: string, status?: "busy" | "available") => (
     <span className="inline-flex items-center gap-[0.45rem] text-[0.65em] uppercase tracking-[0.06em] text-[color:var(--site-text-muted)]">
@@ -136,7 +137,7 @@ export const About: React.FC = () => {
         className="site-page-shell z-[-1] min-h-screen pt-[92px]
           transition-colors duration-150 ease-linear sm:pt-[130px]"
       >
-        {/* [START] About Me Hero Banner */}
+        {/* [START] Landing Hero Banner */}
         <div
           id="home"
           className="mx-auto grid w-full items-start gap-6 pb-4
@@ -152,8 +153,7 @@ export const About: React.FC = () => {
               onMouseLeave={() => setIsAliasHovered(false)}
             >
               <h1
-                className="max-sm:text-center max-sm:text-[1.8rem] max-xs:text-[1.4rem] 
-                sm:text-[1.5rem] md:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
+                className="max-md:text-center max-sm:text-[1.4rem] sm:text-[1.5rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[3.2rem] xxl:text-[4rem]"
               >
                 Lee Jia Quan,{" "}
                 <DecryptedText
@@ -168,7 +168,7 @@ export const About: React.FC = () => {
                   encryptedClassName="text-[color:var(--site-accent-soft)]"
                 />
               </h1>
-              <div className="flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col sm:flex-row">
+              <div className="flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col md:flex-row">
                 <div className="flex flex-nowrap items-center gap-1">
                   <FaAngleRight className="w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
                   <h1
@@ -178,8 +178,8 @@ export const About: React.FC = () => {
                   </h1>
                 </div>
                 <RotatingText
-                  texts={sweValueRotations}
-                  className="xs:ml-0 sm:ml-1 xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
+                  texts={SWE_VALUE_ROTATIONS}
+                  className="xs:ml-0 md:ml-1 xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
                   rotationInterval={2200}
                 />
               </div>
@@ -201,7 +201,7 @@ export const About: React.FC = () => {
             />
           </div>
         </div>
-        {/* [END] About Me Hero Banner */}
+        {/* [END] Landing Hero Banner */}
         <div id="reviews" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
           <h1
             className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
@@ -209,12 +209,14 @@ export const About: React.FC = () => {
           >
             What My Friends Think Of Me
           </h1>
-          <AboutReviews />
+          <LandingReviews />
         </div>
         <div id="timeline" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
-          <AboutTimeline />
+          <LandingTimeline />
         </div>
       </div>
     </>
   );
 };
+
+export default LandingPage;

@@ -793,7 +793,7 @@ body *::selection {
 
 /* ---------- [END] /about: Hero Rotating Text + Bento ---------- */
 
-/* ---------- [START] About Timeline (LEFT vers.) ---------- */
+/* ---------- [START] Landing Timeline (LEFT vers.) ---------- */
 .about-timeline-left {
   @apply mx-auto my-3 flex w-full flex-row xxl:w-[90%];
 }
@@ -839,9 +839,9 @@ body *::selection {
   @apply my-auto ml-[8px] min-w-[40%] text-[1rem] duration-150 
     ease-linear lg:ml-[10px] lg:text-[1.1rem] xl:ml-[15px] xl:text-[1.2rem];
 }
-/* ---------- [END] About Timeline (LEFT vers) ---------- */
+/* ---------- [END] Landing Timeline (LEFT vers) ---------- */
 
-/* ---------- [START] About Timeline (RIGHT vers) ---------- */
+/* ---------- [START] Landing Timeline (RIGHT vers) ---------- */
 .about-timeline-right {
   @apply mx-auto my-3 flex w-full flex-row xxl:w-[90%];
 }
@@ -885,9 +885,9 @@ body *::selection {
   @apply my-auto mr-[8px] text-right text-[1rem] md:w-[305px] lg:mr-[10px] lg:w-[418px] 
     lg:text-[1.1rem] xl:mr-[15px] xl:w-[561px] xl:text-[1.2rem] xxl:w-[618px];
 }
-/* ---------- [END] About Timeline (RIGHT vers) ---------- */
+/* ---------- [END] Landing Timeline (RIGHT vers) ---------- */
 
-/* ---------- [START] About Swiper Button ---------- */
+/* ---------- [START] Landing Reviews Swiper Button ---------- */
 .swiper-pagination-bullet-active {
   background-color: var(--site-accent-strong) !important;
 }
@@ -895,7 +895,7 @@ body *::selection {
 .swiper-pagination-bullet:not(.swiper-pagination-bullet-active) {
   background-color: #e5e5e5 !important;
 }
-/* ---------- [END] About Swiper Button ---------- */
+/* ---------- [END] Landing Reviews Swiper Button ---------- */
 
 .about-timeline-small svg {
   @apply z-[8] h-[25px] w-[25px] max-sm:h-[20px] max-sm:w-[20px];
