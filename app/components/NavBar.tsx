@@ -52,6 +52,8 @@ type StaggeredMenuProps = {
   isFixed?: boolean;
   items?: MobileMenuItem[];
   menuButtonColor?: string;
+  onMenuClose?: () => void;
+  onMenuOpen?: () => void;
   openMenuButtonColor?: string;
   panelAriaLabel?: string;
   position?: "left" | "right";
