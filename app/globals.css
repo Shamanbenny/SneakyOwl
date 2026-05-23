@@ -216,6 +216,26 @@ body *::selection {
 /* Therefore... max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px] */
 
 /* ---------- [START] Dock ---------- */
+.site-nav-shell .dock-outer,
+.site-nav-shell .staggered-menu-wrapper.fixed-wrapper {
+  transform: translateY(0);
+  opacity: 1;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+  will-change: transform, opacity;
+}
+
+.site-nav-shell[data-hidden] .dock-outer {
+  transform: translateY(calc(-100% - 0.75rem));
+  opacity: 0;
+}
+
+.site-nav-shell[data-hidden] .staggered-menu-wrapper.fixed-wrapper {
+  transform: translateY(calc(-100% - 1rem));
+  opacity: 0;
+}
+
 .dock-outer {
   position: fixed;
   left: 0;

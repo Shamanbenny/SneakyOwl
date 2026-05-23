@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   FaChess,
   FaEarlybirds,
@@ -18,6 +18,10 @@ import { cn } from "@/lib/utils";
 const LANDING_SECTIONS = ["home", "projects", "reviews", "timeline"] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
+const NAV_TOP_LOCK_OFFSET = 24;
+const NAV_HIDE_SCROLL_OFFSET = 96;
+const NAV_HIDE_DISTANCE = 48;
+const NAV_REVEAL_DISTANCE = 28;
 const SITE_COLORS = {
   accent: "var(--site-accent)",
   chrome: "var(--site-bg-chrome)",
@@ -69,7 +73,12 @@ const NavBar = () => {
   const router = useRouter();
   const [isCompact, setIsCompact] = useState(false);
   const [isViewportReady, setIsViewportReady] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNavVisible, setIsNavVisible] = useState(true);
   const [activeDockItem, setActiveDockItem] = useState<ActiveDockItem>(null);
+  const lastScrollYRef = useRef(0);
+  const downwardScrollRef = useRef(0);
+  const upwardScrollRef = useRef(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -82,6 +91,66 @@ const NavBar = () => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    lastScrollYRef.current = window.scrollY;
+    setIsNavVisible(true);
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollYRef.current;
+
+      if (currentScrollY <= NAV_TOP_LOCK_OFFSET) {
+        downwardScrollRef.current = 0;
+        upwardScrollRef.current = 0;
+        setIsNavVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      if (isMobileMenuOpen) {
+        downwardScrollRef.current = 0;
+        upwardScrollRef.current = 0;
+        setIsNavVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      if (Math.abs(delta) < 2) {
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      if (delta > 0) {
+        downwardScrollRef.current += delta;
+        upwardScrollRef.current = 0;
+
+        if (
+          currentScrollY > NAV_HIDE_SCROLL_OFFSET &&
+          downwardScrollRef.current >= NAV_HIDE_DISTANCE
+        ) {
+          setIsNavVisible(false);
+        }
+      } else {
+        upwardScrollRef.current += Math.abs(delta);
+        downwardScrollRef.current = 0;
+
+        if (upwardScrollRef.current >= NAV_REVEAL_DISTANCE) {
+          setIsNavVisible(true);
+        }
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -230,7 +299,7 @@ const NavBar = () => {
   ];
 
   return (
-    <>
+    <div className="site-nav-shell" data-hidden={!isNavVisible || undefined}>
       {isViewportReady ? (
         isCompact ? (
           <ResponsiveStaggeredMenu
@@ -247,6 +316,11 @@ const NavBar = () => {
             isFixed
             items={mobileMenuItems}
             menuButtonColor={SITE_COLORS.text}
+            onMenuClose={() => setIsMobileMenuOpen(false)}
+            onMenuOpen={() => {
+              setIsNavVisible(true);
+              setIsMobileMenuOpen(true);
+            }}
             openMenuButtonColor={SITE_COLORS.text}
             panelAriaLabel="Site navigation"
             position="right"
@@ -264,7 +338,7 @@ const NavBar = () => {
           />
         )
       ) : null}
-    </>
+    </div>
   );
 };
 

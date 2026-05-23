@@ -485,7 +485,7 @@ const ProjectsSection = () => {
         <ProjectPreviewCard project={activeProject} />
 
         <div
-          className="site-surface-card min-h-0 overflow-hidden rounded-[26px] p-2 sm:p-3
+          className="site-surface-card min-h-0 overflow-hidden rounded-[26px]
             lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]"
         >
           <FlowingMenu<ProjectItem>
