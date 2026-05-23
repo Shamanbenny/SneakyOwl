@@ -63,4 +63,6 @@ This project is currently configured for static export in [next.config.mjs](./ne
 
 ## To-do
 
-- [ ] Create a Project display segment and link to it for the COMPLETED PROJECTS bento cell.
+- [ ] Link the COMPLETED PROJECTS bento cell to #Projects.
+- [ ] Limit the #Reviews to the same width setup as the rest of the page
+- [ ] Change lg: to use the same style as xl: when it comes to #Reviews

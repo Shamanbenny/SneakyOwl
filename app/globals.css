@@ -157,6 +157,7 @@ body *::selection {
 .about-timeline-line-desktop,
 .about-timeline-line-mobile {
   position: relative;
+  isolation: isolate;
 }
 
 .about-timeline-line-desktop::after,
@@ -166,7 +167,9 @@ body *::selection {
   top: 0;
   bottom: 0;
   width: 1px;
+  z-index: 1;
   background-color: var(--site-divider);
+  pointer-events: none;
 }
 
 .about-timeline-line-desktop::after {

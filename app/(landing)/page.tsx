@@ -9,6 +9,8 @@ import LandingReviews from "../components/LandingReviews";
 import LandingTimeline from "../components/LandingTimeline";
 import LocationMapCard from "../components/LocationMapCard";
 import MagicBento from "../components/MagicBento";
+import NavBar from "../components/NavBar";
+import ProjectsSection from "../components/ProjectsSection";
 import RotatingText from "../components/RotatingText";
 
 const ProfileHoloCard = dynamic(() => import("../components/ProfileHoloCard"), {
@@ -133,6 +135,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
+      <NavBar />
       <div
         className="site-page-shell z-[-1] min-h-screen pt-[92px]
           transition-colors duration-150 ease-linear sm:pt-[130px]"
@@ -202,6 +205,7 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
         {/* [END] Landing Hero Banner */}
+        <ProjectsSection />
         <div id="reviews" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
           <h1
             className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]

@@ -7,6 +7,7 @@ import {
   FaEarlybirds,
   FaEnvelope,
   FaHistory,
+  FaLaptopCode,
   FaQuoteLeft,
 } from "react-icons/fa";
 
@@ -14,7 +15,7 @@ import Dock, { type DockEntry } from "@/components/Dock";
 import StaggeredMenu from "@/components/StaggeredMenu";
 import { cn } from "@/lib/utils";
 
-const LANDING_SECTIONS = ["home", "reviews", "timeline"] as const;
+const LANDING_SECTIONS = ["home", "projects", "reviews", "timeline"] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
 const SITE_COLORS = {
@@ -158,6 +159,12 @@ const NavBar = () => {
       onClick: () => navigateToSection("home"),
     },
     {
+      className: dockItemClass(activeDockItem === "projects"),
+      icon: <FaLaptopCode size={19} />,
+      label: "#Projects",
+      onClick: () => navigateToSection("projects"),
+    },
+    {
       className: dockItemClass(activeDockItem === "reviews"),
       icon: <FaQuoteLeft size={18} />,
       label: "#Reviews",
@@ -189,6 +196,12 @@ const NavBar = () => {
       className: mobileMenuItemClass(activeDockItem === "home"),
       label: "Home",
       onClick: () => navigateToSection("home"),
+    },
+    {
+      ariaLabel: "Jump to the projects section",
+      className: mobileMenuItemClass(activeDockItem === "projects"),
+      label: "> Projects",
+      onClick: () => navigateToSection("projects"),
     },
     {
       ariaLabel: "Jump to the reviews section",

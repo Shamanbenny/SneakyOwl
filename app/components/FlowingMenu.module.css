@@ -1,0 +1,114 @@
+.menuWrap {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.menuWrapScrollable {
+  overscroll-behavior: contain;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.menuItem {
+  flex: 0 0 auto;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  border-top: 1px solid;
+}
+
+.menuItemFirst {
+  border-top: none;
+}
+
+.menuItemLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 5.5rem;
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.menuItemLink:hover {
+  color: inherit;
+}
+
+.menuItemLink:focus:not(:focus-visible) {
+  color: inherit;
+}
+
+.marquee {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: translate3d(0, 101%, 0);
+}
+
+.marqueeInnerWrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.marqueeInner {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100%;
+  width: fit-content;
+  will-change: transform;
+}
+
+.marqueePart {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.marqueeLabel {
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: clamp(1rem, 0.9rem + 1vw, 1.45rem);
+  line-height: 1;
+  padding: 0 1.25rem;
+  letter-spacing: 0.12em;
+}
+
+.marqueeImg {
+  width: 210px;
+  height: 62px;
+  margin: 1.15rem 1rem;
+  border-radius: 999px;
+  background-size: cover;
+  background-position: 50% 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+@media (max-width: 767px) {
+  .menuItemLink {
+    min-height: 4.75rem;
+  }
+
+  .marqueeImg {
+    width: 154px;
+    height: 50px;
+    margin: 0.9rem 0.8rem;
+  }
+}
