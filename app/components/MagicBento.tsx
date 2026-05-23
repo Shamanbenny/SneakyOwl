@@ -20,7 +20,7 @@ const MagicBento = ({
   glowColor = "16, 185, 129",
 }: MagicBentoProps) => {
   return (
-    <div className="grid w-full gap-2 px-5 py-5 text-[clamp(1rem,0.9rem+0.5vw,1.5rem)] xs:auto-rows-auto xs:grid-cols-1 sm:auto-rows-[200px] sm:grid-cols-2 md:auto-rows-[215px] lg:grid-cols-3 xl:auto-rows-[225px] xxl:auto-rows-[250px] xxl:grid-cols-4">
+    <div className="grid w-full gap-2 px-5 py-5 text-[clamp(1rem,0.9rem+0.5vw,1.5rem)] xs:auto-rows-auto sm:auto-rows-[200px] md:auto-rows-[215px] xl:auto-rows-[225px] xxl:auto-rows-[250px] xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xxl:grid-cols-4">
       {cards.map((card) => (
         <article
           key={card.id}

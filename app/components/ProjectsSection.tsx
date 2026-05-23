@@ -62,10 +62,7 @@ const getVisibleFlowingMenuTagCount = (
   return FLOWING_MENU_VISIBLE_TAGS.xl;
 };
 
-const getFlowingMenuTagDisplay = (
-  tags: TechTag[],
-  visibleSlotCount: number,
-) => {
+const getFlowingMenuTagDisplay = (tags: TechTag[], visibleSlotCount: number) => {
   const sortedTags = [...tags]
     .map((tag, index) => ({ index, tag }))
     .sort((left, right) => {
@@ -94,11 +91,7 @@ const getFlowingMenuTagDisplay = (
   };
 };
 
-const getProjectCtas = ({
-  deployedSiteUrl,
-  githubRepoUrl,
-  infoUrl,
-}: ProjectLinks) => {
+const getProjectCtas = ({ deployedSiteUrl, githubRepoUrl, infoUrl }: ProjectLinks) => {
   return [
     {
       href: infoUrl,
@@ -119,9 +112,7 @@ const getProjectCtas = ({
           label: "Visit deployed site",
         }
       : null,
-  ].filter((cta): cta is { href: string; key: string; label: string } =>
-    Boolean(cta),
-  );
+  ].filter((cta): cta is { href: string; key: string; label: string } => Boolean(cta));
 };
 
 const isExternalUrl = (href: string) => /^https?:\/\//.test(href);
@@ -133,12 +124,12 @@ const PROJECTS: ProjectItem[] = [
       "A gateway-centric system split into dedicated user, question, matching, collaboration, history, and AI services, coordinated with Redis and deployed locally via Docker Compose and on AWS with Terraform-managed infrastructure.",
     description: (
       <>
-        A real-time technical interview prep platform that matches peers by
-        topic and difficulty, launches shared coding sessions, and preserves
-        per-user session history. It was also designed for scalable cloud
-        deployment, with load-balanced AWS infrastructure provisioned through
-        Terraform as Infrastructure as Code. That deployment has since been torn
-        down because grading for NUS{" "}
+        A real-time technical interview prep platform that matches peers by topic
+        and difficulty, launches shared coding sessions, and preserves per-user
+        session history. It was also designed for scalable cloud deployment, with
+        load-balanced AWS infrastructure provisioned through Terraform as
+        Infrastructure as Code. That deployment has since been torn down because
+        grading for NUS{" "}
         <a
           href="https://nusmods.com/courses/CS3219/software-engineering-principles-and-patterns"
           target="_blank"
@@ -308,8 +299,8 @@ const PROJECTS: ProjectItem[] = [
       "A Flask-based chess engine service exposes versioned move endpoints, while the Next.js frontend hosts the playable interface and calls the deployed engine remotely.",
     description: (
       <>
-        A browser-based chess interface backed by iterative chess bot versions
-        exposed through a Flask API. The standalone{" "}
+        A browser-based chess interface backed by iterative chess bot versions exposed
+        through a Flask API. The standalone{" "}
         <a
           href="https://github.com/Shamanbenny/chess-flask"
           target="_blank"
@@ -404,7 +395,9 @@ const ProjectPreviewCard = ({ project }: { project: ProjectItem }) => {
           />
         </div>
       </div>
-      <footer className="mt-3 flex flex-1 flex-col rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5">
+      <footer
+        className="mt-3 flex flex-1 flex-col rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5"
+      >
         <div className="flex flex-1 flex-col">
           <div className="mb-4 flex flex-wrap gap-2">
             {project.tags.map((tag) => (
@@ -412,9 +405,7 @@ const ProjectPreviewCard = ({ project }: { project: ProjectItem }) => {
                 key={`${project.text}-${tag.id}`}
                 className="inline-flex items-center gap-2 rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.78rem] font-medium text-[color:var(--site-text-strong)]"
               >
-                <span className="text-[color:var(--site-accent-soft)]">
-                  {tag.icon}
-                </span>
+                <span className="text-[color:var(--site-accent-soft)]">{tag.icon}</span>
                 {tag.label}
               </span>
             ))}
@@ -460,23 +451,20 @@ const ProjectsSection = () => {
 
   useEffect(() => {
     const updateVisibleFlowingMenuTagCount = () => {
-      setVisibleFlowingMenuTagCount(
-        getVisibleFlowingMenuTagCount(window.innerWidth),
-      );
+      setVisibleFlowingMenuTagCount(getVisibleFlowingMenuTagCount(window.innerWidth));
     };
 
     updateVisibleFlowingMenuTagCount();
     window.addEventListener("resize", updateVisibleFlowingMenuTagCount);
 
-    return () =>
-      window.removeEventListener("resize", updateVisibleFlowingMenuTagCount);
+    return () => window.removeEventListener("resize", updateVisibleFlowingMenuTagCount);
   }, []);
 
   return (
     <section
       id="projects"
-      className="mx-auto scroll-mt-[92px] pb-10 max-sm:w-[300px]
-        max-xs:w-[230px] sm:w-[560px] sm:scroll-mt-[130px] md:w-[680px]
+      className="mx-auto scroll-mt-[92px] pb-10 sm:scroll-mt-[130px]
+        max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
     >
       <h1
@@ -491,7 +479,9 @@ const ProjectsSection = () => {
         ))}
       </div>
 
-      <div className="hidden gap-7 xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div
+        className="hidden gap-7 xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
+      >
         <ProjectPreviewCard project={activeProject} />
 
         <div
@@ -510,8 +500,10 @@ const ProjectsSection = () => {
             onItemLeave={() => undefined}
             renderItemContent={(item, index) => {
               const isActive = activeProjectIndex === index;
-              const { hiddenCount, hiddenTags, visibleTags } =
-                getFlowingMenuTagDisplay(item.tags, visibleFlowingMenuTagCount);
+              const { hiddenCount, hiddenTags, visibleTags } = getFlowingMenuTagDisplay(
+                item.tags,
+                visibleFlowingMenuTagCount,
+              );
 
               return (
                 <div

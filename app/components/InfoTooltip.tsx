@@ -160,21 +160,18 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({
           case "bottom":
             return {
               top: triggerRect.bottom + TOOLTIP_GAP,
-              left:
-                triggerRect.left + triggerRect.width / 2 - panelRect.width / 2,
+              left: triggerRect.left + triggerRect.width / 2 - panelRect.width / 2,
               placement,
             };
           case "left":
             return {
-              top:
-                triggerRect.top + triggerRect.height / 2 - panelRect.height / 2,
+              top: triggerRect.top + triggerRect.height / 2 - panelRect.height / 2,
               left: triggerRect.left - panelRect.width - TOOLTIP_GAP,
               placement,
             };
           case "right":
             return {
-              top:
-                triggerRect.top + triggerRect.height / 2 - panelRect.height / 2,
+              top: triggerRect.top + triggerRect.height / 2 - panelRect.height / 2,
               left: triggerRect.right + TOOLTIP_GAP,
               placement,
             };
@@ -182,8 +179,7 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({
           default:
             return {
               top: triggerRect.top - panelRect.height - TOOLTIP_GAP,
-              left:
-                triggerRect.left + triggerRect.width / 2 - panelRect.width / 2,
+              left: triggerRect.left + triggerRect.width / 2 - panelRect.width / 2,
               placement,
             };
         }
@@ -311,15 +307,11 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({
     onMouseLeave: scheduleCloseTooltip,
   };
 
-  const triggerNode = trigger ? (
-    React.cloneElement<TooltipTriggerProps & React.RefAttributes<HTMLElement>>(
-      trigger,
-      {
+  const triggerNode = trigger
+    ? React.cloneElement<TooltipTriggerProps & React.RefAttributes<HTMLElement>>(trigger, {
         ...triggerProps,
         ...trigger.props,
-        "aria-describedby": isOpen
-          ? tooltipId
-          : trigger.props["aria-describedby"],
+        "aria-describedby": isOpen ? tooltipId : trigger.props["aria-describedby"],
         "aria-expanded":
           typeof trigger.props["aria-expanded"] === "undefined"
             ? isOpen
@@ -358,20 +350,18 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({
         },
         ref: mergeRefs(
           triggerRef,
-          (trigger as TooltipTriggerElement & { ref?: React.Ref<HTMLElement> })
-            .ref,
+          (trigger as TooltipTriggerElement & { ref?: React.Ref<HTMLElement> }).ref,
         ),
-      },
-    )
-  ) : (
-    <button
-      ref={triggerRef as React.RefObject<HTMLButtonElement>}
-      type="button"
-      {...triggerProps}
-    >
-      <FaInfo />
-    </button>
-  );
+      })
+    : (
+      <button
+        ref={triggerRef as React.RefObject<HTMLButtonElement>}
+        type="button"
+        {...triggerProps}
+      >
+        <FaInfo />
+      </button>
+    );
 
   return (
     <>

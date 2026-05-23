@@ -216,7 +216,9 @@ const LandingTimeline = () => {
               >
                 <h1>{data.title}</h1>
                 <h2>{data.subtitle}</h2>
-                <hr className="timeline-rule rounded-full border" />
+                <hr
+                  className="timeline-rule rounded-full border"
+                />
                 <p
                   dangerouslySetInnerHTML={{
                     __html: data.content.split("\n").join("<br />"),
@@ -267,7 +269,9 @@ const LandingTimeline = () => {
               >
                 <h1>{data.title}</h1>
                 <h2>{data.subtitle}</h2>
-                <hr className="timeline-rule rounded-full border" />
+                <hr
+                  className="timeline-rule rounded-full border"
+                />
                 <p
                   dangerouslySetInnerHTML={{
                     __html: data.content.split("\n").join("<br />"),
@@ -306,7 +310,9 @@ const LandingTimeline = () => {
               <h2 className="mb-1 max-sm:text-[0.9rem] max-xs:text-[0.75rem]">
                 {data.subtitle}
               </h2>
-              <hr className="timeline-rule rounded-full border" />
+              <hr
+                className="timeline-rule rounded-full border"
+              />
               <p
                 dangerouslySetInnerHTML={{
                   __html: data.content.split("\n").join("<br />"),

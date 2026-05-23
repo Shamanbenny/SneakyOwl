@@ -69,9 +69,7 @@ const LandingPage: React.FC = () => {
             {description}
           </p>
         ) : null}
-        {extraContent ? (
-          <div className="mt-[0.65em]">{extraContent}</div>
-        ) : null}
+        {extraContent ? <div className="mt-[0.65em]">{extraContent}</div> : null}
       </div>
     </div>
   );
@@ -145,11 +143,11 @@ const LandingPage: React.FC = () => {
         {/* [START] Landing Hero Banner */}
         <div
           id="home"
-          className="mx-auto grid w-full scroll-mt-[92px] items-start gap-6
-            pb-4 max-sm:w-[300px] max-sm:grid-cols-1
-            max-xs:max-w-[230px] sm:max-w-[560px] sm:scroll-mt-[130px] sm:grid-cols-1 sm:px-5
-            md:max-w-[680px] md:px-5 lg:max-w-[910px] lg:grid-cols-1
-            lg:px-10 xl:max-w-[1160px] xl:grid-cols-[4fr_1fr] xl:gap-10 xl:px-[40px] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px]"
+          className="mx-auto grid w-full items-start gap-6 pb-4
+            max-sm:w-[300px] max-sm:grid-cols-1 max-xs:max-w-[230px]
+            sm:max-w-[560px] sm:grid-cols-1 sm:px-5 md:max-w-[680px] md:px-5
+            lg:max-w-[910px] lg:grid-cols-1 lg:px-10 xl:max-w-[1160px]
+            xl:gap-10 xl:px-[40px] xl:grid-cols-[4fr_1fr] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px] scroll-mt-[92px] sm:scroll-mt-[130px]"
         >
           {/* [LEFT] BENTO */}
           <div className="order-2 w-full max-sm:mx-auto sm:relative sm:z-[1]">
@@ -157,7 +155,9 @@ const LandingPage: React.FC = () => {
               onMouseEnter={() => setIsAliasHovered(true)}
               onMouseLeave={() => setIsAliasHovered(false)}
             >
-              <h1 className="max-md:text-center max-sm:text-[1.4rem] sm:text-[1.5rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[3.2rem] xxl:text-[4rem]">
+              <h1
+                className="max-md:text-center max-sm:text-[1.4rem] sm:text-[1.5rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[3.2rem] xxl:text-[4rem]"
+              >
                 Lee Jia Quan,{" "}
                 <DecryptedText
                   text="Benny"
@@ -174,22 +174,24 @@ const LandingPage: React.FC = () => {
               <div className="flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col md:flex-row">
                 <div className="flex flex-nowrap items-center gap-1">
                   <FaAngleRight className="w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
-                  <h1 className="whitespace-nowrap text-[0.8rem] text-[color:var(--site-text-muted)] sm:text-[1.2rem] lg:text-[1.35rem] xxl:text-[1.5rem]">
+                  <h1
+                    className="whitespace-nowrap text-[color:var(--site-text-muted)] xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
+                  >
                     I&#39;m a Software Engineer who values
                   </h1>
                 </div>
                 <RotatingText
                   texts={SWE_VALUE_ROTATIONS}
-                  className="text-[0.8rem] xs:ml-0 sm:text-[1.2rem] md:ml-1 lg:text-[1.35rem] xxl:text-[1.5rem]"
+                  className="xs:ml-0 md:ml-1 xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
                   rotationInterval={2200}
                 />
               </div>
             </div>
-            <MagicBento
-              cards={hireabilityCards}
-              enableBorderGlow={true}
-              glowColor="16, 185, 129"
-            />
+              <MagicBento
+                cards={hireabilityCards}
+                enableBorderGlow={true}
+                glowColor="16, 185, 129"
+              />
           </div>
 
           {/* [RIGHT] Profile Holo Card */}
