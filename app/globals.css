@@ -15,6 +15,7 @@
   --site-text-faint: rgba(245, 245, 245, 0.1);
   --site-border: rgba(212, 212, 216, 0.16);
   --site-border-strong: rgba(212, 212, 216, 0.34);
+  --site-border-overlay-light: rgba(255, 255, 255, 0.16);
   --site-divider: rgba(212, 212, 216, 0.42);
   --site-accent: #10b981;
   --site-accent-strong: #059669;
@@ -781,7 +782,7 @@ body *::selection {
   width: 210px;
   height: 62px;
   margin: 1.15rem 1rem;
-  border: 1px solid var(--site-border);
+  border: 1px solid var(--site-border-overlay-light);
   border-radius: 999px;
   background-position: 50% 50%;
   background-size: cover;
