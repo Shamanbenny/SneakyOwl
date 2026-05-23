@@ -3,8 +3,6 @@
 import { gsap } from "gsap";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import styles from "./FlowingMenu.module.css";
-
 const MIN_REPETITIONS = 4;
 
 const getSafeRepetitionCount = (count: number) => {
@@ -51,11 +49,11 @@ interface MenuItemProps<T extends FlowingMenuItemData> {
 const FlowingMenu = <T extends FlowingMenuItemData>({
   items = [],
   speed = 15,
-  textColor = "#fff",
-  bgColor = "#120F17",
-  marqueeBgColor = "#fff",
-  marqueeTextColor = "#120F17",
-  borderColor = "#fff",
+  textColor = "var(--site-text-strong)",
+  bgColor = "var(--site-bg-elevated)",
+  marqueeBgColor = "var(--site-accent)",
+  marqueeTextColor = "var(--site-selection-text)",
+  borderColor = "var(--site-border)",
   renderItemContent,
   onItemHover,
   onItemLeave,
@@ -93,10 +91,12 @@ const FlowingMenu = <T extends FlowingMenuItemData>({
   return (
     <div
       ref={menuWrapRef}
-      className={`${styles.menuWrap} ${isScrollable ? styles.menuWrapScrollable : ""}`}
+      className={`flowing-menu ${
+        isScrollable ? "flowing-menu--scrollable" : ""
+      }`}
       style={{ backgroundColor: bgColor }}
     >
-      <nav className={styles.menu}>
+      <nav className="flowing-menu__items">
         {items.map((item, idx) => (
           <MenuItem<T>
             key={`${item.text}-${idx}`}
@@ -162,7 +162,7 @@ const MenuItem = <T extends FlowingMenuItemData>({
       if (!marqueeInnerRef.current) return;
 
       const marqueeContent = marqueeInnerRef.current.querySelector(
-        `.${styles.marqueePart}`,
+        ".flowing-menu__marquee-part",
       ) as HTMLElement | null;
 
       if (!marqueeContent) return;
@@ -188,7 +188,7 @@ const MenuItem = <T extends FlowingMenuItemData>({
       if (!marqueeInnerRef.current) return;
 
       const marqueeContent = marqueeInnerRef.current.querySelector(
-        `.${styles.marqueePart}`,
+        ".flowing-menu__marquee-part",
       ) as HTMLElement | null;
 
       if (!marqueeContent) return;
@@ -214,7 +214,8 @@ const MenuItem = <T extends FlowingMenuItemData>({
   }, [text, image, repetitions, speed]);
 
   const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
+      return;
 
     const rect = itemRef.current.getBoundingClientRect();
     const x = ev.clientX - rect.left;
@@ -231,7 +232,8 @@ const MenuItem = <T extends FlowingMenuItemData>({
   };
 
   const handleMouseLeave = (ev: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
+      return;
 
     const rect = itemRef.current.getBoundingClientRect();
     const x = ev.clientX - rect.left;
@@ -249,11 +251,11 @@ const MenuItem = <T extends FlowingMenuItemData>({
   return (
     <div
       ref={itemRef}
-      className={`${styles.menuItem} ${isFirst ? styles.menuItemFirst : ""}`}
+      className={`flowing-menu__item ${isFirst ? "flowing-menu__item--first" : ""}`}
       style={{ borderColor }}
     >
       <a
-        className={styles.menuItemLink}
+        className="flowing-menu__item-link"
         href={link ?? "#projects"}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -265,24 +267,31 @@ const MenuItem = <T extends FlowingMenuItemData>({
       </a>
       <div
         ref={marqueeRef}
-        className={styles.marquee}
+        className="flowing-menu__marquee"
         style={{ backgroundColor: marqueeBgColor }}
       >
-        <div className={styles.marqueeInnerWrap}>
-          <div ref={marqueeInnerRef} className={styles.marqueeInner} aria-hidden="true">
-            {Array.from({ length: getSafeRepetitionCount(repetitions) }, (_, idx) => (
-              <div
-                key={`${text}-marquee-${idx}`}
-                className={styles.marqueePart}
-                style={{ color: marqueeTextColor }}
-              >
-                <span className={styles.marqueeLabel}>{text}</span>
+        <div className="flowing-menu__marquee-inner-wrap">
+          <div
+            ref={marqueeInnerRef}
+            className="flowing-menu__marquee-inner"
+            aria-hidden="true"
+          >
+            {Array.from(
+              { length: getSafeRepetitionCount(repetitions) },
+              (_, idx) => (
                 <div
-                  className={styles.marqueeImg}
-                  style={{ backgroundImage: `url(${image})` }}
-                />
-              </div>
-            ))}
+                  key={`${text}-marquee-${idx}`}
+                  className="flowing-menu__marquee-part"
+                  style={{ color: marqueeTextColor }}
+                >
+                  <span className="flowing-menu__marquee-label">{text}</span>
+                  <div
+                    className="flowing-menu__marquee-image"
+                    style={{ backgroundImage: `url(${image})` }}
+                  />
+                </div>
+              ),
+            )}
           </div>
         </div>
       </div>
