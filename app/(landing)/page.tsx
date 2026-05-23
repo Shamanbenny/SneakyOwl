@@ -28,6 +28,10 @@ const LandingPage: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
   const [isAliasHovered, setIsAliasHovered] = useState(false);
 
+  const navigateToProjects = () => {
+    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const renderCardEyebrow = (label: string, status?: "busy" | "available") => (
     <span className="inline-flex items-center gap-[0.45rem] text-[0.65em] uppercase tracking-[0.06em] text-[color:var(--site-text-muted)]">
       {status ? (
@@ -116,6 +120,7 @@ const LandingPage: React.FC = () => {
     {
       id: "projects",
       size: "small" as const,
+      onClick: navigateToProjects,
       content: renderDefaultCardContent({
         label: "Completed Projects",
         value: "3",
@@ -137,13 +142,13 @@ const LandingPage: React.FC = () => {
     <>
       <NavBar />
       <div
-        className="site-page-shell z-[-1] min-h-screen pt-[92px]
-          transition-colors duration-150 ease-linear sm:pt-[130px]"
+        className="site-page-shell z-[-1] min-h-screen
+          transition-colors duration-150 ease-linear xs:pt-[80px] sm:pt-[100px] xl:pt-[80px] xxl:pt-[130px]"
       >
         {/* [START] Landing Hero Banner */}
         <div
           id="home"
-          className="mx-auto grid w-full items-start gap-6 pb-4
+          className="mx-auto grid w-full items-start gap-6 pb-10
             max-sm:w-[300px] max-sm:grid-cols-1 max-xs:max-w-[230px]
             sm:max-w-[560px] sm:grid-cols-1 sm:px-5 md:max-w-[680px] md:px-5
             lg:max-w-[910px] lg:grid-cols-1 lg:px-10 xl:max-w-[1160px]
@@ -156,7 +161,7 @@ const LandingPage: React.FC = () => {
               onMouseLeave={() => setIsAliasHovered(false)}
             >
               <h1
-                className="max-md:text-center max-sm:text-[1.4rem] sm:text-[1.5rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[3.2rem] xxl:text-[4rem]"
+                className="max-md:text-center max-sm:text-[1.4rem] sm:text-[2.5rem] md:text-[3rem] xl:text-[3.2rem] xxl:text-[4rem]"
               >
                 Lee Jia Quan,{" "}
                 <DecryptedText
@@ -206,7 +211,12 @@ const LandingPage: React.FC = () => {
         </div>
         {/* [END] Landing Hero Banner */}
         <ProjectsSection />
-        <div id="reviews" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
+        <div
+          id="reviews"
+          className="mx-auto scroll-mt-[92px] pb-10 sm:scroll-mt-[130px]
+            max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
+            lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
+        >
           <h1
             className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
             max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"

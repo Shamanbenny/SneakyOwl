@@ -6,6 +6,7 @@ type MagicBentoCard = {
   id: string;
   content: React.ReactNode;
   size?: "small" | "large";
+  onClick?: () => void;
 };
 
 type MagicBentoProps = {
@@ -24,7 +25,20 @@ const MagicBento = ({
       {cards.map((card) => (
         <article
           key={card.id}
+          onClick={card.onClick}
           className={`magic-bento-card relative flex w-full max-w-full flex-col justify-between overflow-hidden rounded-[20px] border-2 border-[color:var(--site-border)] bg-[color:var(--site-bg-elevated)] p-[1rem] font-light text-[color:var(--site-text-strong)] transition-all duration-300 ease-in-out hover:-translate-y-[2px] hover:border-[color:color-mix(in_srgb,var(--site-border-strong)_55%,var(--site-accent)_45%)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.25)] max-sm:min-h-[180px] sm:h-full sm:min-h-0 ${card.size === "small" ? "min-h-[170px] sm:min-h-0" : ""} ${card.size === "large" ? "sm:col-span-2 sm:row-span-1" : ""} ${enableBorderGlow ? "magic-bento-card--border-glow" : ""}`}
+          role={card.onClick ? "button" : undefined}
+          tabIndex={card.onClick ? 0 : undefined}
+          onKeyDown={
+            card.onClick
+              ? (event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    card.onClick?.();
+                  }
+                }
+              : undefined
+          }
           style={
             {
               "--glow-color": glowColor,
@@ -32,6 +46,7 @@ const MagicBento = ({
               "--glow-y": "50%",
               "--glow-intensity": 0,
               "--glow-radius": "200px",
+              cursor: card.onClick ? "pointer" : "default",
             } as React.CSSProperties
           }
         >

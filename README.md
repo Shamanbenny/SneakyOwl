@@ -67,6 +67,8 @@ Review that configuration before changing deployment targets.
 
 ## To-do
 
-- [ ] Link the COMPLETED PROJECTS bento cell to #Projects.
-- [ ] Limit the #Reviews to the same width setup as the rest of the page
-- [ ] Change lg: to use the same style as xl: when it comes to #Reviews
+- [X] Link the COMPLETED PROJECTS bento cell to #Projects.
+- [X] Limit the #Reviews to the same width setup as the rest of the page
+- [X] Change lg: to use the same style as xl: when it comes to #Reviews
+- [ ] Add Skills & Technology Section
+- [ ] Add [Gradual Blur](https://www.reactbits.dev/animations/gradual-blur) on the sides for `lg` and `xl` breakpoint for #Reviews

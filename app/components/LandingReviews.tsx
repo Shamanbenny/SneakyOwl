@@ -104,8 +104,8 @@ const LandingReviews = () => {
             slidesPerView: 1,
             spaceBetween: 10,
           },
-          1280: {
-            slidesPerView: 2,
+          1024: {
+            slidesPerView: 1.5,
             spaceBetween: 30,
           },
           1600: {
@@ -114,7 +114,7 @@ const LandingReviews = () => {
           },
         }}
         modules={[Navigation, Pagination, Mousewheel]}
-        className="w-[90%] py-10"
+        className="w-full py-10"
       >
         {reviewsData.map((data, index) => {
           return (
