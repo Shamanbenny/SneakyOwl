@@ -1028,6 +1028,24 @@ body *::selection {
 }
 /* ---------- [END] Landing Page Holo Card ---------- */
 
+/* ---------- [START] Decrypted Text ---------- */
+.decrypted-text {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
+.decrypted-text__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+/* ---------- [END] Decrypted Text ---------- */
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

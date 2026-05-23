@@ -1,11 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import React from "react";
+import React, { useState } from "react";
 import { FaAngleRight } from "react-icons/fa";
 import AboutTimeline from "./AboutTimeline";
 import AboutReviews from "./AboutReviews";
 import CuriousCatClickTrap from "./CuriousCatClickTrap";
+import DecryptedText from "./DecryptedText";
 import LocationMapCard from "./LocationMapCard";
 import MagicBento from "./MagicBento";
 import RotatingText from "./RotatingText";
@@ -16,6 +17,7 @@ const ProfileHoloCard = dynamic(() => import("./ProfileHoloCard"), {
 
 export const About: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
+  const [isAliasHovered, setIsAliasHovered] = useState(false);
   const sweValueRotations = [
     "passion & curiousity",
     "clean system design",
@@ -145,26 +147,42 @@ export const About: React.FC = () => {
         >
           {/* [LEFT] BENTO */}
           <div className="order-2 w-full max-sm:mx-auto sm:relative sm:z-[1]">
-            <h1
-              className="max-sm:text-center max-sm:text-[1.8rem] max-xs:text-[1.4rem] 
-              sm:text-[1.5rem] md:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
+            <div
+              onMouseEnter={() => setIsAliasHovered(true)}
+              onMouseLeave={() => setIsAliasHovered(false)}
             >
-              Lee Jia Quan, Benny
-            </h1>
-            <div className="flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col sm:flex-row">
-              <div className="flex flex-nowrap items-center gap-1">
-                <FaAngleRight className="w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
-                <h1
-                  className="whitespace-nowrap text-[color:var(--site-text-muted)] xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
-                >
-                  I&#39;m a Software Engineer who values
-                </h1>
+              <h1
+                className="max-sm:text-center max-sm:text-[1.8rem] max-xs:text-[1.4rem] 
+                sm:text-[1.5rem] md:text-[2.5rem] xl:text-[3.2rem] xxl:text-[4rem]"
+              >
+                Lee Jia Quan,{" "}
+                <DecryptedText
+                  text="Benny"
+                  hoverText="SneakyOwl"
+                  isActive={isAliasHovered}
+                  speed={35}
+                  maxIterations={16}
+                  sequential={true}
+                  revealDirection="start"
+                  className="text-[color:var(--site-text-strong)]"
+                  encryptedClassName="text-[color:var(--site-accent-soft)]"
+                />
+              </h1>
+              <div className="flex flex-nowrap items-center gap-1 overflow-hidden max-sm:justify-center xs:flex-col sm:flex-row">
+                <div className="flex flex-nowrap items-center gap-1">
+                  <FaAngleRight className="w-auto text-[color:var(--site-text-muted)] max-sm:h-[1rem] max-xs:text-[0.7rem] sm:h-[14px] md:h-[17px] lg:h-[22.4px] xl:h-[27.2px] xxl:h-[36px]" />
+                  <h1
+                    className="whitespace-nowrap text-[color:var(--site-text-muted)] xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
+                  >
+                    I&#39;m a Software Engineer who values
+                  </h1>
+                </div>
+                <RotatingText
+                  texts={sweValueRotations}
+                  className="xs:ml-0 sm:ml-1 xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
+                  rotationInterval={2200}
+                />
               </div>
-              <RotatingText
-                texts={sweValueRotations}
-                className="xs:ml-0 sm:ml-1 xxl:text-[1.5rem] lg:text-[1.35rem] sm:text-[1.2rem] text-[0.8rem]"
-                rotationInterval={2200}
-              />
             </div>
               <MagicBento
                 cards={hireabilityCards}
