@@ -1,26 +1,73 @@
 # SneakyOwl
 
-A GitHub Repository for SneakyOwl.net
+SneakyOwl is a personal website built with Next.js and the App Router.
+It includes a landing page and a chess section, with a UI composed of reusable React components
+and static assets served from `public/`.
 
-## Commands used to create "./myapp"
+## Tech Stack
 
-npx create-next-app@latest --ts myapp  
-ESLint: Yes  
-Tailwind CSS: Yes  
-'src/' directory: No  
-App Router (recommended): Yes  
-Customize the default import alias: No
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- ESLint
+- Prettier with `prettier-plugin-tailwindcss`
 
-## NPM Installed Modules
+## Getting Started
 
-npm install next react react-dom tailwindcss react-icons aos swiper
+### Prerequisites
 
-npm install -D prettier prettier-plugin-tailwindcss
+- Node.js 18 or later
+- npm
 
+### Installation
+
+Install dependencies from `package.json`:
+
+```bash
+npm install
+```
+
+### Development
+
+Start the local development server:
+
+```bash
 npm run dev
+```
 
-## Useful Information
+Open `http://localhost:3000` in your browser.
 
-rafce
+## Available Scripts
 
-Before pushing to 'main' branch, ensure 'next.config.mjs' contains 'output: "export",'
+- `npm run dev` starts the Next.js development server
+- `npm run build` creates a production build
+- `npm run start` serves the production build locally
+- `npm run lint` runs the configured lint checks
+
+## Project Structure
+
+```text
+app/
+  (landing)/page.tsx    Landing page
+  chess/page.tsx        Chess page
+  components/           Reusable UI components
+  globals.css           Global styles
+public/
+  reviewImages/         Review images
+  sounds/               Audio assets
+```
+
+## Deployment Note
+
+This project is currently configured for static export in
+[next.config.mjs](./next.config.mjs) with `output: "export"`, which is suitable
+for GitHub Pages style deployments.
+Review that configuration before changing deployment targets.
+
+## To-do
+
+- [X] Link the COMPLETED PROJECTS bento cell to #Projects.
+- [X] Limit the #Reviews to the same width setup as the rest of the page
+- [X] Change lg: to use the same style as xl: when it comes to #Reviews
+- [ ] Add Skills & Technology Section
