@@ -252,6 +252,10 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
     const buttonRect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - buttonRect.left;
     const relativeY = event.clientY - buttonRect.top;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.sqrt(Math.random());
+    const spawnX = relativeX + Math.cos(angle) * radius * 22;
+    const spawnY = relativeY - 6 + Math.sin(angle) * radius * 10;
 
     setButtonScale(0.97);
     if (buttonResetTimeoutRef.current !== null) {
@@ -265,7 +269,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
     writePersonalCount(nextPersonalCount);
     setGlobalCount((currentValue) => currentValue + 1);
     pulseCounter();
-    spawnPlusOne(relativeX, relativeY);
+    spawnPlusOne(spawnX, spawnY);
 
     try {
       const response = await fetch(
@@ -391,11 +395,11 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
         >
           Send Email
         </InfoTooltip>
-        <div className="relative overflow-hidden rounded-[0.75rem]">
+        <div className="relative overflow-visible rounded-[0.75rem]">
           {plusOnes.map((entry) => (
             <span
               key={entry.id}
-              className="cat-click-plus-one pointer-events-none absolute text-[0.74em] font-semibold text-[color:var(--site-accent-soft)]"
+              className="cat-click-plus-one pointer-events-none absolute z-10 text-[0.74em] font-semibold text-[color:var(--site-accent-soft)]"
               style={{ left: entry.x, top: entry.y }}
             >
               +1

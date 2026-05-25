@@ -1,7 +1,7 @@
 "use client";
 
 import { gsap } from "gsap";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
 const MIN_REPETITIONS = 4;
 
@@ -213,7 +213,7 @@ const MenuItem = <T extends FlowingMenuItemData>({
     };
   }, [text, image, repetitions, speed]);
 
-  const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseEnter = (ev: React.MouseEvent<HTMLElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
       return;
 
@@ -231,7 +231,7 @@ const MenuItem = <T extends FlowingMenuItemData>({
     onItemHover?.(index);
   };
 
-  const handleMouseLeave = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseLeave = (ev: React.MouseEvent<HTMLElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
       return;
 
@@ -248,23 +248,44 @@ const MenuItem = <T extends FlowingMenuItemData>({
     onItemLeave?.(index);
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+    }
+  };
+
   return (
     <div
       ref={itemRef}
       className={`flowing-menu__item ${isFirst ? "flowing-menu__item--first" : ""}`}
       style={{ borderColor }}
     >
-      <a
-        className="flowing-menu__item-link"
-        href={link ?? "#projects"}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onFocus={() => onItemHover?.(index)}
-        onBlur={() => onItemLeave?.(index)}
-        style={{ color: textColor }}
-      >
-        {renderItemContent?.(item, index) ?? text}
-      </a>
+      {link ? (
+        <a
+          className="flowing-menu__item-link"
+          href={link}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onFocus={() => onItemHover?.(index)}
+          onBlur={() => onItemLeave?.(index)}
+          style={{ color: textColor }}
+        >
+          {renderItemContent?.(item, index) ?? text}
+        </a>
+      ) : (
+        <div
+          className="flowing-menu__item-link"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onFocus={() => onItemHover?.(index)}
+          onBlur={() => onItemLeave?.(index)}
+          onKeyDown={handleKeyDown}
+          style={{ color: textColor }}
+          tabIndex={0}
+        >
+          {renderItemContent?.(item, index) ?? text}
+        </div>
+      )}
       <div
         ref={marqueeRef}
         className="flowing-menu__marquee"

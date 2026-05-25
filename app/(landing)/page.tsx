@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import { FaAngleRight } from "react-icons/fa";
+import { FiFileText } from "react-icons/fi";
 import CuriousCatClickTrap from "../components/CuriousCatClickTrap";
 import DecryptedText from "../components/DecryptedText";
 import GitHubCommitSnake from "../components/GitHubCommitSnake";
@@ -30,8 +31,8 @@ const LandingPage: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
   const [isAliasHovered, setIsAliasHovered] = useState(false);
 
-  const navigateToProjects = () => {
-    const section = document.getElementById("projects");
+  const navigateToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
 
     if (!section) {
       return;
@@ -42,6 +43,9 @@ const LandingPage: React.FC = () => {
 
     window.scrollTo({ behavior: "smooth", top: Math.max(0, top) });
   };
+
+  const navigateToProjects = () => navigateToSection("projects");
+  const navigateToTimeline = () => navigateToSection("timeline");
 
   const renderCardEyebrow = (label: string, status?: "busy" | "available") => (
     <span className="inline-flex items-center gap-[0.45rem] text-[0.65em] uppercase tracking-[0.06em] text-[color:var(--site-text-muted)]">
@@ -113,15 +117,17 @@ const LandingPage: React.FC = () => {
     {
       id: "experience",
       size: "small" as const,
+      onClick: navigateToTimeline,
       content: renderDefaultCardContent({
         label: "Work Experience",
         value: "1 year",
-        description: "in tech",
+        description: "in cybertech",
       }),
     },
     {
       id: "current-gpa",
       size: "small" as const,
+      onClick: navigateToTimeline,
       content: renderDefaultCardContent({
         label: "Current GPA",
         value: "4.46",
@@ -133,9 +139,9 @@ const LandingPage: React.FC = () => {
       size: "small" as const,
       onClick: navigateToProjects,
       content: renderDefaultCardContent({
-        label: "Completed Projects",
+        label: "Projects",
         value: "3",
-        description: "Click for more info",
+        description: "Completed Projects",
       }),
     },
     {
@@ -144,7 +150,7 @@ const LandingPage: React.FC = () => {
       content: renderDefaultCardContent({
         label: "Deployments",
         value: "1",
-        description: "Live production deployment",
+        description: "Successful Deployment",
       }),
     },
   ];
@@ -163,7 +169,7 @@ const LandingPage: React.FC = () => {
             max-sm:w-[300px] max-sm:grid-cols-1 max-xs:max-w-[230px]
             sm:max-w-[560px] sm:grid-cols-1 sm:px-5 md:max-w-[680px] md:px-5
             lg:max-w-[910px] lg:grid-cols-1 lg:px-10 xl:max-w-[1160px]
-            xl:gap-10 xl:px-[40px] xl:grid-cols-[4fr_1fr] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px] scroll-mt-[10px]"
+            xl:gap-10 xl:px-[40px] xl:grid-cols-[7fr_3fr] xxl:max-w-[1480px] xxl:grid-cols-[3fr_1fr] xxl:px-[40px] scroll-mt-[10px]"
         >
           {/* [LEFT] BENTO */}
           <div className="order-2 w-full max-sm:mx-auto sm:relative sm:z-[1]">
@@ -211,13 +217,21 @@ const LandingPage: React.FC = () => {
           </div>
 
           {/* [RIGHT] Profile Holo Card */}
-          <div className="order-1 flex h-full w-full items-start justify-center sm:relative sm:z-0 xl:order-2 xl:items-center">
+          <div className="order-1 flex h-full w-full flex-col items-center justify-start gap-5 sm:relative sm:z-0 xl:order-2 xl:justify-center">
             <ProfileHoloCard
               name="Lee Jia Quan, Benny"
               title="Full-stack Engineer"
               imageSrc="/sneakyOwl_1.jpg"
               idCode="1337-5T4C-K9001"
             />
+            <a
+              href="/Lee%20Jia%20Quan_CV.pdf"
+              download="Lee Jia Quan_CV.pdf"
+              className="relative z-10 inline-flex h-11 min-w-[6.9rem] items-center justify-center gap-2 rounded-[0.75rem] border border-[color:var(--site-accent-strong)] bg-[color:var(--site-accent)] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-selection-text)] transition duration-150 ease-linear hover:-translate-y-[1px] hover:border-[color:var(--site-accent-strong)] hover:bg-[color:var(--site-accent-strong)] focus-visible:-translate-y-[1px] focus-visible:border-[color:var(--site-accent-strong)] focus-visible:bg-[color:var(--site-accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--site-bg)] active:bg-[color:var(--site-accent-strong)] xxl:h-14 xxl:min-w-[8.1rem] xxl:text-[1rem]"
+            >
+              <FiFileText className="text-base" aria-hidden="true" />
+              <span>Resume</span>
+            </a>
           </div>
         </div>
         {/* [END] Landing Hero Banner */}
