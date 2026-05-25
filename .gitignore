@@ -36,4 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 # misc
+.vscode/
+.agents/
+.codex/
 AGENTS.md
