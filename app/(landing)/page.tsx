@@ -153,7 +153,7 @@ const LandingPage: React.FC = () => {
             max-sm:w-[300px] max-sm:grid-cols-1 max-xs:max-w-[230px]
             sm:max-w-[560px] sm:grid-cols-1 sm:px-5 md:max-w-[680px] md:px-5
             lg:max-w-[910px] lg:grid-cols-1 lg:px-10 xl:max-w-[1160px]
-            xl:gap-10 xl:px-[40px] xl:grid-cols-[4fr_1fr] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px] scroll-mt-[92px] sm:scroll-mt-[130px]"
+            xl:gap-10 xl:px-[40px] xl:grid-cols-[4fr_1fr] xxl:max-w-[1480px] xxl:grid-cols-[4fr_1fr] xxl:px-[40px] scroll-mt-[10px]"
         >
           {/* [LEFT] BENTO */}
           <div className="order-2 w-full max-sm:mx-auto sm:relative sm:z-[1]">
@@ -215,7 +215,7 @@ const LandingPage: React.FC = () => {
         <SkillsSection />
         <div
           id="reviews"
-          className="mx-auto scroll-mt-[92px] pb-10 sm:scroll-mt-[130px]
+          className="mx-auto scroll-mt-[10px] pb-10
             max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
             lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
         >
@@ -227,7 +227,7 @@ const LandingPage: React.FC = () => {
           </h1>
           <LandingReviews />
         </div>
-        <div id="timeline" className="scroll-mt-[92px] sm:scroll-mt-[130px]">
+        <div id="timeline" className="scroll-mt-[10px]">
           <LandingTimeline />
         </div>
       </div>

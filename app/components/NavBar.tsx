@@ -102,6 +102,12 @@ const NavBar = () => {
     lastScrollYRef.current = window.scrollY;
     setIsNavVisible(true);
 
+    if (isCompact) {
+      downwardScrollRef.current = 0;
+      upwardScrollRef.current = 0;
+      return;
+    }
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const delta = currentScrollY - lastScrollYRef.current;
@@ -152,7 +158,7 @@ const NavBar = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobileMenuOpen]);
+  }, [isCompact, isMobileMenuOpen]);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -301,7 +307,10 @@ const NavBar = () => {
   ];
 
   return (
-    <div className="site-nav-shell" data-hidden={!isNavVisible || undefined}>
+    <div
+      className="site-nav-shell"
+      data-hidden={!isCompact && !isNavVisible ? true : undefined}
+    >
       {isViewportReady ? (
         isCompact ? (
           <ResponsiveStaggeredMenu
