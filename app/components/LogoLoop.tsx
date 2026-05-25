@@ -26,6 +26,8 @@ export interface LogoLoopProps {
   ariaLabel?: string;
   className?: string;
   direction?: "left" | "right" | "up" | "down";
+  edgeHoverActivationWidth?: number;
+  edgeHoverSpeed?: number;
   fadeOut?: boolean;
   fadeOutColor?: string;
   gap?: number;
@@ -39,6 +41,8 @@ export interface LogoLoopProps {
   style?: React.CSSProperties;
   width?: number | string;
 }
+
+type EdgeSide = "left" | "right";
 
 const ANIMATION_CONFIG = {
   COPY_HEADROOM: 2,
@@ -131,6 +135,7 @@ const useImageLoader = (
 const useAnimationLoop = (
   trackRef: React.RefObject<HTMLDivElement | null>,
   targetVelocity: number,
+  edgeVelocityOverrideRef: React.RefObject<number | null>,
   seqWidth: number,
   seqHeight: number,
   isHovered: boolean,
@@ -166,7 +171,8 @@ const useAnimationLoop = (
       lastTimestampRef.current = timestamp;
 
       const target =
-        isHovered && hoverSpeed !== undefined ? hoverSpeed : targetVelocity;
+        edgeVelocityOverrideRef.current ??
+        (isHovered && hoverSpeed !== undefined ? hoverSpeed : targetVelocity);
 
       const easingFactor =
         1 - Math.exp(-deltaTime / ANIMATION_CONFIG.SMOOTH_TAU);
@@ -197,6 +203,7 @@ const useAnimationLoop = (
     };
   }, [
     hoverSpeed,
+    edgeVelocityOverrideRef,
     isHovered,
     isVertical,
     seqHeight,
@@ -211,6 +218,8 @@ const LogoLoop = React.memo<LogoLoopProps>(
     logos,
     speed = 120,
     direction = "left",
+    edgeHoverActivationWidth = 120,
+    edgeHoverSpeed,
     width = "100%",
     logoHeight = 28,
     gap = 32,
@@ -232,6 +241,8 @@ const LogoLoop = React.memo<LogoLoopProps>(
     const [seqHeight, setSeqHeight] = useState(0);
     const [copyCount, setCopyCount] = useState<number>(ANIMATION_CONFIG.MIN_COPIES);
     const [isHovered, setIsHovered] = useState(false);
+    const [activeEdge, setActiveEdge] = useState<EdgeSide | null>(null);
+    const edgeVelocityOverrideRef = useRef<number | null>(null);
 
     const effectiveHoverSpeed = useMemo(() => {
       if (hoverSpeed !== undefined) {
@@ -316,6 +327,7 @@ const LogoLoop = React.memo<LogoLoopProps>(
     useAnimationLoop(
       trackRef,
       targetVelocity,
+      edgeVelocityOverrideRef,
       seqWidth,
       seqHeight,
       isHovered,
@@ -354,10 +366,43 @@ const LogoLoop = React.memo<LogoLoopProps>(
     }, [effectiveHoverSpeed]);
 
     const handleMouseLeave = useCallback(() => {
+      edgeVelocityOverrideRef.current = null;
+      setActiveEdge(null);
+
       if (effectiveHoverSpeed !== undefined) {
         setIsHovered(false);
       }
     }, [effectiveHoverSpeed]);
+
+    const handleEdgeHover = useCallback(
+      (side: EdgeSide, event: React.MouseEvent<HTMLDivElement>) => {
+        if (edgeHoverSpeed === undefined || isVertical) {
+          return;
+        }
+
+        const bounds = event.currentTarget.getBoundingClientRect();
+        if (bounds.width <= 0) {
+          return;
+        }
+
+        const pointerOffset =
+          side === "left"
+            ? event.clientX - bounds.left
+            : bounds.right - event.clientX;
+        const intensity = 1 - Math.min(Math.max(pointerOffset / bounds.width, 0), 1);
+        const nextVelocity =
+          edgeHoverSpeed * (0.45 + intensity * 0.55) * (side === "left" ? -1 : 1);
+
+        edgeVelocityOverrideRef.current = nextVelocity;
+        setActiveEdge((currentEdge) => (currentEdge === side ? currentEdge : side));
+      },
+      [edgeHoverSpeed, isVertical],
+    );
+
+    const handleEdgeLeave = useCallback(() => {
+      edgeVelocityOverrideRef.current = null;
+      setActiveEdge(null);
+    }, []);
 
     const renderLogoItem = useCallback(
       (item: LogoItem, key: React.Key) => {
@@ -440,6 +485,7 @@ const LogoLoop = React.memo<LogoLoopProps>(
 
     const containerStyle = useMemo(
       (): React.CSSProperties => ({
+        "--logoloop-edgeHoverWidth": `${edgeHoverActivationWidth}px`,
         width: isVertical
           ? toCssLength(width) === "100%"
             ? undefined
@@ -458,15 +504,33 @@ const LogoLoop = React.memo<LogoLoopProps>(
         style={containerStyle}
         role="region"
         aria-label={ariaLabel}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div
           className="logoloop__track"
           ref={trackRef}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           {logoLists}
         </div>
+        {edgeHoverSpeed !== undefined && !isVertical ? (
+          <>
+            <div
+              aria-hidden="true"
+              className={`logoloop__edge-zone logoloop__edge-zone--left${activeEdge === "left" ? " is-active" : ""}`}
+              onMouseEnter={(event) => handleEdgeHover("left", event)}
+              onMouseMove={(event) => handleEdgeHover("left", event)}
+              onMouseLeave={handleEdgeLeave}
+            />
+            <div
+              aria-hidden="true"
+              className={`logoloop__edge-zone logoloop__edge-zone--right${activeEdge === "right" ? " is-active" : ""}`}
+              onMouseEnter={(event) => handleEdgeHover("right", event)}
+              onMouseMove={(event) => handleEdgeHover("right", event)}
+              onMouseLeave={handleEdgeLeave}
+            />
+          </>
+        ) : null}
       </div>
     );
   },

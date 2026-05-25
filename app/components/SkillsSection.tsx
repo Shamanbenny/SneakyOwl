@@ -55,42 +55,6 @@ type SkillCategoryItem = FlowingMenuItemData & {
   tags: SkillChip[];
 };
 
-const FLOWING_MENU_VISIBLE_TAGS = {
-  xl: 4,
-  xxl: 6,
-} as const;
-
-type FlowingMenuVisibleTagCount =
-  (typeof FLOWING_MENU_VISIBLE_TAGS)[keyof typeof FLOWING_MENU_VISIBLE_TAGS];
-
-const getVisibleFlowingMenuTagCount = (
-  viewportWidth: number,
-): FlowingMenuVisibleTagCount => {
-  if (viewportWidth >= 1600) {
-    return FLOWING_MENU_VISIBLE_TAGS.xxl;
-  }
-
-  return FLOWING_MENU_VISIBLE_TAGS.xl;
-};
-
-const getFlowingMenuTagDisplay = (tags: SkillChip[], visibleSlotCount: number) => {
-  if (tags.length <= visibleSlotCount) {
-    return {
-      hiddenCount: 0,
-      hiddenTags: [] as SkillChip[],
-      visibleTags: tags,
-    };
-  }
-
-  const visibleTagCount = Math.max(visibleSlotCount - 1, 0);
-
-  return {
-    hiddenCount: tags.length - visibleTagCount,
-    hiddenTags: tags.slice(visibleTagCount),
-    visibleTags: tags.slice(0, visibleTagCount),
-  };
-};
-
 const skillLogoClassName = "h-[1em] w-[1em]";
 
 const ReactBitsAtomLogo = ({ className, ...props }: SVGProps<SVGSVGElement>) => (
@@ -454,19 +418,6 @@ const SkillsPreviewCard = ({ item }: { item: SkillCategoryItem }) => {
 
 const SkillsSection = () => {
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
-  const [visibleFlowingMenuTagCount, setVisibleFlowingMenuTagCount] =
-    useState<FlowingMenuVisibleTagCount>(FLOWING_MENU_VISIBLE_TAGS.xl);
-
-  useEffect(() => {
-    const updateVisibleFlowingMenuTagCount = () => {
-      setVisibleFlowingMenuTagCount(getVisibleFlowingMenuTagCount(window.innerWidth));
-    };
-
-    updateVisibleFlowingMenuTagCount();
-    window.addEventListener("resize", updateVisibleFlowingMenuTagCount);
-
-    return () => window.removeEventListener("resize", updateVisibleFlowingMenuTagCount);
-  }, []);
 
   return (
     <section
@@ -482,19 +433,20 @@ const SkillsSection = () => {
         Skills &amp; Technologies
       </h1>
 
-      <div className="site-surface-card overflow-hidden rounded-[26px] py-5 sm:py-6">
+      <div className="site-surface-card overflow-hidden rounded-[26px]">
         <LogoLoop
           logos={SKILL_LOGOS}
-          speed={120}
+          speed={30}
           direction="left"
           logoHeight={30}
           gap={40}
-          hoverSpeed={0}
+          edgeHoverSpeed={190}
+          edgeHoverActivationWidth={112}
           scaleOnHover
           fadeOut
           fadeOutColor="var(--site-bg-elevated)"
           ariaLabel="Skills and technologies"
-          className="skills-logo-loop"
+          className="skills-logo-loop py-5 sm:py-6"
           renderItem={(item, key) => {
             if (!("node" in item)) {
               return null;
@@ -553,56 +505,19 @@ const SkillsSection = () => {
             onItemLeave={() => undefined}
             renderItemContent={(item, index) => {
               const isActive = activeCategoryIndex === index;
-              const { hiddenCount, hiddenTags, visibleTags } = getFlowingMenuTagDisplay(
-                item.tags,
-                visibleFlowingMenuTagCount,
-              );
 
               return (
                 <div
-                  className={`flex w-full flex-col items-start gap-3 px-4 py-5 text-left
+                  className={`flex w-full flex-col items-center justify-center gap-2 px-4 py-5 text-center
                     sm:px-5 lg:px-6 ${isActive ? "text-[color:var(--site-accent-soft)]" : ""}`}
                 >
-                  <div className="flex w-full items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--site-text-muted)]">
-                        {item.eyebrow}
-                      </p>
-                      <h3 className="pt-1 text-[1.15rem] font-semibold uppercase tracking-[0.08em] sm:text-[1.35rem]">
-                        {item.text}
-                      </h3>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2 overflow-hidden">
-                      {visibleTags.map((tag) => (
-                        <span
-                          key={`${item.text}-${tag.id}-icon`}
-                          className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-[0.95rem]
-                            ${
-                              isActive
-                                ? "border-[color:rgba(110,231,183,0.5)] bg-[color:rgba(16,185,129,0.14)] text-[color:var(--site-accent-soft)]"
-                                : "border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)]"
-                            }`}
-                          aria-label={tag.label}
-                          title={tag.label}
-                        >
-                          {tag.icon}
-                        </span>
-                      ))}
-                      {hiddenCount > 0 ? (
-                        <span
-                          className={`inline-flex h-10 min-w-10 shrink-0 items-center justify-center rounded-full border px-2 text-[0.82rem] font-semibold
-                            ${
-                              isActive
-                                ? "border-[color:rgba(110,231,183,0.5)] bg-[color:rgba(16,185,129,0.14)] text-[color:var(--site-accent-soft)]"
-                                : "border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)]"
-                            }`}
-                          aria-label={`${hiddenCount} more technologies`}
-                          title={hiddenTags.map((tag) => tag.label).join(", ")}
-                        >
-                          +{hiddenCount}
-                        </span>
-                      ) : null}
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--site-text-muted)]">
+                      {item.eyebrow}
+                    </p>
+                    <h3 className="pt-1 text-[1.05rem] font-semibold uppercase tracking-[0.08em] sm:text-[1.4rem]">
+                      {item.text}
+                    </h3>
                   </div>
                 </div>
               );
