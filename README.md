@@ -67,7 +67,7 @@ Review that configuration before changing deployment targets.
 
 ## To-do
 
-- [X] Link the COMPLETED PROJECTS bento cell to #Projects.
-- [X] Limit the #Reviews to the same width setup as the rest of the page
-- [X] Change lg: to use the same style as xl: when it comes to #Reviews
-- [ ] Add Skills & Technology Section
+- [ ] Add Blog Posts & Project Blog Posts page
+- [ ] Create detailed Project Blog Posts for completed projects
+- [ ] Develop methods to pit Chess Bot versions against one another to get performance results over 1000 games for each comparison
+- [ ] Continue optimizing Chess Bot
