@@ -22,10 +22,13 @@ type FloatingPlusOne = {
 const ABACUS_BASE_URL = "https://abacus.jasoncameron.dev";
 const ABACUS_DOCS_URL = "https://v2.jasoncameron.dev/abacus/";
 const ABACUS_NAMESPACE = "sneaky-owl";
-const ABACUS_KEY = "social-cell-clicks";
-const ABACUS_UNIQUE_VIEW_KEY = "social-cell-unique-views";
-const PERSONAL_COUNT_STORAGE_KEY = "sneakyowl-social-clicks";
-const UNIQUE_VIEW_STORAGE_KEY = "sneakyowl-social-unique-views";
+// View counts directly:
+// - Total clicks: https://abacus.jasoncameron.dev/get/sneaky-owl/social-cell-clicks
+// - Unique views: https://abacus.jasoncameron.dev/get/sneaky-owl/social-cell-unique-views
+const ABACUS_CLICK_COUNT_KEY = "social-cell-clicks";
+const ABACUS_UNIQUE_VIEW_COUNT_KEY = "social-cell-unique-views";
+const LOCAL_CLICK_COUNT_STORAGE_KEY = "sneakyowl-social-clicks";
+const LOCAL_UNIQUE_VIEW_STORAGE_KEY = "sneakyowl-social-unique-views";
 
 const socialLinkClassName =
   "inline-flex h-11 w-11 items-center justify-center rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] text-[1.05rem] text-[color:var(--site-text-strong)] transition duration-150 ease-linear hover:-translate-y-[1px] hover:border-[rgba(16,185,129,0.45)] hover:text-[color:var(--site-accent-soft)] focus-visible:-translate-y-[1px] focus-visible:border-[rgba(16,185,129,0.45)] focus-visible:text-[color:var(--site-accent-soft)] xxl:h-14 xxl:w-14 xxl:text-[1.35rem] xl:text-[1.2rem] xl:h-12 xl:w-12";
@@ -95,7 +98,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
   const fetchCurrentCount = useCallback(async () => {
     try {
       const response = await fetch(
-        `${ABACUS_BASE_URL}/get/${ABACUS_NAMESPACE}/${ABACUS_KEY}`,
+        `${ABACUS_BASE_URL}/get/${ABACUS_NAMESPACE}/${ABACUS_CLICK_COUNT_KEY}`,
       );
 
       if (response.ok) {
@@ -117,7 +120,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
     }
 
     const hasRegisteredUniqueView = window.localStorage.getItem(
-      UNIQUE_VIEW_STORAGE_KEY,
+      LOCAL_UNIQUE_VIEW_STORAGE_KEY,
     );
 
     if (hasRegisteredUniqueView) {
@@ -126,14 +129,14 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
 
     try {
       const response = await fetch(
-        `${ABACUS_BASE_URL}/hit/${ABACUS_NAMESPACE}/${ABACUS_UNIQUE_VIEW_KEY}`,
+        `${ABACUS_BASE_URL}/hit/${ABACUS_NAMESPACE}/${ABACUS_UNIQUE_VIEW_COUNT_KEY}`,
       );
 
       if (!response.ok) {
         throw new Error(`Unexpected status ${response.status}`);
       }
 
-      window.localStorage.setItem(UNIQUE_VIEW_STORAGE_KEY, "1");
+      window.localStorage.setItem(LOCAL_UNIQUE_VIEW_STORAGE_KEY, "1");
     } catch (error) {
       console.error("Failed to register unique Abacus view", error);
     }
@@ -145,7 +148,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
     }
 
     const eventSource = new EventSource(
-      `${ABACUS_BASE_URL}/stream/${ABACUS_NAMESPACE}/${ABACUS_KEY}`,
+      `${ABACUS_BASE_URL}/stream/${ABACUS_NAMESPACE}/${ABACUS_CLICK_COUNT_KEY}`,
     );
 
     eventSource.onmessage = (event) => {
@@ -190,7 +193,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
   const writePersonalCount = useCallback((nextCount: number) => {
     setPersonalCount(nextCount);
     window.localStorage.setItem(
-      PERSONAL_COUNT_STORAGE_KEY,
+      LOCAL_CLICK_COUNT_STORAGE_KEY,
       String(nextCount),
     );
   }, []);
@@ -200,7 +203,9 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
       return;
     }
 
-    const storedCount = window.localStorage.getItem(PERSONAL_COUNT_STORAGE_KEY);
+    const storedCount = window.localStorage.getItem(
+      LOCAL_CLICK_COUNT_STORAGE_KEY,
+    );
     if (storedCount) {
       const parsedCount = Number.parseInt(storedCount, 10);
       if (!Number.isNaN(parsedCount)) {
@@ -223,7 +228,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
     };
 
     const handleStorage = (event: StorageEvent) => {
-      if (event.key !== PERSONAL_COUNT_STORAGE_KEY) {
+      if (event.key !== LOCAL_CLICK_COUNT_STORAGE_KEY) {
         return;
       }
 
@@ -273,7 +278,7 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
 
     try {
       const response = await fetch(
-        `${ABACUS_BASE_URL}/hit/${ABACUS_NAMESPACE}/${ABACUS_KEY}`,
+        `${ABACUS_BASE_URL}/hit/${ABACUS_NAMESPACE}/${ABACUS_CLICK_COUNT_KEY}`,
       );
 
       if (!response.ok) {
