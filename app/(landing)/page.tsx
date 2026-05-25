@@ -223,7 +223,7 @@ const LandingPage: React.FC = () => {
             className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
             max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
           >
-            What My Friends Think Of Me
+            Testimonials
           </h1>
           <LandingReviews />
         </div>

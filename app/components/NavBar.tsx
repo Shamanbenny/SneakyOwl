@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
+  FaCode,
   FaChess,
   FaEarlybirds,
   FaEnvelope,
@@ -15,7 +16,7 @@ import Dock, { type DockEntry } from "@/components/Dock";
 import StaggeredMenu from "@/components/StaggeredMenu";
 import { cn } from "@/lib/utils";
 
-const LANDING_SECTIONS = ["home", "projects", "reviews", "timeline"] as const;
+const LANDING_SECTIONS = ["home", "projects", "skills", "reviews", "timeline"] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
 const NAV_TOP_LOCK_OFFSET = 24;
@@ -242,6 +243,12 @@ const NavBar = () => {
       onClick: () => navigateToSection("projects"),
     },
     {
+      className: dockItemClass(activeDockItem === "skills"),
+      icon: <FaCode size={19} />,
+      label: "#Skills",
+      onClick: () => navigateToSection("skills"),
+    },
+    {
       className: dockItemClass(activeDockItem === "reviews"),
       icon: <FaQuoteLeft size={18} />,
       label: "#Reviews",
@@ -279,6 +286,12 @@ const NavBar = () => {
       className: mobileMenuItemClass(activeDockItem === "projects"),
       label: "> Projects",
       onClick: () => navigateToSection("projects"),
+    },
+    {
+      ariaLabel: "Jump to the skills section",
+      className: mobileMenuItemClass(activeDockItem === "skills"),
+      label: "> Skills",
+      onClick: () => navigateToSection("skills"),
     },
     {
       ariaLabel: "Jump to the reviews section",
