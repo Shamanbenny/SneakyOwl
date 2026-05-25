@@ -202,7 +202,7 @@ const alignScrollToTimeline = () => {
 
 const LandingTimeline = () => {
   const [activeFilter, setActiveFilter] = useState<TimelineFilter>("all");
-  const isFirstFilterRender = useRef(true);
+  const previousFilterRef = useRef<TimelineFilter | null>(null);
 
   useEffect(() => {
     AOS.init({ duration: 500, easing: "ease-in-out-quart", once: true });
@@ -211,10 +211,16 @@ const LandingTimeline = () => {
   const filteredItems = getFilteredItems(activeFilter);
 
   useEffect(() => {
-    if (isFirstFilterRender.current) {
-      isFirstFilterRender.current = false;
+    if (previousFilterRef.current === null) {
+      previousFilterRef.current = activeFilter;
       return;
     }
+
+    if (previousFilterRef.current === activeFilter) {
+      return;
+    }
+
+    previousFilterRef.current = activeFilter;
 
     window.requestAnimationFrame(() => {
       AOS.refreshHard();

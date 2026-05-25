@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import {
   FaCode,
   FaChess,
@@ -38,6 +38,15 @@ type MobileMenuItem = {
   label: string;
   link?: string;
   onClick?: () => void;
+};
+type SectionNavItem = {
+  activeKey: Exclude<LandingSection, "home">;
+  ariaLabel: string;
+  className?: string;
+  desktopLabel: string;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
 };
 type StaggeredMenuProps = {
   accentColor?: string;
@@ -239,6 +248,48 @@ const NavBar = () => {
     router.push("/chess");
   };
 
+  const currentPageHasSections = pathname === "/";
+  const sectionNavItems: SectionNavItem[] = currentPageHasSections
+    ? [
+        {
+          activeKey: "projects",
+          ariaLabel: "Jump to the projects section",
+          className: mobileMenuItemClass(activeDockItem === "projects"),
+          desktopLabel: "#Projects",
+          icon: <FaLaptopCode size={19} />,
+          label: "Projects",
+          onClick: () => navigateToSection("projects"),
+        },
+        {
+          activeKey: "skills",
+          ariaLabel: "Jump to the skills section",
+          className: mobileMenuItemClass(activeDockItem === "skills"),
+          desktopLabel: "#Skills",
+          icon: <FaCode size={19} />,
+          label: "Skills",
+          onClick: () => navigateToSection("skills"),
+        },
+        {
+          activeKey: "timeline",
+          ariaLabel: "Jump to the timeline section",
+          className: mobileMenuItemClass(activeDockItem === "timeline"),
+          desktopLabel: "#Timeline",
+          icon: <FaHistory size={19} />,
+          label: "Timeline",
+          onClick: () => navigateToSection("timeline"),
+        },
+        {
+          activeKey: "reviews",
+          ariaLabel: "Jump to the reviews section",
+          className: mobileMenuItemClass(activeDockItem === "reviews"),
+          desktopLabel: "#Reviews",
+          icon: <FaQuoteLeft size={18} />,
+          label: "Reviews",
+          onClick: () => navigateToSection("reviews"),
+        },
+      ]
+    : [];
+
   const dockItems: DockEntry[] = [
     {
       className: dockItemClass(activeDockItem === "home"),
@@ -246,31 +297,13 @@ const NavBar = () => {
       label: "Home",
       onClick: () => navigateToSection("home"),
     },
-    {
-      className: dockItemClass(activeDockItem === "projects"),
-      icon: <FaLaptopCode size={19} />,
-      label: "#Projects",
-      onClick: () => navigateToSection("projects"),
-    },
-    {
-      className: dockItemClass(activeDockItem === "skills"),
-      icon: <FaCode size={19} />,
-      label: "#Skills",
-      onClick: () => navigateToSection("skills"),
-    },
-    {
-      className: dockItemClass(activeDockItem === "timeline"),
-      icon: <FaHistory size={19} />,
-      label: "#Timeline",
-      onClick: () => navigateToSection("timeline"),
-    },
-    {
-      className: dockItemClass(activeDockItem === "reviews"),
-      icon: <FaQuoteLeft size={18} />,
-      label: "#Reviews",
-      onClick: () => navigateToSection("reviews"),
-    },
-    { type: "divider" },
+    ...sectionNavItems.map<DockEntry>((item) => ({
+      className: dockItemClass(activeDockItem === item.activeKey),
+      icon: item.icon,
+      label: item.desktopLabel,
+      onClick: item.onClick,
+    })),
+    ...(sectionNavItems.length > 0 ? [{ type: "divider" as const }] : []),
     {
       className: dockItemClass(activeDockItem === "chess"),
       icon: <FaChess size={20} />,
@@ -284,50 +317,40 @@ const NavBar = () => {
     },
   ];
 
-  const mobileMenuItems: MobileMenuItem[] = [
-    {
-      ariaLabel: "Go to the home section",
-      className: mobileMenuItemClass(activeDockItem === "home"),
-      label: "Home",
-      onClick: () => navigateToSection("home"),
-    },
-    {
-      ariaLabel: "Jump to the projects section",
-      className: mobileMenuItemClass(activeDockItem === "projects"),
-      label: "> Projects",
-      onClick: () => navigateToSection("projects"),
-    },
-    {
-      ariaLabel: "Jump to the skills section",
-      className: mobileMenuItemClass(activeDockItem === "skills"),
-      label: "> Skills",
-      onClick: () => navigateToSection("skills"),
-    },
-    {
-      ariaLabel: "Jump to the timeline section",
-      className: mobileMenuItemClass(activeDockItem === "timeline"),
-      label: "> Timeline",
-      onClick: () => navigateToSection("timeline"),
-    },
-    {
-      ariaLabel: "Jump to the reviews section",
-      className: mobileMenuItemClass(activeDockItem === "reviews"),
-      label: "> Reviews",
-      onClick: () => navigateToSection("reviews"),
-    },
-    {
-      ariaLabel: "Open the chess page",
-      className: mobileMenuItemClass(activeDockItem === "chess", true),
-      label: "Chess Page",
-      onClick: goToChessPage,
-    },
-    {
-      ariaLabel: `Send an email to ${EMAIL_ADDRESS}`,
-      className: mobileMenuItemClass(false, true),
-      label: "Email Me",
-      onClick: openEmailComposer,
-    },
+  const mobileMenuGroups: MobileMenuItem[][] = [
+    [
+      {
+        ariaLabel: "Go to the home section",
+        className: mobileMenuItemClass(activeDockItem === "home"),
+        label: "Home",
+        onClick: () => navigateToSection("home"),
+      },
+      ...sectionNavItems.map<MobileMenuItem>((item) => ({
+        ariaLabel: item.ariaLabel,
+        className: item.className,
+        label: `> ${item.label}`,
+        onClick: item.onClick,
+      })),
+    ],
+    [
+      {
+        ariaLabel: "Open the chess page",
+        className: mobileMenuItemClass(activeDockItem === "chess", true),
+        label: "Chess Page",
+        onClick: goToChessPage,
+      },
+    ],
+    [
+      {
+        ariaLabel: `Send an email to ${EMAIL_ADDRESS}`,
+        className: mobileMenuItemClass(false, true),
+        label: "Email Me",
+        onClick: openEmailComposer,
+      },
+    ],
   ];
+
+  const mobileMenuItems = mobileMenuGroups.flat();
 
   return (
     <div
