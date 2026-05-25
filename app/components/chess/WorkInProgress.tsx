@@ -1,6 +1,6 @@
 import React from "react";
 
-import GitHubCommitSnake from "./GitHubCommitSnake";
+import GitHubCommitSnake from "@/app/components/landing/GitHubCommitSnake";
 
 const WorkInProgress = () => {
   return (

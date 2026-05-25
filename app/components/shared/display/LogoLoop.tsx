@@ -42,6 +42,10 @@ export interface LogoLoopProps {
   width?: number | string;
 }
 
+type LogoLoopStyle = React.CSSProperties & {
+  "--logoloop-edgeHoverWidth"?: string;
+};
+
 type EdgeSide = "left" | "right";
 
 const ANIMATION_CONFIG = {
@@ -484,7 +488,7 @@ const LogoLoop = React.memo<LogoLoopProps>(
     );
 
     const containerStyle = useMemo(
-      (): React.CSSProperties => ({
+      (): LogoLoopStyle => ({
         "--logoloop-edgeHoverWidth": `${edgeHoverActivationWidth}px`,
         width: isVertical
           ? toCssLength(width) === "100%"

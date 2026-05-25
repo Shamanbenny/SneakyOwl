@@ -7,7 +7,7 @@ import {
   FaInstagram,
   FaLinkedin,
 } from "react-icons/fa";
-import InfoTooltip from "./InfoTooltip";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
 type CuriousCatClickTrapProps = {
   emailHref: string;

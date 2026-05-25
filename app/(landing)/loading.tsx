@@ -1,5 +1,4 @@
-import NavBar from "../components/NavBar";
-import { LandingPageSkeleton } from "../components/PageSkeletons";
+import { LandingPageSkeleton } from "@/app/components/shared/feedback/PageSkeletons";
 
 export default function Loading() {
   return (

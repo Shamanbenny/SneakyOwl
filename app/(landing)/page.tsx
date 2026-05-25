@@ -3,19 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { FaAngleRight } from "react-icons/fa";
 import { FiFileText } from "react-icons/fi";
-import CuriousCatClickTrap from "../components/CuriousCatClickTrap";
-import DecryptedText from "../components/DecryptedText";
-import GitHubCommitSnake from "../components/GitHubCommitSnake";
-import LandingReviews from "../components/LandingReviews";
-import LandingTimeline from "../components/LandingTimeline";
-import LocationMapCard from "../components/LocationMapCard";
-import MagicBento from "../components/MagicBento";
-import NavBar from "../components/NavBar";
-import { LandingPageSkeleton } from "../components/PageSkeletons";
-import ProfileHoloCard from "../components/ProfileHoloCard";
-import ProjectsSection from "../components/ProjectsSection";
-import RotatingText from "../components/RotatingText";
-import SkillsSection from "../components/SkillsSection";
+import CuriousCatClickTrap from "@/app/components/landing/CuriousCatClickTrap";
+import GitHubCommitSnake from "@/app/components/landing/GitHubCommitSnake";
+import LandingReviews from "@/app/components/landing/LandingReviews";
+import LandingTimeline from "@/app/components/landing/LandingTimeline";
+import LocationMapCard from "@/app/components/landing/LocationMapCard";
+import MagicBento from "@/app/components/landing/MagicBento";
+import ProfileHoloCard from "@/app/components/landing/ProfileHoloCard";
+import ProjectsSection from "@/app/components/landing/ProjectsSection";
+import SkillsSection from "@/app/components/landing/SkillsSection";
+import DecryptedText from "@/app/components/shared/display/DecryptedText";
+import RotatingText from "@/app/components/shared/display/RotatingText";
+import { LandingPageSkeleton } from "@/app/components/shared/feedback/PageSkeletons";
+import NavBar from "@/app/components/shared/navigation/NavBar";
 
 const SWE_VALUE_ROTATIONS = [
   "passion & curiousity",

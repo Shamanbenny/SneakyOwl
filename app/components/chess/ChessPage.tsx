@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import NavBar from "./NavBar";
-import WorkInProgress from "./WorkInProgress";
 import ChessContent from "./ChessContent";
+import WorkInProgress from "./WorkInProgress";
+import NavBar from "@/app/components/shared/navigation/NavBar";
 
 const ChessPage = () => {
   return (

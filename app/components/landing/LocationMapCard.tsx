@@ -3,7 +3,7 @@
 import type { Map as LeafletMap } from "leaflet";
 import React, { useEffect, useRef, useState } from "react";
 import { FaMoon, FaSun } from "react-icons/fa6";
-import InfoTooltip from "./InfoTooltip";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
 const SINGAPORE_COORDINATES: [number, number] = [1.3015, 103.8493];
 const SINGAPORE_ZOOM = 11;

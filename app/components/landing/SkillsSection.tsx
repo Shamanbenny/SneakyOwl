@@ -37,9 +37,11 @@ import { FaCode, FaMicrochip } from "react-icons/fa6";
 import { cloneElement, useEffect, useState, type ReactElement, type SVGProps } from "react";
 import { VscVscode } from "react-icons/vsc";
 
-import FlowingMenu, { type FlowingMenuItemData } from "./FlowingMenu";
-import InfoTooltip from "./InfoTooltip";
-import LogoLoop, { type LogoItem } from "./LogoLoop";
+import FlowingMenu, {
+  type FlowingMenuItemData,
+} from "@/app/components/shared/display/FlowingMenu";
+import LogoLoop, { type LogoItem } from "@/app/components/shared/display/LogoLoop";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
 type SkillChip = {
   icon: ReactElement<{ className?: string }>;

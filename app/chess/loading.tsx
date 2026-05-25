@@ -1,5 +1,4 @@
-import NavBar from "../components/NavBar";
-import { ChessPageSkeleton } from "../components/PageSkeletons";
+import { ChessPageSkeleton } from "@/app/components/shared/feedback/PageSkeletons";
 
 export default function Loading() {
   return (

@@ -19,8 +19,10 @@ import {
   SiFlask,
 } from "react-icons/si";
 
-import FlowingMenu, { type FlowingMenuItemData } from "./FlowingMenu";
-import InfoTooltip from "./InfoTooltip";
+import FlowingMenu, {
+  type FlowingMenuItemData,
+} from "@/app/components/shared/display/FlowingMenu";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
 type TechTag = {
   icon: ReactElement;

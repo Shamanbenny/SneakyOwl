@@ -12,9 +12,9 @@ import {
   FaQuoteLeft,
 } from "react-icons/fa";
 
-import Dock, { type DockEntry } from "@/components/Dock";
-import StaggeredMenu from "@/components/StaggeredMenu";
 import { cn } from "@/lib/utils";
+import Dock, { type DockEntry } from "@/app/components/shared/navigation/Dock";
+import StaggeredMenu from "@/app/components/shared/navigation/StaggeredMenu";
 
 const LANDING_SECTIONS = ["home", "projects", "skills", "timeline", "reviews"] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
