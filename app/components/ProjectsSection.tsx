@@ -412,7 +412,7 @@ const ProjectPreviewCard = ({ project }: { project: ProjectItem }) => {
               </span>
             ))}
           </div>
-          <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-muted)] sm:text-[0.98rem]">
+          <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
             {project.description}
           </p>
         </div>
@@ -492,7 +492,7 @@ const ProjectsSection = () => {
         >
           <FlowingMenu<ProjectItem>
             items={PROJECTS}
-            speed={17}
+            speed={5}
             bgColor="var(--site-bg-elevated)"
             borderColor="var(--site-border)"
             marqueeBgColor="var(--site-accent)"
@@ -513,7 +513,7 @@ const ProjectsSection = () => {
                     sm:px-5 lg:px-6 ${isActive ? "text-[color:var(--site-accent-soft)]" : ""}`}
                 >
                   <div>
-                    <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--site-text-muted)]">
+                    <p className="text-[0.9rem] uppercase tracking-[0.18em] text-[color:var(--site-text-muted)]">
                       {item.projectType}
                     </p>
                     <h3 className="pt-1 text-[1.15rem] font-semibold uppercase tracking-[0.08em] sm:text-[1.35rem]">

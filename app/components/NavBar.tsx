@@ -16,7 +16,7 @@ import Dock, { type DockEntry } from "@/components/Dock";
 import StaggeredMenu from "@/components/StaggeredMenu";
 import { cn } from "@/lib/utils";
 
-const LANDING_SECTIONS = ["home", "projects", "skills", "reviews", "timeline"] as const;
+const LANDING_SECTIONS = ["home", "projects", "skills", "timeline", "reviews"] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
 const NAV_TOP_LOCK_OFFSET = 24;
@@ -200,6 +200,16 @@ const NavBar = () => {
     window.location.href = EMAIL_HREF;
   };
 
+  const scrollToSection = (section: HTMLElement) => {
+    const scrollMarginTop = Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+    const top = window.scrollY + section.getBoundingClientRect().top - scrollMarginTop;
+
+    window.scrollTo({
+      behavior: "smooth",
+      top: Math.max(0, top),
+    });
+  };
+
   const navigateToSection = (sectionId: LandingSection) => {
     if (pathname !== "/") {
       router.push(sectionId === "home" ? "/" : `/#${sectionId}`);
@@ -220,7 +230,7 @@ const NavBar = () => {
     }
 
     window.history.replaceState(null, "", `/#${sectionId}`);
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToSection(section);
     setActiveDockItem(sectionId);
   };
 
@@ -249,16 +259,16 @@ const NavBar = () => {
       onClick: () => navigateToSection("skills"),
     },
     {
-      className: dockItemClass(activeDockItem === "reviews"),
-      icon: <FaQuoteLeft size={18} />,
-      label: "#Reviews",
-      onClick: () => navigateToSection("reviews"),
-    },
-    {
       className: dockItemClass(activeDockItem === "timeline"),
       icon: <FaHistory size={19} />,
       label: "#Timeline",
       onClick: () => navigateToSection("timeline"),
+    },
+    {
+      className: dockItemClass(activeDockItem === "reviews"),
+      icon: <FaQuoteLeft size={18} />,
+      label: "#Reviews",
+      onClick: () => navigateToSection("reviews"),
     },
     { type: "divider" },
     {
@@ -294,16 +304,16 @@ const NavBar = () => {
       onClick: () => navigateToSection("skills"),
     },
     {
-      ariaLabel: "Jump to the reviews section",
-      className: mobileMenuItemClass(activeDockItem === "reviews"),
-      label: "> Reviews",
-      onClick: () => navigateToSection("reviews"),
-    },
-    {
       ariaLabel: "Jump to the timeline section",
       className: mobileMenuItemClass(activeDockItem === "timeline"),
       label: "> Timeline",
       onClick: () => navigateToSection("timeline"),
+    },
+    {
+      ariaLabel: "Jump to the reviews section",
+      className: mobileMenuItemClass(activeDockItem === "reviews"),
+      label: "> Reviews",
+      onClick: () => navigateToSection("reviews"),
     },
     {
       ariaLabel: "Open the chess page",

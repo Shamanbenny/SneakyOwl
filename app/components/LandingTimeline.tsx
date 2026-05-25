@@ -1,192 +1,231 @@
-import { useEffect, useRef, useState } from "react";
-import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
+"use client";
+
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-/**
- * LandingTimeline.tsx
- * Relies heavily on two alternating CSS classes to style the timeline.
- * .about-timeline-left and .about-timeline-right
- */
+import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
+import type { IconType } from "react-icons";
+
+type TimelineFilter = "all" | "education" | "work" | "misc";
+type TimelineCategory = Exclude<TimelineFilter, "all">;
+
+type TimelineItem = {
+  category: TimelineCategory;
+  details: string[];
+  id: string;
+  // Use `miscLabel` to show the actual misc subtype on the timeline card badge
+  // (for example: Competition, Achievement, Certificate) while keeping the tab label as "Misc.".
+  miscLabel?: string;
+  organization: string;
+  period: string;
+  title: string;
+};
+
+type TimelineCategoryMeta = {
+  accent: string;
+  icon: IconType;
+  label: string;
+  shortLabel: string;
+  tabLabel: string;
+};
+
+const TIMELINE_CATEGORY_META: Record<TimelineCategory, TimelineCategoryMeta> = {
+  education: {
+    accent: "var(--site-accent)",
+    icon: FaGraduationCap,
+    label: "Education",
+    shortLabel: "Edu",
+    tabLabel: "Education",
+  },
+  misc: {
+    accent: "var(--site-accent-cyan)",
+    icon: FaFlag,
+    label: "Misc.",
+    shortLabel: "Misc",
+    tabLabel: "Misc.",
+  },
+  work: {
+    accent: "var(--site-accent-teal)",
+    icon: FaBriefcase,
+    label: "Work Experience",
+    shortLabel: "Work",
+    tabLabel: "Work Experience",
+  },
+};
+
+const TIMELINE_FILTERS: TimelineFilter[] = ["all", "work", "education", "misc"];
+
+const TIMELINE_ITEMS: TimelineItem[] = [
+  {
+    category: "education",
+    details: [
+      "Course transferred to Computer Science in pursuit of becoming a SWE.",
+      "Continuation as Teaching Assistant for CS2040C since AY2024/25 Semester 1.",
+      "Distinction in CS3235.",
+      "Current GPA: 4.46.",
+    ],
+    id: "nus-cs",
+    organization: "National University of Singapore (NUS)",
+    period: "Ongoing (2024 - 2027)",
+    title: "B.Comp in Computer Science",
+  },
+  {
+    category: "education",
+    details: [
+      "Teaching Assistant for CS2040C for AY2023/24 Semester 2.",
+      "Distinction in CS2107.",
+    ],
+    id: "nus-infosec",
+    organization: "National University of Singapore (NUS)",
+    period: "2023 - 2024",
+    title: "B.Comp in Information Security",
+  },
+  {
+    category: "work",
+    details: [
+      "Developed a web app for use by DSO to maximize workflow efficiency.",
+      "Skills involved: PhpMyAdmin, AMPPS, Flask.",
+    ],
+    id: "dso-part-time-swe",
+    organization: "DSO National Laboratories",
+    period: "2021",
+    title: "Part-time Software Engineer",
+  },
+  {
+    category: "work",
+    details: [
+      "R&D of commonly used Key Derivation Functions (KDFs) on an FPGA using VHDL.",
+      "Skills involved: Cryptography, VHDL, FPGA.",
+    ],
+    id: "dso-internship",
+    organization: "DSO National Laboratories",
+    period: "2021",
+    title: "Singapore Polytechnic Internship Program",
+  },
+  {
+    category: "work",
+    details: [
+      "Volunteered on the Talent Development Team to create and organize opportunities for youths exploring the cybersecurity sector.",
+    ],
+    id: "cys-manager",
+    organization: "Cyber Youth Singapore (CYS)",
+    period: "2020",
+    title: "Manager, Talent Development Team",
+  },
+  {
+    category: "misc",
+    details: [
+      "Placed 36th out of 237 participating teams in the CDDC 2020 CTF organized by DSTA.",
+    ],
+    id: "cddc-2020",
+    miscLabel: "Competition",
+    organization: "Cyber Defenders Discovery Camp (CDDC)",
+    period: "2020",
+    title: "CDDC 2020 CTF, 36th place",
+  },
+  {
+    category: "misc",
+    details: [
+      "Placed 2nd out of 41 teams in the Gryphons CTF 2020 event.",
+    ],
+    id: "gryphons-ctf-2020",
+    miscLabel: "Competition",
+    organization: "Singapore Polytechnic Gryphons",
+    period: "2020",
+    title: "Gryphons CTF 2020, 2nd place",
+  },
+  {
+    category: "education",
+    details: [
+      "Club activity: SP Photography and SP Inline Skating.",
+      "Distinction in Web Client Development, Programming in Python and C, Database Management Systems, and Social Innovation Project.",
+      "Cumulative GPA: 3.696.",
+    ],
+    id: "sp-diploma",
+    organization: "Singapore Polytechnic",
+    period: "2018 - 2021",
+    title: "Diploma in Infocomm Security Management",
+  },
+  {
+    category: "education",
+    details: [
+      "Entered PFP after strong GCE \"N\"-Level results, in place of taking the GCE \"O\"-Level Examination.",
+    ],
+    id: "sp-pfp",
+    organization: "Singapore Polytechnic",
+    period: "2017",
+    title: "Polytechnic Foundation Program (PFP)",
+  },
+  {
+    category: "education",
+    details: [
+      "Club activity: GSS Chinese Orchestra.",
+      "Results: EMB3 of 6.",
+    ],
+    id: "gce-n-level",
+    organization: "Greenridge Secondary School",
+    period: "2013 - 2016",
+    title: "GCE \"N\"-Level Examination",
+  },
+];
+
+const getFilterLabel = (filter: TimelineFilter) => {
+  if (filter === "all") {
+    return "All";
+  }
+
+  return TIMELINE_CATEGORY_META[filter].tabLabel;
+};
+
+const getFilteredItems = (filter: TimelineFilter) => {
+  return filter === "all"
+    ? TIMELINE_ITEMS
+    : TIMELINE_ITEMS.filter((item) => item.category === filter);
+};
+
+const alignScrollToTimeline = () => {
+  const timelineSection = document.getElementById("timeline");
+
+  if (!timelineSection) {
+    return;
+  }
+
+  const scrollMarginTop =
+    Number.parseFloat(getComputedStyle(timelineSection).scrollMarginTop) || 0;
+  const top =
+    window.scrollY + timelineSection.getBoundingClientRect().top - scrollMarginTop;
+
+  window.scrollTo({
+    top: Math.max(0, top),
+  });
+};
+
 const LandingTimeline = () => {
-  const [mediaWidth, setMediaWidth] = useState<string>("");
+  const [activeFilter, setActiveFilter] = useState<TimelineFilter>("all");
+  const isFirstFilterRender = useRef(true);
 
   useEffect(() => {
-    // Animation on Scroll (AOS) Initialization
     AOS.init({ duration: 500, easing: "ease-in-out-quart", once: true });
+  }, []);
 
-    // Handle Resize for Timeline Line Height
-    handleResize();
-    window.addEventListener("resize", handleResize);
-  });
+  const filteredItems = getFilteredItems(activeFilter);
 
-  const timelineDiv = useRef<HTMLDivElement>(null);
-  const timelineDivSmall = useRef<HTMLDivElement>(null);
-  const timelineLineFix = useRef<HTMLDivElement>(null);
-  const timelineLine = useRef<HTMLDivElement>(null);
-  const handleResize = () => {
-    const clientWidth = window.innerWidth;
-    let clientMediaWidth;
-    if (clientWidth < 640) clientMediaWidth = "max-sm";
-    else if (clientWidth < 768) clientMediaWidth = "sm";
-    else if (clientWidth < 1024) clientMediaWidth = "md";
-    else if (clientWidth < 1280) clientMediaWidth = "lg";
-    else if (clientWidth < 1600) clientMediaWidth = "xl";
-    else clientMediaWidth = "xxl";
-
-    if (mediaWidth !== clientMediaWidth) {
-      let topOffset: number;
-      let btmOffset: number;
-      let clientDivHeight = 0;
-      let clientDivTop = 0;
-
-      //console.log("clientMediaWidth: ", clientMediaWidth);
-
-      switch (clientMediaWidth) {
-        case "xxl":
-          topOffset = 115;
-          btmOffset = 115;
-          break;
-        case "xl":
-          topOffset = 115;
-          btmOffset = 115;
-          break;
-        case "lg":
-          topOffset = 110;
-          btmOffset = 100;
-          break;
-        case "md":
-          topOffset = 130;
-          btmOffset = 100;
-          break;
-        case "sm":
-          topOffset = 105;
-          btmOffset = 90;
-          break;
-        case "max-sm":
-          topOffset = 140;
-          btmOffset = 130;
-          break;
-        default:
-          topOffset = 0;
-          btmOffset = 0;
-      }
-      if (clientMediaWidth === "max-sm" || clientMediaWidth === "sm") {
-        if (timelineDivSmall.current) {
-          clientDivHeight = timelineDivSmall.current.clientHeight;
-          clientDivTop = timelineDivSmall.current.offsetTop;
-        }
-      } else {
-        if (timelineDiv.current) {
-          clientDivHeight = timelineDiv.current.clientHeight;
-          clientDivTop = timelineDiv.current.offsetTop;
-        }
-      }
+  useEffect(() => {
+    if (isFirstFilterRender.current) {
+      isFirstFilterRender.current = false;
+      return;
     }
-  };
 
-  const timelineData = [
-    {
-      title: "B.Comp in Computer Science",
-      subtitle: "National University of Singapore (NUS)",
-      content: `Course transfered to Computer Science in pursuit of becoming a SWE.\n\nContinuation as Teaching Assistant for CS2040C Since AY2024/25 Semester 1.\n\nDistinction in CS3235\n\nCurrent GPA: 4.46`,
-      year: "Ongoing (2024 - 2027)",
-      icon: <FaGraduationCap />,
-      color: "timeline-accent-emerald",
-      position: "right",
-    },
-    {
-      title: "B.Comp in Information Security",
-      subtitle: "National University of Singapore (NUS)",
-      content: `Teaching Assistant for CS2040C for AY2023/24 Semester 2.\n\nDistinction in CS2107`,
-      year: "2023 - 2024",
-      icon: <FaGraduationCap />,
-      color: "timeline-accent-emerald",
-      position: "left",
-    },
-    {
-      title: "Part-time Software Engineer",
-      subtitle: "DSO National Laboratories",
-      content:
-        "Developed Web App for use by DSO to maximize work flow efficiency.\n\nSkills involved: PhpMyAdmin, AMPPS, Flask",
-      year: "2021",
-      icon: <FaBriefcase />,
-      color: "timeline-accent-teal",
-      position: "right",
-    },
-    {
-      title: `Singapore Polytechnic's Internship Program`,
-      subtitle: "DSO National Laboratories",
-      content:
-        "R&D of commonly used Key Derivation Functions (KDFs) on a Field Programmable Gate Array (FPGA) using VHDL.\n\nSkills involved: Cryptography, VHDL, FPGA",
-      year: "2021",
-      icon: <FaBriefcase />,
-      color: "timeline-accent-teal",
-      position: "left",
-    },
-    {
-      title: "Manager, Talent Development Team",
-      subtitle: "Cyber Youth Singapore (CYS)",
-      content:
-        "Volunteering as part of the Talent Development Team for Cyber Youth Singapore, to help create and organize opportunity to allow youths a platform for them to learn more and develop their interest in the Cyber Security Sector.",
-      year: "2020",
-      icon: <FaBriefcase />,
-      color: "timeline-accent-teal",
-      position: "right",
-    },
-    {
-      title: "CDDC 2020 CTF, 36th place",
-      subtitle: "Cyber Defenders Discovery Camp (CDDC)",
-      content:
-        "For the CDDC 2020 CTF competition, a well-known event organized by DSTA, my team and I had placed 36th out of 237 teams that participated.",
-      year: "2020",
-      icon: <FaFlag />,
-      color: "timeline-accent-cyan",
-      position: "left",
-    },
-    {
-      title: "Gryphons CTF 2020, 2nd place",
-      subtitle: "Singapore Polytechnic Gryphons",
-      content: `For the Gryphon CTF 2020 event held by Singapore Polytechnic's Gryphons Club, my team and I had placed 2nd out of the 41 teams that participated in the competition.`,
-      year: "2020",
-      icon: <FaFlag />,
-      color: "timeline-accent-cyan",
-      position: "right",
-    },
-    {
-      title: "Diploma in Infocomm Security Management",
-      subtitle: "Singapore Polytechnic",
-      content:
-        "Club Activity: SP Photography and SP Inline Skating.\n\nDistinction in Web Client Development, Programming in Python and C, Database Management Systems and Social Innovation Project.\n\nCumulative GPA: 3.696",
-      year: "2018 - 2021",
-      icon: <FaGraduationCap />,
-      color: "timeline-accent-emerald",
-      position: "left",
-    },
-    {
-      title: "Polytechnic Foundation Program (PFP)",
-      subtitle: "Singapore Polytechnic",
-      content:
-        "Having scored well for my GCE &#34;N&#34;-Level Examination, I was given the opportunity to go through PFP in place of taking the GCE &#34;O&#34;-Level Examination.",
-      year: "2017",
-      icon: <FaGraduationCap />,
-      color: "timeline-accent-emerald",
-      position: "right",
-    },
-    {
-      title: `GCE "N"-Level Examination`,
-      subtitle: "Greenridge Secondary School",
-      content: "Club Activity: GSS Chinese Orchestra.\n\nResults: EMB3 of 6",
-      year: "2013 - 2016",
-      icon: <FaGraduationCap />,
-      color: "timeline-accent-emerald",
-      position: "left",
-    },
-  ];
+    window.requestAnimationFrame(() => {
+      AOS.refreshHard();
+      alignScrollToTimeline();
+    });
+  }, [activeFilter]);
 
   return (
-    <div
-      className="mx-auto flex flex-col pb-10 
-        max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] 
+    <section
+      className="mx-auto flex flex-col pb-10
+        max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
     >
       <h1
@@ -195,155 +234,133 @@ const LandingTimeline = () => {
       >
         Timeline
       </h1>
-      <div
-        ref={timelineDiv}
-        className="about-timeline-line-desktop z-[5] max-md:hidden md:block"
-      >
-        {/* [START] Timeline Repeatable Components for "md+" view */}
-        {timelineData.map((data, index) =>
-          data.position === "left" ? (
-            <div
-              key={index}
-              className={
-                "about-timeline-left about-timeline-div about-timeline-idx-" +
-                index
-              }
+
+      <div className="flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="60">
+        {TIMELINE_FILTERS.map((filter) => {
+          const isActive = activeFilter === filter;
+
+          return (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => {
+                if (isActive) {
+                  return;
+                }
+
+                setActiveFilter(filter);
+              }}
+              className={`rounded-full border px-4 py-2 text-[0.78rem] font-semibold uppercase tracking-[0.14em] transition-colors duration-150 sm:text-[0.82rem]
+                ${
+                  isActive
+                    ? "border-[color:var(--site-accent-border-soft)] bg-[color:var(--site-accent-strong)] text-[color:var(--site-text-strong)]"
+                    : "border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)] hover:text-[color:var(--site-text-strong)]"
+                }`}
+              aria-pressed={isActive}
             >
-              <div
-                className={"timeline-content " + data.color}
-                data-aos="fade-right"
-                data-aos-offset="200"
-              >
-                <h1>{data.title}</h1>
-                <h2>{data.subtitle}</h2>
-                <hr
-                  className="timeline-rule rounded-full border"
-                />
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: data.content.split("\n").join("<br />"),
-                  }}
-                ></p>
-              </div>
-              <div
-                className="timeline-arrow"
-                data-aos="fade-right"
-                data-aos-delay="500"
-                data-aos-duration="100"
-              >
-                <div className={data.color}></div>
-              </div>
-              <div className={"timeline-icon " + data.color} data-aos="zoom-in">
-                {data.icon}
-              </div>
-              <h1 className="timeline-time" data-aos="fade-left">
-                {data.year}
-              </h1>
-            </div>
-          ) : (
-            <div
-              key={index}
-              className={
-                "about-timeline-right about-timeline-div about-timeline-idx-" +
-                index
-              }
-            >
-              <h1 className="timeline-time" data-aos="fade-right">
-                {data.year}
-              </h1>
-              <div className={"timeline-icon " + data.color} data-aos="zoom-in">
-                {data.icon}
-              </div>
-              <div
-                className="timeline-arrow"
-                data-aos="fade-left"
-                data-aos-delay="500"
-                data-aos-duration="100"
-              >
-                <div className={data.color}></div>
-              </div>
-              <div
-                className={"timeline-content " + data.color}
-                data-aos="fade-left"
-                data-aos-offset="200"
-              >
-                <h1>{data.title}</h1>
-                <h2>{data.subtitle}</h2>
-                <hr
-                  className="timeline-rule rounded-full border"
-                />
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: data.content.split("\n").join("<br />"),
-                  }}
-                ></p>
-              </div>
-            </div>
-          ),
-        )}
-        {/* [END] Timeline Repeatable Components */}
+              {getFilterLabel(filter)}
+            </button>
+          );
+        })}
       </div>
 
-      <div
-        ref={timelineDivSmall}
-        className="about-timeline-line-mobile z-[7] max-md:block md:hidden"
+      <p
+        className="mt-3 text-[0.78rem] uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]"
+        data-aos="fade-up"
+        data-aos-delay="90"
       >
-        {/* [START] Timeline Repeatable Components for "max-md" view {Will not provide AnimateOnScroll effects} */}
-        {timelineData.map((data, index) => (
-          <div
-            key={index}
-            className={
-              "about-timeline-small about-timeline-idx-" +
-              index +
-              " mx-auto my-3 flex w-full flex-row"
-            }
-          >
-            <div
-              className={
-                data.color +
-                " z-[7] rounded-md p-2 max-sm:min-w-[180px] max-sm:max-w-[180px] max-xs:min-w-[140px] max-xs:max-w-[140px] sm:min-w-[350px] sm:max-w-[350px]"
-              }
-            >
-              <h1 className="mb-1 font-bold max-sm:text-[1rem] max-xs:text-[0.9rem] sm:text-[1.2rem]">
-                {data.title}
-              </h1>
-              <h2 className="mb-1 max-sm:text-[0.9rem] max-xs:text-[0.75rem]">
-                {data.subtitle}
-              </h2>
-              <hr
-                className="timeline-rule rounded-full border"
-              />
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: data.content.split("\n").join("<br />"),
-                }}
-                className="mt-1 max-sm:text-[0.9rem] max-xs:text-[0.75rem]"
-              ></p>
-            </div>
-            <div className="my-auto">
-              <div
-                className={
-                  data.color +
-                  " relative z-[6] rotate-45 max-sm:left-[-7px] max-sm:h-[12px] max-sm:w-[12px] max-xs:left-[-5px] max-xs:h-[10px] max-xs:w-[10px] sm:left-[-12px] sm:h-[20px] sm:w-[20px]"
-                }
-              ></div>
-            </div>
-            <div
-              className={
-                data.color +
-                " timeline-icon z-[8] my-auto h-fit border-[color:var(--site-border-strong)] max-sm:border-[2px] max-sm:p-[6px] max-xs:p-[4px] sm:border-4 sm:p-2"
-              }
-            >
-              {data.icon}
-            </div>
-            <h1 className="my-auto text-left max-sm:ml-[8px] max-sm:text-[13px] max-xs:ml-[6px] max-xs:text-[10px] sm:ml-[10px] sm:text-[1rem]">
-              {data.year}
-            </h1>
-          </div>
-        ))}
-        {/* [END] Timeline Repeatable Components */}
+        Showing {filteredItems.length} {filteredItems.length === 1 ? "entry" : "entries"}
+      </p>
+
+      <div className="landing-timeline-rail relative mt-6">
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-[1.125rem] top-2 w-px bg-[color:var(--site-divider)] sm:left-6"
+        />
+
+        <div className="space-y-5">
+          {filteredItems.map((item, index) => {
+            const meta = TIMELINE_CATEGORY_META[item.category];
+            const Icon = meta.icon;
+            const badgeLabel = item.category === "misc" ? item.miscLabel ?? meta.label : meta.label;
+            const accentStyle = {
+              "--timeline-accent": meta.accent,
+            } as CSSProperties;
+
+            return (
+              <article
+                key={`${activeFilter}-${item.id}`}
+                className="relative pl-10 sm:pl-14"
+                data-aos="fade-up"
+                data-aos-delay={Math.min(index * 45, 180)}
+              >
+                <div
+                  className="absolute left-0 top-5 flex h-9 w-9 items-center justify-center rounded-full border-2 bg-[color:var(--site-bg)] text-[color:var(--timeline-accent)] sm:h-12 sm:w-12"
+                  style={{
+                    borderColor: meta.accent,
+                    color: meta.accent,
+                  }}
+                >
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+
+                <div
+                  className="site-surface-card relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-6 sm:py-6"
+                  style={accentStyle}
+                >
+                  <div className="absolute left-0 top-0 h-full w-1 bg-[color:var(--timeline-accent)]" />
+                  <div className="relative flex flex-col gap-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--site-text-muted)] sm:text-[0.9rem]">
+                          {item.period}
+                        </p>
+                        <h2 className="pt-2 text-[1.16rem] font-semibold text-[color:var(--site-text-strong)] sm:text-[1.35rem]">
+                          {item.title}
+                        </h2>
+                        <p className="pt-1 text-[0.98rem] text-[color:var(--site-text-muted)] sm:text-[1.04rem] md:text-[1.2rem]">
+                          {item.organization}
+                        </p>
+                      </div>
+
+                      <span
+                        className="inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-[color:var(--timeline-accent)]"
+                        style={accentStyle}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {item.category === "work" ? (
+                          <>
+                            <span className="md:hidden lg:inline">Work Experience</span>
+                            <span className="hidden md:inline lg:hidden">Experience</span>
+                          </>
+                        ) : (
+                          badgeLabel
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="rounded-[10px] border border-[color:var(--site-border)] bg-[color:rgba(10,10,10,0.24)] px-4 py-3">
+                      <div className="space-y-3">
+                        {item.details.map((detail) => (
+                          <p
+                            key={`${item.id}-${detail}`}
+                            className="relative pl-5 text-[0.96rem] leading-7 text-[color:var(--site-text-strong)]
+                              before:absolute before:left-0 before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full before:bg-[color:var(--timeline-accent)] before:content-['']
+                              sm:text-[1rem]"
+                          >
+                            {detail}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

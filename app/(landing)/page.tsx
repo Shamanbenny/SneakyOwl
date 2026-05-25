@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { FaAngleRight } from "react-icons/fa";
 import CuriousCatClickTrap from "../components/CuriousCatClickTrap";
 import DecryptedText from "../components/DecryptedText";
+import GitHubCommitSnake from "../components/GitHubCommitSnake";
 import LandingReviews from "../components/LandingReviews";
 import LandingTimeline from "../components/LandingTimeline";
 import LocationMapCard from "../components/LocationMapCard";
@@ -30,7 +31,16 @@ const LandingPage: React.FC = () => {
   const [isAliasHovered, setIsAliasHovered] = useState(false);
 
   const navigateToProjects = () => {
-    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const section = document.getElementById("projects");
+
+    if (!section) {
+      return;
+    }
+
+    const scrollMarginTop = Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+    const top = window.scrollY + section.getBoundingClientRect().top - scrollMarginTop;
+
+    window.scrollTo({ behavior: "smooth", top: Math.max(0, top) });
   };
 
   const renderCardEyebrow = (label: string, status?: "busy" | "available") => (
@@ -213,6 +223,9 @@ const LandingPage: React.FC = () => {
         {/* [END] Landing Hero Banner */}
         <ProjectsSection />
         <SkillsSection />
+        <div id="timeline" className="scroll-mt-[10px]">
+          <LandingTimeline />
+        </div>
         <div
           id="reviews"
           className="mx-auto scroll-mt-[10px] pb-10
@@ -227,9 +240,7 @@ const LandingPage: React.FC = () => {
           </h1>
           <LandingReviews />
         </div>
-        <div id="timeline" className="scroll-mt-[10px]">
-          <LandingTimeline />
-        </div>
+        <GitHubCommitSnake />
       </div>
     </>
   );

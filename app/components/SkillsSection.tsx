@@ -419,11 +419,10 @@ const SKILLS_DESKTOP_HEIGHT_CLASS = "xl:h-[535px] xxl:h-[535px]";
 const SkillsPreviewCard = ({ item }: { item: SkillCategoryItem }) => {
   return (
     <article
-      className={`site-surface-card flex flex-col overflow-hidden rounded-[26px] p-3
-        sm:p-4 lg:p-5 ${SKILLS_DESKTOP_HEIGHT_CLASS}`}
+      className={`site-surface-card flex flex-col overflow-hidden rounded-[26px] p-5
+        sm:p-6 lg:p-6 ${SKILLS_DESKTOP_HEIGHT_CLASS}`}
     >
-      <div className="relative flex min-h-[14rem] flex-1 flex-col overflow-hidden rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-5 sm:p-6">
-        <div className="absolute inset-x-0 top-0 h-px bg-[color:var(--site-accent-border-subtle)]" />
+      <div className="flex min-h-[14rem] flex-1 flex-col">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--site-text-muted)]">
@@ -434,7 +433,7 @@ const SkillsPreviewCard = ({ item }: { item: SkillCategoryItem }) => {
             </h3>
           </div>
         </div>
-        <p className="mt-5 w-full text-[1.02rem] leading-7 text-[color:var(--site-text-muted)] sm:text-[1.06rem]">
+        <p className="mt-5 w-full text-[1.02rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[1.06rem]">
           {item.summary}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -544,7 +543,7 @@ const SkillsSection = () => {
         >
           <FlowingMenu<SkillCategoryItem>
             items={SKILL_CATEGORIES}
-            speed={17}
+            speed={5}
             bgColor="var(--site-bg-elevated)"
             borderColor="var(--site-border)"
             marqueeBgColor="var(--site-accent)"

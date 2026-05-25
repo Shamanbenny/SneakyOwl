@@ -359,64 +359,6 @@ body *::selection {
 }
 /* ---------- [END] LogoLoop ---------- */
 
-.timeline-accent-emerald {
-  background-color: var(--site-accent);
-  color: var(--site-text-strong);
-}
-
-.timeline-accent-teal {
-  background-color: var(--site-accent-teal);
-  color: var(--site-text-strong);
-}
-
-.timeline-accent-cyan {
-  background-color: var(--site-accent-cyan);
-  color: var(--site-text-strong);
-}
-
-.timeline-rule {
-  border-color: rgba(10, 10, 10, 0.26);
-}
-
-.about-timeline-line-desktop,
-.about-timeline-line-mobile {
-  position: relative;
-  isolation: isolate;
-}
-
-.about-timeline-line-desktop::after,
-.about-timeline-line-mobile::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  z-index: 1;
-  background-color: var(--site-divider);
-  pointer-events: none;
-}
-
-.about-timeline-line-desktop::after {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.about-timeline-line-mobile::after {
-  left: 70%;
-}
-
-@media (max-width: 479px) {
-  .about-timeline-line-mobile::after {
-    left: 72%;
-  }
-}
-
-@media (min-width: 640px) and (max-width: 767px) {
-  .about-timeline-line-mobile::after {
-    left: 70.6%;
-  }
-}
-
 .site-location-map-frame .leaflet-container,
 .site-location-map-frame .leaflet-pane,
 .site-location-map-frame .leaflet-tile-container {
@@ -1144,100 +1086,6 @@ body *::selection {
 
 /* ---------- [END] /about: Hero Rotating Text + Bento ---------- */
 
-/* ---------- [START] Landing Timeline (LEFT vers.) ---------- */
-.about-timeline-left {
-  @apply mx-auto my-3 flex w-full flex-row xxl:w-[90%];
-}
-
-.about-timeline-left .timeline-content {
-  @apply z-[7] min-w-[40%] sm:rounded-md sm:p-2 
-    md:w-[293px] md:max-w-[293px] lg:w-[403px] lg:max-w-[403px] lg:rounded-lg lg:p-3 xl:w-[517px] 
-    xl:max-w-[517px] xl:rounded-xl xl:p-4 xxl:ml-[71px] xxl:w-[533px] xxl:max-w-[533px] xxl:p-5;
-}
-
-.about-timeline-left .timeline-content h1 {
-  @apply mb-1 text-[1.2rem] font-bold lg:text-[1.3rem] xl:mb-2 xl:text-[1.6rem];
-}
-
-.about-timeline-left .timeline-content h2 {
-  @apply mb-1 lg:text-[1.2rem] xl:mb-2;
-}
-
-.about-timeline-left .timeline-content p {
-  @apply mt-1 xl:mt-2;
-}
-
-.about-timeline-left .timeline-arrow {
-  @apply my-auto;
-}
-
-.about-timeline-left .timeline-arrow div {
-  @apply relative z-[6] h-[20px] w-[20px] rotate-45 duration-150 
-    ease-linear md:left-[-12px] lg:left-[-15px] lg:h-[25px] lg:w-[25px] xl:left-[-20px] 
-    xl:h-[30px] xl:w-[30px];
-}
-
-.about-timeline-left .timeline-icon {
-  @apply z-[7] my-auto h-fit rounded-[50%] border-4 p-2 xl:p-3;
-  border-color: var(--site-border-strong);
-}
-
-.about-timeline-left .timeline-icon svg {
-  @apply h-[25px] w-[25px] xl:h-[30px] xl:w-[30px];
-}
-
-.about-timeline-left .timeline-time {
-  @apply my-auto ml-[8px] min-w-[40%] text-[1rem] duration-150 
-    ease-linear lg:ml-[10px] lg:text-[1.1rem] xl:ml-[15px] xl:text-[1.2rem];
-}
-/* ---------- [END] Landing Timeline (LEFT vers) ---------- */
-
-/* ---------- [START] Landing Timeline (RIGHT vers) ---------- */
-.about-timeline-right {
-  @apply mx-auto my-3 flex w-full flex-row xxl:w-[90%];
-}
-
-.about-timeline-right .timeline-content {
-  @apply z-[7] w-full sm:rounded-md sm:p-2 md:max-w-[293px] lg:max-w-[403px] lg:rounded-lg 
-    lg:p-3 xl:max-w-[521px] xl:rounded-xl xl:p-4 xxl:max-w-[533px] xxl:p-5;
-}
-
-.about-timeline-right .timeline-content h1 {
-  @apply mb-1 text-[1.2rem] font-bold lg:text-[1.3rem] xl:mb-2 xl:text-[1.6rem];
-}
-
-.about-timeline-right .timeline-content h2 {
-  @apply mb-1 lg:text-[1.2rem] xl:mb-2;
-}
-
-.about-timeline-right .timeline-content p {
-  @apply mt-1 xl:mt-2;
-}
-
-.about-timeline-right .timeline-arrow {
-  @apply my-auto;
-}
-
-.about-timeline-right .timeline-arrow div {
-  @apply relative z-[6] h-[20px] w-[20px] rotate-45 md:right-[-12px] lg:right-[-15px] 
-    lg:h-[25px] lg:w-[25px] xl:right-[-20px] xl:h-[30px] xl:w-[30px];
-}
-
-.about-timeline-right .timeline-icon {
-  @apply z-[7] my-auto h-fit rounded-[50%] border-4 p-2 xl:p-3;
-  border-color: var(--site-border-strong);
-}
-
-.about-timeline-right .timeline-icon svg {
-  @apply h-[25px] w-[25px] xl:h-[30px] xl:w-[30px];
-}
-
-.about-timeline-right .timeline-time {
-  @apply my-auto mr-[8px] text-right text-[1rem] md:w-[305px] lg:mr-[10px] lg:w-[418px] 
-    lg:text-[1.1rem] xl:mr-[15px] xl:w-[561px] xl:text-[1.2rem] xxl:w-[618px];
-}
-/* ---------- [END] Landing Timeline (RIGHT vers) ---------- */
-
 /* ---------- [START] Landing Reviews Swiper Button ---------- */
 .swiper-pagination-bullet-active {
   background-color: var(--site-accent-strong) !important;
@@ -1247,10 +1095,6 @@ body *::selection {
   background-color: #e5e5e5 !important;
 }
 /* ---------- [END] Landing Reviews Swiper Button ---------- */
-
-.about-timeline-small svg {
-  @apply z-[8] h-[25px] w-[25px] max-sm:h-[20px] max-sm:w-[20px];
-}
 
 /* ---------- [START] Landing Page Holo Card ---------- */
 .holo-profile-shell {
