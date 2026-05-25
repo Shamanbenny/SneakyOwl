@@ -1,12 +1,14 @@
 "use client";
 
 import React from "react";
+import NavBar from "./NavBar";
 import WorkInProgress from "./WorkInProgress";
 import ChessContent from "./ChessContent";
 
 const ChessPage = () => {
   return (
     <>
+      <NavBar />
       <div
         className="site-page-shell z-[-1] min-h-screen pt-[92px]
           transition-colors duration-150 ease-linear sm:pt-[130px]"

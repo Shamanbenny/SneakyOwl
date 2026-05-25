@@ -1,7 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaAngleRight } from "react-icons/fa";
 import { FiFileText } from "react-icons/fi";
 import CuriousCatClickTrap from "../components/CuriousCatClickTrap";
@@ -12,13 +11,11 @@ import LandingTimeline from "../components/LandingTimeline";
 import LocationMapCard from "../components/LocationMapCard";
 import MagicBento from "../components/MagicBento";
 import NavBar from "../components/NavBar";
+import { LandingPageSkeleton } from "../components/PageSkeletons";
+import ProfileHoloCard from "../components/ProfileHoloCard";
 import ProjectsSection from "../components/ProjectsSection";
 import RotatingText from "../components/RotatingText";
 import SkillsSection from "../components/SkillsSection";
-
-const ProfileHoloCard = dynamic(() => import("../components/ProfileHoloCard"), {
-  ssr: false,
-});
 
 const SWE_VALUE_ROTATIONS = [
   "passion & curiousity",
@@ -27,9 +24,53 @@ const SWE_VALUE_ROTATIONS = [
   "maintainable codebases",
 ];
 
+const LANDING_CRITICAL_IMAGE_SOURCES = [
+  "/sneakyOwl_1.jpg",
+  "/PeerPrep.png",
+  "/RafflesGo.png",
+  "/ChessFlask.png",
+  "/reviewImages/gaanesh.jpg",
+  "/reviewImages/anonymous.png",
+  "https://raw.githubusercontent.com/Shamanbenny/Shamanbenny.github.io/output/snake-dark.svg",
+];
+
+const preloadImage = (src: string) =>
+  new Promise<void>((resolve) => {
+    const image = new window.Image();
+
+    image.onload = () => resolve();
+    image.onerror = () => resolve();
+    image.src = src;
+
+    if (image.complete) {
+      resolve();
+    }
+  });
+
 const LandingPage: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
   const [isAliasHovered, setIsAliasHovered] = useState(false);
+  const [isPageReady, setIsPageReady] = useState(false);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const fontReady =
+      "fonts" in document ? document.fonts.ready.catch(() => undefined) : Promise.resolve();
+
+    Promise.all([
+      fontReady,
+      ...LANDING_CRITICAL_IMAGE_SOURCES.map((imageSource) => preloadImage(imageSource)),
+    ]).then(() => {
+      if (isActive) {
+        setIsPageReady(true);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const navigateToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -156,11 +197,19 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <>
+    <div className="relative" aria-busy={!isPageReady}>
+      {!isPageReady ? (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-20">
+          <LandingPageSkeleton />
+        </div>
+      ) : null}
       <NavBar />
       <div
-        className="site-page-shell z-[-1] min-h-screen
-          transition-colors duration-150 ease-linear xs:pt-[80px] sm:pt-[100px] xl:pt-[80px] xxl:pt-[130px]"
+        aria-hidden={!isPageReady}
+        className={`site-page-shell z-[-1] min-h-screen
+          transition-[opacity,visibility] duration-200 ease-linear
+          ${isPageReady ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"}
+          transition-colors duration-150 ease-linear xs:pt-[80px] sm:pt-[100px] xl:pt-[80px] xxl:pt-[130px]`}
       >
         {/* [START] Landing Hero Banner */}
         <div
@@ -256,7 +305,7 @@ const LandingPage: React.FC = () => {
         </div>
         <GitHubCommitSnake />
       </div>
-    </>
+    </div>
   );
 };
 
