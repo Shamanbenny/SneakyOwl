@@ -147,8 +147,8 @@ const PROJECTS: ProjectItem[] = [
     deployedSiteUrl: null,
     githubRepoUrl: null,
     image: "/PeerPrep_Banner.png",
-    infoUrl: "#projects",
-    link: "#projects",
+    infoUrl: "/blog/peer-prep-system-design",
+    link: "/blog/peer-prep-system-design",
     previewImage: "/PeerPrep.png",
     projectType: "Full-Stack Project",
     tags: [
@@ -252,8 +252,8 @@ const PROJECTS: ProjectItem[] = [
     deployedSiteUrl: null,
     githubRepoUrl: null,
     image: "/RafflesGo_Banner.jpg",
-    infoUrl: "#projects",
-    link: "#projects",
+    infoUrl: "/blog/raffles-go-conservation-operations",
+    link: "/blog/raffles-go-conservation-operations",
     previewImage: "/RafflesGo.png",
     projectType: "Full-Stack Project",
     tags: [
@@ -330,8 +330,8 @@ const PROJECTS: ProjectItem[] = [
     deployedSiteUrl: null,
     githubRepoUrl: "https://github.com/Shamanbenny/chess-flask",
     image: "/ChessFlask.png",
-    infoUrl: "/chess",
-    link: "/chess",
+    infoUrl: "/blog/chess-flask-iteration-notes",
+    link: "/blog/chess-flask-iteration-notes",
     previewImage: "/ChessFlask.png",
     projectType: "Backend Project",
     tags: [
@@ -483,7 +483,7 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
           {project.tags.map((tag) => (
             <span
               key={`${project.text}-${tag.id}`}
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.78rem] font-medium text-[color:var(--site-text-strong)]"
+              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--site-accent-border-soft)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.78rem] font-medium text-[color:var(--site-text-strong)]"
             >
               <span className="text-[color:var(--site-accent-soft)]">{tag.icon}</span>
               {tag.label}

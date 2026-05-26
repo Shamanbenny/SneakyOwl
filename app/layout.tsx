@@ -1,9 +1,6 @@
-import { Ubuntu_Mono, Geist } from "next/font/google";
+import { Ubuntu_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const bodyFont = Ubuntu_Mono({ weight: "400", subsets: ["latin"] });
 
@@ -13,7 +10,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
+    <html lang="en">
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />

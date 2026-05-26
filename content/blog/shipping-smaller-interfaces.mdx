@@ -1,0 +1,30 @@
+# Shipping Smaller Interfaces
+
+Personal projects often become harder to maintain for a simple reason: the first version exposes too many surfaces.
+
+## Smaller surfaces are easier to revisit
+
+A smaller interface does not mean a less capable project. It means fewer places where styling, state, and content structure can drift independently.
+
+## The hidden tax of one-off styling
+
+If every page is assembled from ad hoc utility classes, routine content updates start to feel like UI refactors.
+
+### Content should not require layout surgery
+
+That is why a constrained prose layer is useful. Once headings, links, code blocks, lists, and notes are styled centrally, writing a new post becomes mostly a content task again.
+
+## A practical rule
+
+When I can move a decision from page-specific JSX into a shared shell or prose system, I usually should.
+
+> Repetition in content is normal. Repetition in layout decisions is usually a sign that the system is too loose.
+
+## What this changes
+
+It becomes easier to:
+
+- add new long-form content
+- keep routes visually consistent
+- update spacing and typography in one place
+- preserve momentum after the first implementation pass

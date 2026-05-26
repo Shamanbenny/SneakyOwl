@@ -1,0 +1,63 @@
+# Peer Prep
+
+Peer Prep started as a simple idea: make technical interview practice feel less solitary, less ad hoc, and less dependent on manually coordinating with friends over text.
+
+The implementation quickly became more interesting than the initial concept. Once matching, real-time collaboration, persistence, and deployment were in scope, the project stopped being "just another React app" and became a systems exercise with real coordination costs.
+
+## The core workflow
+
+The happy path had four parts:
+
+1. authenticate the user
+2. match them by topic and difficulty
+3. launch a shared coding session
+4. preserve the outcome so users could revisit previous work
+
+That sounds compact, but the workflow crosses multiple boundaries. Matching has different scaling concerns from collaboration, and collaboration has different failure modes from history and profile management.
+
+## Why we split the backend
+
+We broke the system into dedicated services because the domains were already pulling apart:
+
+- a gateway to define the public entry point
+- a user service for identity and account concerns
+- a matching service to coordinate queueing logic
+- a collaboration service for shared sessions
+- a history service for per-user records
+- an AI-facing service for future assistance features
+
+### The real reason was team velocity
+
+Microservices are often sold as a scaling story. For a student team, the more immediate value was cleaner ownership. People could reason about narrower APIs and ship changes without stepping on each other constantly.
+
+> The main win was not theoretical scalability. It was reducing merge friction while the product surface was still moving.
+
+## Infrastructure lessons
+
+We used Redis for coordination and Terraform for cloud provisioning. That made the deployment story stronger, but it also made failure analysis stricter because local assumptions stopped matching the deployed environment.
+
+```ts
+type MatchRequest = {
+  topic: string;
+  difficulty: "easy" | "medium" | "hard";
+  userId: string;
+};
+```
+
+The deployment was later torn down after the module ended, but the exercise was still worthwhile because it forced us to think about system edges instead of stopping at feature demos.
+
+## What I would keep
+
+I would keep the separation between matching, collaboration, and history. Those boundaries felt natural and survived implementation pressure.
+
+## What I would simplify
+
+I would tighten the initial surface area:
+
+- fewer optional flows
+- less speculative infrastructure
+- a thinner first version of shared-session history
+
+### Smaller interfaces age better
+
+The strongest projects are not always the ones with the most moving parts. They are usually the ones where the interfaces stay understandable after the initial sprint.

@@ -1,0 +1,45 @@
+# Raffles Go
+
+Raffles Go was built for a real conservation workflow, which changed the engineering posture immediately. The question was not only whether the UI looked coherent, but whether the flow still held up when volunteers were in the field, connectivity was inconsistent, and stakeholder requirements were still being clarified.
+
+## The product constraint that mattered most
+
+The most important constraint was that the app had to support operational work rather than just display information.
+
+That meant handling:
+
+- volunteer onboarding
+- training-gated survey registration
+- trail execution
+- wildlife sighting reporting
+- media-heavy submissions
+
+## Stakeholder-driven requirements
+
+Working with domain stakeholders changed the shape of the system. Requirement analysis was not a one-time phase. It was continuous correction.
+
+### Domain language had to be preserved
+
+If the product vocabulary drifts away from the stakeholder's workflow, the UI becomes technically correct but operationally confusing. The implementation needed to preserve the real-world sequence of tasks instead of forcing everything into a generic admin dashboard pattern.
+
+## Why the architecture stayed simpler
+
+Unlike Peer Prep, this project fit a modular monolith much better. A single React frontend talking to a single Fastify backend was enough, while Firebase covered authentication, storage, and Firestore-backed data needs.
+
+| Concern | Chosen approach | Reason |
+| --- | --- | --- |
+| Auth | Firebase Auth | fast integration and acceptable trust boundary |
+| API | Fastify | predictable structure and strong TypeScript ergonomics |
+| Client contract | OpenAPI generation | reduced drift between backend and frontend |
+
+## Offline-sensitive behavior
+
+Field workflows behave differently from office workflows. Drafts and media handling need to degrade sensibly when the network is unreliable.
+
+### Sync is part of the UX
+
+Treating sync as an implementation detail is a mistake. Users notice it as workflow confidence. If they do not trust that their draft will survive, the product is already failing before any backend metric moves.
+
+## What I learned from this build
+
+The most valuable lesson was that stakeholder proximity should change technical decisions. Architecture is not only about scale. It is also about how much ambiguity the implementation has to absorb while the product is still being defined.

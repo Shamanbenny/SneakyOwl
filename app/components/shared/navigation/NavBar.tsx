@@ -11,6 +11,7 @@ import {
   FaLaptopCode,
   FaQuoteLeft,
 } from "react-icons/fa";
+import { FaBookOpen } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
 import Dock, { type DockEntry } from "@/app/components/shared/navigation/Dock";
@@ -31,7 +32,7 @@ const SITE_COLORS = {
 } as const;
 
 type LandingSection = (typeof LANDING_SECTIONS)[number];
-type ActiveDockItem = LandingSection | "chess" | null;
+type ActiveDockItem = LandingSection | "blog" | "chess" | null;
 type MobileMenuItem = {
   ariaLabel: string;
   className?: string;
@@ -172,7 +173,17 @@ const NavBar = () => {
 
   useEffect(() => {
     if (pathname !== "/") {
-      setActiveDockItem(pathname === "/chess" ? "chess" : null);
+      if (pathname === "/chess") {
+        setActiveDockItem("chess");
+        return;
+      }
+
+      if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+        setActiveDockItem("blog");
+        return;
+      }
+
+      setActiveDockItem(null);
       return;
     }
 
@@ -248,6 +259,11 @@ const NavBar = () => {
     router.push("/chess");
   };
 
+  const goToBlogPage = () => {
+    setActiveDockItem("blog");
+    router.push("/blog");
+  };
+
   const currentPageHasSections = pathname === "/";
   const sectionNavItems: SectionNavItem[] = currentPageHasSections
     ? [
@@ -305,6 +321,12 @@ const NavBar = () => {
     })),
     ...(sectionNavItems.length > 0 ? [{ type: "divider" as const }] : []),
     {
+      className: dockItemClass(activeDockItem === "blog"),
+      icon: <FaBookOpen size={19} />,
+      label: "Blog",
+      onClick: goToBlogPage,
+    },
+    {
       className: dockItemClass(activeDockItem === "chess"),
       icon: <FaChess size={20} />,
       label: "Chess Page",
@@ -334,8 +356,14 @@ const NavBar = () => {
     ],
     [
       {
+        ariaLabel: "Open the blog page",
+        className: mobileMenuItemClass(activeDockItem === "blog", true),
+        label: "Blog",
+        onClick: goToBlogPage,
+      },
+      {
         ariaLabel: "Open the chess page",
-        className: mobileMenuItemClass(activeDockItem === "chess", true),
+        className: mobileMenuItemClass(activeDockItem === "chess"),
         label: "Chess Page",
         onClick: goToChessPage,
       },
