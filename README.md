@@ -67,7 +67,7 @@ Review that configuration before changing deployment targets.
 
 ## To-do
 
-- [ ] Implement Collapsible Card for Projects and Skills on lg: breakpoints and smaller
+- [X] Implement Collapsible Card for Projects and Skills on lg: breakpoints and smaller
 - [ ] Add Blog Posts & Project Blog Posts page
 - [ ] Create detailed Project Blog Posts for completed projects
 - [ ] Develop methods to pit Chess Bot versions against one another to get performance results over 1000 games for each comparison

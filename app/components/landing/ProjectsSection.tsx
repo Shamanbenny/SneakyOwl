@@ -23,6 +23,7 @@ import FlowingMenu, {
   type FlowingMenuItemData,
 } from "@/app/components/shared/display/FlowingMenu";
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import CollapsibleCard from "@/app/components/shared/ui/CollapsibleCard";
 
 type TechTag = {
   icon: ReactElement;
@@ -368,13 +369,20 @@ const PROJECTS: ProjectItem[] = [
 
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
 
-const ProjectPreviewCard = ({ project }: { project: ProjectItem }) => {
+const ProjectPreviewCard = ({
+  project,
+  framed = true,
+}: {
+  project: ProjectItem;
+  framed?: boolean;
+}) => {
   const ctas = getProjectCtas(project);
 
   return (
     <article
-      className={`site-surface-card flex flex-col overflow-hidden rounded-[26px] p-3
-        sm:p-4 lg:p-5 ${PROJECTS_DESKTOP_HEIGHT_CLASS}`}
+      className={`flex flex-col overflow-hidden rounded-[26px] ${
+        framed ? `site-surface-card p-3 sm:p-4 lg:p-5 ${PROJECTS_DESKTOP_HEIGHT_CLASS}` : ""
+      }`}
     >
       <div className="relative overflow-hidden rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)]">
         <div className="absolute right-3 top-3 z-10">
@@ -446,6 +454,73 @@ const ProjectPreviewCard = ({ project }: { project: ProjectItem }) => {
   );
 };
 
+const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => {
+  const ctas = getProjectCtas(project);
+
+  return (
+    <CollapsibleCard
+      title={project.text}
+      eyebrow={project.projectType}
+      stackedToggle
+      headerContent={
+        <div className="overflow-hidden">
+          <div className="relative aspect-video w-full bg-[color:var(--site-bg-soft)]">
+            <Image
+              src={project.previewImage}
+              alt={`${project.text} preview slide`}
+              fill
+              priority
+              sizes="(max-width: 1279px) 100vw, 58vw"
+              className="object-cover"
+            />
+          </div>
+          <div className="border-t border-[color:var(--site-border)]" />
+        </div>
+      }
+    >
+      <div className="rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5">
+        <div className="mb-4 flex flex-wrap gap-2">
+          {project.tags.map((tag) => (
+            <span
+              key={`${project.text}-${tag.id}`}
+              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.78rem] font-medium text-[color:var(--site-text-strong)]"
+            >
+              <span className="text-[color:var(--site-accent-soft)]">{tag.icon}</span>
+              {tag.label}
+            </span>
+          ))}
+        </div>
+        <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
+          {project.description}
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
+          {ctas.map((cta, index) => (
+            <div key={`${project.text}-${cta.key}`} className="contents">
+              {index > 0 ? (
+                <span
+                  aria-hidden="true"
+                  className="text-[0.7rem] text-[color:var(--site-text-faint)]"
+                >
+                  •
+                </span>
+              ) : null}
+              <a
+                href={cta.href}
+                target={isExternalUrl(cta.href) ? "_blank" : undefined}
+                rel={isExternalUrl(cta.href) ? "noreferrer" : undefined}
+                className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
+              >
+                {cta.label}
+                <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </CollapsibleCard>
+  );
+};
+
 const ProjectsSection = () => {
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [visibleFlowingMenuTagCount, setVisibleFlowingMenuTagCount] =
@@ -479,7 +554,7 @@ const ProjectsSection = () => {
       </h1>
       <div className="grid gap-5 xl:hidden">
         {PROJECTS.map((project) => (
-          <ProjectPreviewCard key={project.text} project={project} />
+          <MobileProjectCollapsibleCard key={project.text} project={project} />
         ))}
       </div>
 
