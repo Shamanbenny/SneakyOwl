@@ -32,13 +32,15 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "swiper": "^12.1.4",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
     "@types/node": "20.17.11",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.184.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.5.18",
     "postcss": "^8.5.14",

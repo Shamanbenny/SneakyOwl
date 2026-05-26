@@ -102,8 +102,8 @@ export const BlogListingSkeleton = () => (
   <div className="blog-list-page" aria-hidden="true">
     <div className="blog-shell">
       <div className="blog-hero">
-        <Skeleton className="h-4 w-20 rounded-full" />
-        <Skeleton className="h-12 w-[180px] rounded-full sm:w-[220px]" />
+        <Skeleton className="h-4 w-36 rounded-full" />
+        <Skeleton className="mt-4 h-[150px] w-full rounded-[20px] sm:h-[190px] lg:h-[240px]" />
         <Skeleton className="h-5 w-full max-w-[520px] rounded-full" />
       </div>
 

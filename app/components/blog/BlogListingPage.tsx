@@ -5,6 +5,7 @@ import { useState } from "react";
 import { FaArrowRightLong, FaTag } from "react-icons/fa6";
 
 import type { BlogPost } from "@/app/blog/blogPosts";
+import ASCIIText from "@/app/components/blog/ASCIIText";
 
 type BlogListingPost = BlogPost & {
   formattedPublishedAt: string;
@@ -13,6 +14,7 @@ type BlogListingPost = BlogPost & {
 type BlogListingPageProps = {
   posts: BlogListingPost[];
   tags: string[];
+  asciiFontFamily: string;
 };
 
 const TYPE_FILTERS = [
@@ -27,6 +29,7 @@ const getSearchableText = (post: BlogPost) =>
 export default function BlogListingPage({
   posts,
   tags,
+  asciiFontFamily,
 }: BlogListingPageProps) {
   const [searchValue, setSearchValue] = useState("");
   const [activeType, setActiveType] = useState<(typeof TYPE_FILTERS)[number]["value"]>("all");
@@ -47,10 +50,39 @@ export default function BlogListingPage({
     <div className="blog-list-page">
       <div className="blog-shell">
         <header className="blog-hero">
-          <span className="blog-eyebrow">Writing</span>
-          <h1 className="blog-page-title">Blog</h1>
-          <p className="blog-page-summary">
-            Notes on projects, tradeoffs, and the implementation details worth keeping.
+          <h1 className="sr-only">Welcome to my Blog</h1>
+          <div className="blog-ascii-lockup">
+            <div className="blog-ascii-lockup-inner">
+              <div className="blog-kicker-ascii-stage">
+                <ASCIIText
+                  text="Welcome to my"
+                  asciiFontSize={4}
+                  textFontSize={220}
+                  textFontFamily={asciiFontFamily}
+                  textFontWeight={400}
+                  planeBaseHeight={10}
+                  enableWaves={false}
+                  enableMouseMotion={false}
+                  textColor="var(--site-text-strong)"
+                />
+              </div>
+              <div className="blog-ascii-stage">
+                <ASCIIText
+                  text="Blog"
+                  asciiFontSize={6}
+                  textFontSize={300}
+                  textFontFamily={asciiFontFamily}
+                  textFontWeight={400}
+                  planeBaseHeight={15}
+                  enableWaves={false}
+                  enableColorShifting={false}
+                  textColor="var(--site-text-strong)"
+                />
+              </div>
+            </div>
+          </div>
+          <p className="blog-page-summary w-auto mx-auto">
+            SWE by trade. Gamer by instinct. Climber by obsession. Coffee by necessity.
           </p>
         </header>
 
