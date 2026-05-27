@@ -4,6 +4,7 @@ import { FaArrowLeft, FaTag } from "react-icons/fa6";
 
 import { BLOG_POSTS } from "@/app/blog/blogPosts";
 import { formatBlogDate, getBlogPostBySlug } from "@/app/blog/blogContent";
+import BlogPostReadyGate from "@/app/components/blog/BlogPostReadyGate";
 import BlogPostSidebar from "@/app/components/blog/BlogPostSidebar";
 import { mdxComponents } from "@/mdx-components";
 
@@ -28,44 +29,46 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { Content } = post;
 
   return (
-    <div className="blog-post-page" id="top">
-      <Link href="/blog" className="blog-control-button blog-control-button--back">
-        <FaArrowLeft className="h-4 w-4" />
-        Back to blog
-      </Link>
+    <BlogPostReadyGate>
+      <div className="blog-post-page" id="top">
+        <Link href="/blog" className="blog-control-button blog-control-button--back">
+          <FaArrowLeft className="h-4 w-4" />
+          Back to blog
+        </Link>
 
-      <div className="blog-shell">
-        <header className="blog-post-header">
-          <div className="blog-card-meta">
-            <span className="blog-card-type">{post.type}</span>
-            <span>{formatBlogDate(post.publishedAt)}</span>
-            <span className="blog-meta-dot" aria-hidden="true" />
-            <span>{post.readTimeMinutes} min read</span>
-          </div>
-          <h1 className="blog-page-title blog-page-title--post">{post.title}</h1>
-          <p className="blog-page-summary blog-page-summary--post">{post.summary}</p>
-          <div className="blog-chip-row">
-            {post.tags.map((tag) => (
-              <span key={`${post.slug}-${tag}`} className="blog-post-tag">
-                <FaTag className="h-3 w-3" aria-hidden="true" />
-                {tag}
-              </span>
-            ))}
-          </div>
-        </header>
+        <div className="blog-shell">
+          <header className="blog-post-header">
+            <div className="blog-card-meta">
+              <span className="blog-card-type">{post.type}</span>
+              <span>{formatBlogDate(post.publishedAt)}</span>
+              <span className="blog-meta-dot" aria-hidden="true" />
+              <span>{post.readTimeMinutes} min read</span>
+            </div>
+            <h1 className="blog-page-title blog-page-title--post">{post.title}</h1>
+            <p className="blog-page-summary blog-page-summary--post">{post.summary}</p>
+            <div className="blog-chip-row">
+              {post.tags.map((tag) => (
+                <span key={`${post.slug}-${tag}`} className="blog-post-tag">
+                  <FaTag className="h-3 w-3" aria-hidden="true" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </header>
 
-        <div className="blog-article-grid">
-          <div className="blog-content-rail">
-            <article className="blog-article-panel">
-              <div className="blog-prose">
-                <Content components={mdxComponents} />
-              </div>
-            </article>
-          </div>
+          <div className="blog-article-grid">
+            <div className="blog-content-rail">
+              <article className="blog-article-panel">
+                <div className="blog-prose">
+                  <Content components={mdxComponents} />
+                </div>
+              </article>
+            </div>
 
-          {post.headings.length > 0 ? <BlogPostSidebar headings={post.headings} /> : null}
+            {post.headings.length > 0 ? <BlogPostSidebar headings={post.headings} /> : null}
+          </div>
         </div>
       </div>
-    </div>
+    </BlogPostReadyGate>
   );
 }

@@ -1266,10 +1266,6 @@ body *::selection {
     width: 1160px;
   }
 
-  .blog-list-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .blog-control-button--back {
     left: 24px;
   }
@@ -1288,6 +1284,10 @@ body *::selection {
 
   .blog-shell {
     width: 1480px;
+  }
+
+  .blog-list-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .blog-control-button--back {

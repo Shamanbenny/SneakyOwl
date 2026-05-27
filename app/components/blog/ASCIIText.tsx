@@ -694,6 +694,7 @@ type ASCIITextProps = {
   enableWaves?: boolean;
   enableMouseMotion?: boolean;
   enableColorShifting?: boolean;
+  onReady?: () => void;
 };
 
 export default function ASCIIText({
@@ -708,6 +709,7 @@ export default function ASCIIText({
   enableWaves = true,
   enableMouseMotion = true,
   enableColorShifting = true,
+  onReady,
 }: ASCIITextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const asciiRef = useRef<CanvAscii | null>(null);
@@ -795,6 +797,7 @@ export default function ASCIIText({
       asciiRef.current.load();
       element.style.visibility = "visible";
       queueSettledSizeSync(element, instance);
+      onReady?.();
 
       if (document.readyState === "complete") {
         syncSize(element, instance);
@@ -851,6 +854,7 @@ export default function ASCIIText({
     enableWaves,
     enableMouseMotion,
     enableColorShifting,
+    onReady,
   ]);
 
   return <div ref={containerRef} className="ascii-text-container" aria-hidden="true" />;
