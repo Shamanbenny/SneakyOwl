@@ -9,7 +9,9 @@ type BlogPostReadyGateProps = {
 };
 
 const waitForImagesInElement = async (element: HTMLElement) => {
-  const images = Array.from(element.querySelectorAll("img"));
+  // Lazy images lower in the article can remain intentionally unloaded until they approach the viewport.
+  // Waiting on them here deadlocks the reveal because the content stays hidden behind the skeleton.
+  const images = Array.from(element.querySelectorAll("img")).filter((image) => image.loading !== "lazy");
 
   await Promise.all(
     images.map(
@@ -40,6 +42,15 @@ const waitForNextPaint = () =>
     });
   });
 
+const withTimeout = async (promise: Promise<void>, timeoutMs: number) => {
+  await Promise.race([
+    promise,
+    new Promise<void>((resolve) => {
+      window.setTimeout(resolve, timeoutMs);
+    }),
+  ]);
+};
+
 export default function BlogPostReadyGate({ children }: BlogPostReadyGateProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPageReady, setIsPageReady] = useState(false);
@@ -56,11 +67,13 @@ export default function BlogPostReadyGate({ children }: BlogPostReadyGateProps) 
     const fontReady =
       "fonts" in document ? document.fonts.ready.catch(() => undefined) : Promise.resolve();
 
-    Promise.all([fontReady, waitForImagesInElement(container), waitForNextPaint()]).then(() => {
-      if (isActive) {
-        setIsPageReady(true);
-      }
-    });
+    withTimeout(Promise.all([fontReady, waitForImagesInElement(container), waitForNextPaint()]).then(() => undefined), 2500).then(
+      () => {
+        if (isActive) {
+          setIsPageReady(true);
+        }
+      },
+    );
 
     return () => {
       isActive = false;
