@@ -145,7 +145,7 @@ const PROJECTS: ProjectItem[] = [
       </>
     ),
     deployedSiteUrl: null,
-    githubRepoUrl: null,
+    githubRepoUrl: "https://github.com/CS3219-AY2526S2/peerprep-g18",
     image: "/landing/PeerPrep_Banner.png",
     infoUrl: "/blog/peer-prep-system-design",
     link: "/blog/peer-prep-system-design",
@@ -250,7 +250,7 @@ const PROJECTS: ProjectItem[] = [
       </>
     ),
     deployedSiteUrl: null,
-    githubRepoUrl: null,
+    githubRepoUrl: "https://github.com/CS3213-2026-spring/rafflesgo-group-11",
     image: "/landing/RafflesGo_Banner.jpg",
     infoUrl: "/blog/raffles-go-conservation-operations",
     link: "/blog/raffles-go-conservation-operations",

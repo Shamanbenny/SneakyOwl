@@ -55,6 +55,137 @@ const resolveCssColor = (color: string) => {
   return getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim() || color;
 };
 
+const DEFAULT_ASCII_FONT_FAMILY = "'Ubuntu Mono', 'SFMono-Regular', Consolas, monospace";
+
+const resolveAsciiFontFamily = (fontFamily?: string) => {
+  if (fontFamily) return fontFamily;
+  if (typeof window === "undefined") return DEFAULT_ASCII_FONT_FAMILY;
+
+  const bodyFontFamily = window.getComputedStyle(document.body).fontFamily.trim();
+  return bodyFontFamily || DEFAULT_ASCII_FONT_FAMILY;
+};
+
+const waitForDocumentFontsToSettle = async () => {
+  if (typeof document === "undefined" || !("fonts" in document)) return;
+  if (document.fonts.status === "loaded") return;
+
+  await new Promise<void>((resolve) => {
+    let resolved = false;
+    let timeoutId = 0;
+
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(timeoutId);
+      document.fonts.removeEventListener("loadingdone", finish);
+      resolve();
+    };
+
+    timeoutId = window.setTimeout(finish, 2000);
+    document.fonts.addEventListener("loadingdone", finish, { once: true });
+    void document.fonts.ready.then(finish);
+  });
+};
+
+const measureAsciiCharWidth = (fontSize: number, fontFamily: string) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return 0;
+
+  context.font = `${fontSize}px ${fontFamily}`;
+  return context.measureText("A").width || 0;
+};
+
+const waitForStableAsciiMetrics = async (fontSize: number, fontFamily: string) => {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+
+  let stableCount = 0;
+  let lastWidth = 0;
+  const maxSamples = 120;
+
+  for (let sampleIndex = 0; sampleIndex < maxSamples; sampleIndex += 1) {
+    const width = measureAsciiCharWidth(fontSize, fontFamily);
+
+    if (sampleIndex > 0 && Math.abs(width - lastWidth) < 0.001) {
+      stableCount += 1;
+    } else {
+      stableCount = 0;
+    }
+
+    lastWidth = width;
+
+    if (stableCount >= 2 && width > 0) {
+      return width;
+    }
+
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+  }
+
+  return lastWidth;
+};
+
+const measureTextCanvasMetrics = (text: string, font: string) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return {
+      width: 0,
+      ascent: 0,
+      descent: 0,
+    };
+  }
+
+  context.font = font;
+  const metrics = context.measureText(text);
+
+  return {
+    width: metrics.width,
+    ascent: metrics.actualBoundingBoxAscent || 0,
+    descent: metrics.actualBoundingBoxDescent || 0,
+  };
+};
+
+const waitForStableTextMetrics = async (
+  text: string,
+  fontSize: number,
+  fontFamily: string,
+  fontWeight: number,
+) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  let stableCount = 0;
+  let lastSample = { width: 0, ascent: 0, descent: 0 };
+  const maxSamples = 120;
+
+  for (let sampleIndex = 0; sampleIndex < maxSamples; sampleIndex += 1) {
+    const sample = measureTextCanvasMetrics(text, font);
+
+    if (
+      sampleIndex > 0 &&
+      Math.abs(sample.width - lastSample.width) < 0.001 &&
+      Math.abs(sample.ascent - lastSample.ascent) < 0.001 &&
+      Math.abs(sample.descent - lastSample.descent) < 0.001
+    ) {
+      stableCount += 1;
+    } else {
+      stableCount = 0;
+    }
+
+    lastSample = sample;
+
+    if (stableCount >= 2 && sample.width > 0) {
+      return;
+    }
+
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+  }
+};
+
 type AsciiFilterOptions = {
   fontSize?: number;
   fontFamily?: string;
@@ -81,6 +212,7 @@ class AsciiFilter {
   cols = 0;
   rows = 0;
   enableColorShifting: boolean;
+  stableCharWidth: number | null = null;
 
   constructor(
     renderer: THREE.WebGLRenderer,
@@ -133,7 +265,8 @@ class AsciiFilter {
     if (!this.context) return;
 
     this.context.font = `${this.fontSize}px ${this.fontFamily}`;
-    const charWidth = this.context.measureText("A").width || this.fontSize;
+    const measuredCharWidth = this.context.measureText("A").width || this.fontSize;
+    const charWidth = this.stableCharWidth ?? measuredCharWidth;
 
     this.cols = Math.max(1, Math.floor(this.width / charWidth));
     this.rows = Math.max(1, Math.floor(this.height / this.fontSize));
@@ -295,6 +428,7 @@ class CanvasTxt {
 type CanvAsciiOptions = {
   text: string;
   asciiFontSize: number;
+  asciiFontFamily: string;
   textFontSize: number;
   textFontFamily: string;
   textFontWeight: number;
@@ -308,6 +442,7 @@ type CanvAsciiOptions = {
 class CanvAscii {
   textString: string;
   asciiFontSize: number;
+  asciiFontFamily: string;
   textFontSize: number;
   textFontFamily: string;
   textFontWeight: number;
@@ -333,11 +468,13 @@ class CanvAscii {
   filter!: AsciiFilter;
   planeWidth = 0;
   planeHeight = 0;
+  stableAsciiCharWidth: number | null = null;
 
   constructor(
     {
       text,
       asciiFontSize,
+      asciiFontFamily,
       textFontSize,
       textFontFamily,
       textFontWeight,
@@ -353,6 +490,7 @@ class CanvAscii {
   ) {
     this.textString = text;
     this.asciiFontSize = asciiFontSize;
+    this.asciiFontFamily = asciiFontFamily;
     this.textFontSize = textFontSize;
     this.textFontFamily = textFontFamily;
     this.textFontWeight = textFontWeight;
@@ -373,14 +511,15 @@ class CanvAscii {
   }
 
   async init() {
-    try {
-      await document.fonts.load(
-        `${this.textFontWeight} ${this.textFontSize}px ${this.textFontFamily}`,
-      );
-      await document.fonts.ready;
-    } catch {
-      // Keep the hero rendering if a web font request fails in dev or offline builds.
-    }
+    await waitForDocumentFontsToSettle();
+    const stableCharWidth = await waitForStableAsciiMetrics(this.asciiFontSize, this.asciiFontFamily);
+    await waitForStableTextMetrics(
+      this.textString,
+      this.textFontSize,
+      this.textFontFamily,
+      this.textFontWeight,
+    );
+    this.stableAsciiCharWidth = stableCharWidth;
 
     this.setMesh();
     this.setRenderer();
@@ -444,9 +583,11 @@ class CanvAscii {
 
     this.filter = new AsciiFilter(this.renderer, {
       fontSize: this.asciiFontSize,
+      fontFamily: this.asciiFontFamily,
       invert: true,
       enableColorShifting: this.enableMouseMotion && this.enableColorShifting,
     });
+    this.filter.stableCharWidth = this.stableAsciiCharWidth;
 
     this.container.appendChild(this.filter.domElement);
     this.setSize(this.width, this.height);
@@ -544,6 +685,7 @@ class CanvAscii {
 type ASCIITextProps = {
   text?: string;
   asciiFontSize?: number;
+  asciiFontFamily?: string;
   textFontSize?: number;
   textFontFamily?: string;
   textFontWeight?: number;
@@ -557,6 +699,7 @@ type ASCIITextProps = {
 export default function ASCIIText({
   text = "Blog",
   asciiFontSize = 8,
+  asciiFontFamily,
   textFontSize = 200,
   textFontFamily = "'Ubuntu Mono', 'SFMono-Regular', Consolas, monospace",
   textFontWeight = 700,
@@ -573,6 +716,8 @@ export default function ASCIIText({
     const container = containerRef.current;
     if (!container) return;
 
+    container.style.visibility = "hidden";
+
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
     let isInitializing = false;
@@ -588,6 +733,7 @@ export default function ASCIIText({
       if (!instance) return;
 
       const { width, height } = readContainerSize(element);
+
       if (width > 0 && height > 0) {
         instance.setSize(width, height);
       }
@@ -602,14 +748,18 @@ export default function ASCIIText({
 
     const handleWindowLoad = () => {
       if (!containerRef.current) return;
-
       syncSize(containerRef.current);
+    };
+
+    const handleFontsLoadingDone = () => {
+      handleWindowLoad();
     };
 
     const createAndStart = async (element: HTMLDivElement) => {
       if (asciiRef.current || isInitializing) return;
 
       const { width, height } = readContainerSize(element);
+      const resolvedAsciiFontFamily = resolveAsciiFontFamily(asciiFontFamily);
       if (width <= 0 || height <= 0) return;
 
       isInitializing = true;
@@ -617,6 +767,7 @@ export default function ASCIIText({
         {
           text,
           asciiFontSize,
+          asciiFontFamily: resolvedAsciiFontFamily,
           textFontSize,
           textFontFamily,
           textFontWeight,
@@ -642,6 +793,7 @@ export default function ASCIIText({
       syncSize(element, instance);
       asciiRef.current = instance;
       asciiRef.current.load();
+      element.style.visibility = "visible";
       queueSettledSizeSync(element, instance);
 
       if (document.readyState === "complete") {
@@ -649,9 +801,19 @@ export default function ASCIIText({
       } else {
         window.addEventListener("load", handleWindowLoad, { once: true });
       }
+
+      if ("fonts" in document) {
+        document.fonts.ready.then(() => {
+          if (!cancelled && containerRef.current && asciiRef.current === instance) {
+            queueSettledSizeSync(containerRef.current, instance);
+          }
+        });
+
+        document.fonts.addEventListener("loadingdone", handleFontsLoadingDone);
+      }
     };
 
-    resizeObserver = new ResizeObserver(() => {
+    resizeObserver = new ResizeObserver((entries) => {
       if (cancelled || !containerRef.current) return;
 
       if (asciiRef.current) {
@@ -670,12 +832,17 @@ export default function ASCIIText({
       cancelAnimationFrame(firstFrameId);
       cancelAnimationFrame(secondFrameId);
       window.removeEventListener("load", handleWindowLoad);
+      if ("fonts" in document) {
+        document.fonts.removeEventListener("loadingdone", handleFontsLoadingDone);
+      }
       asciiRef.current?.dispose();
       asciiRef.current = null;
+      container.style.visibility = "";
     };
   }, [
     text,
     asciiFontSize,
+    asciiFontFamily,
     textFontSize,
     textFontFamily,
     textFontWeight,

@@ -444,7 +444,9 @@ body *::selection {
   text-shadow: 0 0 22px var(--site-accent-glow-soft);
   user-select: none;
   transform: translate(-50%, -50%);
-}
+  text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  }
 
 .blog-eyebrow,
 .blog-filter-label,
