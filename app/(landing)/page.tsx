@@ -25,10 +25,10 @@ const SWE_VALUE_ROTATIONS = [
 ];
 
 const LANDING_CRITICAL_IMAGE_SOURCES = [
-  "/sneakyOwl_1.jpg",
-  "/PeerPrep.png",
-  "/RafflesGo.png",
-  "/ChessFlask.png",
+  "/landing/sneakyOwl_1.jpg",
+  "/landing/PeerPrep.png",
+  "/landing/RafflesGo.png",
+  "/landing/ChessFlask.png",
   "/reviewImages/gaanesh.jpg",
   "/reviewImages/anonymous.png",
   "https://raw.githubusercontent.com/Shamanbenny/Shamanbenny.github.io/output/snake-dark.svg",
@@ -270,7 +270,7 @@ const LandingPage: React.FC = () => {
             <ProfileHoloCard
               name="Lee Jia Quan, Benny"
               title="Full-stack Engineer"
-              imageSrc="/sneakyOwl_1.jpg"
+              imageSrc="/landing/sneakyOwl_1.jpg"
               idCode="1337-5T4C-K9001"
             />
             <a

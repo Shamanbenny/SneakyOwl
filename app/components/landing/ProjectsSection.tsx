@@ -146,10 +146,10 @@ const PROJECTS: ProjectItem[] = [
     ),
     deployedSiteUrl: null,
     githubRepoUrl: null,
-    image: "/PeerPrep_Banner.png",
+    image: "/landing/PeerPrep_Banner.png",
     infoUrl: "/blog/peer-prep-system-design",
     link: "/blog/peer-prep-system-design",
-    previewImage: "/PeerPrep.png",
+    previewImage: "/landing/PeerPrep.png",
     projectType: "Full-Stack Project",
     tags: [
       {
@@ -251,10 +251,10 @@ const PROJECTS: ProjectItem[] = [
     ),
     deployedSiteUrl: null,
     githubRepoUrl: null,
-    image: "/RafflesGo_Banner.jpg",
+    image: "/landing/RafflesGo_Banner.jpg",
     infoUrl: "/blog/raffles-go-conservation-operations",
     link: "/blog/raffles-go-conservation-operations",
-    previewImage: "/RafflesGo.png",
+    previewImage: "/landing/RafflesGo.png",
     projectType: "Full-Stack Project",
     tags: [
       {
@@ -329,10 +329,10 @@ const PROJECTS: ProjectItem[] = [
     ),
     deployedSiteUrl: null,
     githubRepoUrl: "https://github.com/Shamanbenny/chess-flask",
-    image: "/ChessFlask.png",
+    image: "/landing/ChessFlask.png",
     infoUrl: "/blog/chess-flask-iteration-notes",
     link: "/blog/chess-flask-iteration-notes",
-    previewImage: "/ChessFlask.png",
+    previewImage: "/landing/ChessFlask.png",
     projectType: "Backend Project",
     tags: [
       {

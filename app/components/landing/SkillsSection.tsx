@@ -86,7 +86,7 @@ type SkillLogoItem = LogoItem & {
 const SKILL_CATEGORIES: SkillCategoryItem[] = [
   {
     eyebrow: "",
-    image: "/Skills_Banner_1.jpg",
+    image: "/landing/Skills_Banner_1.jpg",
     summary:
       "Highlights the core programming foundations behind day-to-day building, from application logic and backend work to systems thinking, technical problem solving, and lower-level implementation.",
     tags: [
@@ -128,7 +128,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_2.png",
+    image: "/landing/Skills_Banner_2.png",
     summary:
       "Covers the application-layer tools used to shape interfaces, structure products, and connect frontend experiences with backend services, real-time features, and interactive systems.",
     tags: [
@@ -186,7 +186,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_3.jpg",
+    image: "/landing/Skills_Banner_3.jpg",
     summary:
       "Focuses on the workflow and delivery layer: the tools that support building reliably, collaborating cleanly, managing environments, and moving projects from development into deployment.",
     tags: [
@@ -268,7 +268,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_4.jpg",
+    image: "/landing/Skills_Banner_4.jpg",
     summary:
       "Highlights the reusable building blocks used for data work, experimentation, frontend styling, and implementation speed when a project benefits from established patterns instead of custom reinvention.",
     tags: [
@@ -314,7 +314,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_5.png",
+    image: "/landing/Skills_Banner_5.png",
     summary:
       "Covers the broader artificial intelligence and machine learning ideas explored across search, decision-making, prediction, pattern discovery, and neural-network-based problem solving.",
     tags: [
@@ -330,7 +330,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_6.png",
+    image: "/landing/Skills_Banner_6.png",
     summary:
       "Highlights the problem-solving fundamentals behind efficient software, with emphasis on organizing data well, reasoning about performance, and choosing the right approach for optimization-heavy tasks.",
     tags: [

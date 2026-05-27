@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { cache, type ComponentType } from "react";
 import { evaluate } from "@mdx-js/mdx";
 import type { MDXProps } from "mdx/types";
@@ -115,6 +116,7 @@ const getBlogPostComponent = cache(async (contentPath: string): Promise<BlogPost
   const source = await readFile(fullPath, "utf8");
   const evaluated = await evaluate(source, {
     ...runtime,
+    baseUrl: pathToFileURL(fullPath),
     rehypePlugins: [rehypeSlug],
     remarkPlugins: [remarkGfm],
   });

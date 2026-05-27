@@ -570,25 +570,49 @@ export default function ASCIIText({
   const asciiRef = useRef<CanvAscii | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     let cancelled = false;
-    let observer: IntersectionObserver | null = null;
     let resizeObserver: ResizeObserver | null = null;
+    let isInitializing = false;
+    let firstFrameId = 0;
+    let secondFrameId = 0;
 
-    const attachResizeObserver = (container: HTMLDivElement) => {
-      resizeObserver = new ResizeObserver((entries) => {
-        if (!entries[0] || !asciiRef.current) return;
+    const readContainerSize = (element: HTMLDivElement) => ({
+      width: element.clientWidth,
+      height: element.clientHeight,
+    });
 
-        const { width, height } = entries[0].contentRect;
-        if (width > 0 && height > 0) {
-          asciiRef.current.setSize(width, height);
-        }
-      });
-      resizeObserver.observe(container);
+    const syncSize = (element: HTMLDivElement, instance = asciiRef.current) => {
+      if (!instance) return;
+
+      const { width, height } = readContainerSize(element);
+      if (width > 0 && height > 0) {
+        instance.setSize(width, height);
+      }
     };
 
-    const createAndStart = async (container: HTMLDivElement, width: number, height: number) => {
+    const queueSettledSizeSync = (element: HTMLDivElement, instance: CanvAscii) => {
+      firstFrameId = requestAnimationFrame(() => {
+        syncSize(element, instance);
+        secondFrameId = requestAnimationFrame(() => syncSize(element, instance));
+      });
+    };
+
+    const handleWindowLoad = () => {
+      if (!containerRef.current) return;
+
+      syncSize(containerRef.current);
+    };
+
+    const createAndStart = async (element: HTMLDivElement) => {
+      if (asciiRef.current || isInitializing) return;
+
+      const { width, height } = readContainerSize(element);
+      if (width <= 0 || height <= 0) return;
+
+      isInitializing = true;
       const instance = new CanvAscii(
         {
           text,
@@ -602,63 +626,50 @@ export default function ASCIIText({
           enableMouseMotion,
           enableColorShifting,
         },
-        container,
+        element,
         width,
         height,
       );
 
       await instance.init();
+      isInitializing = false;
 
       if (cancelled) {
         instance.dispose();
         return;
       }
 
+      syncSize(element, instance);
       asciiRef.current = instance;
       asciiRef.current.load();
-      attachResizeObserver(container);
+      queueSettledSizeSync(element, instance);
+
+      if (document.readyState === "complete") {
+        syncSize(element, instance);
+      } else {
+        window.addEventListener("load", handleWindowLoad, { once: true });
+      }
     };
 
-    const setup = () => {
-      const container = containerRef.current;
-      if (!container) return;
+    resizeObserver = new ResizeObserver(() => {
+      if (cancelled || !containerRef.current) return;
 
-      const { width, height } = container.getBoundingClientRect();
-      if (width > 0 && height > 0) {
-        void createAndStart(container, width, height);
+      if (asciiRef.current) {
+        syncSize(containerRef.current);
         return;
       }
 
-      observer = new IntersectionObserver(
-        ([entry]) => {
-          if (
-            cancelled ||
-            !entry.isIntersecting ||
-            entry.boundingClientRect.width <= 0 ||
-            entry.boundingClientRect.height <= 0
-          ) {
-            return;
-          }
-
-          observer?.disconnect();
-          observer = null;
-          void createAndStart(
-            container,
-            entry.boundingClientRect.width,
-            entry.boundingClientRect.height,
-          );
-        },
-        { threshold: 0.1 },
-      );
-      observer.observe(container);
-    };
-
-    setup();
+      void createAndStart(containerRef.current);
+    });
+    resizeObserver.observe(container);
+    void createAndStart(container);
 
     return () => {
       cancelled = true;
-      observer?.disconnect();
       resizeObserver?.disconnect();
+      cancelAnimationFrame(firstFrameId);
+      cancelAnimationFrame(secondFrameId);
+      window.removeEventListener("load", handleWindowLoad);
       asciiRef.current?.dispose();
       asciiRef.current = null;
     };
