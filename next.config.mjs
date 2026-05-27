@@ -1,3 +1,14 @@
+import createMDX from "@next/mdx";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
+
+const withMDX = createMDX({
+  options: {
+    rehypePlugins: [rehypeSlug],
+    remarkPlugins: [remarkGfm],
+  },
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Use this when you want to use "npm run dev" to run the project locally
@@ -8,13 +19,13 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
-        port: '',
-        pathname: '/Shamanbenny/**',
-      }
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        port: "",
+        pathname: "/Shamanbenny/**",
+      },
     ],
   },
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

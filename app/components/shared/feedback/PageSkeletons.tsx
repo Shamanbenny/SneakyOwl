@@ -97,3 +97,101 @@ export const ChessPageSkeleton = () => (
     </div>
   </div>
 );
+
+export const BlogListingSkeleton = () => (
+  <div className="blog-list-page" aria-hidden="true">
+    <div className="blog-shell">
+      <div className="blog-hero">
+        <Skeleton className="h-4 w-36 rounded-full" />
+        <Skeleton className="mt-4 h-[150px] w-full rounded-[20px] sm:h-[190px] lg:h-[240px]" />
+        <Skeleton className="h-5 w-full max-w-[520px] rounded-full" />
+      </div>
+
+      <div className="blog-filter-panel">
+        <div className="blog-filter-group">
+          <Skeleton className="h-4 w-14 rounded-full" />
+          <div className="flex flex-wrap gap-3">
+            <Skeleton className="h-10 w-20 rounded-full" />
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-24 rounded-full" />
+          </div>
+        </div>
+        <div className="blog-filter-group">
+          <Skeleton className="h-4 w-16 rounded-full" />
+          <Skeleton className="h-11 w-full rounded-[1rem]" />
+        </div>
+        <div className="blog-filter-group">
+          <Skeleton className="h-4 w-10 rounded-full" />
+          <div className="flex flex-wrap gap-3">
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-28 rounded-full" />
+            <Skeleton className="h-10 w-20 rounded-full" />
+          </div>
+        </div>
+      </div>
+
+      <div className="blog-list-grid">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="blog-card">
+            <Skeleton className="h-4 w-[240px] rounded-full" />
+            <Skeleton className="mt-5 h-8 w-[80%] rounded-full" />
+            <Skeleton className="mt-4 h-5 w-full rounded-full" />
+            <Skeleton className="mt-2 h-5 w-[92%] rounded-full" />
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Skeleton className="h-9 w-20 rounded-full" />
+              <Skeleton className="h-9 w-24 rounded-full" />
+              <Skeleton className="h-9 w-16 rounded-full" />
+            </div>
+            <Skeleton className="mt-6 h-5 w-28 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+export const BlogPostSkeleton = () => (
+  <div className="blog-post-page" aria-hidden="true">
+    <div className="blog-shell">
+      <div className="blog-control-row">
+        <Skeleton className="h-11 w-32 rounded-full" />
+        <Skeleton className="h-11 w-24 rounded-full" />
+      </div>
+
+      <div className="blog-post-header">
+        <Skeleton className="h-4 w-[260px] rounded-full" />
+        <Skeleton className="mt-5 h-12 w-full max-w-[780px] rounded-full" />
+        <Skeleton className="mt-4 h-5 w-full max-w-[700px] rounded-full" />
+        <Skeleton className="mt-2 h-5 w-full max-w-[660px] rounded-full" />
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Skeleton className="h-9 w-20 rounded-full" />
+          <Skeleton className="h-9 w-24 rounded-full" />
+          <Skeleton className="h-9 w-28 rounded-full" />
+        </div>
+      </div>
+
+      <div className="blog-article-grid">
+        <div className="blog-sidebar">
+          <div className="blog-sidebar-panel">
+            <Skeleton className="h-5 w-24 rounded-full" />
+            <Skeleton className="mt-5 h-4 w-full rounded-full" />
+            <Skeleton className="mt-3 h-4 w-[88%] rounded-full" />
+            <Skeleton className="mt-3 h-4 w-[70%] rounded-full" />
+          </div>
+        </div>
+        <div className="blog-article-panel">
+          <Skeleton className="h-8 w-[45%] rounded-full" />
+          <Skeleton className="mt-6 h-5 w-full rounded-full" />
+          <Skeleton className="mt-3 h-5 w-[96%] rounded-full" />
+          <Skeleton className="mt-3 h-5 w-[92%] rounded-full" />
+          <Skeleton className="mt-10 h-8 w-[38%] rounded-full" />
+          <Skeleton className="mt-6 h-5 w-full rounded-full" />
+          <Skeleton className="mt-3 h-5 w-[95%] rounded-full" />
+          <Skeleton className="mt-3 h-5 w-[90%] rounded-full" />
+          <Skeleton className="mt-10 h-36 w-full rounded-[1.2rem]" />
+        </div>
+      </div>
+    </div>
+  </div>
+);

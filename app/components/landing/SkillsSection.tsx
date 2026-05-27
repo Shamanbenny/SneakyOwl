@@ -42,6 +42,7 @@ import FlowingMenu, {
 } from "@/app/components/shared/display/FlowingMenu";
 import LogoLoop, { type LogoItem } from "@/app/components/shared/display/LogoLoop";
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import CollapsibleCard from "@/app/components/shared/ui/CollapsibleCard";
 
 type SkillChip = {
   icon: ReactElement<{ className?: string }>;
@@ -85,7 +86,7 @@ type SkillLogoItem = LogoItem & {
 const SKILL_CATEGORIES: SkillCategoryItem[] = [
   {
     eyebrow: "",
-    image: "/Skills_Banner_1.jpg",
+    image: "/landing/Skills_Banner_1.jpg",
     summary:
       "Highlights the core programming foundations behind day-to-day building, from application logic and backend work to systems thinking, technical problem solving, and lower-level implementation.",
     tags: [
@@ -127,7 +128,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_2.png",
+    image: "/landing/Skills_Banner_2.png",
     summary:
       "Covers the application-layer tools used to shape interfaces, structure products, and connect frontend experiences with backend services, real-time features, and interactive systems.",
     tags: [
@@ -185,7 +186,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_3.jpg",
+    image: "/landing/Skills_Banner_3.jpg",
     summary:
       "Focuses on the workflow and delivery layer: the tools that support building reliably, collaborating cleanly, managing environments, and moving projects from development into deployment.",
     tags: [
@@ -267,7 +268,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_4.jpg",
+    image: "/landing/Skills_Banner_4.jpg",
     summary:
       "Highlights the reusable building blocks used for data work, experimentation, frontend styling, and implementation speed when a project benefits from established patterns instead of custom reinvention.",
     tags: [
@@ -313,7 +314,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_5.png",
+    image: "/landing/Skills_Banner_5.png",
     summary:
       "Covers the broader artificial intelligence and machine learning ideas explored across search, decision-making, prediction, pattern discovery, and neural-network-based problem solving.",
     tags: [
@@ -329,7 +330,7 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
   },
   {
     eyebrow: "",
-    image: "/Skills_Banner_6.png",
+    image: "/landing/Skills_Banner_6.png",
     summary:
       "Highlights the problem-solving fundamentals behind efficient software, with emphasis on organizing data well, reasoning about performance, and choosing the right approach for optimization-heavy tasks.",
     tags: [
@@ -382,11 +383,18 @@ const SKILL_LOGOS: LogoItem[] = SKILL_CATEGORIES.slice(0, 4)
 
 const SKILLS_DESKTOP_HEIGHT_CLASS = "xl:h-[535px] xxl:h-[535px]";
 
-const SkillsPreviewCard = ({ item }: { item: SkillCategoryItem }) => {
+const SkillsPreviewCard = ({
+  item,
+  framed = true,
+}: {
+  item: SkillCategoryItem;
+  framed?: boolean;
+}) => {
   return (
     <article
-      className={`site-surface-card flex flex-col overflow-hidden rounded-[26px] p-5
-        sm:p-6 lg:p-6 ${SKILLS_DESKTOP_HEIGHT_CLASS}`}
+      className={`flex flex-col overflow-hidden rounded-[26px] ${
+        framed ? `site-surface-card p-5 sm:p-6 lg:p-6 ${SKILLS_DESKTOP_HEIGHT_CLASS}` : ""
+      }`}
     >
       <div className="flex min-h-[14rem] flex-1 flex-col">
         <div className="flex items-start justify-between gap-4">
@@ -415,6 +423,37 @@ const SkillsPreviewCard = ({ item }: { item: SkillCategoryItem }) => {
         </div>
       </div>
     </article>
+  );
+};
+
+const MobileSkillsCollapsibleCard = ({ item }: { item: SkillCategoryItem }) => {
+  return (
+    <CollapsibleCard
+      title={item.text}
+      eyebrow="Skill Category"
+      headerSupplement={
+        <span className="inline-flex rounded-full border border-[color:var(--site-accent-border-subtle)] bg-[color:var(--site-accent-glow-soft)] px-2.5 py-1 text-[0.72rem] font-medium uppercase tracking-[0.08em] text-[color:var(--site-accent-soft)]">
+          {item.tags.length} entries
+        </span>
+      }
+    >
+      <div className="rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5">
+        <p className="w-full text-[1.02rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[1.06rem]">
+          {item.summary}
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {item.tags.map((tag) => (
+            <span
+              key={`${item.text}-${tag.id}`}
+              className="inline-flex items-center gap-2.5 rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-4 py-2 text-[0.95rem] font-medium text-[color:var(--site-text-strong)] sm:text-[1rem]"
+            >
+              <span className="text-[color:var(--site-accent-soft)]">{tag.icon}</span>
+              {tag.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </CollapsibleCard>
   );
 };
 
@@ -484,7 +523,7 @@ const SkillsSection = () => {
 
       <div className="grid gap-5 xl:hidden">
         {SKILL_CATEGORIES.map((item) => (
-          <SkillsPreviewCard key={item.text} item={item} />
+          <MobileSkillsCollapsibleCard key={item.text} item={item} />
         ))}
       </div>
 
