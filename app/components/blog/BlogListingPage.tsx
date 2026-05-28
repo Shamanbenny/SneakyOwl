@@ -5,7 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import { FaArrowRightLong, FaTag } from "react-icons/fa6";
 
 import type { BlogPost } from "@/app/blog/blogPosts";
+import BlogAdminStats from "@/app/components/blog/BlogAdminStats";
 import ASCIIText from "@/app/components/blog/ASCIIText";
+import BlogLikeCount from "@/app/components/blog/BlogLikeCount";
 import { BlogListingSkeleton } from "@/app/components/shared/feedback/PageSkeletons";
 
 type BlogListingPost = BlogPost & {
@@ -71,11 +73,14 @@ export default function BlogListingPage({
   }, []);
 
   const trimmedSearchValue = searchValue.trim().toLowerCase();
+  const isAdminStatsMode = trimmedSearchValue === "vinniere";
   const filteredPosts = posts.filter((post) => {
     const matchesType = activeType === "all" ? true : post.type === activeType;
     const matchesTag = activeTag === "all" ? true : post.tags.includes(activeTag);
     const matchesSearch = trimmedSearchValue
-      ? getSearchableText(post).includes(trimmedSearchValue)
+      ? isAdminStatsMode
+        ? true
+        : getSearchableText(post).includes(trimmedSearchValue)
       : true;
 
     return matchesType && matchesTag && matchesSearch;
@@ -219,21 +224,29 @@ export default function BlogListingPage({
                       <span>{post.formattedPublishedAt}</span>
                       <span className="blog-meta-dot" aria-hidden="true" />
                       <span>{post.readTimeMinutes} min read</span>
+                      <span className="blog-meta-dot" aria-hidden="true" />
+                      <BlogLikeCount slug={post.slug} />
                     </div>
                     <div className="blog-card-body">
                       <h2 className="blog-card-title">
                         <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                       </h2>
-                      <p className="blog-card-summary">{post.summary}</p>
+                      {isAdminStatsMode ? (
+                        <BlogAdminStats slug={post.slug} />
+                      ) : (
+                        <p className="blog-card-summary">{post.summary}</p>
+                      )}
                     </div>
-                    <div className="blog-chip-row">
-                      {post.tags.map((tag) => (
-                        <span key={`${post.slug}-${tag}`} className="blog-post-tag">
-                          <FaTag className="h-3 w-3" aria-hidden="true" />
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    {isAdminStatsMode ? null : (
+                      <div className="blog-chip-row">
+                        {post.tags.map((tag) => (
+                          <span key={`${post.slug}-${tag}`} className="blog-post-tag">
+                            <FaTag className="h-3 w-3" aria-hidden="true" />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <Link href={`/blog/${post.slug}`} className="blog-card-link">
                       Read post
                       <FaArrowRightLong className="h-3.5 w-3.5" />

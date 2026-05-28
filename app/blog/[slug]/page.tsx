@@ -4,6 +4,10 @@ import { FaArrowLeft, FaTag } from "react-icons/fa6";
 
 import { BLOG_POSTS } from "@/app/blog/blogPosts";
 import { formatBlogDate, getBlogPostBySlug } from "@/app/blog/blogContent";
+import BlogPostFeedbackProvider, {
+  BlogPostFooterFeedback,
+  BlogPostHeaderFeedback,
+} from "@/app/components/blog/BlogPostFeedback";
 import BlogPostReadyGate from "@/app/components/blog/BlogPostReadyGate";
 import BlogPostSidebar from "@/app/components/blog/BlogPostSidebar";
 import { mdxComponents } from "@/mdx-components";
@@ -36,38 +40,44 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           Back to blog
         </Link>
 
-        <div className="blog-shell">
-          <header className="blog-post-header">
-            <div className="blog-card-meta">
-              <span className="blog-card-type">{post.type}</span>
-              <span>{formatBlogDate(post.publishedAt)}</span>
-              <span className="blog-meta-dot" aria-hidden="true" />
-              <span>{post.readTimeMinutes} min read</span>
-            </div>
-            <h1 className="blog-page-title blog-page-title--post">{post.title}</h1>
-            <p className="blog-page-summary blog-page-summary--post">{post.summary}</p>
-            <div className="blog-chip-row">
-              {post.tags.map((tag) => (
-                <span key={`${post.slug}-${tag}`} className="blog-post-tag">
-                  <FaTag className="h-3 w-3" aria-hidden="true" />
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </header>
-
-          <div className="blog-article-grid">
-            <div className="blog-content-rail">
-              <article className="blog-article-panel">
-                <div className="blog-prose">
-                  <Content components={mdxComponents} />
+        <BlogPostFeedbackProvider slug={post.slug}>
+          <div className="blog-shell">
+            <header className="blog-post-header">
+              <div className="blog-post-header-top">
+                <div className="blog-card-meta">
+                  <span className="blog-card-type">{post.type}</span>
+                  <span>{formatBlogDate(post.publishedAt)}</span>
+                  <span className="blog-meta-dot" aria-hidden="true" />
+                  <span>{post.readTimeMinutes} min read</span>
                 </div>
-              </article>
-            </div>
+                <BlogPostHeaderFeedback />
+              </div>
+              <h1 className="blog-page-title blog-page-title--post">{post.title}</h1>
+              <p className="blog-page-summary blog-page-summary--post">{post.summary}</p>
+              <div className="blog-chip-row">
+                {post.tags.map((tag) => (
+                  <span key={`${post.slug}-${tag}`} className="blog-post-tag">
+                    <FaTag className="h-3 w-3" aria-hidden="true" />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </header>
 
-            {post.headings.length > 0 ? <BlogPostSidebar headings={post.headings} /> : null}
+            <div className="blog-article-grid">
+              <div className="blog-content-rail">
+                <article className="blog-article-panel">
+                  <div className="blog-prose">
+                    <Content components={mdxComponents} />
+                  </div>
+                  <BlogPostFooterFeedback />
+                </article>
+              </div>
+
+              {post.headings.length > 0 ? <BlogPostSidebar headings={post.headings} /> : null}
+            </div>
           </div>
-        </div>
+        </BlogPostFeedbackProvider>
       </div>
     </BlogPostReadyGate>
   );

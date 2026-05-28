@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FaHistory } from "react-icons/fa";
-import { FaArrowLeft, FaArrowUp, FaBookOpen, FaGithub, FaLinkedin } from "react-icons/fa6";
+import { FaArrowLeft, FaArrowUp, FaBookOpen, FaGithub, FaHeart, FaLinkedin } from "react-icons/fa6";
 import { FiFileText } from "react-icons/fi";
 import { SiDocker, SiFastify, SiFirebase, SiReact, SiTypescript } from "react-icons/si";
 
@@ -218,6 +218,41 @@ export default function DesignComponentPage() {
             <button className={`${styles.chip} ${styles.chipHover}`} type="button">
               Work
             </button>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="blog-feedback">
+          <h2 id="blog-feedback" className={styles.sectionTitle}>
+            Blog Feedback
+          </h2>
+          <p className={styles.sectionIntro}>
+            Blog posts use the same restrained chrome button with an emerald active state, paired
+            with a compact metric pill for likes and lightweight post stats.
+          </p>
+          <div className={styles.grid}>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Like Control</h3>
+                <span className={styles.meta}>Default / active</span>
+              </div>
+              <div className={styles.buttonRow}>
+                <span className={styles.metricPill}>
+                  <FaHeart aria-hidden="true" />
+                  237
+                </span>
+                <button className={`${styles.button} ${styles.buttonPrimary}`} type="button">
+                  <FaHeart aria-hidden="true" />
+                  Like post
+                </button>
+                <button
+                  className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonPrimaryHover}`}
+                  type="button"
+                >
+                  <FaHeart aria-hidden="true" />
+                  Liked
+                </button>
+              </div>
+            </article>
           </div>
         </section>
 

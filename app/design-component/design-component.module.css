@@ -87,6 +87,27 @@
   margin-top: 16px;
 }
 
+.metricPill {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--site-border-strong);
+  border-radius: 999px;
+  background: var(--site-bg-soft);
+  color: var(--site-text-strong);
+  padding: 0 14px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.metricPill svg {
+  color: var(--site-accent-soft);
+}
+
 .button {
   display: inline-flex;
   min-height: 44px;
