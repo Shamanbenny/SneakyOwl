@@ -31,6 +31,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const { Content } = post;
+  const githubRepoUrl = post.type === "project" ? post.project.githubRepoUrl : undefined;
 
   return (
     <BlogPostReadyGate>
@@ -50,7 +51,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <span className="blog-meta-dot" aria-hidden="true" />
                   <span>{post.readTimeMinutes} min read</span>
                 </div>
-                <BlogPostHeaderFeedback />
+                <BlogPostHeaderFeedback githubRepoUrl={githubRepoUrl} />
               </div>
               <h1 className="blog-page-title blog-page-title--post">{post.title}</h1>
               <p className="blog-page-summary blog-page-summary--post">{post.summary}</p>
@@ -70,7 +71,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <div className="blog-prose">
                     <Content components={mdxComponents} />
                   </div>
-                  <BlogPostFooterFeedback />
+                  <BlogPostFooterFeedback githubRepoUrl={githubRepoUrl} />
                 </article>
               </div>
 

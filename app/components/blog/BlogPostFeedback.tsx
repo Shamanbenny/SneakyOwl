@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   createContext,
   useCallback,
@@ -10,7 +11,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { FaHeart } from "react-icons/fa6";
+import { FaArrowUpRightFromSquare, FaGithub, FaHeart } from "react-icons/fa6";
 
 import {
   fetchAbacusCount,
@@ -22,6 +23,10 @@ import {
 type BlogPostFeedbackProviderProps = {
   slug: string;
   children: ReactNode;
+};
+
+type BlogPostGitHubRedirectProps = {
+  githubRepoUrl: string;
 };
 
 type BlogPostFeedbackContextValue = {
@@ -49,6 +54,22 @@ const useBlogPostFeedback = () => {
 
   return context;
 };
+
+function BlogPostGitHubRedirect({ githubRepoUrl }: BlogPostGitHubRedirectProps) {
+  return (
+    <Link
+      href={githubRepoUrl}
+      className="blog-control-button"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Open GitHub repository in a new tab"
+    >
+      <FaGithub className="h-3.5 w-3.5" aria-hidden="true" />
+      <span>GitHub</span>
+      <FaArrowUpRightFromSquare className="h-3.5 w-3.5" aria-hidden="true" />
+    </Link>
+  );
+}
 
 export default function BlogPostFeedbackProvider({
   slug,
@@ -217,11 +238,13 @@ export default function BlogPostFeedbackProvider({
   return <BlogPostFeedbackContext.Provider value={value}>{children}</BlogPostFeedbackContext.Provider>;
 }
 
-export function BlogPostHeaderFeedback() {
+export function BlogPostHeaderFeedback({ githubRepoUrl }: { githubRepoUrl?: string }) {
   const { isLiked, isSubmittingLike, likesCount, registerLike } = useBlogPostFeedback();
 
   return (
     <div className="blog-feedback-anchor">
+      {githubRepoUrl ? <BlogPostGitHubRedirect githubRepoUrl={githubRepoUrl} /> : null}
+
       <div className="blog-feedback-stats" aria-label="Post likes">
         <span className="blog-feedback-stat">
           <FaHeart className="h-3.5 w-3.5" aria-hidden="true" />
@@ -249,7 +272,7 @@ export function BlogPostHeaderFeedback() {
   );
 }
 
-export function BlogPostFooterFeedback() {
+export function BlogPostFooterFeedback({ githubRepoUrl }: { githubRepoUrl?: string }) {
   const { isLiked, isSubmittingLike, likesCount, registerLike } = useBlogPostFeedback();
 
   return (
@@ -263,6 +286,7 @@ export function BlogPostFooterFeedback() {
       </div>
 
       <div className="blog-post-footer-actions">
+        {githubRepoUrl ? <BlogPostGitHubRedirect githubRepoUrl={githubRepoUrl} /> : null}
         <span className="blog-feedback-stat">
           <FaHeart className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{formatCount(likesCount)}</span>

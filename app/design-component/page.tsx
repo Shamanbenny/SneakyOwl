@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { FaHistory } from "react-icons/fa";
-import { FaArrowLeft, FaArrowUp, FaBookOpen, FaGithub, FaHeart, FaLinkedin } from "react-icons/fa6";
+import {
+  FaArrowLeft,
+  FaArrowUp,
+  FaArrowUpRightFromSquare,
+  FaBookOpen,
+  FaGithub,
+  FaHeart,
+  FaLinkedin,
+} from "react-icons/fa6";
 import { FiFileText } from "react-icons/fi";
 import { SiDocker, SiFastify, SiFirebase, SiReact, SiTypescript } from "react-icons/si";
 
@@ -46,6 +54,7 @@ const specs = [
   ["Container widths", "<640: 300px, <320: 230px, sm: 560px, md: 680px, lg: 910px, xl: 1160px, xxl: 1480px"],
   ["Core surface radius", "8px for reference panels; route cards may use local established radii"],
   ["Button schemes", "Emerald action and dark chrome/navigation"],
+  ["Redirect controls", "Utility buttons may pair a brand icon, text label, and outbound icon when linking away"],
   ["Project tags", "Circular icon tags for FlowingMenu previews; text/icon pills for card metadata"],
   ["Tooltip behavior", "Use InfoTooltip for explanatory hover/focus/click details and custom badge triggers"],
   ["Letter spacing", "0.12em for CTA controls, 0.14em for filter chips, 0.16em for labels"],
@@ -139,6 +148,14 @@ export default function DesignComponentPage() {
                   <FaArrowLeft aria-hidden="true" />
                   Back to blog
                 </button>
+                <a
+                  className={`${styles.button} ${styles.buttonChrome}`}
+                  href="https://github.com/CS3219-AY2526S2/peerprep-g18"
+                >
+                  <FaGithub aria-hidden="true" />
+                  GitHub
+                  <FaArrowUpRightFromSquare aria-hidden="true" />
+                </a>
               </div>
             </article>
           </div>

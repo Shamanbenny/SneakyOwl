@@ -1,6 +1,6 @@
 export type BlogPostType = "general" | "project";
 
-export type BlogPostMeta = {
+type BlogPostBaseMeta = {
   slug: string;
   type: BlogPostType;
   title: string;
@@ -9,6 +9,19 @@ export type BlogPostMeta = {
   tags: string[];
   contentPath: string;
 };
+
+export type GeneralBlogPostMeta = BlogPostBaseMeta & {
+  type: "general";
+};
+
+export type ProjectBlogPostMeta = BlogPostBaseMeta & {
+  type: "project";
+  project: {
+    githubRepoUrl: string;
+  };
+};
+
+export type BlogPostMeta = GeneralBlogPostMeta | ProjectBlogPostMeta;
 
 export type BlogPostHeading = {
   id: string;
@@ -25,6 +38,9 @@ export const BLOG_POSTS: BlogPostMeta[] = [
   {
     contentPath: "content/blog/peer-prep.mdx",
     publishedAt: "2026-05-27",
+    project: {
+      githubRepoUrl: "https://github.com/CS3219-AY2526S2/peerprep-g18",
+    },
     slug: "peer-prep-system-design",
     summary:
       "Using PeerPrep as a case study, this post examines how early decisions around UI structure, service ownership, and deployment affected maintainability and scaling later on.",
