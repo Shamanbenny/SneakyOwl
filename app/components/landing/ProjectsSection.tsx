@@ -252,8 +252,8 @@ const PROJECTS: ProjectItem[] = [
     deployedSiteUrl: null,
     githubRepoUrl: "https://github.com/CS3213-2026-spring/rafflesgo-group-11",
     image: "/landing/RafflesGo_Banner.jpg",
-    infoUrl: "/blog/raffles-go-conservation-operations",
-    link: "/blog/raffles-go-conservation-operations",
+    infoUrl: "/blog/raffles-go-conservation",
+    link: "/blog/raffles-go-conservation",
     previewImage: "/landing/RafflesGo.png",
     projectType: "Full-Stack Project",
     tags: [

@@ -40,10 +40,14 @@ const MAX_TRACKED_MINUTES = 10;
 const THREE_MINUTE_MILESTONE = 3;
 const TEN_MINUTE_MILESTONE = 10;
 const TIMER_INTERVAL_MS = 60_000;
+const BYPASS_TIMER_STORAGE_KEY = "sneakyowl_bypass_timer";
 
 const BlogPostFeedbackContext = createContext<BlogPostFeedbackContextValue | null>(null);
 
 const formatCount = (count: number) => count.toLocaleString();
+
+const shouldBypassTimer = () =>
+  typeof window !== "undefined" && window.localStorage.getItem(BYPASS_TIMER_STORAGE_KEY) === "1";
 
 const useBlogPostFeedback = () => {
   const context = useContext(BlogPostFeedbackContext);
@@ -100,6 +104,10 @@ export default function BlogPostFeedbackProvider({
         return;
       }
 
+      if (shouldBypassTimer()) {
+        return;
+      }
+
       if (window.localStorage.getItem(storageKey)) {
         return;
       }
@@ -140,6 +148,11 @@ export default function BlogPostFeedbackProvider({
       return;
     }
 
+    if (shouldBypassTimer()) {
+      stopTimer();
+      return;
+    }
+
     const nextMinutes = Math.min(trackedMinutesRef.current + 1, MAX_TRACKED_MINUTES);
 
     trackedMinutesRef.current = nextMinutes;
@@ -154,6 +167,10 @@ export default function BlogPostFeedbackProvider({
 
   const startTimer = useCallback(() => {
     if (typeof window === "undefined" || document.hidden) {
+      return;
+    }
+
+    if (shouldBypassTimer()) {
       return;
     }
 
@@ -190,10 +207,14 @@ export default function BlogPostFeedbackProvider({
       return;
     }
 
-    const storedMinutes = Number.parseInt(window.localStorage.getItem(minutesStorageKey) ?? "0", 10);
-    trackedMinutesRef.current = Number.isNaN(storedMinutes)
-      ? 0
-      : Math.min(Math.max(storedMinutes, 0), MAX_TRACKED_MINUTES);
+    if (shouldBypassTimer()) {
+      trackedMinutesRef.current = 0;
+    } else {
+      const storedMinutes = Number.parseInt(window.localStorage.getItem(minutesStorageKey) ?? "0", 10);
+      trackedMinutesRef.current = Number.isNaN(storedMinutes)
+        ? 0
+        : Math.min(Math.max(storedMinutes, 0), MAX_TRACKED_MINUTES);
+    }
 
     setIsLiked(window.localStorage.getItem(likeStorageKey) === "1");
 
@@ -205,8 +226,10 @@ export default function BlogPostFeedbackProvider({
         console.error("Failed to fetch blog likes", error);
       });
 
-    void syncMilestones(trackedMinutesRef.current);
-    startTimer();
+    if (!shouldBypassTimer()) {
+      void syncMilestones(trackedMinutesRef.current);
+      startTimer();
+    }
 
     const handleVisibilityChange = () => {
       if (document.hidden) {

@@ -1,0 +1,277 @@
+There comes a point where a software project stops being about what you can build, and starts being about what other people have to live with. RafflesGo felt like one of those projects.
+
+Built as part of [NUS CS3213](https://nusmods.com/courses/CS3213/foundations-of-software-engineering), it had to support a real conservation workflow for the Raffles' Banded Langur Working Group, one that was still heavily dependent on Google Sheets and a great deal of manual follow-up across every survey cycle.
+
+That changes the engineering question immediately. Once a system is meant to support a real workflow, it stops being about how many features you can squeeze into a demo or how clever the architecture looks on a slide. The more important question becomes much simpler and much harder: **can the system remove the small frustrations that keep repeating across every survey cycle?**
+
+RafflesGo had to respect field conditions and the sensitivity of sighting data while still reducing the coordination burden on organisers. That is why the eventual outcome mattered. The project did not satisfy every possible requirement, nor were we trying to force a rushed deployment by the end of the semester. But it fulfilled enough of the right needs for our team to be selected as **one of three teams out of eleven** for a real follow-up initiative with the organisers after the course ended. For a school project, that was the strongest signal we could have asked for: _not that the system was perfect, but that it was credible enough to keep building._
+
+## Software Engineering is a wicked problem...
+
+The requirements analysis were difficult, not because the app had to replace a spreadsheet-and-email workflow, but because the requirements themselves were intentionally a little messy in the way real software requirements often are. They were often ambiguous, open to interpretation, and two reasonable readers could walk away with different assumptions about what the stakeholder actually wanted.
+
+That was not accidental. Before the semester even began, the teaching team had already spoken with [Dr. Andie Ang](https://www.dbs.nus.edu.sg/dr-andie-ang-2/) and attempted the project themselves, using those earlier discussions to clarify edge cases and understand what a strong outcome for the next cohort might look like. The initial requirements we received were therefore not a watered-down classroom fiction, and definitely not a perfect blueprint.
+
+We had to do the interpretive work ourselves. Questions raised during group discussions with our mentor were **answered depending on the quality of the question.** If we asked something vague, we got back something that still left room for ambiguity. If we failed to ask the important question at all, the ambiguity stayed hidden until much later.
+
+That is what made the project feel real. A large part of the work was figuring out what was actually important, and which pain points mattered enough that the system had to be shaped around them.
+
+As such, the [Software Requirements Specification (SRS)](https://github.com/CS3213-2026-spring/rafflesgo-group-11/blob/main/docs/requirements/main.pdf) was essentially our best attempt to formalise what we believed Dr. Andie expects from the system. The end result was a product that had to do several things at once:
+
+- let volunteers browse and join survey slots
+- support structured sighting and incident reporting
+- allow report drafting and later submission
+- work in low-connectivity conditions
+- enforce role-based visibility over reports and participation
+- reduce administrative effort for coordinators running the programme
+
+**These constraints shaped the product far more than any technology preference did.** The field context is also what turned seemingly ordinary features into non-negotiable ones. Offline draft handling, for example, was not a convenience feature added for polish. It was necessary because survey walks may happen in places where connectivity drops. Likewise, the distinction between volunteer access and administrator access was not simply a neat RBAC exercise. It existed because the data was useful, but also sensitive.
+
+![Actual On Field Langur Survey by Professor Manuel Rigger with Wai Yee](/blog/raffles-go/1.png)
+
+## UI/UX Design Specification
+
+Like most projects, RafflesGo benefited from having a design direction early, before implementation details had the chance to pull the interface in too many competing directions. The visual goal here was fairly clear from the start: a calm, nature-inspired product that felt appropriate for a conservation workflow without turning that theme into decoration for its own sake.
+
+With that direction in mind, I started looking for a UI reference that could support the kind of experience RafflesGo needed. The goal was not to find something flashy, but something calm and easy to parse at a glance, especially for users who would be repeatedly checking schedules or filling in forms.
+
+That search led me to [Zeeshan Hamayoun's UI Design](https://www.behance.net/gallery/151251965/Plants-App-UI-Design) for a Plants Store app. What stood out was not the subject matter itself, but the interface discipline: restrained typography and a layout that stays readable without feeling visually empty. That was much closer to what RafflesGo needed than a louder or more decorative design language.
+
+![Plants Store UI Design by Zeeshan Hamayoun](/blog/raffles-go/2.png)
+
+<RafflesGoDesignSpecStyles />
+
+<RafflesGoDesignDivider eyebrow="Design Specification" title="RafflesGo Interaction Vocabulary">
+  <div style={{ display: "grid", gap: "1.15rem" }}>
+    <RafflesGoShowcaseRow title="Typography And Tone">
+      <div
+        className="rafflesgo-spec-card"
+        style={{
+          display: "grid",
+          gap: "0.5rem",
+          color: "#2C2C2C",
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        }}
+      >
+        <div style={{ fontSize: "1.85rem", fontWeight: 800, lineHeight: 1.15 }}>Raffles Go</div>
+        <div style={{ fontSize: "1.12rem", fontWeight: 700 }}>Record Survey Sightings</div>
+        <div className="rafflesgo-copy" style={{ width: "100%" }}>
+          Most screens are workflow-driven, so hierarchy matters more than expressive branding. The typography needs to stay calm and easy to scan repeatedly.
+        </div>
+        <div className="rafflesgo-meta" style={{ fontSize: "0.74rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase" }}>
+          Survey Context · Participants · GPS Location
+        </div>
+      </div>
+    </RafflesGoShowcaseRow>
+
+    <RafflesGoShowcaseRow title="Color System">
+      <RafflesGoSpecGrid>
+        <RafflesGoSwatch name="Forest Surface" hex="#4A5D47" />
+        <RafflesGoSwatch name="Soft Canvas" hex="#E8EDE8" />
+        <RafflesGoSwatch name="Card White" hex="#F8F8F5" />
+        <RafflesGoSwatch name="Amber Status" hex="#FEF3C7" />
+        <RafflesGoSwatch name="Green Success" hex="#DCFCE7" />
+        <RafflesGoSwatch name="Red Warning" hex="#FEE2E2" />
+        <RafflesGoSwatch name="Text Anchor" hex="#2C2C2C" />
+      </RafflesGoSpecGrid>
+    </RafflesGoShowcaseRow>
+
+    <RafflesGoShowcaseRow title="Buttons">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.85rem" }}>
+        <button
+          className="rafflesgo-spec-button rafflesgo-button-dark"
+          style={{
+            background: "#4A5D47",
+            border: "none",
+            padding: "0.82rem 1.35rem",
+          }}
+        >
+          <span>Primary Default</span>
+        </button>
+        <button
+          className="rafflesgo-spec-button rafflesgo-button-dark"
+          style={{
+            background: "#5C6B5A",
+            border: "none",
+            padding: "0.82rem 1.35rem",
+          }}
+        >
+          <span>Primary Hover</span>
+        </button>
+        <button
+          className="rafflesgo-spec-button rafflesgo-button-light"
+          style={{
+            background: "#F8F8F5",
+            border: "1px solid rgba(74, 93, 71, 0.28)",
+            padding: "0.82rem 1.35rem",
+          }}
+        >
+          <span>Accent Default</span>
+        </button>
+        <button
+          className="rafflesgo-spec-button rafflesgo-button-light"
+          style={{
+            background: "#E8EDE8",
+            border: "1px solid rgba(74, 93, 71, 0.2)",
+            padding: "0.82rem 1.35rem",
+          }}
+        >
+          <span>Accent Hover</span>
+        </button>
+      </div>
+    </RafflesGoShowcaseRow>
+
+    <RafflesGoShowcaseRow title="Cards And Surfaces">
+      <RafflesGoSpecGrid>
+        <div
+          style={{
+            borderRadius: "20px",
+            padding: "1.1rem",
+            background: "#FFFFFF",
+            color: "#2C2C2C",
+            boxShadow: "0 10px 24px rgba(44, 44, 44, 0.05)",
+            border: "1px solid rgba(74, 93, 71, 0.1)",
+          }}
+        >
+          <div style={{ fontWeight: 800 }}>white-card</div>
+          <div className="rafflesgo-copy" style={{ marginTop: "0.45rem" }}>
+            The default card used across most of the product, from admin overview panels to report sections and settings pages.
+          </div>
+        </div>
+        <div
+          style={{
+            borderRadius: "20px",
+            padding: "1.1rem",
+            background: "linear-gradient(135deg, #4A5D47, #3d4d3a)",
+            color: "#F8F8F5",
+            boxShadow: "0 12px 28px rgba(44, 44, 44, 0.08)",
+          }}
+        >
+          <div style={{ fontWeight: 800 }}>green-card</div>
+          <div className="rafflesgo-copy-light" style={{ marginTop: "0.45rem" }}>
+            Used by sections like <strong>Field Tip</strong>, where the UI needs a stronger visual anchor without becoming loud.
+          </div>
+        </div>
+        <div
+          style={{
+            borderRadius: "16px",
+            padding: "1rem",
+            background: "#FEF3C7",
+            color: "#92400E",
+            boxShadow: "0 10px 24px rgba(44, 44, 44, 0.04)",
+            border: "1px solid #FCD34D",
+          }}
+        >
+          <div style={{ fontWeight: 800 }}>yellow-card</div>
+          <div className="rafflesgo-copy-amber" style={{ marginTop: "0.45rem" }}>
+            Used for highlighted states like <strong>Upcoming Surveys</strong> and other amber status treatments across the app.
+          </div>
+        </div>
+      </RafflesGoSpecGrid>
+    </RafflesGoShowcaseRow>
+
+    <RafflesGoShowcaseRow title="Role Badges">
+      <RafflesGoRoleBadgeDemo />
+    </RafflesGoShowcaseRow>
+
+    <RafflesGoShowcaseRow title="Input Field">
+      <div className="rafflesgo-input-demo">
+        <label className="rafflesgo-label" style={{ fontSize: "0.76rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em" }}>
+          Sighting Time
+        </label>
+        <div className="rafflesgo-input-shell">
+          <input className="rafflesgo-input" placeholder="10:00 AM" />
+        </div>
+        <div className="rafflesgo-copy">
+          The input treatment stays bright and low-noise, with a soft border and a subtle olive focus state. It feels closer to a field form than to a dashboard control panel.
+        </div>
+      </div>
+    </RafflesGoShowcaseRow>
+  </div>
+</RafflesGoDesignDivider>
+
+These kinds of design component specifications matter because they reduce the cost of evolving the application mid-project. Once the team has settled the basic visual primitives, later feature work does not have to renegotiate the visual language from scratch. For a semester project with several moving workflows, that consistency is what stops the product from turning into a collection of disconnected screens.
+
+### From Mockup to Reality
+
+The implemented interface makes the product direction legible quite quickly, and what works especially well in the final implementation is that the same UI language survives across both volunteer-facing flows and heavier administrative screens.
+
+<div className="rafflesgo-compare-frame">
+  <Compare
+    firstImage="/blog/raffles-go/3.png"
+    secondImage="/blog/raffles-go/4.png"
+    firstImageWidth={1024}
+    firstImageHeight={956}
+    secondImageWidth={1024}
+    secondImageHeight={958}
+    firstImageClassName="object-contain object-center"
+    secondImageClassname="object-contain object-center"
+    className="h-auto w-full rounded-[20px]"
+    style={{
+      width: "100%",
+      maxWidth: "1024px",
+      aspectRatio: "1024 / 958",
+      height: "auto",
+      margin: "0 auto",
+      background: "#E8EDE8",
+    }}
+    firstImageStyle={{
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
+      backgroundColor: "#E8EDE8",
+    }}
+    secondImageStyle={{
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
+      backgroundColor: "#E8EDE8",
+    }}
+    slideMode="hover"
+    autoplay={true}
+  />
+</div>
+
+> In this image comparison, the left side shows the original mockup generated by **Figma Make**, while the right side shows the **final UI screenshot** from the implemented project.
+
+## Keeping The Product Coherent
+
+The final product also benefited from being built with a tech stack that encouraged structure instead of accidental drift. On the backend, using **Fastify** together with **OpenAPI** gave the team a much cleaner way to define what the system actually exposed, and what the frontend could reliably expect in return.
+
+That mattered more than it might sound at first. RafflesGo was a _monolithic_ system, but not a small or static one. It was expanding in multiple directions at once, while the team still had to work in parallel under tight semester deadlines. That is usually where a codebase starts accumulating coordination debt unless someone is constantly stepping in to keep changes aligned.
+
+The value of an explicit API contract was therefore less about technical elegance and more about reducing coordination overhead inside the team itself. Instead of treating the backend and frontend as two loosely aligned guesses, OpenAPI gave both sides a _shared reference point._ That made it easier to move faster without having to repeatedly reconcile small mismatches by hand.
+
+In practice, this is the sort of engineering decision that rarely looks glamorous in a showcase, but quietly determines whether a project stays maintainable once the feature count grows. RafflesGo needed that discipline because the team was moving quickly while still refining its interpretation of what the stakeholder actually needed.
+
+## What happens now?
+
+Unlike [PeerPrep](/blog/peer-prep-system-design), where the natural continuation of the story was infrastructure and deployment architecture, the more interesting continuation for RafflesGo is stakeholder adoption. That is what made this project feel different by the time the semester ended.
+
+Our team did not leave the course thinking the work was fully complete, nor that every requirement had been perfectly resolved. If anything, the semester made it clearer how much careful follow-up real deployment work still demands. But we did leave with something more valuable than a polished classroom ending: evidence that the system was useful in the right ways.
+
+Being selected as **one of three teams out of eleven** for continued follow-up with the organisers meant the project had crossed an important threshold. It was no longer being judged only as a student submission, but as a candidate foundation for a tool that real volunteers might eventually use in the Raffles' Banded Langur Working Group's citizen science programme.
+
+That next phase is especially meaningful because it shifts the work away from our team's interpretation alone. During the semester, much of the challenge was formalising ambiguous requirements into something buildable. After the semester, the work becomes more direct: working more closely with organisers, and moving toward a system shaped less by inference and more by actual operational fit.
+
+To me, that is a much stronger outcome than simply saying the project was "done." A project like this should not be considered successful just because it reached the end of a grading rubric. It becomes successful when the people it was meant to serve can look at it and say: _yes, this could genuinely make our work easier._
+
+### Testimonials
+
+> `Professor testimonial placeholder`
+>
+> Insert the final quote here once received.
+
+> `Dr. Andie testimonial placeholder`
+>
+> Insert the final quote here once received.
+
+## Closing Thoughts
+
+RafflesGo stayed with me because it clarified what kind of engineering work feels worth doing. There is nothing wrong with enjoying the craft itself, or the satisfaction of getting a system to behave exactly as intended. But once a project has a credible chance of helping real people doing meaningful work, those things stop being the centre of gravity.
+
+What starts to matter more is whether the product respects the people who have to rely on it. Did it remove friction from the volunteer trying to submit a report after a long survey walk? Did it make life easier for the organisers who have to run the programme cycle after cycle? Those are quieter questions than "what tech stack did you use?", but they are the ones that decide whether a system deserves to exist.
+
+That is probably the lesson I value most from this project. Good software engineering is not only about building more. Sometimes it is about noticing which frustrations keep repeating, and being disciplined enough to solve them without distracting yourself with unnecessary cleverness.
+
+If RafflesGo eventually contributes, even in some small way, to helping the people behind Singapore's conservation efforts work a little more smoothly, that would matter far more than any semester grade ever could.

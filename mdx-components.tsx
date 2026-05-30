@@ -11,12 +11,28 @@ import {
   SpecTile,
   Swatch,
 } from "@/app/components/blog/peer-prep/PeerPrepMdxComponents";
+import {
+  RafflesGoDesignDivider,
+  RafflesGoDesignSpecStyles,
+  RafflesGoRoleBadgeDemo,
+  RafflesGoShowcaseRow,
+  RafflesGoSpecGrid,
+  RafflesGoSpecTile,
+  RafflesGoSwatch,
+} from "@/app/components/blog/raffles-go/RafflesGoMdxComponents";
 import { Compare } from "@/app/components/shared/ui/compare";
 
 export const mdxComponents: MDXComponents = {
   Compare,
   DesignDivider,
   DesignSpecStyles,
+  RafflesGoDesignDivider,
+  RafflesGoDesignSpecStyles,
+  RafflesGoRoleBadgeDemo,
+  RafflesGoShowcaseRow,
+  RafflesGoSpecGrid,
+  RafflesGoSpecTile,
+  RafflesGoSwatch,
   ShowcaseRow,
   SpecGrid,
   SpecTile,

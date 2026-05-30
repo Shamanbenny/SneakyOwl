@@ -45,7 +45,20 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     summary:
       "Using PeerPrep as a case study, this post examines how early decisions around UI structure, service ownership, and deployment affected maintainability and scaling later on.",
     tags: ["React", "Redis", "Terraform", "AWS", "Microservice", "System Design"],
-    title: "PeerPrep and the Cost of Early Architectural Choices",
+    title: "PeerPrep and the Benefits of Early Architectural Choices",
+    type: "project",
+  },
+  {
+    contentPath: "content/blog/raffles-go-conservation.mdx",
+    publishedAt: "2026-05-30",
+    project: {
+      githubRepoUrl: "https://github.com/CS3213-2026-spring/rafflesgo-group-11",
+    },
+    slug: "raffles-go-conservation",
+    summary:
+      "RafflesGo became most meaningful when the work stopped being about flashy features and started being about removing real friction for the volunteers and organisers supporting Singapore's langur conservation efforts.",
+    tags: ["React", "Fastify", "OpenAPI", "Requirements Analysis", "Conservation"],
+    title: "RafflesGo: Will someone PLEASE think of the Stakeholders!",
     type: "project",
   },
 ];
