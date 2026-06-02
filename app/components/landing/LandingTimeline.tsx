@@ -61,8 +61,9 @@ const TIMELINE_ITEMS: TimelineItem[] = [
     details: [
       "Course transferred to Computer Science in pursuit of becoming a SWE.",
       "Continuation as Teaching Assistant for CS2040C since AY2024/25 Semester 1.",
+      "Awarded the Certificate of Distinction in Computer Security Focus Area",
       "Distinction in CS3235.",
-      "Current GPA: 4.46.",
+      "Current GPA: 4.48.",
     ],
     id: "nus-cs",
     organization: "National University of Singapore (NUS)",
