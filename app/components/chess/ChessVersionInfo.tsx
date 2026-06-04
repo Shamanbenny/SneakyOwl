@@ -1,48 +1,32 @@
-import React from 'react'
+import React from "react";
 
 const ChessVersionInfo = () => {
-  // Array of dictionaries containing information about chess bot versions
   const chessVersions = [
     {
-      version: '0.0',
-      keyFeatureTitle: 'Random Moves',
-      featuresImplemented: ['None, just random moves XD'],
-      avgDecisionTime: '0 seconds',
-      estimatedTimeComplexity: 'O(1)',
-      noticeableWeakness: ['Absolutely no strategies involved'],
+      version: "v1.5",
+      summary: "Time-budgeted search with stronger move selection.",
+      featuresImplemented: [
+        "Uses iterative deepening so it can keep improving its answer until the move timer runs out.",
+        "Applies minimax with alpha-beta pruning and quiescence search to avoid wasting work and to handle tactical capture sequences more cleanly.",
+        "Reuses earlier search results through a transposition table for better move ordering and fewer repeated calculations.",
+      ],
+      bestFor: "Actual play against a bot that searches ahead and uses its time budget more effectively.",
+      limitations: [
+        "Still bounded by a short think-time window, so deep tactics can be missed.",
+        "Stronger than the baseline, but not close to a full-strength chess engine.",
+      ],
     },
     {
-      version: '1.0',
-      keyFeatureTitle: 'Minimax Algorithm [Depth 2]',
-      featuresImplemented: ['Uses basic depth-limited decision-making algorithm evaluated by maximizing player pieces and minimizing opponent pieces'],
-      avgDecisionTime: '??? seconds',
-      estimatedTimeComplexity: 'O(b^d), where b is the branching factor and d is the depth',
-      noticeableWeakness: ['Takes a long time to make decisions, which exponentially increases with each depth level', 
-        'If depth is not high enough, it may make suboptimal/bad moves',
-        'Does not employ logical strategies, only focuses on maximizing piece count'],
+      version: "v0",
+      summary: "Random legal-moves",
+      featuresImplemented: [
+        "None, just random moves XD",
+      ],
+      bestFor: "There's really no reason to ever use this AHAHA",
+      limitations: [
+        "Absolutely no strategies involved",
+      ],
     },
-    {
-      version: '1.1',
-      keyFeatureTitle: '[DISCONTINUED] Minimax Algorithm with Alpha-Beta Pruning [Depth 3]',
-      featuresImplemented: ['Uses depth-limited decision-making algorithm with alpha-beta pruning for faster decision-making', 
-        'Avoids exploring branches that won\'t affect the final decision'],
-      avgDecisionTime: '??? seconds',
-      estimatedTimeComplexity: 'Ω(b^(d/2)), ϴ(b^(3d/4)), O(b^d), where b is the branching factor and d is the depth',
-      noticeableWeakness: ['Potentially faster than Version 1.0, equally fast despite higher depth limit in some scenarios', 
-        'Certain scenario (mainly positions where trading pieces are viable) results in close to Worst Time Complexity [Long duration]', 
-        'Does not employ logical strategies, only focuses on maximizing piece count'],
-    },
-    {
-      version: '1.2',
-      keyFeatureTitle: 'Minimax Algorithm with Alpha-Beta Pruning and Move Ordering [Depth 3]',
-      featuresImplemented: ['Uses depth-limited decision-making algorithm with alpha-beta pruning for faster decision-making', 
-        'Avoids exploring branches that won\'t affect the final decision',
-        'Employs move ordering to prioritize more promising moves (Specifically captures and checks)'],
-      avgDecisionTime: '??? seconds',
-      estimatedTimeComplexity: '??? [Needs more time to analyze]',
-      noticeableWeakness: ['More consistent in faster decision-making compared to Version 1.1, despite similar depth limit', 
-        'Does not employ logical strategies, only focuses on maximizing piece count'],
-    }
   ];
 
   return (
@@ -55,19 +39,16 @@ const ChessVersionInfo = () => {
       </h1>
       <div className="space-y-4">
         {chessVersions.map((versionInfo, index) => (
-          <div
-            key={index}
-            className="site-surface-card rounded-lg p-4"
-          >
+          <div key={index} className="site-surface-card rounded-lg p-4">
             <h2 className="text-2xl font-semibold">
-              Chess Bot Version {versionInfo.version}
+              Chess Bot {versionInfo.version}
             </h2>
             <p className="mt-2">
-              <span className="font-bold">Key Feature:</span>{' '}
-              {versionInfo.keyFeatureTitle}
+              <span className="font-bold">Summary:</span>{" "}
+              {versionInfo.summary}
             </p>
             <p className="mt-2">
-              <span className="font-bold">Features Implemented:</span>
+              <span className="font-bold">What changed:</span>
             </p>
             <ul className="list-disc list-inside mt-1">
               {versionInfo.featuresImplemented.map((feature, idx) => (
@@ -75,26 +56,22 @@ const ChessVersionInfo = () => {
               ))}
             </ul>
             <p className="mt-2">
-              <span className="font-bold">Average Decision Time:</span>{' '}
-              {versionInfo.avgDecisionTime}
+              <span className="font-bold">Best for:</span>{" "}
+              {versionInfo.bestFor}
             </p>
             <p className="mt-2">
-              <span className="font-bold">Estimated Time Complexity:</span>{' '}
-              {versionInfo.estimatedTimeComplexity}
-            </p>
-            <p className="mt-2">
-              <span className="font-bold">Noticeable Weakness:</span>
+              <span className="font-bold">Limitations:</span>
             </p>
             <ul className="list-disc list-inside mt-1">
-              {versionInfo.noticeableWeakness.map((weakness, idx) => (
-                <li key={idx}>{weakness}</li>
+              {versionInfo.limitations.map((limitation, idx) => (
+                <li key={idx}>{limitation}</li>
               ))}
             </ul>
           </div>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChessVersionInfo
+export default ChessVersionInfo;

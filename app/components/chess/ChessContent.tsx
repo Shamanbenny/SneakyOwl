@@ -1,14 +1,14 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
-import { ToastContainer, toast, Slide } from 'react-toastify';
-import ChessVersionInfo from './ChessVersionInfo';
+import { ToastContainer, toast, Slide } from "react-toastify";
+import ChessVersionInfo from "./ChessVersionInfo";
 
 const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
   const [turnMessage, setTurnMessage] = useState("Your turn");
   const [pieceDraggable, setPieceDraggable] = useState(true);
-  const [botVersion, setBotVersion] = useState("v1-1");
+  const [botVersion, setBotVersion] = useState("v1_5");
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
 
   const onDrop = (sourceSquare: any, targetSquare: any) => {
@@ -55,10 +55,10 @@ const ChessContent = () => {
 
       // [API CALL] Fetch the bot's move from the server
       const response = await fetch(`https://chess.sneakyowl.net/chess_${botVersion}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
         },
         body: JSON.stringify({ fen: currGame.fen() }),
       });
@@ -71,7 +71,11 @@ const ChessContent = () => {
       }
       
       const { move, processing_time, moves_evaluated } = await response.json();
-      console.log(`[Chess ${botVersion}]:`, move, `Processing Time: ${processing_time}ms, Moves Evaluated: ${moves_evaluated}`);
+      console.log(
+        `[Chess ${botVersion}]:`,
+        move,
+        `Processing Time: ${processing_time}ms, Moves Evaluated: ${moves_evaluated}`,
+      );
   
       if (move) {
         currGame.move(move);
@@ -93,7 +97,7 @@ const ChessContent = () => {
         setPieceDraggable(true); // Enable piece dragging after bot's move
       }
     } catch (error) {
-      console.error('Error fetching bot move:', error);
+      console.error("Error fetching bot move:", error);
       setTurnMessage("Error fetching bot move");
     }
   };
@@ -114,7 +118,7 @@ const ChessContent = () => {
         setPieceDraggable(true);
       }
     } catch (error) {
-      toast.error('Invalid FEN, please try again!', {
+      toast.error("Invalid FEN, please try again!", {
         position: "bottom-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -124,7 +128,7 @@ const ChessContent = () => {
         progress: undefined,
         theme: "dark",
         transition: Slide,
-        });
+      });
     }
   };
 
@@ -167,9 +171,7 @@ const ChessContent = () => {
           onChange={(e) => setBotVersion(e.target.value)}
         >
           <option value="v0">Chess Bot v0</option>
-          <option value="v1">Chess Bot v1</option>
-          <option value="v1-1">Chess Bot v1.1</option>
-          <option value="v1-2">Chess Bot v1.2</option>
+          <option value="v1_5">Chess Bot v1.5</option>
         </select>
       </div>
       <ChessVersionInfo />
@@ -186,9 +188,9 @@ const ChessContent = () => {
         pauseOnHover
         theme="dark"
         transition={Slide}
-        />
+      />
     </>
-  )
-}
+  );
+};
 
-export default ChessContent
+export default ChessContent;
