@@ -3,17 +3,17 @@ import React from "react";
 const ChessVersionInfo = () => {
   const chessVersions = [
     {
-      version: "v1.5",
-      summary: "Time-budgeted search with stronger move selection.",
+      version: "v2.0",
+      summary: "Same broad search identity as v1.6, but rebuilt on a cheaper in-house board engine.",
       featuresImplemented: [
-        "Uses iterative deepening so it can keep improving its answer until the move timer runs out.",
-        "Applies minimax with alpha-beta pruning and quiescence search to avoid wasting work and to handle tactical capture sequences more cleanly.",
-        "Reuses earlier search results through a transposition table for better move ordering and fewer repeated calculations.",
+        "Keeps iterative deepening, negamax with alpha-beta pruning, quiescence search, and fixed-size transposition-table reuse from the accepted v1.6 structure.",
+        "Moves the inner search off the library-backed board hot path onto an in-house board representation with encoded moves, direct make/unmake, internal repetition history, and internal attack detection.",
+        "Generates legal moves, updates transposition keys, and tracks repetition directly inside the native engine state so the engine's time budget is spent on more meaningful node expansion.",
       ],
-      bestFor: "Actual play against a bot that searches ahead and uses its time budget more effectively.",
+      bestFor: "Actual play and future search experiments where a cheaper per-node cost matters more than changing the engine's overall search identity.",
       limitations: [
-        "Still bounded by a short think-time window, so deep tactics can be missed.",
-        "Stronger than the baseline, but not close to a full-strength chess engine.",
+        "The broad algorithm intentionally stays close to v1.6, so this version is more about substrate efficiency than a brand-new search style.",
+        "It is still bounded by a fixed move-time budget, so deep tactics and full-engine strength remain out of scope.",
       ],
     },
     {

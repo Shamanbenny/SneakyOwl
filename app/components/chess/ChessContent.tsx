@@ -4,11 +4,26 @@ import { Chessboard } from "react-chessboard";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import ChessVersionInfo from "./ChessVersionInfo";
 
+const CHESS_BOT_OPTIONS = [
+  {
+    label: "Chess Bot v0",
+    route: "chess_v0",
+    value: "v0",
+  },
+  {
+    label: "Chess Bot v2.0",
+    route: "chess_v2_0",
+    value: "v2.0",
+  },
+] as const;
+
+type ChessBotVersion = (typeof CHESS_BOT_OPTIONS)[number]["value"];
+
 const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
   const [turnMessage, setTurnMessage] = useState("Your turn");
   const [pieceDraggable, setPieceDraggable] = useState(true);
-  const [botVersion, setBotVersion] = useState("v1_5");
+  const [botVersion, setBotVersion] = useState<ChessBotVersion>("v2.0");
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
 
   const onDrop = (sourceSquare: any, targetSquare: any) => {
@@ -38,6 +53,9 @@ const ChessContent = () => {
 
   const makeBotMove = async () => {
     const currGame = new Chess(fenInputRef.current?.value);
+    const selectedBot =
+      CHESS_BOT_OPTIONS.find((option) => option.value === botVersion) ??
+      CHESS_BOT_OPTIONS[1];
     setPieceDraggable(false); // Disable piece dragging while bot is playing OR game over
 
     // Check for Checkmate or Stalemate
@@ -54,7 +72,7 @@ const ChessContent = () => {
       setTurnMessage("Bot's turn");
 
       // [API CALL] Fetch the bot's move from the server
-      const response = await fetch(`https://chess.sneakyowl.net/chess_${botVersion}`, {
+      const response = await fetch(`https://chess.sneakyowl.net/${selectedBot.route}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,18 +81,23 @@ const ChessContent = () => {
         body: JSON.stringify({ fen: currGame.fen() }),
       });
   
+      const responseBody = await response.json();
+
       if (!response.ok) {
-        const errorDetails = await response.text();
+        const errorDetails =
+          typeof responseBody?.error === "string"
+            ? responseBody.error
+            : JSON.stringify(responseBody);
         throw new Error(
           `API Error: ${response.status} ${response.statusText}. ${errorDetails}`
         );
       }
-      
-      const { move, processing_time, moves_evaluated } = await response.json();
+
+      const { move, processing_time, moves_evaluated } = responseBody;
       console.log(
-        `[Chess ${botVersion}]:`,
+        `[Chess ${selectedBot.value}]:`,
         move,
-        `Processing Time: ${processing_time}ms, Moves Evaluated: ${moves_evaluated}`,
+        `Processing Time: ${processing_time}s, Moves Evaluated: ${moves_evaluated ?? "n/a"}`,
       );
   
       if (move) {
@@ -95,10 +118,13 @@ const ChessContent = () => {
         // If the game is still on, let the player play
         setTurnMessage("Your turn");
         setPieceDraggable(true); // Enable piece dragging after bot's move
+      } else {
+        throw new Error("API response did not include a move.");
       }
     } catch (error) {
       console.error("Error fetching bot move:", error);
       setTurnMessage("Error fetching bot move");
+      setPieceDraggable(true);
     }
   };
 
@@ -168,10 +194,13 @@ const ChessContent = () => {
         <select
           className="site-select mx-2 rounded p-2"
           value={botVersion}
-          onChange={(e) => setBotVersion(e.target.value)}
+          onChange={(e) => setBotVersion(e.target.value as ChessBotVersion)}
         >
-          <option value="v0">Chess Bot v0</option>
-          <option value="v1_5">Chess Bot v1.5</option>
+          {CHESS_BOT_OPTIONS.map((option) => (
+            <option key={option.route} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
       <ChessVersionInfo />
