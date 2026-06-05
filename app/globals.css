@@ -1078,6 +1078,50 @@ body *::selection {
   padding: 1rem 1rem 1rem 1.1rem;
 }
 
+.blog-prose details {
+  border: 1px solid var(--site-accent-border-soft);
+  background:
+    linear-gradient(135deg, rgba(16, 185, 129, 0.09), transparent 42%),
+    var(--site-bg-soft);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.blog-prose summary {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  list-style: none;
+  color: var(--site-text-strong);
+  font-size: clamp(1.08rem, 1rem + 0.35vw, 1.3rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.blog-prose summary::-webkit-details-marker {
+  display: none;
+}
+
+.blog-prose summary::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-right: 3px solid var(--site-accent-soft);
+  border-bottom: 3px solid var(--site-accent-soft);
+  transform: rotate(-45deg);
+  transition: transform 160ms ease;
+}
+
+.blog-prose details[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.blog-prose details .blog-code-block {
+  margin-top: 1rem;
+}
+
 .blog-prose code {
   border: 1px solid var(--site-accent-border-soft);
   background-color: var(--site-accent-glow-soft);

@@ -99,7 +99,7 @@ const getProjectCtas = ({ deployedSiteUrl, githubRepoUrl, infoUrl }: ProjectLink
     {
       href: infoUrl,
       key: "info",
-      label: "Click for more info",
+      label: "View Blog Post",
     },
     githubRepoUrl
       ? {
@@ -327,11 +327,11 @@ const PROJECTS: ProjectItem[] = [
         successive versions with stronger evaluation and search heuristics.
       </>
     ),
-    deployedSiteUrl: null,
+    deployedSiteUrl: "/chess",
     githubRepoUrl: "https://github.com/Shamanbenny/chess-flask",
     image: "/landing/ChessFlask.png",
-    infoUrl: "/blog/chess-flask-iteration-notes",
-    link: "/blog/chess-flask-iteration-notes",
+    infoUrl: "/blog/chess-flask-coding-adventure",
+    link: "/blog/chess-flask-coding-adventure",
     previewImage: "/landing/ChessFlask.png",
     projectType: "Backend Project",
     tags: [

@@ -36,6 +36,19 @@ export type BlogPost = BlogPostMeta & {
 
 export const BLOG_POSTS: BlogPostMeta[] = [
   {
+    contentPath: "content/blog/chess-flask-coding-adventure.mdx",
+    publishedAt: "2026-06-05",
+    project: {
+      githubRepoUrl: "https://github.com/Shamanbenny/chess-flask",
+    },
+    slug: "chess-flask-coding-adventure",
+    summary:
+      "Chess Flask began as a 'small' Flask backend for a portfolio chess bot, but became a practical study of search optimization and why board representation mattered more than expected.",
+    tags: ["Python", "Flask", "C#", "Chess Engine", "Search", "Backend"],
+    title: "Chess Flask: When the Real Constraint was always Time",
+    type: "project",
+  },
+  {
     contentPath: "content/blog/peer-prep.mdx",
     publishedAt: "2026-05-27",
     project: {

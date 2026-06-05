@@ -1,0 +1,241 @@
+Chess Flask started as a backend project I could show on my portfolio website: put a chess bot behind a Flask API, let the site call it, and give people something they could actually [play against in the browser](https://www.sneakyowl.net/chess).
+
+But that was only the visible shape of the project. The real reason I started it was because I was heavily inspired by [Sebastian Lague](https://www.youtube.com/@SebastianLague)'s [Coding Adventure: Chess](https://www.youtube.com/watch?v=U4ogK0MIzqk). For the early versions, I was basically coding along with the 30 minutes video as a guide: build the simplest thing first, then add the next engine idea only after the previous one was clear enough to understand.
+
+That was how the project went up to around `v1.3`. Then school began, and like many side projects, Chess Flask was left sitting there for a while. It was not finished so much as paused at the point where the original burst of curiosity had to be placed on hold as the rest of mmy life's priority takes precedent.
+
+I only picked it back up recently, after another stroke of inspiration during the summer holiday to continue what I had started. That second phase is where the project became much more interesting to me. The API was still there, and the portfolio integration still mattered, but the real question had changed: what does it actually mean for a chess engine to be usable?
+
+That is where the rest of this journey begins. A move that is technically "correct" can still be a bad engineering result if it takes too long to produce. A chess engine is not just minimax, alpha-beta pruning, and evaluation weights. It is also everything the engine pays for on every node it searches.
+
+## The backend was never the hard part
+
+The first shape of the repository was easy to explain. [Chess Flask](https://github.com/Shamanbenny/chess-flask) exposes a small Flask backend, accepts a FEN string, and returns a move. The frontend can stay in the [SneakyOwl](https://github.com/Shamanbenny/SneakyOwl) website repository, while the chess engine logic lives in a separate backend repo that is deployed on Vercel.
+
+That separation was useful because it kept the public integration clean:
+
+| Layer | Responsibility |
+|---|---|
+| Next.js frontend | Hosts the playable chess interface |
+| Flask backend | Accepts board state and returns a chosen move |
+| Engine versions | Preserve the search progression and local experiments |
+
+This meant that the backend route did not need to be complicated. The endpoint just needed to validate input, map errors into JSON responses, and call the current chess engine implementation.
+
+The mistake would have been to treat that deployment shape as the main engineering achievement. It was not. Flask was the serving layer. The real learning happened once the engine had to be judged by time.
+
+### Thirty seconds is NOT the target
+
+Vercel gives most projects a `30` second function ceiling (The limit might change over time, but the principal remains). Early on, that was helpful because it prevented completely runaway requests while still giving the first versions enough room to return something.
+
+But a chess bot that needs close to `30` seconds for one move is far from practical for real play.
+
+That became the first important standard for the project. The question was not "can the engine stay under the deployment limit?" The better question was: **can the engine make a reasonable move quickly enough that someone could actually play against it?**
+
+For a timed chess game, even `5` seconds per move is already expensive. Across a full game, that cost compounds badly. It also makes testing painful. If one game can easily take several minutes, then a `1000` game simulation stops being an inner development loop and becomes a waiting exercise.
+
+So the `30` second ceiling had to be treated as an operational allowance, not a product goal. The real direction was closer to:
+
+| Budget | Meaning |
+|---|---|
+| `30s` | Temporary hosted upper bound |
+| `1s` | A more realistic target for playable move generation |
+| `100ms` | A useful direction for fast local iteration and automated experiments |
+
+That shift changed how I looked at every engine version after that. Fixed depth was no longer enough as a benchmark. The engine had to buy useful search within a fixed amount of time.
+
+## The Version History became a Learning Trail
+
+The early `v1.*` engines were useful because each one made a single idea visible.
+
+| Version | What it added |
+|---|---|
+| `v1` | Plain minimax |
+| `v1.1` | Alpha-beta pruning |
+| `v1.2` | Move ordering |
+| `v1.3` | Quiescence-style leaf extension |
+| `v1.4` | Endgame mop-up pressure and tighter quiescence behavior |
+| `v1.5` | Iterative deepening with a fixed think-time budget and transposition table |
+
+This was the part of the project that felt most like a coding adventure in the obvious sense. Other than the fact that this was quite literally a journey alongside Sebastian Lague's video on his Coding Adventure, each version had a neat conceptual improvement. Minimax gave the bot a basic way to look ahead. Alpha-beta pruning made the same search less wasteful. Move ordering made pruning stronger. Quiescence search made the engine less naive around hanging material. Endgame heuristics made won positions feel less directionless. Iterative deepening moved the engine away from "search the fixed depth no matter what" and toward "return the best completed work inside this clock budget."
+
+<details>
+  <summary>Click to view the puzzle result statistics for the version comparison</summary>
+
+```console_output.md
+=== v1 local test at depth 4 ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=-100 | positions=53034 | elapsed=5.868635s
+Black forced: Kg7 (g6g7)
+White 2: Kc2 (b2c2) | expected=Nxd5 | match=False | score=-100 | positions=44195 | elapsed=4.349277s
+White total: positions=97229 | elapsed=10.217911s
+
+=== v1.1 local test at depth 4 ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=400 | positions=6768 | elapsed=0.949762s
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=500 | positions=6499 | elapsed=0.960204s
+White total: positions=13267 | elapsed=1.909966s
+
+=== v1.2 local test at depth 4 ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=400 | positions=4801 | elapsed=1.539055s
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=500 | positions=3130 | elapsed=1.203581s
+White total: positions=7931 | elapsed=2.742637s
+
+=== v1.3 local test at depth 4 ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=400 | positions=7422 | elapsed=4.033918s
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=500 | positions=4835 | elapsed=3.145556s
+White total: positions=12257 | elapsed=7.179474s
+
+=== v1.4 local test at depth 4 ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=400 | positions=5404 | elapsed=2.785468s
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=500 | positions=3402 | elapsed=1.829545s
+White total: positions=8806 | elapsed=4.615013s
+
+=== v1.5 local test at time_limit=2.700s ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=400 | positions=4819 | elapsed=2.886224s
+White 1 detail: completed_depth=3 | timed_out=True | tt_entries=431 | tt_probes=539 | tt_hits=104 | tt_hit_rate=0.193 | tt_cutoffs=3 | moves_evaluated=2857 | nodes_searched=4819
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=500 | positions=7916 | elapsed=2.985325s
+White 2 detail: completed_depth=4 | timed_out=True | tt_entries=673 | tt_probes=1052 | tt_hits=374 | tt_hit_rate=0.356 | tt_cutoffs=63 | moves_evaluated=4866 | nodes_searched=7916
+White total: positions=12735 | elapsed=5.871549s
+
+=== v1.6 local test at time_limit=2.700s ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=400 | positions=12288 | elapsed=2.930213s
+White 1 detail: completed_depth=4 | timed_out=True | tt_entries=910 | tt_probes=1439 | tt_hits=525 | tt_hit_rate=0.365 | tt_cutoffs=150 | moves_evaluated=7128 | nodes_searched=12288
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=500 | positions=15965 | elapsed=2.812792s
+White 2 detail: completed_depth=4 | timed_out=True | tt_entries=2094 | tt_probes=3612 | tt_hits=1507 | tt_hit_rate=0.417 | tt_cutoffs=668 | moves_evaluated=10269 | nodes_searched=15965
+White total: positions=28253 | elapsed=5.743005s
+
+=== v2.0 local test at time_limit=0.100s ===
+Start FEN: 8/8/6kp/3b4/1p1p4/1P1P3P/PK2N3/8 w - - 0 2
+White 1: Nf4+ (e2f4) | expected=Nf4+ | match=True | score=420 | positions=19039 | elapsed=0.111560s
+White 1 detail: completed_depth=4 | timed_out=True | tt_entries=1840 | tt_probes=3148 | tt_hits=1301 | tt_hit_rate=0.413 | tt_cutoffs=693 | moves_evaluated=11860 | nodes_searched=19039
+Black forced: Kg7 (g6g7)
+White 2: Nxd5 (f4d5) | expected=Nxd5 | match=True | score=520 | positions=18220 | elapsed=0.101301s
+White 2 detail: completed_depth=4 | timed_out=True | tt_entries=2226 | tt_probes=3773 | tt_hits=1521 | tt_hit_rate=0.403 | tt_cutoffs=843 | moves_evaluated=11855 | nodes_searched=18220
+White total: positions=37259 | elapsed=0.212862s
+```
+</details>
+
+The measurements were the important part. On one tactical puzzle at depth `4`, the plain minimax version searched around `97,000` positions and still missed the second expected move. With alpha-beta pruning, the search dropped to around `14,000` positions and found the line. With move ordering, it dropped again to around `7,800` positions while still finding the line.
+
+That was a satisfying result because it proved the staged improvements were not just textbook decoration. They were changing the shape of the search tree in a way that mattered.
+
+But the next versions also made the tradeoffs less clean.
+
+`v1.3` added quiescence-style extension, and suddenly the engine was searching more again. That was not a regression in the simple sense. It was the cost of asking a better question at the leaf. Instead of evaluating a position immediately while captures were still hanging, the engine spent more work trying to reach a quieter position first. In other words, `v1.3` was not trying to beat `v1.2` on raw speed. It was trying to make shallow evaluation less brittle.
+
+That distinction became a recurring theme in the project. Faster is not always better if the engine is faster at being wrong. Slower is not acceptable either if the extra work does not buy enough strength. The hard part is getting enough useful search for the time spent.
+
+### Endgames exposed a different Weakness
+
+The next surprise came from winning endgames.
+
+Material evaluation can tell the engine that it is ahead, but that does not mean the engine knows how to convert the position. A depth-limited engine can sit in a winning endgame where checkmate is still beyond the horizon and behave strangely indifferent. It knows it is better, but not how to tighten the win.
+
+That is why `v1.4` added a guarded mop-up heuristic. The idea was not to fake a mate score. It was to make the engine prefer the kinds of positions that usually help conversion: push the weaker king outward, bring the stronger king closer, and make later shallow searches more likely to actually see the finish.
+
+The quiescence logic also had to become more careful here as well. Letting quiet checking continuations spill too freely through search made some queen endgames expensive in a way that did not fit the purpose of the version. So the search had to be tightened again. This was the point where the engine work started to feel less like stacking features and more like controlling failure modes.
+
+### Time Budgeting changed the mmeaning of Progress
+
+`v1.5` was an important psychological shift because it stopped pretending fixed depth was the main user-facing metric.
+
+In a real game, the bot does not get asked to search "depth 4." It gets asked to move before the clock becomes embarrassing. Iterative deepening made that explicit. The engine could search depth `1`, then depth `2`, then depth `3`, and keep the best completed result if the clock expired.
+
+The transposition table mattered for the same reason. If the engine sees related positions across the search, it should not keep paying full price for the same work (basically the key concept to [Memoization](https://en.wikipedia.org/wiki/Memoization) via [Dynamic Programming](https://en.wikipedia.org/wiki/Dynamic_programming#Computer_science)). In early runs, the table was clearly active, but not magical. Hit rates around `10%` to `11%` were enough to show that reuse existed, but not enough to suggest that the table was carrying the search.
+
+That made the next problem more concrete: once the engine is judged by a fixed time budget, raw node throughput becomes impossible to ignore.
+
+The algorithm might be reasonable. The evaluation might be improving. The transposition table might be doing something. But if the engine cannot process enough nodes per second, all of those improvements run into the same ceiling.
+
+## Why C# entered the project
+
+This is where the repository split started to make sense.
+
+Python stayed because Flask was the ideal for the website which uses Vercel-hosted backend that could receive a request and return a move.
+
+However, C# entered the project because I needed a cleaner environment for engine development and timing experiments. The point was not "Python bad, C# good." The point was that if the engine was slow, I wanted to know whether the limiting factor was the algorithm, the evaluation, the move ordering, the pruning, the transposition table, or the language/runtime overhead.
+
+That uncertainty matters. When a project is still young, it is cheaper to remove ambiguity early than to migrate late after more version history and tooling has formed around the old path.
+
+So the split became:
+
+| Language | Job |
+|---|---|
+| Python | Flask routes, request validation, deployed backend behavior |
+| C# | Local search development, timing comparisons, performance experiments |
+
+If a final major engine version becomes note-worthy of being exposed publicly, it can be rewritten back into Python for the Flask surface. MMeanwhile, it also meant that for this phase of the project, I could reference `Chess-Coding-Adventure` much more easily since the two are built on the same C# language.
+
+### The port was NOT the One-stop Solution I'd hoped it was
+
+Moving to C# helped, but it did not immediately solve the time-budget concerns.
+
+That was an important lesson because it made the bottleneck more honest. And in hindsight, the C# port still carried too much of the Python engine's cost profile. It was faster in some ways, but it still paid too much per searched node. Move ordering was too expensive. Evaluation asked for derived state too often. Terminal checks and repetition logic were heavier than they needed to be. The transposition table existed, but the surrounding implementation did not make it cheap enough to fully pay off.
+
+Cross-referencing Sebastian Lague's `Chess-Coding-Adventure` code became useful here because it forced a sharper question:
+
+> If the broad search recipe is already similar, why is my engine soooo much slower?
+
+The answer was not another high-level chess concept. The answer was the hot path.
+
+`v1.6` was therefore less about changing the identity of the engine and more about reducing the cost of expressing that identity. Repetition history moved toward hashed position keys. Zobrist state stopped being rebuilt by full-board rescans after every move. Move ordering stopped pushing and popping every candidate just to score it. The transposition table became a fixed-size indexed structure. Terminal checks avoided unnecessary list allocations. Endgame evaluation became lighter.
+
+Those changes sound less glamorous than "add alpha-beta pruning," but they mattered because every one of them attacked the same problem: the engine was paying too much just to visit a node.
+
+The improvement was visible. In the tactical test, `v1.6` could search materially more than the earlier C# `v1.5` path inside the same kind of budget, and the transposition table became much more active. But it still was not enough. Even when `v1.6` reached useful depths in a few seconds, the real target was still closer to doing that kind of useful work in something like `100ms`.
+
+That gap shaped the next phase.
+
+## Autoresearch Came One Layer Too Early
+
+At this point in the project, I was getting rather impatient as I had wanted to learnt about a new automated paradigm for iterative improvement using CLI agents such as Codex, and I knew it was perfect for the project. As a result, the repo moved toward an automated experiment loop through [`autoresearch`](https://github.com/Shamanbenny/chess-flask/tree/main/autoresearch). The idea was appealing: utilize some form of engine-vs-engine evaluation to help approve/reject improvements made by Codex, instead of relying only on manual intuition and implementation.
+
+> I will cover more about this autonomous paradigm in my next blog [here](http://localhost:3000/blog/autoresearch-for-chess-bot).
+
+At first, this decision looked promising. The original [`v2.0`](https://github.com/Shamanbenny/chess-flask/commit/db423caf1b8d3e0f89df051e0ab2777127195a77) passed the [evaluator](https://github.com/Shamanbenny/chess-flask/blob/main/autoresearch/EVALUATE.md) on its [first experiment](https://github.com/Shamanbenny/chess-flask/commit/583348d4340f55faa0855e3035b63b1284b613b1). That proved two useful things. First, the evaluator could approve a real improvement rather than only rejecting changes. Second, the [modified automated workflow](https://github.com/Shamanbenny/chess-flask/tree/main/autoresearch) was not just theoretical; it could actually move the engine forward.
+
+Then the [later attempts](https://github.com/Shamanbenny/chess-flask/blob/8fc86540289d1fb09196b755ddf379a93b45edaa/autoresearch/ATTEMPTS.md) started getting rejected.
+
+The pattern was not just "this tweak failed to provide an advantage.", but rather that too many games were ending by `max_plies`, which meant that both engines (the previously approved engine as well as the newly modified engine) were often not able to convert any sort of advantages into checkmate inside the fixed game budget. Giving some thought onto "why" that might be the case, led to only one possible conclusion: _The engines simply cannot search meaningfully enough given the tight time budget._
+
+Worse of all, attempting to increase the evaluator time budget from `250ms` to something larger may allow the experiments easier to pass, but it would also have made the experimental loop less useful. More time per move means fewer games for the same experiment cost (of about a maximum of 30 minutes for the evaluation). Fewer games means weaker evidence. That would hide the bottleneck instead of fixing it.
+
+As such, the failed attempts were not completely wasted. They had exposed the flawed decision of mine to automate experimental improvement one layer too early. The experiment loop was being asked to improve the engine before the foundations were properly constructed to handle actual useful optimization for Search and Evaluation.
+
+### The real Breakthrough was owning the Board
+
+The biggest improvement came from something more fundamental than another search tweak: building a custom board representation and custom move generator for the new `v2.0` baseline.
+
+That changed the project because it removed a large amount of general-purpose overhead from the search tree introduced by [`Gera.Chess`](https://github.com/Geras1mleo/Chess). A chess engine is set to ask the same questions again and again: generate legal moves, make a move, unmake a move, update state, check attacks, probe hashes, evaluate the position. If those operations are expensive/poorly optimized, the engine loses before the evaluation function even gets a chance to be clever.
+
+The new `v2.0` kept the broad `v1.6` search shape: iterative deepening, negamax with alpha-beta pruning, quiescence search, and transposition-table reuse. The difference was that the engine now owned the board state and move generation path more directly.
+
+The result was not a small cleanup. It changed the entire interpretation of the previous two days of work.
+
+On the same tactical puzzle, `v2.0` could find the expected moves with a `0.1s` time limit while searching around `37,000` positions across the two white moves. The older `v1.6` run at `2.7s` per move searched around `28,000` positions across the same two moves. The exact numbers are not the whole story, but the direction is impossible to ignore: the engine was finally buying far more search with far less clock time.
+
+That was the first moment where the project felt like it had found the right layer to optimize.
+
+## What The Project Taught Me
+
+The useful lesson from Chess Flask is not that every project should immediately write a custom chess engine substrate. The lesson is about finding the real constraint.
+
+At the start, the project looked like a Flask backend with a chess bot attached. Then it looked like a sequence of search improvements. Then it looked like a language-performance question. Then it looked like an automated evaluation problem. Each framing was partly true, but incomplete.
+
+The real constraint was more specific: **can the engine search enough meaningful positions inside a fixed move budget for later improvements to matter?**
+
+Once that became the standard, the architecture and version history made more sense. That is why this project was worth documenting. The interesting part was not simply that the bot got faster. It was learning, version by version, all while you try to navigate its ambiguity.
+
+This is not the end for the project though. From this point on, the focus will shift more towards the `autoresearch` paradigm I had modified to work outside of iterative Neural Network experiments, which I can't wait to share with you more about [here](http://localhost:3000/blog/autoresearch-for-chess-bot)!
