@@ -39,6 +39,17 @@ type DebugDetailItem = {
   value: unknown;
 };
 
+type BoardHistoryEntry = {
+  ply: number;
+  actor: "Player" | "Bot";
+  san: string;
+  uci: string;
+  fenBefore: string;
+  fenAfter: string;
+  botVersion?: ChessBotVersion;
+  debug?: ChessApiDebug;
+};
+
 type ChessApiDebug = {
   version?: string;
   engine?: string;
@@ -114,6 +125,16 @@ const getNumberDebugValue = (
 
 const getDetailValue = (details: ChessApiDebugDetails | undefined, key: string) =>
   details?.[key];
+
+const getUciFromMove = ({
+  from,
+  to,
+  promotion,
+}: {
+  from: string;
+  to: string;
+  promotion?: string;
+}) => `${from}${to}${promotion ?? ""}`;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -757,6 +778,118 @@ const logChessEndpointDebug = (
   console.groupEnd();
 };
 
+const buildBoardHistoryText = (
+  historyEntries: BoardHistoryEntry[],
+  startingFen: string,
+) => {
+  const lines = [`Start FEN: ${startingFen}`];
+
+  for (const entry of historyEntries) {
+    const metadata = [
+      `ply=${entry.ply}`,
+      `actor=${entry.actor}`,
+      `san=${entry.san}`,
+      `uci=${entry.uci}`,
+      entry.botVersion ? `bot=${entry.botVersion}` : null,
+      typeof entry.debug?.score === "number" ? `score=${entry.debug.score}` : null,
+      typeof entry.debug?.completed_depth === "number"
+        ? `depth=${entry.debug.completed_depth}`
+        : null,
+      typeof entry.debug?.nodes_searched === "number"
+        ? `nodes=${entry.debug.nodes_searched}`
+        : null,
+    ].filter(Boolean);
+
+    lines.push(`${entry.ply}. ${metadata.join(" | ")}`);
+    lines.push(`   before=${entry.fenBefore}`);
+    lines.push(`   after=${entry.fenAfter}`);
+  }
+
+  return lines.join("\n");
+};
+
+const BoardHistoryPanel = ({
+  historyEntries,
+  onCopy,
+  copyState,
+}: {
+  historyEntries: BoardHistoryEntry[];
+  onCopy: () => void;
+  copyState: "idle" | "copied";
+}) => (
+  <section className="mx-auto mt-5 w-[300px] text-[color:var(--site-text)] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]">
+    <details open className="site-surface-card rounded-lg p-4">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <div className="flex flex-col gap-3 text-left sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-[color:var(--site-text-strong)]">
+              Board History
+            </h2>
+            <p className="mt-1 text-sm text-[color:var(--site-text-muted)]">
+              Stack of applied moves for debugging and replay.
+            </p>
+          </div>
+          <button
+            className="site-button-primary rounded px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onCopy}
+            disabled={historyEntries.length === 0}
+            type="button"
+          >
+            {copyState === "copied" ? "Copied history" : "Copy Board History"}
+          </button>
+        </div>
+      </summary>
+      <div className="mt-4">
+        {historyEntries.length === 0 ? (
+          <p className="text-sm text-[color:var(--site-text-muted)]">
+            No moves recorded yet.
+          </p>
+        ) : (
+          <ol className="space-y-2">
+            {historyEntries.map((entry) => (
+              <li
+                key={`${entry.ply}-${entry.actor}-${entry.uci}-${entry.fenAfter}`}
+                className="rounded-md border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-3 py-3 text-left"
+              >
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <span className="font-semibold text-[color:var(--site-text-strong)]">
+                    {entry.ply}. {entry.actor}
+                  </span>
+                  <span>{entry.san}</span>
+                  <span className="text-[color:var(--site-text-muted)]">UCI {entry.uci}</span>
+                  {entry.botVersion ? (
+                    <span className="text-[color:var(--site-text-muted)]">
+                      {entry.botVersion}
+                    </span>
+                  ) : null}
+                  {typeof entry.debug?.score === "number" ? (
+                    <span className="text-[color:var(--site-text-muted)]">
+                      score {entry.debug.score}
+                    </span>
+                  ) : null}
+                  {typeof entry.debug?.completed_depth === "number" ? (
+                    <span className="text-[color:var(--site-text-muted)]">
+                      depth {entry.debug.completed_depth}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-2 break-all text-xs text-[color:var(--site-text-muted)]">
+                  <span className="font-medium text-[color:var(--site-text)]">Before:</span>{" "}
+                  {entry.fenBefore}
+                </p>
+                <p className="mt-1 break-all text-xs text-[color:var(--site-text-muted)]">
+                  <span className="font-medium text-[color:var(--site-text)]">After:</span>{" "}
+                  {entry.fenAfter}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </details>
+  </section>
+);
+
 const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
   const [turnMessage, setTurnMessage] = useState("Your turn");
@@ -765,11 +898,15 @@ const ChessContent = () => {
   const [playerColor, setPlayerColor] = useState<PlayerColor>("w");
   const [latestApiResponse, setLatestApiResponse] =
     useState<ChessApiResponse | null>(null);
+  const [historyStartFen, setHistoryStartFen] = useState(STARTING_FEN);
+  const [boardHistory, setBoardHistory] = useState<BoardHistoryEntry[]>([]);
+  const [historyCopyState, setHistoryCopyState] = useState<"idle" | "copied">("idle");
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
   const gameIdRef = useRef<string | null>(null);
   const resetContextOnNextMoveRef = useRef(true);
   const playerUndoFenStackRef = useRef<string[]>([]);
   const activeBotRequestIdRef = useRef(0);
+  const historyCopyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   if (gameIdRef.current === null) {
     gameIdRef.current = createGameId();
@@ -811,6 +948,9 @@ const ChessContent = () => {
     if (!options?.preserveUndoHistory) {
       playerUndoFenStackRef.current = [];
     }
+    setHistoryStartFen(nextFen);
+    setBoardHistory([]);
+    setHistoryCopyState("idle");
     setLatestApiResponse(null);
     setGame(newGame);
     if (fenInputRef.current) {
@@ -856,6 +996,17 @@ const ChessContent = () => {
       ...playerUndoFenStackRef.current,
       previousFen,
     ];
+    setBoardHistory((currentHistory) => [
+      ...currentHistory,
+      {
+        ply: currentHistory.length + 1,
+        actor: "Player",
+        san: move.san,
+        uci: getUciFromMove(move),
+        fenBefore: previousFen,
+        fenAfter: game.fen(),
+      },
+    ]);
     setGame(new Chess(game.fen())); // Update game state
     if (fenInputRef.current) fenInputRef.current.value = game.fen(); // Update FEN input
 
@@ -929,10 +1080,29 @@ const ChessContent = () => {
       const { move } = responseBody;
 
       if (move) {
-        currGame.move(move);
+        const previousFen = currGame.fen();
+        const appliedMove = currGame.move(move);
+
+        if (appliedMove === null) {
+          throw new Error("API returned an invalid move for the current position.");
+        }
+
         if (activeBotRequestIdRef.current !== requestId) {
           return;
         }
+        setBoardHistory((currentHistory) => [
+          ...currentHistory,
+          {
+            ply: currentHistory.length + 1,
+            actor: "Bot",
+            san: appliedMove.san,
+            uci: getUciFromMove(appliedMove),
+            fenBefore: previousFen,
+            fenAfter: currGame.fen(),
+            botVersion: selectedBot.value,
+            debug: responseBody.debug,
+          },
+        ]);
         setGame(new Chess(currGame.fen()));
         if (fenInputRef.current) fenInputRef.current.value = currGame.fen(); // Update FEN input
 
@@ -981,7 +1151,44 @@ const ChessContent = () => {
     }
 
     playerUndoFenStackRef.current = playerUndoFenStackRef.current.slice(0, -1);
+    setBoardHistory((currentHistory) =>
+      currentHistory.filter((entry) => entry.fenBefore !== previousFen),
+    );
     loadGameFromFen(previousFen, { preserveUndoHistory: true });
+  };
+
+  const handleCopyBoardHistory = async () => {
+    if (boardHistory.length === 0) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        buildBoardHistoryText(boardHistory, historyStartFen),
+      );
+      setHistoryCopyState("copied");
+
+      if (historyCopyTimeoutRef.current) {
+        clearTimeout(historyCopyTimeoutRef.current);
+      }
+
+      historyCopyTimeoutRef.current = setTimeout(() => {
+        setHistoryCopyState("idle");
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to copy board history:", error);
+      toast.error("Unable to copy board history.", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: false,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide,
+      });
+    }
   };
 
   useEffect(() => {
@@ -992,6 +1199,12 @@ const ChessContent = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerColor]);
+
+  useEffect(() => () => {
+    if (historyCopyTimeoutRef.current) {
+      clearTimeout(historyCopyTimeoutRef.current);
+    }
+  }, []);
 
   return (
     <>
@@ -1073,6 +1286,11 @@ const ChessContent = () => {
           ))}
         </select>
       </div>
+      <BoardHistoryPanel
+        historyEntries={boardHistory}
+        onCopy={handleCopyBoardHistory}
+        copyState={historyCopyState}
+      />
       <ChessDebugPanel response={latestApiResponse} />
       <ChessVersionInfo />
       <ToastContainer
