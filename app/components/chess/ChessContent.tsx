@@ -11,6 +11,11 @@ const CHESS_BOT_OPTIONS = [
     value: "v0",
   },
   {
+    label: "Chess Bot v2.0",
+    route: "chess_v2_0",
+    value: "v2.0",
+  },
+  {
     label: "Chess Bot v2.9",
     route: "chess_v2_9",
     value: "v2.9",

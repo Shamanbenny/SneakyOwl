@@ -6,14 +6,25 @@ const ChessVersionInfo = () => {
       version: "v2.9",
       summary: "Current Python route engine with a fixed move-time budget and richer search debug output.",
       featuresImplemented: [
-        "Keeps iterative deepening, negamax with alpha-beta pruning, quiescence search, and transposition-table reuse under a fixed 1-second move budget.",
-        "Extends the v2 line with positional evaluation updates, including rook file bonuses, passed-pawn pressure, and knight outpost scoring.",
-        "The endpoint now returns debug data such as selected UCI/SAN move, score, completed depth, timeout status, node counts, move counts, and transposition-table activity.",
+        "Extends v2.0 with positional evaluation updates, including rook file bonuses, passed-pawn pressure, and knight outpost scoring.",
       ],
       stockfish1350Score:
         "C# v2.9 scored 324.0/500 against stockfish-1350 across 500 games: 271 wins, 106 draws, 123 losses, score rate 0.6480.",
       limitations: [
         "TBD...",
+      ],
+    },
+    {
+      version: "v2.0",
+      summary:
+        "Earlier Python v2 route built around the same fixed move-time search structure before the later positional evaluation additions.",
+      featuresImplemented: [
+        "Uses iterative deepening, negamax with alpha-beta pruning, quiescence search, and transposition-table reuse under a fixed 1-second move budget.",
+      ],
+      stockfish1350Score:
+        "C# v2.0 scored 207.0/500 against stockfish-1350 across 500 games: 160 wins, 94 draws, 246 losses, score rate 0.4140.",
+      limitations: [
+        "Due to the lack of understanding of what makes a 'good' position, the engine tends to make moves that provides no tactical advantage whenever there are no obvious advantageous move to make.",
       ],
     },
     {
