@@ -656,9 +656,6 @@ const ChessDebugPanel = ({
               <h2 className="text-lg font-semibold text-[color:var(--site-text-strong)]">
                 Latest Debug Information
               </h2>
-              <p className="text-sm text-[color:var(--site-text-muted)]">
-                {debug?.engine ?? "Unknown engine"}
-              </p>
             </div>
             <p className="pr-5 text-sm text-[color:var(--site-text-muted)] sm:pr-0">
               {response.error ?? response.move ?? "No move returned"}
@@ -771,7 +768,7 @@ const ChessContent = () => {
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
   const gameIdRef = useRef<string | null>(null);
   const resetContextOnNextMoveRef = useRef(true);
-  const lastPlayerPositionFenRef = useRef<string | null>(null);
+  const playerUndoFenStackRef = useRef<string[]>([]);
   const activeBotRequestIdRef = useRef(0);
 
   if (gameIdRef.current === null) {
@@ -799,14 +796,21 @@ const ChessContent = () => {
     setPieceDraggable(isPlayerTurn);
   };
 
-  const loadGameFromFen = (fen: string) => {
+  const loadGameFromFen = (
+    fen: string,
+    options?: {
+      preserveUndoHistory?: boolean;
+    },
+  ) => {
     const nextFen = fen.trim() || STARTING_FEN;
     const newGame = new Chess(nextFen);
 
     activeBotRequestIdRef.current += 1;
     gameIdRef.current = createGameId();
     resetContextOnNextMoveRef.current = true;
-    lastPlayerPositionFenRef.current = null;
+    if (!options?.preserveUndoHistory) {
+      playerUndoFenStackRef.current = [];
+    }
     setLatestApiResponse(null);
     setGame(newGame);
     if (fenInputRef.current) {
@@ -848,7 +852,10 @@ const ChessContent = () => {
     });
 
     if (move === null) return false; // Invalid move
-    lastPlayerPositionFenRef.current = previousFen;
+    playerUndoFenStackRef.current = [
+      ...playerUndoFenStackRef.current,
+      previousFen,
+    ];
     setGame(new Chess(game.fen())); // Update game state
     if (fenInputRef.current) fenInputRef.current.value = game.fen(); // Update FEN input
 
@@ -967,13 +974,14 @@ const ChessContent = () => {
   };
 
   const handleUndoPlayerMove = () => {
-    const previousFen = lastPlayerPositionFenRef.current;
+    const previousFen = playerUndoFenStackRef.current.at(-1);
 
     if (!previousFen) {
       return;
     }
 
-    loadGameFromFen(previousFen);
+    playerUndoFenStackRef.current = playerUndoFenStackRef.current.slice(0, -1);
+    loadGameFromFen(previousFen, { preserveUndoHistory: true });
   };
 
   useEffect(() => {
@@ -1034,7 +1042,7 @@ const ChessContent = () => {
           <button
             className="site-button-primary rounded px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={handleUndoPlayerMove}
-            disabled={!lastPlayerPositionFenRef.current}
+            disabled={playerUndoFenStackRef.current.length === 0}
           >
             Undo player move
           </button>
