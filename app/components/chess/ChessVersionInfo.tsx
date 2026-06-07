@@ -3,16 +3,31 @@ import React from "react";
 const ChessVersionInfo = () => {
   const chessVersions = [
     {
+      version: "v3.0",
+      summary:
+        "Current Flask route wrapper that checks an opening book first, then falls back to the v2.9 search engine with optional per-game transposition-table reuse.",
+      featuresImplemented: [
+        "Adds the /chess_v3_0 endpoint with game_id-backed warm-instance search context.",
+        "Adds opening book lookup to deal with poor opening decision, and an optional per-game transposition-table reuse",
+        "Returns opening-book diagnostics and transposition-table context details in the debug payload.",
+      ],
+      stockfish1350Score:
+        "C# v3.0 scored 305.5/500 against stockfish-1350 across 500 games: 254 wins, 103 draws, 143 losses, score rate 0.6110",
+      limitations: [
+        "The benchmark is below the approved v2.9 score rate of 0.6480, so v3.0 is a usable major-version baseline rather than a playing-strength promotion over v2.9.",
+        "Context reuse depends on the same warm server instance receiving future requests, so cold starts or different instances may begin with an empty cache.",
+      ],
+    },
+    {
       version: "v2.9",
-      summary: "Current Python route engine with a fixed move-time budget and richer search debug output.",
+      summary:
+        "Python route engine with a fixed move-time budget and richer search debug output.",
       featuresImplemented: [
         "Extends v2.0 with positional evaluation updates, including rook file bonuses, passed-pawn pressure, and knight outpost scoring.",
       ],
       stockfish1350Score:
         "C# v2.9 scored 324.0/500 against stockfish-1350 across 500 games: 271 wins, 106 draws, 123 losses, score rate 0.6480.",
-      limitations: [
-        "TBD...",
-      ],
+      limitations: ["Poor opening plays, and unnecessary search during opening plays"],
     },
     {
       version: "v2.0",
@@ -35,9 +50,7 @@ const ChessVersionInfo = () => {
         "The endpoint exposes debug data for the selected UCI move and legal move count.",
       ],
       stockfish1350Score: "Not benchmarked against stockfish-1350.",
-      limitations: [
-        "Absolutely no strategies involved",
-      ],
+      limitations: ["Absolutely no strategies involved"],
     },
   ];
 
@@ -56,13 +69,12 @@ const ChessVersionInfo = () => {
               Chess Bot {versionInfo.version}
             </h2>
             <p className="mt-2">
-              <span className="font-bold">Summary:</span>{" "}
-              {versionInfo.summary}
+              <span className="font-bold">Summary:</span> {versionInfo.summary}
             </p>
             <p className="mt-2">
               <span className="font-bold">What changed:</span>
             </p>
-            <ul className="list-disc list-inside mt-1">
+            <ul className="mt-1 list-inside list-disc">
               {versionInfo.featuresImplemented.map((feature, idx) => (
                 <li key={idx}>{feature}</li>
               ))}
@@ -74,7 +86,7 @@ const ChessVersionInfo = () => {
             <p className="mt-2">
               <span className="font-bold">Limitations:</span>
             </p>
-            <ul className="list-disc list-inside mt-1">
+            <ul className="mt-1 list-inside list-disc">
               {versionInfo.limitations.map((limitation, idx) => (
                 <li key={idx}>{limitation}</li>
               ))}
