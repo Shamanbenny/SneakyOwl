@@ -786,7 +786,6 @@ const buildBoardHistoryText = (
 
   for (const entry of historyEntries) {
     const metadata = [
-      `ply=${entry.ply}`,
       `actor=${entry.actor}`,
       `san=${entry.san}`,
       `uci=${entry.uci}`,
@@ -801,8 +800,6 @@ const buildBoardHistoryText = (
     ].filter(Boolean);
 
     lines.push(`${entry.ply}. ${metadata.join(" | ")}`);
-    lines.push(`   before=${entry.fenBefore}`);
-    lines.push(`   after=${entry.fenAfter}`);
   }
 
   return lines.join("\n");
