@@ -35,7 +35,7 @@ type ChessApiDebugDetails = Record<string, unknown>;
 
 type DebugDetailItem = {
   label: string;
-  tooltip?: string;
+  tooltip?: React.ReactNode;
   value: unknown;
 };
 
@@ -113,6 +113,95 @@ const getNumberDebugValue = (
 const getDetailValue = (details: ChessApiDebugDetails | undefined, key: string) =>
   details?.[key];
 
+const SCORE_TOOLTIP_CONTENT = (
+  <div className="space-y-3">
+    <p className="m-0">
+      The engine reports score in centipawns from the side-to-move perspective. Just to put that
+      into perspective, a pawn is worth about <strong>100</strong> points.
+    </p>
+    <p className="m-0">
+      For you as the player: A{" "}
+      <strong>negative</strong> score is better for you, while a{" "}
+      <strong>positive</strong> score is better for the agent.
+    </p>
+    <div>
+      <p className="m-0 font-semibold text-[color:var(--site-text-strong)]">Quick reference</p>
+      <div className="mt-2 overflow-hidden rounded-md border border-[color:var(--site-border)]">
+        <table className="w-full border-collapse text-left text-xs">
+          <thead className="bg-[color:var(--site-bg-soft)] text-[color:var(--site-text-strong)]">
+            <tr>
+              <th className="px-2 py-1.5 font-semibold">Score</th>
+              <th className="px-2 py-1.5 font-semibold">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">0 to 30</td>
+              <td className="px-2 py-1.5">Roughly equal</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">30 to 100</td>
+              <td className="px-2 py-1.5">Small edge</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">100 to 300</td>
+              <td className="px-2 py-1.5">Clear advantage</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">300+</td>
+              <td className="px-2 py-1.5">Large advantage</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">~999999</td>
+              <td className="px-2 py-1.5">Forced mate territory</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <p className="m-0 font-semibold text-[color:var(--site-text-strong)]">Piece values</p>
+      <div className="mt-2 overflow-hidden rounded-md border border-[color:var(--site-border)]">
+        <table className="w-full border-collapse text-left text-xs">
+          <thead className="bg-[color:var(--site-bg-soft)] text-[color:var(--site-text-strong)]">
+            <tr>
+              <th className="px-2 py-1.5 font-semibold">Piece</th>
+              <th className="px-2 py-1.5 font-semibold">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">Pawn</td>
+              <td className="px-2 py-1.5">100</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">Knight</td>
+              <td className="px-2 py-1.5">320</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">Bishop</td>
+              <td className="px-2 py-1.5">330</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">Rook</td>
+              <td className="px-2 py-1.5">500</td>
+            </tr>
+            <tr className="border-t border-[color:var(--site-border)]">
+              <td className="px-2 py-1.5">Queen</td>
+              <td className="px-2 py-1.5">900</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p className="m-0">
+      This is an internal evaluation scale, not a win probability. Because the engine is
+      heuristic-driven, treat score values as a rough directional signal rather
+      than a precise measurement.
+    </p>
+  </div>
+);
+
 const getBooleanLikeValue = (value: unknown) => {
   if (typeof value === "boolean") {
     return value;
@@ -165,7 +254,7 @@ const DebugLabel = ({
   tooltip,
 }: {
   label: string;
-  tooltip?: string;
+  tooltip?: React.ReactNode;
 }) => (
   <span className="inline-flex items-center gap-1 text-[color:var(--site-text-muted)]">
     <span>{label}</span>
@@ -188,7 +277,7 @@ const DebugMetric = ({
   value,
 }: {
   label: string;
-  tooltip?: string;
+  tooltip?: React.ReactNode;
   value: unknown;
 }) => (
   <div className="rounded-md border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-3 py-2 text-left">
@@ -514,7 +603,7 @@ const ChessDebugPanel = ({
           />
           <DebugMetric
             label="Score"
-            tooltip="The engine evaluation score produced by search. n/a means search did not run."
+            tooltip={SCORE_TOOLTIP_CONTENT}
             value={debug?.score}
           />
           <DebugMetric
@@ -606,6 +695,8 @@ const ChessContent = () => {
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
   const gameIdRef = useRef<string | null>(null);
   const resetContextOnNextMoveRef = useRef(true);
+  const lastPlayerPositionFenRef = useRef<string | null>(null);
+  const activeBotRequestIdRef = useRef(0);
 
   if (gameIdRef.current === null) {
     gameIdRef.current = createGameId();
@@ -636,8 +727,10 @@ const ChessContent = () => {
     const nextFen = fen.trim() || STARTING_FEN;
     const newGame = new Chess(nextFen);
 
+    activeBotRequestIdRef.current += 1;
     gameIdRef.current = createGameId();
     resetContextOnNextMoveRef.current = true;
+    lastPlayerPositionFenRef.current = null;
     setLatestApiResponse(null);
     setGame(newGame);
     if (fenInputRef.current) {
@@ -671,6 +764,7 @@ const ChessContent = () => {
       return false; // Reject the move
     }
 
+    const previousFen = game.fen();
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,
@@ -678,6 +772,7 @@ const ChessContent = () => {
     });
 
     if (move === null) return false; // Invalid move
+    lastPlayerPositionFenRef.current = previousFen;
     setGame(new Chess(game.fen())); // Update game state
     if (fenInputRef.current) fenInputRef.current.value = game.fen(); // Update FEN input
 
@@ -686,6 +781,8 @@ const ChessContent = () => {
   };
 
   const makeBotMove = async () => {
+    const requestId = activeBotRequestIdRef.current + 1;
+    activeBotRequestIdRef.current = requestId;
     const currGame = new Chess(fenInputRef.current?.value);
     const selectedBot =
       CHESS_BOT_OPTIONS.find((option) => option.value === botVersion) ??
@@ -723,6 +820,9 @@ const ChessContent = () => {
       });
 
       const responseBody = (await response.json()) as ChessApiResponse;
+      if (activeBotRequestIdRef.current !== requestId) {
+        return;
+      }
       resetContextOnNextMoveRef.current = false;
       setLatestApiResponse(responseBody);
       logChessEndpointDebug(
@@ -747,6 +847,9 @@ const ChessContent = () => {
 
       if (move) {
         currGame.move(move);
+        if (activeBotRequestIdRef.current !== requestId) {
+          return;
+        }
         setGame(new Chess(currGame.fen()));
         if (fenInputRef.current) fenInputRef.current.value = currGame.fen(); // Update FEN input
 
@@ -755,6 +858,9 @@ const ChessContent = () => {
         throw new Error("API response did not include a move.");
       }
     } catch (error) {
+      if (activeBotRequestIdRef.current !== requestId) {
+        return;
+      }
       console.error("Error fetching bot move:", error);
       setTurnMessage("Error fetching bot move");
       setPieceDraggable(true);
@@ -784,6 +890,16 @@ const ChessContent = () => {
     loadGameFromFen(STARTING_FEN);
   };
 
+  const handleUndoPlayerMove = () => {
+    const previousFen = lastPlayerPositionFenRef.current;
+
+    if (!previousFen) {
+      return;
+    }
+
+    loadGameFromFen(previousFen);
+  };
+
   useEffect(() => {
     syncTurnState(game);
 
@@ -800,6 +916,7 @@ const ChessContent = () => {
         <Chessboard
           position={game.fen()}
           boardOrientation={playerColor === "w" ? "white" : "black"}
+          showBoardNotation={true}
           onPieceDrop={onDrop}
           customLightSquareStyle={{ backgroundColor: "#d1fae5" }}
           customDarkSquareStyle={{ backgroundColor: "#34d399" }}
@@ -831,6 +948,13 @@ const ChessContent = () => {
             onClick={handleReset}
           >
             Reset
+          </button>
+          <button
+            className="site-button-primary rounded px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={handleUndoPlayerMove}
+            disabled={!lastPlayerPositionFenRef.current}
+          >
+            Undo player move
           </button>
         </div>
       </div>
