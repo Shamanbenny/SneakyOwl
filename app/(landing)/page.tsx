@@ -171,7 +171,7 @@ const LandingPage: React.FC = () => {
       onClick: navigateToTimeline,
       content: renderDefaultCardContent({
         label: "Current GPA",
-        value: "4.48",
+        value: "4.5",
         description: "NUS Computer Science",
       }),
     },

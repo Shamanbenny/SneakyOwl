@@ -3,26 +3,27 @@ import React from "react";
 const ChessVersionInfo = () => {
   const chessVersions = [
     {
-      version: "v2.0",
-      summary: "Same broad search identity as v1.6, but rebuilt on a cheaper in-house board engine.",
+      version: "v2.9",
+      summary: "Current Python route engine with a fixed move-time budget and richer search debug output.",
       featuresImplemented: [
-        "Keeps iterative deepening, negamax with alpha-beta pruning, quiescence search, and fixed-size transposition-table reuse from the accepted v1.6 structure.",
-        "Moves the inner search off the library-backed board hot path onto an in-house board representation with encoded moves, direct make/unmake, internal repetition history, and internal attack detection.",
-        "Generates legal moves, updates transposition keys, and tracks repetition directly inside the native engine state so the engine's time budget is spent on more meaningful node expansion.",
+        "Keeps iterative deepening, negamax with alpha-beta pruning, quiescence search, and transposition-table reuse under a fixed 1-second move budget.",
+        "Extends the v2 line with positional evaluation updates, including rook file bonuses, passed-pawn pressure, and knight outpost scoring.",
+        "The endpoint now returns debug data such as selected UCI/SAN move, score, completed depth, timeout status, node counts, move counts, and transposition-table activity.",
       ],
-      bestFor: "Actual play and future search experiments where a cheaper per-node cost matters more than changing the engine's overall search identity.",
+      stockfish1350Score:
+        "C# v2.9 scored 324.0/500 against stockfish-1350 across 500 games: 271 wins, 106 draws, 123 losses, score rate 0.6480.",
       limitations: [
-        "The broad algorithm intentionally stays close to v1.6, so this version is more about substrate efficiency than a brand-new search style.",
-        "It is still bounded by a fixed move-time budget, so deep tactics and full-engine strength remain out of scope.",
+        "TBD...",
       ],
     },
     {
       version: "v0",
       summary: "Random legal-moves",
       featuresImplemented: [
-        "None, just random moves XD",
+        "Chooses a random legal move from the current position.",
+        "The endpoint exposes debug data for the selected UCI move and legal move count.",
       ],
-      bestFor: "There's really no reason to ever use this AHAHA",
+      stockfish1350Score: "Not benchmarked against stockfish-1350.",
       limitations: [
         "Absolutely no strategies involved",
       ],
@@ -56,8 +57,8 @@ const ChessVersionInfo = () => {
               ))}
             </ul>
             <p className="mt-2">
-              <span className="font-bold">Best for:</span>{" "}
-              {versionInfo.bestFor}
+              <span className="font-bold">Score against stockfish-1350:</span>{" "}
+              {versionInfo.stockfish1350Score}
             </p>
             <p className="mt-2">
               <span className="font-bold">Limitations:</span>

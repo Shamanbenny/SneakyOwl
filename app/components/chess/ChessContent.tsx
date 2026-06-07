@@ -11,19 +11,89 @@ const CHESS_BOT_OPTIONS = [
     value: "v0",
   },
   {
-    label: "Chess Bot v2.0",
-    route: "chess_v2_0",
-    value: "v2.0",
+    label: "Chess Bot v2.9",
+    route: "chess_v2_9",
+    value: "v2.9",
   },
 ] as const;
 
 type ChessBotVersion = (typeof CHESS_BOT_OPTIONS)[number]["value"];
 
+type ChessApiDebug = {
+  version?: string;
+  engine?: string;
+  selected_move_uci?: string;
+  selected_move_san?: string;
+  score?: number;
+  completed_depth?: number;
+  time_limit_seconds?: number;
+  timed_out?: boolean;
+  moves_evaluated?: number;
+  nodes_searched?: number;
+  tt_entries?: number;
+  tt_probes?: number;
+  tt_hits?: number;
+  tt_cutoffs?: number;
+  processing_time?: number;
+  status?: number;
+  reason?: string;
+  [key: string]: unknown;
+};
+
+type ChessApiResponse = {
+  move?: string;
+  processing_time?: number;
+  debug?: ChessApiDebug;
+  error?: string;
+};
+
+const CHESS_API_BASE_URL = "https://chess.sneakyowl.net";
+
+const logChessEndpointDebug = (
+  selectedBot: (typeof CHESS_BOT_OPTIONS)[number],
+  endpoint: string,
+  fen: string,
+  response: Response,
+  responseBody: ChessApiResponse,
+) => {
+  const debug = responseBody.debug ?? {};
+  const processingTime =
+    responseBody.processing_time ?? debug.processing_time ?? "n/a";
+
+  console.groupCollapsed(
+    `[Chess ${selectedBot.value}] ${response.status} ${response.statusText || "response"}: ${
+      responseBody.move ?? responseBody.error ?? "no move"
+    }`,
+  );
+  console.info("Endpoint", {
+    url: endpoint,
+    route: selectedBot.route,
+    version: selectedBot.value,
+    status: response.status,
+    ok: response.ok,
+  });
+  console.info("Request", { fen });
+  console.info("Response", {
+    move: responseBody.move,
+    error: responseBody.error,
+    processing_time: processingTime,
+  });
+  console.info("Debug", debug);
+
+  if (typeof debug.tt_probes === "number" && debug.tt_probes > 0) {
+    console.info("Derived debug", {
+      tt_hit_rate: `${(((debug.tt_hits ?? 0) / debug.tt_probes) * 100).toFixed(2)}%`,
+    });
+  }
+
+  console.groupEnd();
+};
+
 const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
   const [turnMessage, setTurnMessage] = useState("Your turn");
   const [pieceDraggable, setPieceDraggable] = useState(true);
-  const [botVersion, setBotVersion] = useState<ChessBotVersion>("v2.0");
+  const [botVersion, setBotVersion] = useState<ChessBotVersion>("v2.9");
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
 
   const onDrop = (sourceSquare: any, targetSquare: any) => {
@@ -70,9 +140,10 @@ const ChessContent = () => {
 
     try {
       setTurnMessage("Bot's turn");
+      const endpoint = `${CHESS_API_BASE_URL}/${selectedBot.route}`;
 
       // [API CALL] Fetch the bot's move from the server
-      const response = await fetch(`https://chess.sneakyowl.net/${selectedBot.route}`, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +152,14 @@ const ChessContent = () => {
         body: JSON.stringify({ fen: currGame.fen() }),
       });
   
-      const responseBody = await response.json();
+      const responseBody = (await response.json()) as ChessApiResponse;
+      logChessEndpointDebug(
+        selectedBot,
+        endpoint,
+        currGame.fen(),
+        response,
+        responseBody,
+      );
 
       if (!response.ok) {
         const errorDetails =
@@ -93,12 +171,7 @@ const ChessContent = () => {
         );
       }
 
-      const { move, processing_time, moves_evaluated } = responseBody;
-      console.log(
-        `[Chess ${selectedBot.value}]:`,
-        move,
-        `Processing Time: ${processing_time}s, Moves Evaluated: ${moves_evaluated ?? "n/a"}`,
-      );
+      const { move } = responseBody;
   
       if (move) {
         currGame.move(move);
