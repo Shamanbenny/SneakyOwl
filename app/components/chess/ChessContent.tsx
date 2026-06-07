@@ -934,6 +934,8 @@ const ChessContent = () => {
     fen: string,
     options?: {
       preserveUndoHistory?: boolean;
+      preservedBoardHistory?: BoardHistoryEntry[];
+      preservedHistoryStartFen?: string;
     },
   ) => {
     const nextFen = fen.trim() || STARTING_FEN;
@@ -945,8 +947,8 @@ const ChessContent = () => {
     if (!options?.preserveUndoHistory) {
       playerUndoFenStackRef.current = [];
     }
-    setHistoryStartFen(nextFen);
-    setBoardHistory([]);
+    setHistoryStartFen(options?.preservedHistoryStartFen ?? nextFen);
+    setBoardHistory(options?.preservedBoardHistory ?? []);
     setHistoryCopyState("idle");
     setLatestApiResponse(null);
     setGame(newGame);
@@ -1148,10 +1150,23 @@ const ChessContent = () => {
     }
 
     playerUndoFenStackRef.current = playerUndoFenStackRef.current.slice(0, -1);
-    setBoardHistory((currentHistory) =>
-      currentHistory.filter((entry) => entry.fenBefore !== previousFen),
-    );
-    loadGameFromFen(previousFen, { preserveUndoHistory: true });
+    const preservedBoardHistory = (() => {
+      const previousPositionIndex = boardHistory.findLastIndex(
+        (entry) => entry.fenAfter === previousFen,
+      );
+
+      if (previousPositionIndex === -1) {
+        return [];
+      }
+
+      return boardHistory.slice(0, previousPositionIndex + 1);
+    })();
+
+    loadGameFromFen(previousFen, {
+      preserveUndoHistory: true,
+      preservedBoardHistory,
+      preservedHistoryStartFen: historyStartFen,
+    });
   };
 
   const handleCopyBoardHistory = async () => {
