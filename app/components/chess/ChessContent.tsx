@@ -54,6 +54,7 @@ type ChessApiResponse = {
 };
 
 const CHESS_API_BASE_URL = "https://chess.sneakyowl.net";
+const STARTING_FEN = new Chess().fen();
 
 const logChessEndpointDebug = (
   selectedBot: (typeof CHESS_BOT_OPTIONS)[number],
@@ -120,6 +121,27 @@ const ChessContent = () => {
     const isPlayerTurn = currentGame.turn() === playerColor;
     setTurnMessage(isPlayerTurn ? "Your turn" : "Bot's turn");
     setPieceDraggable(isPlayerTurn);
+  };
+
+  const loadGameFromFen = (fen: string) => {
+    const nextFen = fen.trim() || STARTING_FEN;
+    const newGame = new Chess(nextFen);
+
+    setGame(newGame);
+    if (fenInputRef.current) {
+      fenInputRef.current.value = nextFen;
+    }
+
+    if (newGame.turn() !== playerColor) {
+      setTurnMessage("Bot's turn");
+      setPieceDraggable(false);
+      setTimeout(() => {
+        makeBotMove();
+      }, 0);
+      return;
+    }
+
+    syncTurnState(newGame);
   };
 
   const onDrop = (sourceSquare: any, targetSquare: any) => {
@@ -220,19 +242,9 @@ const ChessContent = () => {
   };
 
   const handleFenSubmit = () => {
-    const fen = fenInputRef.current?.value; // Access the FEN input value
-    if (!fen) return;
-
     try {
-      const newGame = new Chess(fen); // Validate and create a new Chess instance
-      setGame(newGame);
-
-      if (newGame.turn() !== playerColor) {
-        setTurnMessage("Bot's turn");
-        makeBotMove(); // Trigger bot's move if it's Black's turn
-      } else {
-        syncTurnState(newGame);
-      }
+      const fen = fenInputRef.current?.value ?? "";
+      loadGameFromFen(fen);
     } catch (error) {
       toast.error("Invalid FEN, please try again!", {
         position: "bottom-right",
@@ -246,6 +258,10 @@ const ChessContent = () => {
         transition: Slide,
       });
     }
+  };
+
+  const handleReset = () => {
+    loadGameFromFen(STARTING_FEN);
   };
 
   useEffect(() => {
@@ -281,13 +297,20 @@ const ChessContent = () => {
           defaultValue={game.fen()} // Set initial value as the current game's FEN
           ref={fenInputRef} // Attach the ref to the input element
         />
-        <br />
-        <button
-          className="site-button-primary mt-2 rounded px-4 py-2"
-          onClick={handleFenSubmit}
-        >
-          Submit FEN
-        </button>
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <button
+            className="site-button-primary rounded px-4 py-2"
+            onClick={handleFenSubmit}
+          >
+            Submit FEN
+          </button>
+          <button
+            className="site-button-primary rounded px-4 py-2"
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+        </div>
       </div>
       <div className="text-center mt-4">
         Play as (You):
