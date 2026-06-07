@@ -77,6 +77,8 @@ type ChessApiRequestPayload = {
 
 const CHESS_API_BASE_URL = "https://chess.sneakyowl.net";
 const STARTING_FEN = new Chess().fen();
+const BOARD_CONTAINER_CLASS =
+  "mx-auto w-[500px] items-center justify-center text-center max-sm:w-[230px] max-xs:w-[230px]";
 
 const createGameId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -112,6 +114,26 @@ const getNumberDebugValue = (
 
 const getDetailValue = (details: ChessApiDebugDetails | undefined, key: string) =>
   details?.[key];
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const getEvalFillPercentage = (whitePerspectiveScore: number) => {
+  const absScore = Math.abs(whitePerspectiveScore);
+
+  if (absScore >= 999000) {
+    return whitePerspectiveScore >= 0 ? 100 : 0;
+  }
+
+  if (absScore >= 500) {
+    const extraFill = ((absScore - 500) / (999000 - 500)) * 5;
+    const base = 95 + extraFill;
+    return whitePerspectiveScore >= 0 ? base : 100 - base;
+  }
+
+  const base = 50 + (absScore / 500) * 45;
+  return whitePerspectiveScore >= 0 ? base : 100 - base;
+};
 
 const SCORE_TOOLTIP_CONTENT = (
   <div className="space-y-3">
@@ -201,6 +223,52 @@ const SCORE_TOOLTIP_CONTENT = (
     </p>
   </div>
 );
+
+const EvaluationBar = ({
+  score,
+  playerColor,
+}: {
+  score: number | undefined;
+  playerColor: PlayerColor;
+}) => {
+  const botColor = playerColor === "w" ? "b" : "w";
+
+  if (typeof score !== "number") {
+    return (
+      <div className={`${BOARD_CONTAINER_CLASS} mt-3`}>
+        <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
+          <span>Evaluation</span>
+          <span>n/a</span>
+        </div>
+        <div className="h-4 overflow-hidden rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)]">
+          <div className="h-full w-full bg-[color:var(--site-text-faint)]" />
+        </div>
+      </div>
+    );
+  }
+
+  const whitePerspectiveScore = botColor === "w" ? score : -score;
+  const whiteFill = clamp(getEvalFillPercentage(whitePerspectiveScore), 0, 100);
+
+  return (
+    <div className={`${BOARD_CONTAINER_CLASS} mt-3`}>
+      <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
+        <span>Evaluation</span>
+        <span>{whitePerspectiveScore > 0 ? "+" : ""}{whitePerspectiveScore}</span>
+      </div>
+      <div className="flex h-4 overflow-hidden rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)]">
+        <div
+          className="h-full bg-white transition-[width] duration-200"
+          style={{ width: `${whiteFill}%` }}
+        />
+        <div
+          className="h-full bg-black transition-[width] duration-200"
+          style={{ width: `${100 - whiteFill}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
 const getBooleanLikeValue = (value: unknown) => {
   if (typeof value === "boolean") {
@@ -912,7 +980,13 @@ const ChessContent = () => {
   return (
     <>
       <div className="mt-4 text-center text-2xl">{turnMessage}</div>
-      <div className="mx-auto w-[500px] items-center justify-center border-4 border-[color:var(--site-border-strong)] text-center max-sm:w-[230px] max-xs:w-[230px]">
+      <EvaluationBar
+        score={typeof latestApiResponse?.debug?.score === "number" ? latestApiResponse.debug.score : undefined}
+        playerColor={playerColor}
+      />
+      <div
+        className={`${BOARD_CONTAINER_CLASS} border-4 border-[color:var(--site-border-strong)]`}
+      >
         <Chessboard
           position={game.fen()}
           boardOrientation={playerColor === "w" ? "white" : "black"}
