@@ -240,7 +240,7 @@ const EvaluationBar = ({
           <span>Evaluation</span>
           <span>n/a</span>
         </div>
-        <div className="h-4 overflow-hidden rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)]">
+        <div className="h-4 overflow-hidden border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)]">
           <div className="h-full w-full bg-[color:var(--site-text-faint)]" />
         </div>
       </div>
@@ -249,14 +249,22 @@ const EvaluationBar = ({
 
   const whitePerspectiveScore = botColor === "w" ? score : -score;
   const whiteFill = clamp(getEvalFillPercentage(whitePerspectiveScore), 0, 100);
+  const userPerspectiveScore = playerColor === "w" ? whitePerspectiveScore : -whitePerspectiveScore;
+  const absScore = Math.abs(userPerspectiveScore);
+  const evaluationText =
+    userPerspectiveScore > 0
+      ? `You're winning by ${absScore}`
+      : userPerspectiveScore < 0
+        ? `You're losing by ${absScore}`
+        : "Position is equal";
 
   return (
     <div className={`${BOARD_CONTAINER_CLASS} mt-3`}>
       <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
         <span>Evaluation</span>
-        <span>{whitePerspectiveScore > 0 ? "+" : ""}{whitePerspectiveScore}</span>
+        <span>{evaluationText}</span>
       </div>
-      <div className="flex h-4 overflow-hidden rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)]">
+      <div className="flex h-4 overflow-hidden border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)]">
         <div
           className="h-full bg-white transition-[width] duration-200"
           style={{ width: `${whiteFill}%` }}
