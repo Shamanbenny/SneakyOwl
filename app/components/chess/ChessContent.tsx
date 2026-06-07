@@ -3,6 +3,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import ChessVersionInfo from "./ChessVersionInfo";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
 const CHESS_BOT_OPTIONS = [
   {
@@ -31,6 +32,12 @@ type ChessBotVersion = (typeof CHESS_BOT_OPTIONS)[number]["value"];
 type PlayerColor = "w" | "b";
 
 type ChessApiDebugDetails = Record<string, unknown>;
+
+type DebugDetailItem = {
+  label: string;
+  tooltip?: string;
+  value: unknown;
+};
 
 type ChessApiDebug = {
   version?: string;
@@ -103,9 +110,91 @@ const getNumberDebugValue = (
   return typeof value === "number" ? value : undefined;
 };
 
-const DebugMetric = ({ label, value }: { label: string; value: unknown }) => (
+const getDetailValue = (details: ChessApiDebugDetails | undefined, key: string) =>
+  details?.[key];
+
+const getBooleanLikeValue = (value: unknown) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+
+    if (normalized === "yes" || normalized === "true") {
+      return true;
+    }
+
+    if (normalized === "no" || normalized === "false") {
+      return false;
+    }
+  }
+
+  return undefined;
+};
+
+const getNumericLikeValue = (value: unknown) => {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  }
+
+  return undefined;
+};
+
+const getDeltaAsBoolean = (
+  beforeValue: unknown,
+  afterValue: unknown,
+) => {
+  const before = getNumericLikeValue(beforeValue);
+  const after = getNumericLikeValue(afterValue);
+
+  if (typeof before !== "number" || typeof after !== "number") {
+    return undefined;
+  }
+
+  return after > before;
+};
+
+const DebugLabel = ({
+  label,
+  tooltip,
+}: {
+  label: string;
+  tooltip?: string;
+}) => (
+  <span className="inline-flex items-center gap-1 text-[color:var(--site-text-muted)]">
+    <span>{label}</span>
+    {tooltip ? (
+      <InfoTooltip
+        ariaLabel={`${label} explanation`}
+        panelClassName="border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] text-[color:var(--site-text-muted)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+        preferredPlacement="top"
+        className="shrink-0"
+      >
+        {tooltip}
+      </InfoTooltip>
+    ) : null}
+  </span>
+);
+
+const DebugMetric = ({
+  label,
+  tooltip,
+  value,
+}: {
+  label: string;
+  tooltip?: string;
+  value: unknown;
+}) => (
   <div className="rounded-md border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-3 py-2 text-left">
-    <p className="text-xs text-[color:var(--site-text-faint)]">{label}</p>
+    <p className="text-xs">
+      <DebugLabel label={label} tooltip={tooltip} />
+    </p>
     <p className="mt-1 text-sm font-semibold text-[color:var(--site-text-strong)]">
       {formatDebugValue(value)}
     </p>
@@ -114,34 +203,264 @@ const DebugMetric = ({ label, value }: { label: string; value: unknown }) => (
 
 const DebugDetails = ({
   title,
-  details,
+  summary,
+  items,
 }: {
   title: string;
-  details?: ChessApiDebugDetails;
+  summary?: string;
+  items: DebugDetailItem[];
 }) => {
-  if (!details) {
+  if (items.length === 0) {
     return null;
   }
 
   return (
-    <details className="rounded-md border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-3 py-2 text-left">
-      <summary className="cursor-pointer text-sm font-semibold text-[color:var(--site-text-strong)]">
-        {title}
-      </summary>
-      <dl className="mt-2 grid gap-2 text-xs text-[color:var(--site-text-muted)] sm:grid-cols-2">
-        {Object.entries(details).map(([key, value]) => (
-          <div key={key} className="min-w-0">
-            <dt className="break-words text-[color:var(--site-text-faint)]">
-              {key}
+    <section className="rounded-md border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-3 py-3 text-left">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-[color:var(--site-text-strong)]">
+          {title}
+        </h3>
+      </div>
+      {summary ? (
+        <p className="mt-2 text-xs leading-5 text-[color:var(--site-text-muted)]">
+          {summary}
+        </p>
+      ) : null}
+      <dl className="mt-3 grid gap-2 text-xs text-[color:var(--site-text-muted)] sm:grid-cols-2">
+        {items.map(({ label, tooltip, value }) => (
+          <div key={label} className="min-w-0">
+            <dt className="break-words">
+              <DebugLabel label={label} tooltip={tooltip} />
             </dt>
-            <dd className="break-words font-medium text-[color:var(--site-text)]">
+            <dd className="mt-1 break-words font-medium text-[color:var(--site-text)]">
               {formatDebugValue(value)}
             </dd>
           </div>
         ))}
       </dl>
-    </details>
+    </section>
   );
+};
+
+const getOpeningBookSummary = (details: ChessApiDebugDetails | undefined) => {
+  if (!details) {
+    return undefined;
+  }
+
+  const matchedPosition = getBooleanLikeValue(getDetailValue(details, "matched_position"));
+  const selectedMove = getDetailValue(details, "selected_move_uci");
+  const skippedReason = getDetailValue(details, "skipped_reason");
+
+  if (matchedPosition && selectedMove) {
+    return `This move came from the opening book. The engine matched the current position and selected ${formatDebugValue(
+      selectedMove,
+    )} without running the main search.`;
+  }
+
+  if (skippedReason && formatDebugValue(skippedReason) !== "n/a") {
+    return `The opening book did not provide a move for this request: ${formatDebugValue(skippedReason)}.`;
+  }
+
+  return "These fields describe the opening-book lookup path that runs before the engine falls back to search.";
+};
+
+const getOpeningBookItems = (
+  details: ChessApiDebugDetails | undefined,
+): DebugDetailItem[] => {
+  if (!details) {
+    return [];
+  }
+
+  const cacheHitThisRequest = getDeltaAsBoolean(
+    getDetailValue(details, "cache_hits_before"),
+    getDetailValue(details, "cache_hits_after"),
+  );
+  const cacheMissThisRequest = getDeltaAsBoolean(
+    getDetailValue(details, "cache_misses_before"),
+    getDetailValue(details, "cache_misses_after"),
+  );
+
+  return [
+    {
+      label: "Book enabled",
+      tooltip: "Whether opening-book lookup was allowed to run for this request.",
+      value: getDetailValue(details, "enabled"),
+    },
+    {
+      label: "Book match found",
+      tooltip: "Whether the current normalized position existed in the opening-book file.",
+      value: getDetailValue(details, "matched_position"),
+    },
+    {
+      label: "Selected book move",
+      tooltip: "The move chosen from the opening book in UCI notation.",
+      value: getDetailValue(details, "selected_move_uci"),
+    },
+    {
+      label: "Candidate moves",
+      tooltip: "How many move options were stored for this exact book position.",
+      value: getDetailValue(details, "candidate_move_count"),
+    },
+    {
+      label: "Legal book moves",
+      tooltip: "How many stored book moves were legal in the current board position.",
+      value: getDetailValue(details, "legal_candidate_move_count"),
+    },
+    {
+      label: "Cache hit this request",
+      tooltip: "True means the opening book was already loaded in process memory and this call reused it.",
+      value: cacheHitThisRequest,
+    },
+    {
+      label: "Cache miss this request",
+      tooltip: "True means the loader had to fetch the opening-book data instead of reusing the in-process cache.",
+      value: cacheMissThisRequest,
+    },
+    {
+      label: "Loaded from disk this call",
+      tooltip: "Whether the opening-book file was freshly loaded during this request.",
+      value: getDetailValue(details, "lookup_loaded_during_call"),
+    },
+    {
+      label: "Lookup file",
+      tooltip: "The backing file used for opening-book lookups.",
+      value: getDetailValue(details, "lookup_file"),
+    },
+    {
+      label: "Book positions",
+      tooltip: "How many distinct normalized positions exist in the lookup file.",
+      value: getDetailValue(details, "lookup_position_count"),
+    },
+    {
+      label: "Lookup time",
+      tooltip: "Time spent preparing the opening-book data for this request. Cached reads are usually near zero.",
+      value: getDetailValue(details, "lookup_load_elapsed_seconds"),
+    },
+    {
+      label: "Position key",
+      tooltip:
+        "The normalized FEN used for lookup. It keeps board layout, side to move, castling rights, and en passant square, but ignores move counters.",
+      value: getDetailValue(details, "fen_key"),
+    },
+    {
+      label: "Current piece count",
+      tooltip: "The number of pieces currently on the board.",
+      value: getDetailValue(details, "position_piece_count"),
+    },
+    {
+      label: "Required piece count",
+      tooltip: "The opening book only runs when this many pieces remain on the board.",
+      value: getDetailValue(details, "requires_full_starting_piece_count"),
+    },
+    {
+      label: "Skipped reason",
+      tooltip: "Why the opening book did not return a move. n/a means nothing was skipped.",
+      value: getDetailValue(details, "skipped_reason"),
+    },
+  ];
+};
+
+const getTtContextSummary = (details: ChessApiDebugDetails | undefined) => {
+  if (!details) {
+    return undefined;
+  }
+
+  const contextCreated = getBooleanLikeValue(getDetailValue(details, "context_created"));
+  const contextFound = getBooleanLikeValue(getDetailValue(details, "context_found"));
+  const resetRequested = getBooleanLikeValue(getDetailValue(details, "reset_requested"));
+  const skippedReason = getDetailValue(details, "skipped_reason");
+
+  if (contextCreated) {
+    return `Per-game transposition-table context was enabled and a new context was created for this request${
+      resetRequested ? " because a reset was requested" : ""
+    }.`;
+  }
+
+  if (contextFound) {
+    return "Per-game transposition-table context reused an existing saved context for this request.";
+  }
+
+  if (skippedReason && formatDebugValue(skippedReason) !== "n/a") {
+    return `Context handling was skipped: ${formatDebugValue(skippedReason)}.`;
+  }
+
+  return "These fields describe the request-level transposition-table context that can persist engine state across moves in the same game.";
+};
+
+const getTtContextItems = (
+  details: ChessApiDebugDetails | undefined,
+): DebugDetailItem[] => {
+  if (!details) {
+    return [];
+  }
+
+  return [
+    {
+      label: "Context enabled",
+      tooltip: "Whether per-game context reuse was enabled for this request.",
+      value: getDetailValue(details, "enabled"),
+    },
+    {
+      label: "Context id",
+      tooltip: "The identifier used to look up this game or session context.",
+      value: getDetailValue(details, "context_id"),
+    },
+    {
+      label: "Existing context found",
+      tooltip: "True means the server already had saved state for this context id before handling the request.",
+      value: getDetailValue(details, "context_found"),
+    },
+    {
+      label: "Created new context",
+      tooltip: "True means a fresh context object was created during this request.",
+      value: getDetailValue(details, "context_created"),
+    },
+    {
+      label: "Reset requested",
+      tooltip: "Whether the request explicitly asked the server to reset the saved context first.",
+      value: getDetailValue(details, "reset_requested"),
+    },
+    {
+      label: "Context reset",
+      tooltip: "True means an existing context was cleared and restarted during this request.",
+      value: getDetailValue(details, "context_reset"),
+    },
+    {
+      label: "Searches before request",
+      tooltip: "How many searches had already been run inside this context before this request started.",
+      value: getDetailValue(details, "search_count_before"),
+    },
+    {
+      label: "Searches after request",
+      tooltip: "How many searches had been completed in this context after this request finished.",
+      value: getDetailValue(details, "search_count_after"),
+    },
+    {
+      label: "TT entries before search",
+      tooltip: "The sampled number of transposition-table entries before search began. n/a usually means no search ran.",
+      value: getDetailValue(details, "tt_entries_before"),
+    },
+    {
+      label: "TT entries after search",
+      tooltip: "The sampled number of transposition-table entries after search ended. n/a usually means no search ran.",
+      value: getDetailValue(details, "tt_entries_after"),
+    },
+    {
+      label: "Active contexts in memory",
+      tooltip: "How many per-game contexts the process was holding after this request.",
+      value: getDetailValue(details, "cache_size_after"),
+    },
+    {
+      label: "Contexts evicted",
+      tooltip: "How many old contexts were removed during this request because of expiry or cache limits.",
+      value: getDetailValue(details, "evicted_context_count"),
+    },
+    {
+      label: "Skipped reason",
+      tooltip: "Why context handling was skipped. n/a means it ran normally.",
+      value: getDetailValue(details, "skipped_reason"),
+    },
+  ];
 };
 
 const ChessDebugPanel = ({
@@ -156,6 +475,8 @@ const ChessDebugPanel = ({
     ttProbes && ttProbes > 0 && typeof ttHits === "number"
       ? `${((ttHits / ttProbes) * 100).toFixed(2)}%`
       : "n/a";
+  const openingBookItems = getOpeningBookItems(debug?.opening_book);
+  const ttContextItems = getTtContextItems(debug?.tt_context);
 
   if (!response) {
     return null;
@@ -163,41 +484,73 @@ const ChessDebugPanel = ({
 
   return (
     <section className="mx-auto mt-5 w-[300px] text-[color:var(--site-text)] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]">
-      <div className="site-surface-card rounded-lg p-4">
-        <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-[color:var(--site-text-strong)]">
-              Latest engine debug
-            </h2>
-            <p className="text-sm text-[color:var(--site-text-muted)]">
-              {debug?.engine ?? "Unknown engine"}
+      <details open className="site-surface-card rounded-lg p-4">
+        <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-[color:var(--site-text-strong)]">
+                Latest Debug Information
+              </h2>
+              <p className="text-sm text-[color:var(--site-text-muted)]">
+                {debug?.engine ?? "Unknown engine"}
+              </p>
+            </div>
+            <p className="pr-5 text-sm text-[color:var(--site-text-muted)] sm:pr-0">
+              {response.error ?? response.move ?? "No move returned"}
             </p>
           </div>
-          <p className="text-sm text-[color:var(--site-text-muted)]">
-            {response.error ?? response.move ?? "No move returned"}
-          </p>
-        </div>
+        </summary>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <DebugMetric label="Version" value={debug?.version} />
           <DebugMetric
             label="Selected move"
+            tooltip="The SAN move returned by the engine for this request."
             value={debug?.selected_move_san ?? response.move}
           />
-          <DebugMetric label="Depth" value={debug?.completed_depth} />
-          <DebugMetric label="Score" value={debug?.score} />
+          <DebugMetric
+            label="Depth"
+            tooltip="The deepest completed search depth. n/a means the move came from the opening book instead of search."
+            value={debug?.completed_depth}
+          />
+          <DebugMetric
+            label="Score"
+            tooltip="The engine evaluation score produced by search. n/a means search did not run."
+            value={debug?.score}
+          />
           <DebugMetric
             label="Processing time"
+            tooltip="Total server-side handling time for this move request."
             value={response.processing_time ?? debug?.processing_time}
           />
-          <DebugMetric label="Nodes searched" value={debug?.nodes_searched} />
-          <DebugMetric label="Moves evaluated" value={debug?.moves_evaluated} />
-          <DebugMetric label="TT hit rate" value={ttHitRate} />
+          <DebugMetric
+            label="Nodes searched"
+            tooltip="How many search-tree positions the engine explored while choosing the move."
+            value={debug?.nodes_searched}
+          />
+          <DebugMetric
+            label="Moves evaluated"
+            tooltip="How many candidate moves the engine actively evaluated during the search loop."
+            value={debug?.moves_evaluated}
+          />
+          <DebugMetric
+            label="TT hit rate"
+            tooltip="Transposition-table hit rate: how often the search found a previously cached position during TT probes."
+            value={ttHitRate}
+          />
         </div>
         <div className="mt-3 grid gap-2 lg:grid-cols-2">
-          <DebugDetails title="Opening book" details={debug?.opening_book} />
-          <DebugDetails title="TT context" details={debug?.tt_context} />
+          <DebugDetails
+            title="Opening Book"
+            summary={getOpeningBookSummary(debug?.opening_book)}
+            items={openingBookItems}
+          />
+          <DebugDetails
+            title="TT Context"
+            summary={getTtContextSummary(debug?.tt_context)}
+            items={ttContextItems}
+          />
         </div>
-      </div>
+      </details>
     </section>
   );
 };
