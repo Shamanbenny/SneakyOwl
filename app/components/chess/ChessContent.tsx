@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { ToastContainer, toast, Slide } from "react-toastify";
@@ -6,9 +6,9 @@ import ChessVersionInfo from "./ChessVersionInfo";
 
 const CHESS_BOT_OPTIONS = [
   {
-    label: "Chess Bot v0",
-    route: "chess_v0",
-    value: "v0",
+    label: "Chess Bot v2.9",
+    route: "chess_v2_9",
+    value: "v2.9",
   },
   {
     label: "Chess Bot v2.0",
@@ -16,13 +16,14 @@ const CHESS_BOT_OPTIONS = [
     value: "v2.0",
   },
   {
-    label: "Chess Bot v2.9",
-    route: "chess_v2_9",
-    value: "v2.9",
+    label: "Chess Bot v0",
+    route: "chess_v0",
+    value: "v0",
   },
 ] as const;
 
 type ChessBotVersion = (typeof CHESS_BOT_OPTIONS)[number]["value"];
+type PlayerColor = "w" | "b";
 
 type ChessApiDebug = {
   version?: string;
@@ -99,9 +100,33 @@ const ChessContent = () => {
   const [turnMessage, setTurnMessage] = useState("Your turn");
   const [pieceDraggable, setPieceDraggable] = useState(true);
   const [botVersion, setBotVersion] = useState<ChessBotVersion>("v2.9");
+  const [playerColor, setPlayerColor] = useState<PlayerColor>("w");
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
 
+  const syncTurnState = (currentGame: Chess) => {
+    if (currentGame.isCheckmate()) {
+      const playerWon = currentGame.turn() !== playerColor;
+      setTurnMessage(playerWon ? "Checkmate! You win!" : "Checkmate! You lose.");
+      setPieceDraggable(false);
+      return;
+    }
+
+    if (currentGame.isStalemate()) {
+      setTurnMessage("Stalemate! Draw.");
+      setPieceDraggable(false);
+      return;
+    }
+
+    const isPlayerTurn = currentGame.turn() === playerColor;
+    setTurnMessage(isPlayerTurn ? "Your turn" : "Bot's turn");
+    setPieceDraggable(isPlayerTurn);
+  };
+
   const onDrop = (sourceSquare: any, targetSquare: any) => {
+    if (game.turn() !== playerColor) {
+      return false;
+    }
+
     // Get all legal moves for the current position
     const legalMoves = game.moves({ square: sourceSquare, verbose: true });
     // Check if the target square is a valid destination
@@ -130,16 +155,16 @@ const ChessContent = () => {
     const currGame = new Chess(fenInputRef.current?.value);
     const selectedBot =
       CHESS_BOT_OPTIONS.find((option) => option.value === botVersion) ??
-      CHESS_BOT_OPTIONS[1];
+      CHESS_BOT_OPTIONS[0];
     setPieceDraggable(false); // Disable piece dragging while bot is playing OR game over
 
     // Check for Checkmate or Stalemate
     if (currGame.isCheckmate()) {
-      setTurnMessage("Checkmate! You win!");
+      syncTurnState(currGame);
       return; // Stop execution, as the game has ended
     }
     if (currGame.isStalemate()) {
-      setTurnMessage("Stalemate! Draw.");
+      syncTurnState(currGame);
       return; // Stop execution, as the game has ended
     }
 
@@ -183,19 +208,7 @@ const ChessContent = () => {
         setGame(new Chess(currGame.fen()));
         if (fenInputRef.current) fenInputRef.current.value = currGame.fen(); // Update FEN input
 
-        // Check for Checkmate or Stalemate after bot's move
-        if (currGame.isCheckmate()) {
-          setTurnMessage("Checkmate! You lose.");
-          return; // Game over
-        }
-        if (currGame.isStalemate()) {
-          setTurnMessage("Stalemate! Draw.");
-          return; // Game over
-        }
-
-        // If the game is still on, let the player play
-        setTurnMessage("Your turn");
-        setPieceDraggable(true); // Enable piece dragging after bot's move
+        syncTurnState(currGame);
       } else {
         throw new Error("API response did not include a move.");
       }
@@ -214,12 +227,11 @@ const ChessContent = () => {
       const newGame = new Chess(fen); // Validate and create a new Chess instance
       setGame(newGame);
 
-      if (newGame.turn() === "b") {
+      if (newGame.turn() !== playerColor) {
         setTurnMessage("Bot's turn");
         makeBotMove(); // Trigger bot's move if it's Black's turn
       } else {
-        setTurnMessage("Your turn");
-        setPieceDraggable(true);
+        syncTurnState(newGame);
       }
     } catch (error) {
       toast.error("Invalid FEN, please try again!", {
@@ -236,12 +248,22 @@ const ChessContent = () => {
     }
   };
 
+  useEffect(() => {
+    syncTurnState(game);
+
+    if (!game.isGameOver() && game.turn() !== playerColor) {
+      makeBotMove();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerColor]);
+
   return (
     <>
       <div className="text-center text-2xl mt-4">{turnMessage}</div>
       <div className="mx-auto w-[500px] items-center justify-center border-4 border-[color:var(--site-border-strong)] text-center max-sm:w-[230px] max-xs:w-[230px]">
         <Chessboard
           position={game.fen()}
+          boardOrientation={playerColor === "w" ? "white" : "black"}
           onPieceDrop={onDrop}
           customLightSquareStyle={{ backgroundColor: "#d1fae5" }}
           customDarkSquareStyle={{ backgroundColor: "#34d399" }}
@@ -266,6 +288,17 @@ const ChessContent = () => {
         >
           Submit FEN
         </button>
+      </div>
+      <div className="text-center mt-4">
+        Play as (You):
+        <select
+          className="site-select mx-2 rounded p-2"
+          value={playerColor}
+          onChange={(e) => setPlayerColor(e.target.value as PlayerColor)}
+        >
+          <option value="w">White</option>
+          <option value="b">Black</option>
+        </select>
       </div>
       <div className="text-center mt-4">
         Current Bot Version:

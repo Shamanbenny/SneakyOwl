@@ -10,8 +10,6 @@ const WorkInProgress = () => {
           /chess - Work In Progress
         </h1>
       </div>
-
-      <GitHubCommitSnake />
     </>
   );
 };

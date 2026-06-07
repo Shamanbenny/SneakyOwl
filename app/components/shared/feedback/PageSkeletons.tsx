@@ -86,7 +86,6 @@ export const ChessPageSkeleton = () => (
     <div id="chess" className={`${shellContainerClassName} pb-[50px]`}>
       <div className="flex flex-col items-center">
         <Skeleton className="mt-5 h-14 w-[280px] rounded-full sm:w-[420px]" />
-        <Skeleton className="mt-8 h-[220px] w-full rounded-[1.5rem]" />
         <Skeleton className="mt-6 h-8 w-[150px] rounded-full" />
         <Skeleton className="mt-4 aspect-square w-full max-w-[500px] rounded-[1rem]" />
         <Skeleton className="mt-6 h-11 w-full max-w-[550px] rounded-md" />
