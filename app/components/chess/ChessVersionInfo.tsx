@@ -103,13 +103,17 @@ const ChessVersionInfo = ({
               </span>
             </div>
             <p className="mt-2">
-              <span className="font-bold">Summary:</span>{" "}
+              <strong className="font-semibold text-[color:var(--site-text-strong)]">
+                Summary:
+              </strong>{" "}
               {versionInfo.summary ??
                 versionInfo.implementation_summary ??
                 "No summary recorded."}
             </p>
             <p className="mt-2">
-              <span className="font-bold">Hypotheses:</span>
+              <strong className="font-semibold text-[color:var(--site-text-strong)]">
+                Hypotheses:
+              </strong>
             </p>
             <ul className="mt-1 list-inside list-disc">
               {versionInfo.hypotheses.length > 0 ? (
@@ -121,21 +125,25 @@ const ChessVersionInfo = ({
               )}
             </ul>
             <p className="mt-2">
-              <span className="font-bold">Score against Stockfish:</span>{" "}
+              <strong className="font-semibold text-[color:var(--site-text-strong)]">
+                Score against Stockfish:
+              </strong>{" "}
               {versionInfo.stockfish_1350?.text ?? "Not benchmarked."}
             </p>
-            <p className="mt-2">
-              <span className="font-bold">Limitations:</span>
-            </p>
-            <ul className="mt-1 list-inside list-disc">
-              {versionInfo.limitations.length > 0 ? (
-                versionInfo.limitations.map((limitation) => (
-                  <li key={limitation}>{limitation}</li>
-                ))
-              ) : (
-                <li>No limitations recorded.</li>
-              )}
-            </ul>
+            {versionInfo.limitations.length > 0 ? (
+              <>
+                <p className="mt-2">
+                  <strong className="font-semibold text-[color:var(--site-text-strong)]">
+                    Limitations:
+                  </strong>
+                </p>
+                <ul className="mt-1 list-inside list-disc">
+                  {versionInfo.limitations.map((limitation) => (
+                    <li key={limitation}>{limitation}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
           </div>
         ))}
       </div>

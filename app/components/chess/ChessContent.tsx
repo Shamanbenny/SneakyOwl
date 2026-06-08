@@ -81,13 +81,15 @@ const CHESS_V0_BASELINE: ChessVersionMetadata = {
   version: "v0",
   served: false,
   summary:
-    "Baseline reference entry for the earliest local prototype before any served API version existed.",
+    "Just a chess bot that checks every legal move, then full-sends one at random.",
   hypotheses: [
-    "Establish legal move generation and a minimal playable browser integration first.",
+    "Surely random is better than doing absolutely nothing... right?",
   ],
+  stockfish_1350: {
+    text: "Why would anyone expect random nonsense to survive Stockfish? 0.0",
+  },
   limitations: [
-    "Not exposed through the deployed API.",
-    "No benchmarked Stockfish result was recorded for this baseline.",
+    "Zero brain cells. It just moves and prays that you blunder harder than random play.",
   ],
 };
 
