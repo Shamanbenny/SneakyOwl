@@ -49,13 +49,12 @@ const isExternalUrl = (href: string) => /^https?:\/\//.test(href);
 const ChessIntro = () => {
   return (
     <section className="mt-4 text-[color:var(--site-text)]">
-      <h1
-        className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
-          max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
-      >
-        <span className="text-[color:var(--site-accent)]">/chess</span>
-      </h1>
-      <article className="mx-auto px-1 pb-2 text-center sm:px-2">
+      <div className="w-full text-center">
+        <h1 className="pb-4 pt-5 text-[4rem] text-[color:var(--site-accent)] drop-shadow-[0_0_6px] max-sm:text-[3rem]">
+          /chess - Work In Progress
+        </h1>
+      </div>
+      <article className="site-surface-card mx-auto rounded-[26px] p-4 text-center sm:p-5 lg:p-6">
         <div className="mb-4 flex flex-wrap justify-center gap-2">
           {INTRO_TAGS.map((tag) => (
             <span
