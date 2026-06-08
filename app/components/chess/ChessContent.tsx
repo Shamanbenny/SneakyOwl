@@ -139,6 +139,30 @@ const getUciFromMove = ({
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
+const getVersionSortValue = (version: string) =>
+  version
+    .replace(/^v/i, "")
+    .split(".")
+    .map((part) => Number.parseInt(part, 10) || 0);
+
+const compareVersionsDescending = (
+  leftVersion: string,
+  rightVersion: string,
+) => {
+  const leftParts = getVersionSortValue(leftVersion);
+  const rightParts = getVersionSortValue(rightVersion);
+  const maxLength = Math.max(leftParts.length, rightParts.length);
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const difference = (rightParts[index] ?? 0) - (leftParts[index] ?? 0);
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+
+  return 0;
+};
+
 const getEvalFillPercentage = (whitePerspectiveScore: number) => {
   const absScore = Math.abs(whitePerspectiveScore);
 
@@ -753,12 +777,12 @@ const ChessDebugPanel = ({
         </div>
         <div className="mt-3 grid gap-2 lg:grid-cols-2">
           <DebugDetails
-            title="Opening Debug"
+            title="Opening Book Info"
             summary={getOpeningBookSummary(debug?.opening_book)}
             items={openingBookItems}
           />
           <DebugDetails
-            title="TT Context Debug"
+            title="TT Context Info"
             summary={getTtContextSummary(debug?.tt_context)}
             items={ttContextItems}
           />
@@ -853,7 +877,10 @@ const BoardHistoryPanel = ({
               Board History
             </h2>
             <p className="mt-1 text-sm text-[color:var(--site-text-muted)]">
-              Stack of applied moves for debugging and replay.
+              Stack of applied moves for debugging and replay. Please click on
+              {" "}
+              &quot;Copy Board History&quot; and drop me an email if you
+              encounter a catastrophic blunder by the latest Chess Engine.
             </p>
           </div>
           <button
@@ -944,6 +971,9 @@ const ChessContent = () => {
 
   const servedBotOptions: ChessBotOption[] = chessVersions
     .filter((versionInfo) => versionInfo.served)
+    .sort((leftVersion, rightVersion) =>
+      compareVersionsDescending(leftVersion.version, rightVersion.version),
+    )
     .map((versionInfo) => ({
       label: `Chess Bot ${versionInfo.version}`,
       apiVersion: versionInfo.api_version ?? versionInfo.version.replace(".", "_"),
@@ -1285,12 +1315,17 @@ const ChessContent = () => {
         }
 
         setChessVersions(normalizedVersionsWithBaseline);
-        const servedVersions = normalizedVersionsWithBaseline.filter(
-          (versionInfo) => versionInfo.served,
-        );
-        const latestServedVersion = servedVersions.at(-1)?.version ?? "";
+        const latestServedVersion =
+          normalizedVersionsWithBaseline
+            .filter((versionInfo) => versionInfo.served)
+            .sort((leftVersion, rightVersion) =>
+              compareVersionsDescending(leftVersion.version, rightVersion.version),
+            )[0]?.version ?? "";
         setBotVersion((currentVersion) =>
-          servedVersions.some((versionInfo) => versionInfo.version === currentVersion)
+          normalizedVersionsWithBaseline.some(
+            (versionInfo) =>
+              versionInfo.served && versionInfo.version === currentVersion,
+          )
             ? currentVersion
             : latestServedVersion,
         );

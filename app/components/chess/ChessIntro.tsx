@@ -53,10 +53,10 @@ const ChessIntro = () => {
         className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
           max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
       >
-        /chess
+        <span className="text-[color:var(--site-accent)]">/chess</span>
       </h1>
-      <article className="site-surface-card mx-auto rounded-[26px] p-4 sm:p-5 lg:p-6">
-        <div className="mb-4 flex flex-wrap gap-2">
+      <article className="mx-auto px-1 pb-2 text-center sm:px-2">
+        <div className="mb-4 flex flex-wrap justify-center gap-2">
           {INTRO_TAGS.map((tag) => (
             <span
               key={tag.id}
@@ -67,7 +67,7 @@ const ChessIntro = () => {
             </span>
           ))}
         </div>
-        <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
+        <p className="mx-auto w-full max-w-[960px] text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
           A browser-based chess interface backed by iterative chess bot versions
           exposed through a Flask API. The standalone{" "}
           <a
@@ -92,7 +92,7 @@ const ChessIntro = () => {
           , starting from legal move generation and basic search, then improving
           successive versions with stronger evaluation and search heuristics.
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
           {LINKS.map((link, index) => (
             <div key={link.href} className="contents">
               {index > 0 ? (

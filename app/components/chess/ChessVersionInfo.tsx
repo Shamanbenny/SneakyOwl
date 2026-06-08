@@ -24,13 +24,43 @@ type ChessVersionInfoProps = {
 const formatVersionLabel = (version: string) =>
   version.startsWith("v") ? `V${version.slice(1)}` : version;
 
+const getVersionSortValue = (version: string) =>
+  version
+    .replace(/^v/i, "")
+    .split(".")
+    .map((part) => Number.parseInt(part, 10) || 0);
+
+const compareVersionsDescending = (
+  leftVersion: string,
+  rightVersion: string,
+) => {
+  const leftParts = getVersionSortValue(leftVersion);
+  const rightParts = getVersionSortValue(rightVersion);
+  const maxLength = Math.max(leftParts.length, rightParts.length);
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const difference = (rightParts[index] ?? 0) - (leftParts[index] ?? 0);
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+
+  return 0;
+};
+
 const ChessVersionInfo = ({
   versions,
   isLoading,
   error,
 }: ChessVersionInfoProps) => {
-  const latestServedVersion = versions.findLast((versionInfo) => versionInfo.served)?.version;
-  const orderedVersions = [...versions].reverse();
+  const latestServedVersion = [...versions]
+    .filter((versionInfo) => versionInfo.served)
+    .sort((leftVersion, rightVersion) =>
+      compareVersionsDescending(leftVersion.version, rightVersion.version),
+    )[0]?.version;
+  const orderedVersions = [...versions].sort((leftVersion, rightVersion) =>
+    compareVersionsDescending(leftVersion.version, rightVersion.version),
+  );
 
   return (
     <div className="mt-4 p-4 text-[color:var(--site-text)]">
@@ -58,8 +88,8 @@ const ChessVersionInfo = ({
                 Chess Bot {formatVersionLabel(versionInfo.version)}
               </h2>
               {versionInfo.version === latestServedVersion ? (
-                <span className="rounded-full border border-[color:var(--site-border)] px-2 py-1 text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
-                  Current
+                <span className="rounded-full border border-[color:var(--site-accent-teal)] bg-[color:var(--site-bg-soft)] px-2 py-1 text-xs uppercase tracking-[0.12em] text-[color:var(--site-accent-teal)]">
+                  latest
                 </span>
               ) : null}
               <span
