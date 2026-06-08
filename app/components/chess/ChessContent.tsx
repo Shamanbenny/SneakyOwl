@@ -2,33 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { ToastContainer, toast, Slide } from "react-toastify";
-import ChessVersionInfo from "./ChessVersionInfo";
+import ChessVersionInfo, { type ChessVersionMetadata } from "./ChessVersionInfo";
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
-const CHESS_BOT_OPTIONS = [
-  {
-    label: "Chess Bot v3.0",
-    apiVersion: "v3_0",
-    value: "v3.0",
-  },
-  {
-    label: "Chess Bot v2.9",
-    apiVersion: "v2_9",
-    value: "v2.9",
-  },
-  {
-    label: "Chess Bot v2.0",
-    apiVersion: "v2_0",
-    value: "v2.0",
-  },
-  {
-    label: "Chess Bot v0",
-    apiVersion: "v0",
-    value: "v0",
-  },
-] as const;
+type ChessBotOption = {
+  label: string;
+  apiVersion: string;
+  value: string;
+};
 
-type ChessBotVersion = (typeof CHESS_BOT_OPTIONS)[number]["value"];
 type PlayerColor = "w" | "b";
 
 type ChessApiDebugDetails = Record<string, unknown>;
@@ -46,7 +28,7 @@ type BoardHistoryEntry = {
   uci: string;
   fenBefore: string;
   fenAfter: string;
-  botVersion?: ChessBotVersion;
+  botVersion?: string;
   debug?: ChessApiDebug;
 };
 
@@ -86,7 +68,12 @@ type ChessApiRequestPayload = {
   reset_context?: boolean;
 };
 
+type ChessMetadataResponse = {
+  versions?: ChessVersionMetadata[];
+};
+
 const CHESS_API_BASE_URL = "https://chess.sneakyowl.net";
+const CHESS_METADATA_URL = `${CHESS_API_BASE_URL}/api/chess/metadata`;
 const STARTING_FEN = new Chess().fen();
 const BOARD_CONTAINER_CLASS =
   "mx-auto w-[500px] items-center justify-center text-center max-sm:w-[230px] max-xs:w-[230px]";
@@ -454,7 +441,18 @@ const getOpeningBookItems = (
   details: ChessApiDebugDetails | undefined,
 ): DebugDetailItem[] => {
   if (!details) {
-    return [];
+    return [
+      {
+        label: "Debug payload returned",
+        tooltip: "Whether the API response included the nested opening_book diagnostics object.",
+        value: false,
+      },
+      {
+        label: "Opening path",
+        tooltip: "The C# V3 engine still checks the opening book before search, but the current API payload may not expose the old detailed diagnostics.",
+        value: "not reported",
+      },
+    ];
   }
 
   const cacheHitThisRequest = getDeltaAsBoolean(
@@ -577,7 +575,18 @@ const getTtContextItems = (
   details: ChessApiDebugDetails | undefined,
 ): DebugDetailItem[] => {
   if (!details) {
-    return [];
+    return [
+      {
+        label: "Debug payload returned",
+        tooltip: "Whether the API response included the nested tt_context diagnostics object.",
+        value: false,
+      },
+      {
+        label: "Context path",
+        tooltip: "The frontend sends game_id and reset_context for V3 bots so the Render API can reuse per-game search context when available.",
+        value: "request context sent for V3 bots",
+      },
+    ];
   }
 
   return [
@@ -661,8 +670,16 @@ const ChessDebugPanel = ({
     ttProbes && ttProbes > 0 && typeof ttHits === "number"
       ? `${((ttHits / ttProbes) * 100).toFixed(2)}%`
       : "n/a";
-  const openingBookItems = getOpeningBookItems(debug?.opening_book);
-  const ttContextItems = getTtContextItems(debug?.tt_context);
+  const isV3DebugPayload =
+    typeof debug?.version === "string" && debug.version.startsWith("v3.");
+  const openingBookItems =
+    debug?.opening_book || isV3DebugPayload
+      ? getOpeningBookItems(debug?.opening_book)
+      : [];
+  const ttContextItems =
+    debug?.tt_context || isV3DebugPayload
+      ? getTtContextItems(debug?.tt_context)
+      : [];
 
   if (!response) {
     return null;
@@ -723,12 +740,12 @@ const ChessDebugPanel = ({
         </div>
         <div className="mt-3 grid gap-2 lg:grid-cols-2">
           <DebugDetails
-            title="Opening Book"
+            title="Opening Debug"
             summary={getOpeningBookSummary(debug?.opening_book)}
             items={openingBookItems}
           />
           <DebugDetails
-            title="TT Context"
+            title="TT Context Debug"
             summary={getTtContextSummary(debug?.tt_context)}
             items={ttContextItems}
           />
@@ -739,7 +756,7 @@ const ChessDebugPanel = ({
 };
 
 const logChessEndpointDebug = (
-  selectedBot: (typeof CHESS_BOT_OPTIONS)[number],
+  selectedBot: ChessBotOption,
   endpoint: string,
   requestBody: ChessApiRequestPayload,
   response: Response,
@@ -891,10 +908,13 @@ const ChessContent = () => {
   const [game, setGame] = useState(new Chess());
   const [turnMessage, setTurnMessage] = useState("Your turn");
   const [pieceDraggable, setPieceDraggable] = useState(true);
-  const [botVersion, setBotVersion] = useState<ChessBotVersion>("v3.0");
+  const [botVersion, setBotVersion] = useState("");
   const [playerColor, setPlayerColor] = useState<PlayerColor>("w");
   const [latestApiResponse, setLatestApiResponse] =
     useState<ChessApiResponse | null>(null);
+  const [chessVersions, setChessVersions] = useState<ChessVersionMetadata[]>([]);
+  const [metadataLoading, setMetadataLoading] = useState(true);
+  const [metadataError, setMetadataError] = useState<string | null>(null);
   const [historyStartFen, setHistoryStartFen] = useState(STARTING_FEN);
   const [boardHistory, setBoardHistory] = useState<BoardHistoryEntry[]>([]);
   const [historyCopyState, setHistoryCopyState] = useState<"idle" | "copied">("idle");
@@ -908,6 +928,14 @@ const ChessContent = () => {
   if (gameIdRef.current === null) {
     gameIdRef.current = createGameId();
   }
+
+  const servedBotOptions: ChessBotOption[] = chessVersions
+    .filter((versionInfo) => versionInfo.served)
+    .map((versionInfo) => ({
+      label: `Chess Bot ${versionInfo.version}`,
+      apiVersion: versionInfo.api_version ?? versionInfo.version.replace(".", "_"),
+      value: versionInfo.version,
+    }));
 
   const syncTurnState = (currentGame: Chess) => {
     if (currentGame.isCheckmate()) {
@@ -1018,8 +1046,13 @@ const ChessContent = () => {
     activeBotRequestIdRef.current = requestId;
     const currGame = new Chess(fenInputRef.current?.value);
     const selectedBot =
-      CHESS_BOT_OPTIONS.find((option) => option.value === botVersion) ??
-      CHESS_BOT_OPTIONS[0];
+      servedBotOptions.find((option) => option.value === botVersion) ??
+      servedBotOptions.at(-1);
+    if (!selectedBot) {
+      setTurnMessage("No served chess bot available");
+      setPieceDraggable(true);
+      return;
+    }
     setPieceDraggable(false); // Disable piece dragging while bot is playing OR game over
 
     // Check for Checkmate or Stalemate
@@ -1037,7 +1070,7 @@ const ChessContent = () => {
       const endpoint = `${CHESS_API_BASE_URL}/api/chess/${selectedBot.apiVersion}`;
       const requestBody: ChessApiRequestPayload = { fen: currGame.fen() };
 
-      if (selectedBot.value === "v3.0") {
+      if (selectedBot.value.startsWith("v3.")) {
         requestBody.game_id = gameIdRef.current ?? createGameId();
         requestBody.reset_context = resetContextOnNextMoveRef.current;
       }
@@ -1203,13 +1236,81 @@ const ChessContent = () => {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadChessMetadata = async () => {
+      setMetadataLoading(true);
+      setMetadataError(null);
+
+      try {
+        const response = await fetch(CHESS_METADATA_URL);
+        if (!response.ok) {
+          throw new Error(`${response.status} ${response.statusText || "response"}`);
+        }
+
+        const metadata = (await response.json()) as ChessMetadataResponse;
+        const versions = Array.isArray(metadata.versions) ? metadata.versions : [];
+        const normalizedVersions = versions.map((versionInfo) => ({
+          ...versionInfo,
+          served: Boolean(versionInfo.served),
+          hypotheses: Array.isArray(versionInfo.hypotheses)
+            ? versionInfo.hypotheses
+            : [],
+          limitations: Array.isArray(versionInfo.limitations)
+            ? versionInfo.limitations
+            : [],
+        }));
+
+        if (cancelled) {
+          return;
+        }
+
+        setChessVersions(normalizedVersions);
+        const servedVersions = normalizedVersions.filter((versionInfo) => versionInfo.served);
+        const latestServedVersion = servedVersions.at(-1)?.version ?? "";
+        setBotVersion((currentVersion) =>
+          servedVersions.some((versionInfo) => versionInfo.version === currentVersion)
+            ? currentVersion
+            : latestServedVersion,
+        );
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : "Unknown metadata error";
+        setMetadataError(message);
+        setChessVersions([]);
+        setBotVersion("");
+      } finally {
+        if (!cancelled) {
+          setMetadataLoading(false);
+        }
+      }
+    };
+
+    loadChessMetadata();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     syncTurnState(game);
 
-    if (!game.isGameOver() && game.turn() !== playerColor) {
+    if (!game.isGameOver() && game.turn() !== playerColor && servedBotOptions.length > 0) {
       makeBotMove();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerColor]);
+
+  useEffect(() => {
+    if (!metadataLoading && botVersion && !game.isGameOver() && game.turn() !== playerColor) {
+      makeBotMove();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [metadataLoading, botVersion]);
 
   useEffect(() => () => {
     if (historyCopyTimeoutRef.current) {
@@ -1288,13 +1389,20 @@ const ChessContent = () => {
         <select
           className="site-select mx-2 rounded p-2"
           value={botVersion}
-          onChange={(e) => setBotVersion(e.target.value as ChessBotVersion)}
+          onChange={(e) => setBotVersion(e.target.value)}
+          disabled={metadataLoading || servedBotOptions.length === 0}
         >
-          {CHESS_BOT_OPTIONS.map((option) => (
-            <option key={option.apiVersion} value={option.value}>
-              {option.label}
+          {servedBotOptions.length > 0 ? (
+            servedBotOptions.map((option) => (
+              <option key={option.apiVersion} value={option.value}>
+                {option.label}
+              </option>
+            ))
+          ) : (
+            <option value="">
+              {metadataLoading ? "Loading versions..." : "No served versions"}
             </option>
-          ))}
+          )}
         </select>
       </div>
       <BoardHistoryPanel
@@ -1303,7 +1411,11 @@ const ChessContent = () => {
         copyState={historyCopyState}
       />
       <ChessDebugPanel response={latestApiResponse} />
-      <ChessVersionInfo />
+      <ChessVersionInfo
+        versions={chessVersions}
+        isLoading={metadataLoading}
+        error={metadataError}
+      />
       <ToastContainer
         position="bottom-right"
         autoClose={3000}

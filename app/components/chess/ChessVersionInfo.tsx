@@ -1,58 +1,34 @@
 import React from "react";
 
-const ChessVersionInfo = () => {
-  const chessVersions = [
-    {
-      version: "v3.0",
-      summary:
-        "Current C# API version with opening-book lookup and optional per-game transposition-table reuse on the Render-hosted backend.",
-      featuresImplemented: [
-        "Exposes the Render route /api/chess/v3_0 with game_id-backed warm-instance search context.",
-        "Adds opening book lookup to deal with poor opening decision, and an optional per-game transposition-table reuse",
-        "Returns opening-book diagnostics and transposition-table context details in the debug payload.",
-      ],
-      stockfish1350Score:
-        "C# v3.0 scored 305.5/500 against stockfish-1350 across 500 games: 254 wins, 103 draws, 143 losses, score rate 0.6110",
-      limitations: [
-        "The benchmark is below the approved v2.9 score rate of 0.6480, so v3.0 is a usable major-version baseline rather than a playing-strength promotion over v2.9.",
-        "Context reuse depends on the same warm server instance receiving future requests, so cold starts or different instances may begin with an empty cache.",
-      ],
-    },
-    {
-      version: "v2.9",
-      summary:
-        "C# API version with a fixed move-time budget and richer search debug output.",
-      featuresImplemented: [
-        "Extends v2.0 with positional evaluation updates, including rook file bonuses, passed-pawn pressure, and knight outpost scoring.",
-      ],
-      stockfish1350Score:
-        "C# v2.9 scored 324.0/500 against stockfish-1350 across 500 games: 271 wins, 106 draws, 123 losses, score rate 0.6480.",
-      limitations: ["Poor opening plays, and unnecessary search during opening plays"],
-    },
-    {
-      version: "v2.0",
-      summary:
-        "Earlier C# API version built around the same fixed move-time search structure before the later positional evaluation additions.",
-      featuresImplemented: [
-        "Uses iterative deepening, negamax with alpha-beta pruning, quiescence search, and transposition-table reuse under a fixed 1-second move budget.",
-      ],
-      stockfish1350Score:
-        "C# v2.0 scored 207.0/500 against stockfish-1350 across 500 games: 160 wins, 94 draws, 246 losses, score rate 0.4140.",
-      limitations: [
-        "Due to the lack of understanding of what makes a 'good' position, the engine tends to make moves that provides no tactical advantage whenever there are no obvious advantageous move to make.",
-      ],
-    },
-    {
-      version: "v0",
-      summary: "Random legal-moves",
-      featuresImplemented: [
-        "Chooses a random legal move from the current position.",
-        "The endpoint exposes debug data for the selected UCI move and legal move count.",
-      ],
-      stockfish1350Score: "Not benchmarked against stockfish-1350.",
-      limitations: ["Absolutely no strategies involved"],
-    },
-  ];
+export type ChessVersionMetadata = {
+  version: string;
+  api_version?: string;
+  engine_file?: string;
+  served: boolean;
+  status?: string;
+  hypotheses: string[];
+  summary?: string;
+  implementation_summary?: string;
+  stockfish_1350?: {
+    text?: string;
+  };
+  limitations: string[];
+};
+
+type ChessVersionInfoProps = {
+  versions: ChessVersionMetadata[];
+  isLoading: boolean;
+  error: string | null;
+};
+
+const ChessVersionInfo = ({
+  versions,
+  isLoading,
+  error,
+}: ChessVersionInfoProps) => {
+  const latestServedVersion = [...versions]
+    .reverse()
+    .find((versionInfo) => versionInfo.served)?.version;
 
   return (
     <div className="mt-4 p-4 text-[color:var(--site-text)]">
@@ -62,34 +38,65 @@ const ChessVersionInfo = () => {
       >
         Information Panel for Chess Bot Versions
       </h1>
+      {isLoading ? (
+        <p className="site-surface-card rounded-lg p-4 text-center text-[color:var(--site-text-muted)]">
+          Loading chess engine metadata...
+        </p>
+      ) : null}
+      {error ? (
+        <p className="site-surface-card rounded-lg p-4 text-center text-[color:var(--site-text-muted)]">
+          Unable to load live chess engine metadata: {error}
+        </p>
+      ) : null}
       <div className="space-y-4">
-        {chessVersions.map((versionInfo, index) => (
-          <div key={index} className="site-surface-card rounded-lg p-4">
-            <h2 className="text-2xl font-semibold">
-              Chess Bot {versionInfo.version}
-            </h2>
+        {versions.map((versionInfo) => (
+          <div key={versionInfo.version} className="site-surface-card rounded-lg p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-2xl font-semibold">
+                Chess Bot {versionInfo.version}
+              </h2>
+              {versionInfo.version === latestServedVersion ? (
+                <span className="rounded-full border border-[color:var(--site-border)] px-2 py-1 text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
+                  Current
+                </span>
+              ) : null}
+              <span className="rounded-full border border-[color:var(--site-border)] px-2 py-1 text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
+                {versionInfo.served ? "Served" : "Not served"}
+              </span>
+            </div>
             <p className="mt-2">
-              <span className="font-bold">Summary:</span> {versionInfo.summary}
+              <span className="font-bold">Summary:</span>{" "}
+              {versionInfo.summary ??
+                versionInfo.implementation_summary ??
+                "No summary recorded."}
             </p>
             <p className="mt-2">
-              <span className="font-bold">What changed:</span>
+              <span className="font-bold">Hypotheses:</span>
             </p>
             <ul className="mt-1 list-inside list-disc">
-              {versionInfo.featuresImplemented.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
-              ))}
+              {versionInfo.hypotheses.length > 0 ? (
+                versionInfo.hypotheses.map((hypothesis) => (
+                  <li key={hypothesis}>{hypothesis}</li>
+                ))
+              ) : (
+                <li>No hypotheses recorded.</li>
+              )}
             </ul>
             <p className="mt-2">
-              <span className="font-bold">Score against stockfish-1350:</span>{" "}
-              {versionInfo.stockfish1350Score}
+              <span className="font-bold">Score against Stockfish (1350 Elo):</span>{" "}
+              {versionInfo.stockfish_1350?.text ?? "Not benchmarked."}
             </p>
             <p className="mt-2">
               <span className="font-bold">Limitations:</span>
             </p>
             <ul className="mt-1 list-inside list-disc">
-              {versionInfo.limitations.map((limitation, idx) => (
-                <li key={idx}>{limitation}</li>
-              ))}
+              {versionInfo.limitations.length > 0 ? (
+                versionInfo.limitations.map((limitation) => (
+                  <li key={limitation}>{limitation}</li>
+                ))
+              ) : (
+                <li>No limitations recorded.</li>
+              )}
             </ul>
           </div>
         ))}
