@@ -2,7 +2,7 @@
 
 import React from "react";
 import ChessContent from "./ChessContent";
-import WorkInProgress from "./WorkInProgress";
+import ChessIntro from "./ChessIntro";
 import NavBar from "@/app/components/shared/navigation/NavBar";
 
 const ChessPage = () => {
@@ -18,9 +18,7 @@ const ChessPage = () => {
           className="mx-auto pb-[50px] max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px] lg:w-[910px] 
               xl:w-[1160px] xxl:w-[1480px]"
         >
-          <WorkInProgress />
-
-          {/* Chess Content */}
+          <ChessIntro />
           <ChessContent />
         </div>
       </div>

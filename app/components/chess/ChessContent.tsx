@@ -77,6 +77,19 @@ const CHESS_METADATA_URL = `${CHESS_API_BASE_URL}/api/chess/metadata`;
 const STARTING_FEN = new Chess().fen();
 const BOARD_CONTAINER_CLASS =
   "mx-auto w-[500px] items-center justify-center text-center max-sm:w-[230px] max-xs:w-[230px]";
+const CHESS_V0_BASELINE: ChessVersionMetadata = {
+  version: "v0",
+  served: false,
+  summary:
+    "Baseline reference entry for the earliest local prototype before any served API version existed.",
+  hypotheses: [
+    "Establish legal move generation and a minimal playable browser integration first.",
+  ],
+  limitations: [
+    "Not exposed through the deployed API.",
+    "No benchmarked Stockfish result was recorded for this baseline.",
+  ],
+};
 
 const createGameId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -1260,13 +1273,21 @@ const ChessContent = () => {
             ? versionInfo.limitations
             : [],
         }));
+        const hasBaselineVersion = normalizedVersions.some(
+          (versionInfo) => versionInfo.version.toLowerCase() === CHESS_V0_BASELINE.version,
+        );
+        const normalizedVersionsWithBaseline = hasBaselineVersion
+          ? normalizedVersions
+          : [CHESS_V0_BASELINE, ...normalizedVersions];
 
         if (cancelled) {
           return;
         }
 
-        setChessVersions(normalizedVersions);
-        const servedVersions = normalizedVersions.filter((versionInfo) => versionInfo.served);
+        setChessVersions(normalizedVersionsWithBaseline);
+        const servedVersions = normalizedVersionsWithBaseline.filter(
+          (versionInfo) => versionInfo.served,
+        );
         const latestServedVersion = servedVersions.at(-1)?.version ?? "";
         setBotVersion((currentVersion) =>
           servedVersions.some((versionInfo) => versionInfo.version === currentVersion)

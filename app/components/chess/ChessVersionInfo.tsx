@@ -21,23 +21,25 @@ type ChessVersionInfoProps = {
   error: string | null;
 };
 
+const formatVersionLabel = (version: string) =>
+  version.startsWith("v") ? `V${version.slice(1)}` : version;
+
 const ChessVersionInfo = ({
   versions,
   isLoading,
   error,
 }: ChessVersionInfoProps) => {
-  const latestServedVersion = [...versions]
-    .reverse()
-    .find((versionInfo) => versionInfo.served)?.version;
+  const latestServedVersion = versions.findLast((versionInfo) => versionInfo.served)?.version;
+  const orderedVersions = [...versions].reverse();
 
   return (
     <div className="mt-4 p-4 text-[color:var(--site-text)]">
-      <h1
+      <h2
         className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
         max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
       >
-        Information Panel for Chess Bot Versions
-      </h1>
+        Information Panel
+      </h2>
       {isLoading ? (
         <p className="site-surface-card rounded-lg p-4 text-center text-[color:var(--site-text-muted)]">
           Loading chess engine metadata...
@@ -49,18 +51,24 @@ const ChessVersionInfo = ({
         </p>
       ) : null}
       <div className="space-y-4">
-        {versions.map((versionInfo) => (
+        {orderedVersions.map((versionInfo) => (
           <div key={versionInfo.version} className="site-surface-card rounded-lg p-4">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-2xl font-semibold">
-                Chess Bot {versionInfo.version}
+                Chess Bot {formatVersionLabel(versionInfo.version)}
               </h2>
               {versionInfo.version === latestServedVersion ? (
                 <span className="rounded-full border border-[color:var(--site-border)] px-2 py-1 text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
                   Current
                 </span>
               ) : null}
-              <span className="rounded-full border border-[color:var(--site-border)] px-2 py-1 text-xs uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
+              <span
+                className={`rounded-full border px-2 py-1 text-xs uppercase tracking-[0.12em] ${
+                  versionInfo.served
+                    ? "border-[color:rgba(110,231,183,0.4)] bg-[color:rgba(16,185,129,0.14)] text-[color:var(--site-accent-soft)]"
+                    : "border-[color:var(--site-border)] text-[color:var(--site-text-muted)]"
+                }`}
+              >
                 {versionInfo.served ? "Served" : "Not served"}
               </span>
             </div>
