@@ -79,7 +79,7 @@ const BOARD_CONTAINER_CLASS =
   "mx-auto w-[500px] items-center justify-center text-center max-sm:w-[230px] max-xs:w-[230px]";
 const CHESS_V0_BASELINE: ChessVersionMetadata = {
   version: "v0",
-  served: false,
+  served: true,
   summary:
     "Just a chess bot that checks every legal move, then full-sends one at random.",
   hypotheses: [
