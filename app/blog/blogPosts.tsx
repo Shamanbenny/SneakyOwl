@@ -39,7 +39,7 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     contentPath: "content/blog/chess-flask-coding-adventure.mdx",
     publishedAt: "2026-06-05",
     project: {
-      githubRepoUrl: "https://github.com/Shamanbenny/chess-flask",
+      githubRepoUrl: "https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/README.md",
     },
     slug: "chess-flask-coding-adventure",
     summary:

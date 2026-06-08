@@ -1,8 +1,8 @@
-Chess Flask started as a backend project I could show on my portfolio website: put a chess bot behind a Flask API, let the site call it, and give people something they could actually [play against in the browser](https://www.sneakyowl.net/chess).
+Chess Flask started as a backend project I could show on my portfolio website: put a chess bot behind a Flask API, let the site call it, and give people something they could actually [play against in the browser](/chess).
 
 But that was only the visible shape of the project. The real reason I started it was because I was heavily inspired by [Sebastian Lague](https://www.youtube.com/@SebastianLague)'s [Coding Adventure: Chess](https://www.youtube.com/watch?v=U4ogK0MIzqk). For the early versions, I was basically coding along with the 30 minutes video as a guide: build the simplest thing first, then add the next engine idea only after the previous one was clear enough to understand.
 
-That was how the project went up to around `v1.3`. Then school began, and like many side projects, Chess Flask was left sitting there for a while. It was not finished so much as paused at the point where the original burst of curiosity had to be placed on hold as the rest of mmy life's priority takes precedent.
+That was how the project went up to around `v1.3`. Then school began, and like many side projects, Chess Flask was left sitting there for a while. It was not finished so much as paused at the point where the original burst of curiosity had to be placed on hold as the rest of my life's priority takes precedent.
 
 I only picked it back up recently, after another stroke of inspiration during the summer holiday to continue what I had started. That second phase is where the project became much more interesting to me. The API was still there, and the portfolio integration still mattered, but the real question had changed: what does it actually mean for a chess engine to be usable?
 
@@ -10,7 +10,7 @@ That is where the rest of this journey begins. A move that is technically "corre
 
 ## The backend was never the hard part
 
-The first shape of the repository was easy to explain. [Chess Flask](https://github.com/Shamanbenny/chess-flask) exposes a small Flask backend, accepts a FEN string, and returns a move. The frontend can stay in the [SneakyOwl](https://github.com/Shamanbenny/SneakyOwl) website repository, while the chess engine logic lives in a separate backend repo that is deployed on Vercel.
+The first shape of the repository was easy to explain. [Chess Flask](https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/README.md) exposes a small Flask backend, accepts a FEN string, and returns a move. The frontend can stay in the [SneakyOwl](https://github.com/Shamanbenny/SneakyOwl) website repository, while the chess engine logic lives in a separate backend repo that is deployed on Vercel.
 
 That separation was useful because it kept the public integration clean:
 
@@ -147,7 +147,7 @@ That is why `v1.4` added a guarded mop-up heuristic. The idea was not to fake a 
 
 The quiescence logic also had to become more careful here as well. Letting quiet checking continuations spill too freely through search made some queen endgames expensive in a way that did not fit the purpose of the version. So the search had to be tightened again. This was the point where the engine work started to feel less like stacking features and more like controlling failure modes.
 
-### Time Budgeting changed the mmeaning of Progress
+### Time Budgeting changed the meaning of Progress
 
 `v1.5` was an important psychological shift because it stopped pretending fixed depth was the main user-facing metric.
 
@@ -176,7 +176,7 @@ So the split became:
 | Python | Flask routes, request validation, deployed backend behavior |
 | C# | Local search development, timing comparisons, performance experiments |
 
-If a final major engine version becomes note-worthy of being exposed publicly, it can be rewritten back into Python for the Flask surface. MMeanwhile, it also meant that for this phase of the project, I could reference `Chess-Coding-Adventure` much more easily since the two are built on the same C# language.
+If a final major engine version becomes note-worthy of being exposed publicly, it can be rewritten back into Python for the Flask surface. Meanwhile, it also meant that for this phase of the project, I could reference `Chess-Coding-Adventure` much more easily since the two are built on the same C# language.
 
 ### The port was NOT the One-stop Solution I'd hoped it was
 
@@ -200,13 +200,13 @@ That gap shaped the next phase.
 
 ## Autoresearch Came One Layer Too Early
 
-At this point in the project, I was getting rather impatient as I had wanted to learnt about a new automated paradigm for iterative improvement using CLI agents such as Codex, and I knew it was perfect for the project. As a result, the repo moved toward an automated experiment loop through [`autoresearch`](https://github.com/Shamanbenny/chess-flask/tree/main/autoresearch). The idea was appealing: utilize some form of engine-vs-engine evaluation to help approve/reject improvements made by Codex, instead of relying only on manual intuition and implementation.
+At this point in the project, I was getting rather impatient as I had wanted to learnt about a new automated paradigm for iterative improvement using CLI agents such as Codex, and I knew it was perfect for the project. As a result, the repo moved toward an automated experiment loop through [`autoresearch`](https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/autoresearch/README.md). The idea was appealing: utilize some form of engine-vs-engine evaluation to help approve/reject improvements made by Codex, instead of relying only on manual intuition and implementation.
 
-> I will cover more about this autonomous paradigm in my next blog [here](http://localhost:3000/blog/autoresearch-for-chess-bot).
+> I will cover more about this autonomous paradigm in my next blog [here](/blog/autoresearch-chess).
 
-At first, this decision looked promising. The original [`v2.0`](https://github.com/Shamanbenny/chess-flask/commit/db423caf1b8d3e0f89df051e0ab2777127195a77) passed the [evaluator](https://github.com/Shamanbenny/chess-flask/blob/main/autoresearch/EVALUATE.md) on its [first experiment](https://github.com/Shamanbenny/chess-flask/commit/583348d4340f55faa0855e3035b63b1284b613b1). That proved two useful things. First, the evaluator could approve a real improvement rather than only rejecting changes. Second, the [modified automated workflow](https://github.com/Shamanbenny/chess-flask/tree/main/autoresearch) was not just theoretical; it could actually move the engine forward.
+At first, this decision looked promising. The original [`v2.0`](https://github.com/Shamanbenny/chess-flask/commit/db423caf1b8d3e0f89df051e0ab2777127195a77) passed the [evaluator](https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/autoresearch/EVALUATE.md) on its [first experiment](https://github.com/Shamanbenny/chess-flask/commit/583348d4340f55faa0855e3035b63b1284b613b1). That proved two useful things. First, the evaluator could approve a real improvement rather than only rejecting changes. Second, the [modified automated workflow](https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/autoresearch/README.md) was not just theoretical; it could actually move the engine forward.
 
-Then the [later attempts](https://github.com/Shamanbenny/chess-flask/blob/8fc86540289d1fb09196b755ddf379a93b45edaa/autoresearch/ATTEMPTS.md) started getting rejected.
+Then the [later attempts](https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/autoresearch/ATTEMPTS.md) started getting rejected.
 
 The pattern was not just "this tweak failed to provide an advantage.", but rather that too many games were ending by `max_plies`, which meant that both engines (the previously approved engine as well as the newly modified engine) were often not able to convert any sort of advantages into checkmate inside the fixed game budget. Giving some thought onto "why" that might be the case, led to only one possible conclusion: _The engines simply cannot search meaningfully enough given the tight time budget._
 
@@ -238,4 +238,4 @@ The real constraint was more specific: **can the engine search enough meaningful
 
 Once that became the standard, the architecture and version history made more sense. That is why this project was worth documenting. The interesting part was not simply that the bot got faster. It was learning, version by version, all while you try to navigate its ambiguity.
 
-This is not the end for the project though. From this point on, the focus will shift more towards the `autoresearch` paradigm I had modified to work outside of iterative Neural Network experiments, which I can't wait to share with you more about [here](http://localhost:3000/blog/autoresearch-for-chess-bot)!
+This is not the end for the project though. From this point on, the focus will shift more towards the `autoresearch` paradigm I had modified to work outside of iterative Neural Network experiments, which I can't wait to share with you more about [here](/blog/autoresearch-chess)!

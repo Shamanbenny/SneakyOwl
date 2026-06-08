@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState, type ReactElement, type ReactNode } from "react";
-import { FaArrowUpRightFromSquare, FaReact } from "react-icons/fa6";
+import { FaArrowUpRightFromSquare, FaCode, FaReact } from "react-icons/fa6";
 import {
   SiTypescript,
   SiFirebase,
@@ -14,6 +14,7 @@ import {
   SiFastify,
   SiSocketdotio,
   SiOpenapiinitiative,
+  SiOpenai,
   SiNodedotjs,
   SiVite,
   SiFlask,
@@ -299,22 +300,25 @@ const PROJECTS: ProjectItem[] = [
   {
     architectureLabel: "Client-Server Architecture",
     architectureSummary:
-      "A Flask-based chess engine service exposes versioned move endpoints, while the Next.js frontend hosts the playable interface and calls the deployed engine remotely.",
+      "The original deployed chess system split responsibilities between a Flask API for move generation and a separate Next.js frontend that rendered the playable UI.",
     description: (
       <>
-        A browser-based chess interface backed by iterative chess bot versions exposed
-        through a Flask API. The standalone{" "}
+        The original public chess project: a browser-based interface backed by
+        manually iterated engine versions exposed through a Flask API. That
+        standalone backend no longer exists as its own live repository, so this{" "}
         <a
-          href="https://github.com/Shamanbenny/chess-flask"
+          href="https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/README.md"
           target="_blank"
           rel="noreferrer"
           className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
         >
-          chess-flask
+          archived commit
         </a>{" "}
-        repository powers the move generation logic, while this repo hosts the
-        UI used to test and play against each bot version. The project followed
-        an iterative build approach inspired by Sebastian Lague&apos;s{" "}
+        is now the clearest reference for the `chess-flask` phase. It represents
+        the manual Python era where the engine evolved from legal move
+        generation into stronger search heuristics before the project later
+        split into a separate autonomous research codebase. The work followed an
+        iterative build approach inspired by Sebastian Lague&apos;s{" "}
         <a
           href="https://www.youtube.com/watch?v=U4ogK0MIzqk"
           target="_blank"
@@ -323,16 +327,16 @@ const PROJECTS: ProjectItem[] = [
         >
           Coding Adventure: Chess
         </a>
-        , starting from legal move generation and basic search, then improving
-        successive versions with stronger evaluation and search heuristics.
+        .
       </>
     ),
     deployedSiteUrl: "/chess",
-    githubRepoUrl: "https://github.com/Shamanbenny/chess-flask",
-    image: "/landing/ChessFlask.png",
+    githubRepoUrl:
+      "https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/README.md",
+    image: "/landing/ChessFlask.jpg",
     infoUrl: "/blog/chess-flask-coding-adventure",
     link: "/blog/chess-flask-coding-adventure",
-    previewImage: "/landing/ChessFlask.png",
+    previewImage: "/landing/ChessFlask.jpg",
     projectType: "Backend Project",
     tags: [
       {
@@ -361,6 +365,85 @@ const PROJECTS: ProjectItem[] = [
       },
     ],
     text: "Chess Flask",
+  },
+  {
+    architectureLabel: "Autonomous Research Architecture",
+    architectureSummary:
+      "A Dockerized C#/.NET 8 chess API shares engine code with a local testing harness, while a Python orchestration layer runs constrained autonomous experiments against a fixed Stockfish baseline.",
+    description: (
+      <>
+        An autonomous improvement workflow for Chess Engines, serving as the follow-up 
+        project that split away from the earlier{" "}
+        <a
+          href="https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/README.md"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
+        >
+          chess-flask
+        </a>{" "}
+        phase. Instead of manually evolving a Flask engine for the portfolio site, 
+        this version rebuilds the serving path around a
+        Dockerized C#/.NET 8 backend and adds a Python-run experiment loop that
+        clones engine versions, evaluates them against fixed Stockfish tests,
+        and keeps only approved improvements, inspired by{" "}
+        <a
+          href="https://github.com/karpathy/autoresearch"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
+        >
+          Autoresearch
+        </a>
+        .
+      </>
+    ),
+    deployedSiteUrl: "/chess",
+    githubRepoUrl: "https://github.com/Shamanbenny/autoresearch-chess",
+    image: "/landing/AutoresearchChess.jpg",
+    infoUrl: "/blog/autoresearch-chess",
+    link: "https://github.com/Shamanbenny/autoresearch-chess",
+    previewImage: "/landing/AutoresearchChess.jpg",
+    projectType: "Backend Project",
+    tags: [
+      {
+        icon: <FaCode className="h-4 w-4" />,
+        id: "csharp-dotnet",
+        label: "C# / .NET 8",
+        priority: 1,
+      },
+      {
+        icon: <SiDocker className="h-4 w-4" />,
+        id: "docker",
+        label: "Docker",
+        priority: 2,
+      },
+      {
+        icon: <SiOpenai className="h-4 w-4" />,
+        id: "codex-sdk",
+        label: "Codex SDK",
+        priority: 3,
+      },
+      {
+        icon: <SiPython className="h-4 w-4" />,
+        id: "python",
+        label: "Python",
+        priority: 4,
+      },
+      {
+        icon: <FaReact className="h-4 w-4" />,
+        id: "react",
+        label: "React",
+        priority: 5,
+      },
+      {
+        icon: <SiTypescript className="h-4 w-4" />,
+        id: "typescript",
+        label: "TypeScript",
+        priority: 6,
+      },
+    ],
+    text: "Autoresearch Chess",
   },
 ].map((project) => ({
   ...project,

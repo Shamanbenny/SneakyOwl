@@ -17,6 +17,7 @@ import {
   SiJavascript,
   SiNodedotjs,
   SiNumpy,
+  SiOpenai,
   SiOpenapiinitiative,
   SiPandas,
   SiPostgresql,
@@ -157,6 +158,12 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
         showInLogoLoop: true,
       },
       {
+        icon: <FaCode className="h-4 w-4" />,
+        id: "dotnet",
+        label: ".NET / ASP.NET Core",
+        showInLogoLoop: false,
+      },
+      {
         icon: <SiFastapi className="h-4 w-4" />,
         id: "fastapi",
         label: "FastAPI",
@@ -172,6 +179,12 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
         icon: <SiOpenapiinitiative className="h-4 w-4" />,
         id: "openapi",
         label: "OpenAPI",
+        showInLogoLoop: true,
+      },
+      {
+        icon: <SiOpenai className="h-4 w-4" />,
+        id: "codex-sdk",
+        label: "Codex SDK",
         showInLogoLoop: true,
       },
       {

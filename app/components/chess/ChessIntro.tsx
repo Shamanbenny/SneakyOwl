@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { FaArrowUpRightFromSquare, FaReact } from "react-icons/fa6";
-import { SiFlask, SiPython, SiTypescript } from "react-icons/si";
+import { FaArrowUpRightFromSquare, FaCode, FaReact } from "react-icons/fa6";
+import { SiDocker, SiOpenai, SiPython, SiTypescript } from "react-icons/si";
 
 type IntroTag = {
   icon: React.ReactNode;
@@ -12,14 +12,24 @@ type IntroTag = {
 
 const INTRO_TAGS: IntroTag[] = [
   {
+    icon: <FaCode className="h-4 w-4" />,
+    id: "csharp-dotnet",
+    label: "C# / .NET 8",
+  },
+  {
+    icon: <SiDocker className="h-4 w-4" />,
+    id: "docker",
+    label: "Docker",
+  },
+  {
+    icon: <SiOpenai className="h-4 w-4" />,
+    id: "codex-sdk",
+    label: "Codex SDK",
+  },
+  {
     icon: <SiPython className="h-4 w-4" />,
     id: "python",
     label: "Python",
-  },
-  {
-    icon: <SiFlask className="h-4 w-4" />,
-    id: "flask",
-    label: "Flask",
   },
   {
     icon: <FaReact className="h-4 w-4" />,
@@ -35,12 +45,16 @@ const INTRO_TAGS: IntroTag[] = [
 
 const LINKS = [
   {
-    href: "/blog/chess-flask-coding-adventure",
-    label: "View Blog Post",
+    href: "/blog/autoresearch-chess",
+    label: "Read my Coding Adventure",
   },
   {
-    href: "https://github.com/Shamanbenny/chess-flask",
-    label: "View GitHub repo",
+    href: "/blog/autoresearch-chess",
+    label: "Learn to Automate Improvement",
+  },
+  {
+    href: "https://github.com/Shamanbenny/autoresearch-chess",
+    label: "View current GitHub Repo",
   },
 ];
 
@@ -67,33 +81,33 @@ const ChessIntro = () => {
           ))}
         </div>
         <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
-          A browser-based chess interface backed by iterative chess bot versions
-          exposed through a Flask API. The standalone{" "}
+          This page serves the current{" "}
           <a
-            href="https://github.com/Shamanbenny/chess-flask"
+            href="https://github.com/Shamanbenny/autoresearch-chess"
             target="_blank"
             rel="noreferrer"
             className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
           >
-            chess-flask
+            autoresearch-chess
           </a>{" "}
-          repository powers the move generation logic, while this repo hosts the UI
-          used to test and play against each bot version. The project followed an
-          iterative build approach inspired by Sebastian Lague&apos;s{" "}
+          project: a Dockerized C#/.NET 8 chess API that provides interactive play against
+          the engine versions exposed below, plus a Python-owned{" "}
           <a
-            href="https://www.youtube.com/watch?v=U4ogK0MIzqk"
+            href="https://github.com/karpathy/autoresearch"
             target="_blank"
             rel="noreferrer"
             className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
           >
-            Coding Adventure: Chess
-          </a>
-          , starting from legal move generation and basic search, then improving
-          successive versions with stronger evaluation and search heuristics.
+            autoresearch
+          </a>{" "}
+          inspired workflow that clones candidate engines, evaluates them against
+          a fixed Stockfish baseline, and only keeps approved improvements. The versions selectable
+          here come from the newer native-board C# engine lineage and its
+          autonomous research loop.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
           {LINKS.map((link, index) => (
-            <div key={link.href} className="contents">
+            <div key={`${link.label}-${index}`} className="contents">
               {index > 0 ? (
                 <span
                   aria-hidden="true"
