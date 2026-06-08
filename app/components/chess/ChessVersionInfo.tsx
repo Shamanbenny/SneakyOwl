@@ -91,7 +91,7 @@ const ChessVersionInfo = ({
               )}
             </ul>
             <p className="mt-2">
-              <span className="font-bold">Score against Stockfish (1350 Elo):</span>{" "}
+              <span className="font-bold">Score against Stockfish:</span>{" "}
               {versionInfo.stockfish_1350?.text ?? "Not benchmarked."}
             </p>
             <p className="mt-2">
