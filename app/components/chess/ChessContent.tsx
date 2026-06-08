@@ -8,22 +8,22 @@ import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 const CHESS_BOT_OPTIONS = [
   {
     label: "Chess Bot v3.0",
-    route: "chess_v3_0",
+    apiVersion: "v3_0",
     value: "v3.0",
   },
   {
     label: "Chess Bot v2.9",
-    route: "chess_v2_9",
+    apiVersion: "v2_9",
     value: "v2.9",
   },
   {
     label: "Chess Bot v2.0",
-    route: "chess_v2_0",
+    apiVersion: "v2_0",
     value: "v2.0",
   },
   {
     label: "Chess Bot v0",
-    route: "chess_v0",
+    apiVersion: "v0",
     value: "v0",
   },
 ] as const;
@@ -756,7 +756,7 @@ const logChessEndpointDebug = (
   );
   console.info("Endpoint", {
     url: endpoint,
-    route: selectedBot.route,
+    route: selectedBot.apiVersion,
     version: selectedBot.value,
     status: response.status,
     ok: response.ok,
@@ -1034,7 +1034,7 @@ const ChessContent = () => {
 
     try {
       setTurnMessage("Bot's turn");
-      const endpoint = `${CHESS_API_BASE_URL}/${selectedBot.route}`;
+      const endpoint = `${CHESS_API_BASE_URL}/api/chess/${selectedBot.apiVersion}`;
       const requestBody: ChessApiRequestPayload = { fen: currGame.fen() };
 
       if (selectedBot.value === "v3.0") {
@@ -1047,7 +1047,6 @@ const ChessContent = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.CHESS_API_KEY}`, // Use environment variable for the API key
         },
         body: JSON.stringify(requestBody),
       });
@@ -1292,7 +1291,7 @@ const ChessContent = () => {
           onChange={(e) => setBotVersion(e.target.value as ChessBotVersion)}
         >
           {CHESS_BOT_OPTIONS.map((option) => (
-            <option key={option.route} value={option.value}>
+            <option key={option.apiVersion} value={option.value}>
               {option.label}
             </option>
           ))}

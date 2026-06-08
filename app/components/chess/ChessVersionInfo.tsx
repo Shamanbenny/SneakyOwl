@@ -5,9 +5,9 @@ const ChessVersionInfo = () => {
     {
       version: "v3.0",
       summary:
-        "Current Flask route wrapper that checks an opening book first, then falls back to the v2.9 search engine with optional per-game transposition-table reuse.",
+        "Current C# API version with opening-book lookup and optional per-game transposition-table reuse on the Render-hosted backend.",
       featuresImplemented: [
-        "Adds the /chess_v3_0 endpoint with game_id-backed warm-instance search context.",
+        "Exposes the Render route /api/chess/v3_0 with game_id-backed warm-instance search context.",
         "Adds opening book lookup to deal with poor opening decision, and an optional per-game transposition-table reuse",
         "Returns opening-book diagnostics and transposition-table context details in the debug payload.",
       ],
@@ -21,7 +21,7 @@ const ChessVersionInfo = () => {
     {
       version: "v2.9",
       summary:
-        "Python route engine with a fixed move-time budget and richer search debug output.",
+        "C# API version with a fixed move-time budget and richer search debug output.",
       featuresImplemented: [
         "Extends v2.0 with positional evaluation updates, including rook file bonuses, passed-pawn pressure, and knight outpost scoring.",
       ],
@@ -32,7 +32,7 @@ const ChessVersionInfo = () => {
     {
       version: "v2.0",
       summary:
-        "Earlier Python v2 route built around the same fixed move-time search structure before the later positional evaluation additions.",
+        "Earlier C# API version built around the same fixed move-time search structure before the later positional evaluation additions.",
       featuresImplemented: [
         "Uses iterative deepening, negamax with alpha-beta pruning, quiescence search, and transposition-table reuse under a fixed 1-second move budget.",
       ],
