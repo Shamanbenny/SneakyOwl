@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+
 export type ChessEvaluationResult = {
   games?: number | null;
   wins?: number | null;
@@ -187,6 +189,35 @@ const buildPoints = (
 
 const formatRate = (value: number) => value.toFixed(4);
 
+const buildYDomain = (points: ChartPoint[]) => {
+  if (points.length === 0) {
+    return { min: 0, max: 1 };
+  }
+
+  const values = points.flatMap((point) =>
+    point.bestSoFar === null
+      ? [point.scoreRate]
+      : [point.scoreRate, point.bestSoFar],
+  );
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const range = Math.max(0.001, maxValue - minValue);
+  const padding = range * 0.0556;
+  let min = Math.max(0, minValue - padding);
+  let max = Math.min(1, maxValue + padding);
+
+  if (max - min < 0.05) {
+    const midpoint = (min + max) / 2;
+    min = Math.max(0, midpoint - 0.025);
+    max = Math.min(1, midpoint + 0.025);
+  }
+
+  return { min, max };
+};
+
+const buildYTicks = (min: number, max: number) =>
+  Array.from({ length: 5 }, (_, index) => min + ((max - min) * index) / 4);
+
 const pathFromPoints = (
   points: ChartPoint[],
   xScale: (value: number) => number,
@@ -270,21 +301,27 @@ const ChessScoreRateGraph = ({
     [opponentName, resolvedVersions],
   );
   const opponentLabel = getOpponentLabel(resolvedMetadata, opponentName);
+  const normalizedOpponentName = normalizeOpponentName(opponentName);
   const minExperiment = points[0]?.experimentNumber ?? 1;
   const maxExperiment = points[points.length - 1]?.experimentNumber ?? 1;
   const plotWidth = CHART_WIDTH - PADDING.left - PADDING.right;
   const plotHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
+  const yDomain = buildYDomain(points);
   const xScale = (value: number) =>
     PADDING.left +
     ((value - minExperiment) / Math.max(1, maxExperiment - minExperiment)) * plotWidth;
   const yScale = (value: number) =>
-    PADDING.top + (1 - Math.min(Math.max(value, 0), 1)) * plotHeight;
+    PADDING.top +
+    (1 -
+      (Math.min(Math.max(value, yDomain.min), yDomain.max) - yDomain.min) /
+        Math.max(0.001, yDomain.max - yDomain.min)) *
+      plotHeight;
   const bestPath = pathFromPoints(points, xScale, yScale);
   const xTicks = points.filter((_, index) => {
     const interval = Math.max(1, Math.ceil(points.length / 6));
     return index === 0 || index === points.length - 1 || index % interval === 0;
   });
-  const yTicks = [0, 0.25, 0.5, 0.75, 1];
+  const yTicks = buildYTicks(yDomain.min, yDomain.max);
 
   return (
     <section className={`site-surface-card relative rounded-lg p-4 ${className}`}>
@@ -307,8 +344,8 @@ const ChessScoreRateGraph = ({
             rejected
           </span>
           <span className="inline-flex items-center gap-1">
-            <span className="h-0.5 w-5 bg-[color:var(--site-accent)]" />
-            approved line
+            <span className="h-0.5 w-5 bg-[color:var(--site-accent-soft)] opacity-45" />
+            Running latest score rate
           </span>
         </div>
       </div>
@@ -331,6 +368,20 @@ const ChessScoreRateGraph = ({
 
       {points.length > 0 ? (
         <div className="relative overflow-x-auto">
+          <div
+            className="absolute left-0 top-1/2 z-[3] flex origin-center -translate-y-1/2 -rotate-90 items-center gap-1 text-xs text-[color:var(--site-text-muted)]"
+          >
+            <span>Score rate</span>
+            <InfoTooltip
+              ariaLabel="Score rate explanation"
+              preferredPlacement="top"
+              panelClassName="normal-case"
+            >
+              Higher is better. Score rate ranges from 0 to 1: 0 means the
+              engine lost every game against this evaluation opponent, while 1
+              means it won every game.
+            </InfoTooltip>
+          </div>
           <svg
             className="min-w-[620px]"
             viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
@@ -361,7 +412,7 @@ const ChessScoreRateGraph = ({
                   textAnchor="end"
                   className="fill-[color:var(--site-text-muted)] text-[12px]"
                 >
-                  {tick.toFixed(2)}
+                  {tick.toFixed(3)}
                 </text>
               </g>
             ))}
@@ -392,21 +443,13 @@ const ChessScoreRateGraph = ({
             >
               Experiment number
             </text>
-            <text
-              x={16}
-              y={PADDING.top + plotHeight / 2}
-              textAnchor="middle"
-              transform={`rotate(-90 16 ${PADDING.top + plotHeight / 2})`}
-              className="fill-[color:var(--site-text-muted)] text-[12px]"
-            >
-              Score rate
-            </text>
             {bestPath ? (
               <path
                 d={bestPath}
                 fill="none"
-                stroke="var(--site-accent)"
+                stroke="var(--site-accent-soft)"
                 strokeWidth="3"
+                strokeOpacity="0.42"
                 strokeLinecap="round"
               />
             ) : null}
@@ -436,9 +479,9 @@ const ChessScoreRateGraph = ({
                   <circle
                     cx={x}
                     cy={y}
-                    r={isApproved ? 6 : 5}
+                    r={isApproved ? 6 : 4}
                     fill={isApproved ? "var(--site-accent-soft)" : "#71717a"}
-                    stroke={isApproved ? "var(--site-accent)" : "#a1a1aa"}
+                    stroke={isApproved ? "var(--site-accent-strong)" : "#a1a1aa"}
                     strokeWidth="2"
                   />
                   <circle
@@ -482,6 +525,14 @@ const ChessScoreRateGraph = ({
             </div>
           ) : null}
         </div>
+      ) : null}
+
+      {normalizedOpponentName === "stockfish-1350" ? (
+        <p className="mt-3 border-t border-[color:var(--site-border)] pt-3 text-sm text-[color:var(--site-text-muted)]">
+          Note: V3.0 was a manual decision to trade short-term score rate for a
+          major chess-engine architecture change. That dip reflects the project
+          direction, not a flaw in the <code>autoresearch-chess</code> workflow.
+        </p>
       ) : null}
     </section>
   );
