@@ -44,7 +44,7 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     slug: "autoresearch-chess",
     summary:
       "A practical look at adapting autoresearch into a constrained chess-engine experiment loop, where Codex proposes its own changes.",
-    tags: ["Codex", "Autoresearch", "C#", "Chess Engine", "Experimentation", "Agentic Workflow"],
+    tags: ["Codex", "Autoresearch", "C#", "Chess Engine", "Python", "Experimentation", "Agentic Workflow"],
     title: "Autoresearch Chess: How I improved my Chess Bot without coding a single line",
     type: "project",
   },
