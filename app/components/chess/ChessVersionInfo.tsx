@@ -53,12 +53,15 @@ const ChessVersionInfo = ({
   isLoading,
   error,
 }: ChessVersionInfoProps) => {
-  const latestServedVersion = [...versions]
+  const approvedVersions = versions.filter(
+    (versionInfo) => versionInfo.status === "approved",
+  );
+  const latestServedVersion = [...approvedVersions]
     .filter((versionInfo) => versionInfo.served)
     .sort((leftVersion, rightVersion) =>
       compareVersionsDescending(leftVersion.version, rightVersion.version),
     )[0]?.version;
-  const orderedVersions = [...versions].sort((leftVersion, rightVersion) =>
+  const orderedVersions = [...approvedVersions].sort((leftVersion, rightVersion) =>
     compareVersionsDescending(leftVersion.version, rightVersion.version),
   );
 
@@ -78,6 +81,11 @@ const ChessVersionInfo = ({
       {error ? (
         <p className="site-surface-card rounded-lg p-4 text-center text-[color:var(--site-text-muted)]">
           Unable to load live chess engine metadata: {error}
+        </p>
+      ) : null}
+      {!isLoading && !error && orderedVersions.length === 0 ? (
+        <p className="site-surface-card rounded-lg p-4 text-center text-[color:var(--site-text-muted)]">
+          No approved chess bot information is available right now.
         </p>
       ) : null}
       <div className="space-y-4">
