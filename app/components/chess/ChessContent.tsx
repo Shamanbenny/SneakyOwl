@@ -1418,21 +1418,21 @@ const ChessContent = () => {
           defaultValue={game.fen()} // Set initial value as the current game's FEN
           ref={fenInputRef} // Attach the ref to the input element
         />
-        <div className="mt-2 flex items-center justify-center gap-2">
+        <div className="mt-2 flex flex-col items-center justify-center gap-2 sm:flex-row">
           <button
-            className="site-button-primary rounded px-4 py-2"
+            className="site-button-primary w-full rounded px-4 py-2 sm:w-auto"
             onClick={handleFenSubmit}
           >
             Submit FEN
           </button>
           <button
-            className="site-button-primary rounded px-4 py-2"
+            className="site-button-primary w-full rounded px-4 py-2 sm:w-auto"
             onClick={handleReset}
           >
             Reset
           </button>
           <button
-            className="site-button-primary rounded px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="site-button-primary w-full rounded px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             onClick={handleUndoPlayerMove}
             disabled={playerUndoFenStackRef.current.length === 0}
           >
@@ -1453,24 +1453,30 @@ const ChessContent = () => {
       </div>
       <div className="mt-4 text-center">
         Current Bot Version:
-        <select
-          className="site-select mx-2 rounded p-2"
-          value={botVersion}
-          onChange={(e) => setBotVersion(e.target.value)}
-          disabled={metadataLoading || servedBotOptions.length === 0}
-        >
-          {servedBotOptions.length > 0 ? (
-            servedBotOptions.map((option) => (
-              <option key={option.apiVersion} value={option.value}>
-                {option.label}
+        {metadataError ? (
+          <span className="mx-2 inline-flex rounded-full border border-[color:var(--site-border)] px-3 py-2 text-sm text-[color:var(--site-text-muted)]">
+            Live chess versions unavailable
+          </span>
+        ) : (
+          <select
+            className="site-select mx-2 rounded p-2"
+            value={botVersion}
+            onChange={(e) => setBotVersion(e.target.value)}
+            disabled={metadataLoading || servedBotOptions.length === 0}
+          >
+            {servedBotOptions.length > 0 ? (
+              servedBotOptions.map((option) => (
+                <option key={option.apiVersion} value={option.value}>
+                  {option.label}
+                </option>
+              ))
+            ) : (
+              <option value="">
+                {metadataLoading ? "Loading versions..." : "No served versions"}
               </option>
-            ))
-          ) : (
-            <option value="">
-              {metadataLoading ? "Loading versions..." : "No served versions"}
-            </option>
-          )}
-        </select>
+            )}
+          </select>
+        )}
       </div>
       <BoardHistoryPanel
         historyEntries={boardHistory}
@@ -1483,6 +1489,7 @@ const ChessContent = () => {
         metadata={chessMetadata}
         isLoading={metadataLoading}
         error={metadataError}
+        showFallbackGraphOnError
       />
       <ToastContainer
         position="bottom-right"

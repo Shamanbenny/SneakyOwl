@@ -105,13 +105,13 @@ const ChessIntro = () => {
           here come from the newer native-board C# engine lineage and its
           autonomous research loop.
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
+        <div className="mt-5 flex flex-col items-start gap-y-2 text-[0.82rem] font-semibold text-[color:var(--site-accent)] sm:text-[0.9rem] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
           {LINKS.map((link, index) => (
-            <div key={`${link.label}-${index}`} className="contents">
+            <React.Fragment key={`${link.label}-${index}`}>
               {index > 0 ? (
                 <span
                   aria-hidden="true"
-                  className="text-[0.7rem] text-[color:var(--site-text-faint)]"
+                  className="hidden text-[0.7rem] text-[color:var(--site-text-faint)] sm:inline"
                 >
                   •
                 </span>
@@ -125,7 +125,7 @@ const ChessIntro = () => {
                 {link.label}
                 <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
               </a>
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </article>

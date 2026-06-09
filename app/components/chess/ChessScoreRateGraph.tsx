@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
@@ -40,6 +40,7 @@ export type ChessMetadata = {
 
 type ChartPoint = {
   experimentNumber: number;
+  experimentLabel: string;
   version: string;
   status: string;
   scoreRate: number;
@@ -52,22 +53,34 @@ type ChartPoint = {
   bestSoFar: number | null;
 };
 
+type TooltipPosition = {
+  left: number;
+  top: number;
+};
+
 type ChessScoreRateGraphProps = {
   opponentName: string;
   metadata?: ChessMetadata;
   versions?: ChessVersionMetadata[];
   title?: string;
   className?: string;
+  axisTitleClassName?: string;
+  useSvgYAxisTitle?: boolean;
+  xAxisTitleClassName?: string;
 };
 
 const CHESS_METADATA_URL = "https://chess.sneakyowl.net/api/chess/metadata";
-const CHART_WIDTH = 860;
-const CHART_HEIGHT = 360;
+const CHANGELOG_FALLBACK_URL = "/blog/autoresearch-chess/CHANGELOG.json";
+const GRAPH_STAGE_WIDTH = 1400;
+const GRAPH_STAGE_HEIGHT = 600;
+const Y_AXIS_GUTTER_WIDTH = 92;
+const CHART_WIDTH = GRAPH_STAGE_WIDTH - Y_AXIS_GUTTER_WIDTH;
+const CHART_HEIGHT = GRAPH_STAGE_HEIGHT;
 const PADDING = {
-  top: 26,
-  right: 28,
-  bottom: 52,
-  left: 54,
+  top: 52,
+  right: 52,
+  bottom: 112,
+  left: 92,
 };
 
 const normalizeOpponentName = (value: string) =>
@@ -82,7 +95,10 @@ const getVersionSortValue = (version: string) =>
     .split(".")
     .map((part) => Number.parseInt(part, 10) || 0);
 
-const compareVersionsAscending = (leftVersion: string, rightVersion: string) => {
+const compareVersionsAscending = (
+  leftVersion: string,
+  rightVersion: string,
+) => {
   const leftParts = getVersionSortValue(leftVersion);
   const rightParts = getVersionSortValue(rightVersion);
   const maxLength = Math.max(leftParts.length, rightParts.length);
@@ -95,6 +111,11 @@ const compareVersionsAscending = (leftVersion: string, rightVersion: string) => 
   }
 
   return 0;
+};
+
+const isBaselineVersion = (version: string) => {
+  const [major = 0, minor = 0, patch = 0] = getVersionSortValue(version);
+  return major === 0 && minor === 0 && patch === 0;
 };
 
 const getOpponentResult = (
@@ -118,7 +139,10 @@ const getOpponentResult = (
   return undefined;
 };
 
-const getOpponentLabel = (metadata: ChessMetadata | undefined, opponentName: string) => {
+const getOpponentLabel = (
+  metadata: ChessMetadata | undefined,
+  opponentName: string,
+) => {
   const normalizedName = normalizeOpponentName(opponentName);
   const entry = Object.entries(metadata?.evaluation_opponents ?? {}).find(
     ([key]) => normalizeOpponentName(key) === normalizedName,
@@ -136,9 +160,13 @@ const getOpponentLabel = (metadata: ChessMetadata | undefined, opponentName: str
 
 export const getEvaluationOpponentNames = (metadata: ChessMetadata) => {
   const names = new Set<string>();
-  Object.keys(metadata.evaluation_opponents ?? {}).forEach((name) => names.add(name));
+  Object.keys(metadata.evaluation_opponents ?? {}).forEach((name) =>
+    names.add(name),
+  );
   metadata.versions?.forEach((version) => {
-    Object.keys(version.evaluation_opponents ?? {}).forEach((name) => names.add(name));
+    Object.keys(version.evaluation_opponents ?? {}).forEach((name) =>
+      names.add(name),
+    );
     if (version.stockfish_1350) {
       names.add("stockfish-1350");
     }
@@ -152,13 +180,17 @@ const buildPoints = (
   opponentName: string,
 ): ChartPoint[] => {
   let bestSoFar: number | null = null;
+  let experimentNumber = 0;
 
   return [...versions]
-    .sort((left, right) => compareVersionsAscending(left.version, right.version))
-    .map((version, index): ChartPoint | null => {
+    .sort((left, right) =>
+      compareVersionsAscending(left.version, right.version),
+    )
+    .map((version): ChartPoint | null => {
       const result = getOpponentResult(version, opponentName);
       const scoreRate =
-        typeof result?.score_rate === "number" && Number.isFinite(result.score_rate)
+        typeof result?.score_rate === "number" &&
+        Number.isFinite(result.score_rate)
           ? result.score_rate
           : null;
 
@@ -170,8 +202,14 @@ const buildPoints = (
         bestSoFar = scoreRate;
       }
 
+      const isBaseline = isBaselineVersion(version.version);
+      if (!isBaseline) {
+        experimentNumber += 1;
+      }
+
       return {
-        experimentNumber: index + 1,
+        experimentNumber,
+        experimentLabel: isBaseline ? "V0 baseline" : `${experimentNumber}`,
         version: version.version,
         status: version.status ?? "unknown",
         scoreRate,
@@ -246,11 +284,20 @@ const ChessScoreRateGraph = ({
   versions,
   title,
   className = "",
+  axisTitleClassName = "text-[24px] leading-none",
+  useSvgYAxisTitle = false,
+  xAxisTitleClassName = "text-[24px]",
 }: ChessScoreRateGraphProps) => {
-  const [fetchedMetadata, setFetchedMetadata] = useState<ChessMetadata | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const [fetchedMetadata, setFetchedMetadata] = useState<ChessMetadata | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(!metadata && !versions);
   const [error, setError] = useState<string | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<ChartPoint | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<TooltipPosition | null>(
+    null,
+  );
 
   useEffect(() => {
     if (metadata || versions) {
@@ -263,10 +310,14 @@ const ChessScoreRateGraph = ({
       setIsLoading(true);
       setError(null);
 
+      let backendErrorMessage: string | null = null;
+
       try {
         const response = await fetch(CHESS_METADATA_URL);
         if (!response.ok) {
-          throw new Error(`${response.status} ${response.statusText || "response"}`);
+          throw new Error(
+            `${response.status} ${response.statusText || "response"}`,
+          );
         }
 
         const nextMetadata = (await response.json()) as ChessMetadata;
@@ -274,8 +325,36 @@ const ChessScoreRateGraph = ({
           setFetchedMetadata(nextMetadata);
         }
       } catch (loadError) {
-        if (!cancelled) {
-          setError(loadError instanceof Error ? loadError.message : "Unknown metadata error");
+        backendErrorMessage =
+          loadError instanceof Error
+            ? loadError.message
+            : "Unknown metadata error";
+
+        try {
+          const fallbackResponse = await fetch(CHANGELOG_FALLBACK_URL);
+          if (!fallbackResponse.ok) {
+            throw new Error(
+              `${fallbackResponse.status} ${
+                fallbackResponse.statusText || "response"
+              }`,
+            );
+          }
+
+          const fallbackMetadata =
+            (await fallbackResponse.json()) as ChessMetadata;
+          if (!cancelled) {
+            setFetchedMetadata(fallbackMetadata);
+          }
+        } catch (fallbackError) {
+          if (!cancelled) {
+            const fallbackErrorMessage =
+              fallbackError instanceof Error
+                ? fallbackError.message
+                : "Unknown fallback metadata error";
+            setError(
+              `backend: ${backendErrorMessage}; fallback: ${fallbackErrorMessage}`,
+            );
+          }
         }
       } finally {
         if (!cancelled) {
@@ -309,7 +388,8 @@ const ChessScoreRateGraph = ({
   const yDomain = buildYDomain(points);
   const xScale = (value: number) =>
     PADDING.left +
-    ((value - minExperiment) / Math.max(1, maxExperiment - minExperiment)) * plotWidth;
+    ((value - minExperiment) / Math.max(1, maxExperiment - minExperiment)) *
+      plotWidth;
   const yScale = (value: number) =>
     PADDING.top +
     (1 -
@@ -323,15 +403,40 @@ const ChessScoreRateGraph = ({
   });
   const yTicks = buildYTicks(yDomain.min, yDomain.max);
 
+  const updateTooltipPosition = (
+    event: React.MouseEvent<SVGGElement>,
+  ) => {
+    const tooltipOffsetX = 18;
+    const tooltipOffsetY = 18;
+    const tooltipWidth = tooltipRef.current?.offsetWidth ?? 360;
+    const tooltipHeight = tooltipRef.current?.offsetHeight ?? 180;
+    const maxLeft = GRAPH_STAGE_WIDTH - tooltipWidth - 12;
+    const maxTop = GRAPH_STAGE_HEIGHT - tooltipHeight - 12;
+
+    setTooltipPosition({
+      left: Math.max(
+        12,
+        Math.min(event.nativeEvent.offsetX + tooltipOffsetX, maxLeft),
+      ),
+      top: Math.max(
+        12,
+        Math.min(event.nativeEvent.offsetY + tooltipOffsetY, maxTop),
+      ),
+    });
+  };
+
   return (
-    <section className={`site-surface-card relative rounded-lg p-4 ${className}`}>
+    <section
+      className={`site-surface-card relative rounded-lg p-4 ${className}`}
+    >
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h3 className="text-lg font-semibold text-[color:var(--site-text-strong)]">
             {title ?? `Score Rate vs ${opponentLabel}`}
           </h3>
           <p className="mt-1 text-sm text-[color:var(--site-text-muted)]">
-            Approved and rejected experiments with the current approved score line.
+            Approved and rejected experiments with the current approved score
+            line.
           </p>
         </div>
         <div className="flex flex-wrap gap-3 text-xs text-[color:var(--site-text-muted)]">
@@ -369,168 +474,266 @@ const ChessScoreRateGraph = ({
       {points.length > 0 ? (
         <div className="relative overflow-x-auto">
           <div
-            className="absolute left-0 top-1/2 z-[3] flex origin-center -translate-y-1/2 -rotate-90 items-center gap-1 text-xs text-[color:var(--site-text-muted)]"
+            className="relative"
+            style={{ width: `${GRAPH_STAGE_WIDTH}px`, height: `${GRAPH_STAGE_HEIGHT}px` }}
           >
-            <span>Score rate</span>
-            <InfoTooltip
-              ariaLabel="Score rate explanation"
-              preferredPlacement="top"
-              panelClassName="normal-case"
-            >
-              Higher is better. Score rate ranges from 0 to 1: 0 means the
-              engine lost every game against this evaluation opponent, while 1
-              means it won every game.
-            </InfoTooltip>
-          </div>
-          <svg
-            className="min-w-[620px]"
-            viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-            role="img"
-            aria-label={`Chess engine score-rate graph against ${opponentLabel}`}
-          >
-            <rect
-              x={PADDING.left}
-              y={PADDING.top}
-              width={plotWidth}
-              height={plotHeight}
-              rx="6"
-              fill="rgba(10, 10, 10, 0.22)"
-              stroke="rgba(212, 212, 216, 0.14)"
-            />
-            {yTicks.map((tick) => (
-              <g key={tick}>
-                <line
-                  x1={PADDING.left}
-                  y1={yScale(tick)}
-                  x2={CHART_WIDTH - PADDING.right}
-                  y2={yScale(tick)}
-                  stroke="rgba(212, 212, 216, 0.16)"
-                />
-                <text
-                  x={PADDING.left - 12}
-                  y={yScale(tick) + 4}
-                  textAnchor="end"
-                  className="fill-[color:var(--site-text-muted)] text-[12px]"
-                >
-                  {tick.toFixed(3)}
-                </text>
-              </g>
-            ))}
-            {xTicks.map((point) => (
-              <g key={point.version}>
-                <line
-                  x1={xScale(point.experimentNumber)}
-                  y1={PADDING.top}
-                  x2={xScale(point.experimentNumber)}
-                  y2={CHART_HEIGHT - PADDING.bottom}
-                  stroke="rgba(212, 212, 216, 0.08)"
-                />
-                <text
-                  x={xScale(point.experimentNumber)}
-                  y={CHART_HEIGHT - 24}
-                  textAnchor="middle"
-                  className="fill-[color:var(--site-text-muted)] text-[12px]"
-                >
-                  {point.experimentNumber}
-                </text>
-              </g>
-            ))}
-            <text
-              x={PADDING.left + plotWidth / 2}
-              y={CHART_HEIGHT - 4}
-              textAnchor="middle"
-              className="fill-[color:var(--site-text-muted)] text-[12px]"
-            >
-              Experiment number
-            </text>
-            {bestPath ? (
-              <path
-                d={bestPath}
-                fill="none"
-                stroke="var(--site-accent-soft)"
-                strokeWidth="3"
-                strokeOpacity="0.42"
-                strokeLinecap="round"
-              />
-            ) : null}
-            {points.map((point) => {
-              const isApproved = point.status === "approved";
-              const x = xScale(point.experimentNumber);
-              const y = yScale(point.scoreRate);
-
-              return (
-                <g
-                  key={`${point.version}-${point.experimentNumber}`}
-                  role="button"
-                  tabIndex={0}
-                  className="cursor-pointer outline-none"
-                  onMouseEnter={() => setHoveredPoint(point)}
-                  onMouseLeave={() => setHoveredPoint(null)}
-                  onFocus={() => setHoveredPoint(point)}
-                  onBlur={() => setHoveredPoint(null)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setHoveredPoint(point);
-                    }
-                  }}
-                  aria-label={`${formatVersionLabel(point.version)} score rate ${formatRate(point.scoreRate)}`}
-                >
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={isApproved ? 6 : 4}
-                    fill={isApproved ? "var(--site-accent-soft)" : "#71717a"}
-                    stroke={isApproved ? "var(--site-accent-strong)" : "#a1a1aa"}
-                    strokeWidth="2"
-                  />
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r="14"
-                    fill="transparent"
-                    stroke="transparent"
-                    className="cursor-pointer"
-                  />
-                </g>
-              );
-            })}
-          </svg>
-
-          {hoveredPoint ? (
-            <div className="site-tooltip-panel pointer-events-none absolute left-4 top-16 z-10 max-w-[280px] rounded-lg p-3 text-sm sm:left-auto sm:right-4">
-              <div className="flex items-center justify-between gap-3">
-                <strong className="text-[color:var(--site-text-strong)]">
-                  {formatVersionLabel(hoveredPoint.version)}
-                </strong>
-                <span className="rounded-full border border-[color:var(--site-border)] px-2 py-0.5 text-[11px] uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
-                  {hoveredPoint.status}
-                </span>
+            <div className="flex h-full items-stretch">
+              <div
+                className="flex shrink-0 items-center justify-center"
+                style={{ width: `${Y_AXIS_GUTTER_WIDTH}px` }}
+              >
+                {useSvgYAxisTitle ? (
+                  <div className="flex -rotate-90 items-center gap-2 whitespace-nowrap text-[color:var(--site-text-muted)]">
+                    <svg
+                      width="150"
+                      height="30"
+                      viewBox="0 0 150 30"
+                      aria-hidden="true"
+                      className="shrink-0 overflow-visible"
+                    >
+                      <text
+                        x="0"
+                        y="22"
+                        className="fill-[color:var(--site-text-muted)] text-[24px]"
+                      >
+                        Score rate
+                      </text>
+                    </svg>
+                    <InfoTooltip
+                      ariaLabel="Score rate explanation"
+                      preferredPlacement="top"
+                      panelClassName="normal-case"
+                    >
+                      Higher is better. Score rate ranges from 0 to 1: 0 means the
+                      engine lost every game against this evaluation opponent, while
+                      1 means it won every game.
+                    </InfoTooltip>
+                  </div>
+                ) : (
+                  <div
+                    className={`flex -rotate-90 items-center gap-2 whitespace-nowrap text-[color:var(--site-text-muted)] ${axisTitleClassName}`}
+                  >
+                    <span>Score rate</span>
+                    <InfoTooltip
+                      ariaLabel="Score rate explanation"
+                      preferredPlacement="top"
+                      panelClassName="normal-case"
+                    >
+                      Higher is better. Score rate ranges from 0 to 1: 0 means the
+                      engine lost every game against this evaluation opponent, while
+                      1 means it won every game.
+                    </InfoTooltip>
+                  </div>
+                )}
               </div>
-              <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
-                <dt className="text-[color:var(--site-text-muted)]">Experiment</dt>
-                <dd className="text-right">{hoveredPoint.experimentNumber}</dd>
-                <dt className="text-[color:var(--site-text-muted)]">Score rate</dt>
-                <dd className="text-right">{formatRate(hoveredPoint.scoreRate)}</dd>
-                <dt className="text-[color:var(--site-text-muted)]">Score</dt>
-                <dd className="text-right">
-                  {hoveredPoint.score ?? "n/a"}/{hoveredPoint.games ?? "n/a"}
-                </dd>
-                <dt className="text-[color:var(--site-text-muted)]">W/D/L</dt>
-                <dd className="text-right">
-                  {hoveredPoint.wins ?? "n/a"}/{hoveredPoint.draws ?? "n/a"}/
-                  {hoveredPoint.losses ?? "n/a"}
-                </dd>
-              </dl>
+              <svg
+                className="h-full flex-1"
+                viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+                role="img"
+                aria-label={`Chess engine score-rate graph against ${opponentLabel}`}
+              >
+                <rect
+                  x={PADDING.left}
+                  y={PADDING.top}
+                  width={plotWidth}
+                  height={plotHeight}
+                  rx="0"
+                  fill="rgba(10, 10, 10, 0.22)"
+                  stroke="rgba(212, 212, 216, 0.14)"
+                />
+                {yTicks.map((tick) => (
+                  <g key={tick}>
+                    <line
+                      x1={PADDING.left}
+                      y1={yScale(tick)}
+                      x2={CHART_WIDTH - PADDING.right}
+                      y2={yScale(tick)}
+                      stroke="rgba(212, 212, 216, 0.16)"
+                    />
+                    <text
+                      x={PADDING.left - 20}
+                      y={yScale(tick) + 8}
+                      textAnchor="end"
+                      className="fill-[color:var(--site-text-muted)] text-[22px]"
+                    >
+                      {tick.toFixed(3)}
+                    </text>
+                  </g>
+                ))}
+                {xTicks.map((point) => (
+                  <g key={point.version}>
+                    <line
+                      x1={xScale(point.experimentNumber)}
+                      y1={PADDING.top}
+                      x2={xScale(point.experimentNumber)}
+                      y2={CHART_HEIGHT - PADDING.bottom}
+                      stroke="rgba(212, 212, 216, 0.08)"
+                    />
+                    <text
+                      x={xScale(point.experimentNumber)}
+                      y={CHART_HEIGHT - 48}
+                      textAnchor="middle"
+                      className="fill-[color:var(--site-text-muted)] text-[22px]"
+                    >
+                      {point.experimentLabel}
+                    </text>
+                  </g>
+                ))}
+                <text
+                  x={PADDING.left + plotWidth / 2}
+                  y={CHART_HEIGHT - 10}
+                  textAnchor="middle"
+                  className={`fill-[color:var(--site-text-muted)] ${xAxisTitleClassName}`}
+                >
+                  Experiment number
+                </text>
+                {bestPath ? (
+                  <path
+                    d={bestPath}
+                    fill="none"
+                    stroke="var(--site-accent-soft)"
+                    strokeWidth="6"
+                    strokeOpacity="0.42"
+                    strokeLinecap="round"
+                  />
+                ) : null}
+                {points.map((point) => {
+                  const isApproved = point.status === "approved";
+                  const x = xScale(point.experimentNumber);
+                  const y = yScale(point.scoreRate);
+
+                  return (
+                    <g
+                      key={`${point.version}-${point.experimentNumber}`}
+                      role="button"
+                      tabIndex={0}
+                      className="cursor-pointer outline-none"
+                      onMouseEnter={(event) => {
+                        setHoveredPoint(point);
+                        updateTooltipPosition(event);
+                      }}
+                      onMouseMove={(event) => {
+                        setHoveredPoint(point);
+                        updateTooltipPosition(event);
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredPoint(null);
+                        setTooltipPosition(null);
+                      }}
+                      onFocus={() => {
+                        const tooltipWidth = tooltipRef.current?.offsetWidth ?? 360;
+                        const tooltipHeight = tooltipRef.current?.offsetHeight ?? 180;
+                        setHoveredPoint(point);
+                        setTooltipPosition({
+                          left: Math.max(
+                            12,
+                            Math.min(x + 18, GRAPH_STAGE_WIDTH - tooltipWidth - 12),
+                          ),
+                          top: Math.max(
+                            12,
+                            Math.min(y + 18, GRAPH_STAGE_HEIGHT - tooltipHeight - 12),
+                          ),
+                        });
+                      }}
+                      onBlur={() => {
+                        setHoveredPoint(null);
+                        setTooltipPosition(null);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setHoveredPoint(point);
+                          const tooltipWidth = tooltipRef.current?.offsetWidth ?? 360;
+                          const tooltipHeight = tooltipRef.current?.offsetHeight ?? 180;
+                          setTooltipPosition({
+                            left: Math.max(
+                              12,
+                              Math.min(x + 18, GRAPH_STAGE_WIDTH - tooltipWidth - 12),
+                            ),
+                            top: Math.max(
+                              12,
+                              Math.min(y + 18, GRAPH_STAGE_HEIGHT - tooltipHeight - 12),
+                            ),
+                          });
+                        }
+                      }}
+                      aria-label={`${formatVersionLabel(point.version)} score rate ${formatRate(point.scoreRate)}`}
+                    >
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r={isApproved ? 10 : 7}
+                        fill={isApproved ? "var(--site-accent-soft)" : "#71717a"}
+                        stroke={
+                          isApproved ? "var(--site-accent-strong)" : "#a1a1aa"
+                        }
+                        strokeWidth="3"
+                      />
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="24"
+                        fill="transparent"
+                        stroke="transparent"
+                        className="cursor-pointer"
+                      />
+                    </g>
+                  );
+                })}
+              </svg>
+
+                {hoveredPoint ? (
+                <div
+                  ref={tooltipRef}
+                  className="site-tooltip-panel pointer-events-none absolute z-10 max-w-[360px] rounded-lg p-4 text-[20px]"
+                  style={{
+                    left: `${tooltipPosition?.left ?? 12}px`,
+                    top: `${tooltipPosition?.top ?? 12}px`,
+                  }}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <strong className="text-[color:var(--site-text-strong)]">
+                      {formatVersionLabel(hoveredPoint.version)}
+                    </strong>
+                    <span className="rounded-full border border-[color:var(--site-border)] px-2 py-0.5 text-[14px] uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]">
+                      {hoveredPoint.status}
+                    </span>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+                    <dt className="text-[color:var(--site-text-muted)]">
+                      Experiment
+                    </dt>
+                    <dd className="text-right">{hoveredPoint.experimentLabel}</dd>
+                    <dt className="text-[color:var(--site-text-muted)]">
+                      Score rate
+                    </dt>
+                    <dd className="text-right">
+                      {formatRate(hoveredPoint.scoreRate)}
+                    </dd>
+                    <dt className="text-[color:var(--site-text-muted)]">Score</dt>
+                    <dd className="text-right">
+                      {hoveredPoint.score ?? "n/a"}/{hoveredPoint.games ?? "n/a"}
+                    </dd>
+                    <dt className="text-[color:var(--site-text-muted)]">W/D/L</dt>
+                    <dd className="text-right">
+                      {hoveredPoint.wins ?? "n/a"}/{hoveredPoint.draws ?? "n/a"}/
+                      {hoveredPoint.losses ?? "n/a"}
+                    </dd>
+                  </dl>
+                </div>
+              ) : null}
             </div>
-          ) : null}
+          </div>
         </div>
       ) : null}
 
       {normalizedOpponentName === "stockfish-1350" ? (
         <p className="mt-3 border-t border-[color:var(--site-border)] pt-3 text-sm text-[color:var(--site-text-muted)]">
-          Note: V3.0 was a manual decision to trade short-term score rate for a
-          major chess-engine architecture change. That dip reflects the project
+          <strong className="font-semibold text-[color:var(--site-text-strong)]">
+            Note:
+          </strong>{" "}
+          V3.0 was a manual decision to trade short-term score rate for a major
+          chess-engine architecture change. That dip reflects the project
           direction, not a flaw in the <code>autoresearch-chess</code> workflow.
         </p>
       ) : null}

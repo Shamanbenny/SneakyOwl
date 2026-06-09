@@ -13,6 +13,7 @@ type ChessVersionInfoProps = {
   metadata?: ChessMetadata;
   isLoading: boolean;
   error: string | null;
+  showFallbackGraphOnError?: boolean;
 };
 
 const formatVersionLabel = (version: string) =>
@@ -73,6 +74,7 @@ const ChessVersionInfo = ({
   metadata,
   isLoading,
   error,
+  showFallbackGraphOnError = false,
 }: ChessVersionInfoProps) => {
   const approvedVersions = versions.filter(
     (versionInfo) => versionInfo.status === "approved",
@@ -87,6 +89,8 @@ const ChessVersionInfo = ({
   );
   const graphMetadata = metadata ?? { versions };
   const opponentNames = getEvaluationOpponentNames(graphMetadata);
+  const shouldShowFallbackGraphOnly =
+    showFallbackGraphOnError && !isLoading && Boolean(error);
 
   return (
     <div className="mt-4 p-4 text-[color:var(--site-text)]">
@@ -118,11 +122,24 @@ const ChessVersionInfo = ({
               key={opponentName}
               opponentName={opponentName}
               metadata={graphMetadata}
+              axisTitleClassName="text-[12px] leading-none"
+              useSvgYAxisTitle
             />
           ))}
         </div>
       ) : null}
-      <div className="space-y-4">
+      {shouldShowFallbackGraphOnly ? (
+        <div className="mb-5 space-y-4">
+          <ChessScoreRateGraph
+            opponentName="stockfish-1350"
+            title="Autoresearch Score Rate vs Stockfish 1350"
+            axisTitleClassName="text-[12px] leading-none"
+            useSvgYAxisTitle
+          />
+        </div>
+      ) : null}
+      {!shouldShowFallbackGraphOnly ? (
+        <div className="space-y-4">
         {orderedVersions.map((versionInfo) => (
           <div key={versionInfo.version} className="site-surface-card rounded-lg p-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -201,7 +218,8 @@ const ChessVersionInfo = ({
             ) : null}
           </div>
         ))}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 };
