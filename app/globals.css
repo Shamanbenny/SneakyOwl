@@ -1275,6 +1275,20 @@ body *::selection {
   max-height: none;
 }
 
+.blog-post-video-frame {
+  margin: 1.75rem 0;
+}
+
+.blog-post-video {
+  display: block;
+  width: 100%;
+  max-height: min(70vh, 720px);
+  border: 1px solid var(--site-accent-border-soft);
+  border-radius: 20px;
+  background: var(--site-accent-glow-soft);
+  object-fit: contain;
+}
+
 .blog-heading {
   display: flex;
   align-items: baseline;

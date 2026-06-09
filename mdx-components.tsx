@@ -3,6 +3,8 @@ import type { MDXComponents } from "mdx/types";
 import BlogCodeBlock from "@/app/components/blog/BlogCodeBlock";
 import BlogPostHeading from "@/app/components/blog/BlogPostHeading";
 import BlogPostImage from "@/app/components/blog/BlogPostImage";
+import BlogPostVideo from "@/app/components/blog/BlogPostVideo";
+import ChessScoreRateGraph from "@/app/components/chess/ChessScoreRateGraph";
 import {
   DesignDivider,
   DesignSpecStyles,
@@ -23,6 +25,8 @@ import {
 import { Compare } from "@/app/components/shared/ui/compare";
 
 export const mdxComponents: MDXComponents = {
+  BlogPostVideo,
+  ChessScoreRateGraph,
   Compare,
   DesignDivider,
   DesignSpecStyles,

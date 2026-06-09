@@ -36,6 +36,19 @@ export type BlogPost = BlogPostMeta & {
 
 export const BLOG_POSTS: BlogPostMeta[] = [
   {
+    contentPath: "content/blog/autoresearch-chess.mdx",
+    publishedAt: "2026-06-09",
+    project: {
+      githubRepoUrl: "https://github.com/Shamanbenny/autoresearch-chess",
+    },
+    slug: "autoresearch-chess",
+    summary:
+      "A practical look at adapting autoresearch into a constrained chess-engine experiment loop, where Codex proposes its own changes.",
+    tags: ["Codex", "Autoresearch", "C#", "Chess Engine", "Experimentation", "Agentic Workflow"],
+    title: "Autoresearch Chess: How I improved my Chess Bot without coding a single line",
+    type: "project",
+  },
+  {
     contentPath: "content/blog/chess-flask-coding-adventure.mdx",
     publishedAt: "2026-06-05",
     project: {

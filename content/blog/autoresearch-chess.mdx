@@ -1,0 +1,205 @@
+The first time I left `autoresearch-chess` running overnight, I did not sleep soundly like someone who had just left their lab work in a controlled environment.
+
+I slept like someone who had probably left their baby alone with their kitchen toy set. Like sure, it probably couldn't go wrong, but you can never really be sure what sort of nonsense they might pull.
+
+That was the honest state of the project.
+
+The previous phase of [Chess Flask](/blog/chess-flask-coding-adventure) had already forced the chess engine into a more useful shape. By `v2.0`, the engine could finally search meaningful positions inside a `100ms` move budget. That mattered because an autonomous research loop is only as good as the feedback it receives. If each experiment is judged inside a broken experiment setup, then the loop is not doing research. It is trying to infer conclusion from noise.
+
+Once the engine became fast enough, a different question became possible:
+
+> Can a CLI agent propose chess-engine changes, run them through a fixed evaluator, reject weak ideas, approve useful ones, and leave behind enough conclusion that I can pass onto the next run?
+
+This post is about that loop. Less "this one feature improved the chess engine", more "look at how consistently the chess engine improves without my guidance"!
+
+<ChessScoreRateGraph
+  opponentName="stockfish-1350"
+  title="Autoresearch Score Rate vs Stockfish 1350"
+/>
+
+## What I changed from Karpathy's autoresearch
+
+The project was inspired by Andrej Karpathy's [`autoresearch`](https://github.com/karpathy/autoresearch), which was originally shaped around iterative experiments on a trainable artifact such as `train.py`.
+
+My chess engine did not fit that mold cleanly.
+
+There were no model weights to update. There was no training loss. There was no gradient descent hiding behind the curtain. Each candidate was a normal code change to a hand-written C# chess engine, defined by small set of hypotheses. While the baseline eventually became `stockfish-1350`, at this point in the project, I was still working with a head-to-head evaluation match between the latest highest scoring engine against the new candidate engine, where the memory between experiments existed only as an append-only attempt log.
+
+The memory part mattered most. I did not want the agent to simply "try things." I wanted it to feel like it was inheriting a lab notebook. The loop had to know that a bishop-pair bonus already failed. It had to know that piece-square tables worked. Those are different lessons for the next agent to build their hypotheses from, instead of just remixing old guesses.
+
+### My first overnight run
+
+The first autonomous sequence after `v2.0` started shakily.
+
+`v2.1` tried quiet-history move ordering. I interrupted it manually due to the starting sign of having way too many draws/losses. At that point, I was preparing to let the machine run while I slept, and so I wanted a visible sign that the loop could produce something useful before giving it the whole night.
+
+Then the sequence after started to look like the experiment trail I was hoping for:
+
+When I came back the next morning, we got multiple experiments from `v2.2` till `v2.9`, from which produced 4 approved improvements and 4 rejected experiments.
+
+<BlogPostVideo
+  src="/blog/autoresearch-chess/autoresearch-for-chess.mp4"
+  title="Showcase demonstration on the initial autoresearch-chess workflow"
+/>
+
+> This video showcases and highlights that exact autonomous workflow powered by Codex.
+
+This was everything I had hoped to get out of `autoresearch`. The first moment I saw it mentioned in [Caleb's video](https://www.youtube.com/watch?v=5-ekc3eXNvs) while doomscrolling, I knew what I had to accomplish for my Chess Engine! It had always been a difficult journey to manually improve a chess engine, not because the algorithm is complex to implement, but also that it requires time spent understanding chess theory before you could utilize those features.
+
+Say, we want to encourage the model to utilize its pawn more effectively, knowing that we need to give extra evaluation value to a pawn under certain scenario is only one half of the equation. The other half is knowing what makes a pawn actually worth protecting: Things like [passed pawn](https://www.chess.com/terms/passed-pawn) and [pawn structures](https://www.chess.com/terms/pawn-structure) only starts to make sense when you understand how Chess is played.
+
+However, this was far from over. The first approved numbers revealed a huge concern:
+
+| Version | Wins | Draws | Losses | Score rate |
+|---|---:|---:|---:|---:|
+| `v2.2` | 117 | 350 | 33 | 0.5840 |
+| `v2.5` | 118 | 315 | 67 | 0.5510 |
+
+The draw counts were consistently higher than both the wins and losses combined! These versions were stronger under the evaluator, but the games were still spending too much time in non-decisive territory. That is to say, neither the latest highest scoring engine nor the current candidate engine was able to convert the position into a decisive victory.
+
+### The Pitfall of Self-Play Evaluation
+
+There is an easy trap in self-play style evaluation: a candidate can look better than the previous version without actually becoming better in a stable sense.
+
+It may exploit one weakness of the old engine. It may steer games into positions both versions handle strangely. It may improve against yesterday's opponent while becoming less useful against anything else.
+
+That concern came up in a conversation with a friend who had dabble in reinforcement-learning before. The warning was simple: moving goalposts results in a slippery metrics. And while this project was not doing RL training, the warning still applied. If the main approval target keeps changing every new version, the loop can become too local.
+
+This was when I made the decision to change the evaluator baseline to `stockfish-1350` (Basically just stockfish set at 1350 elo).
+
+That gave every candidate a fixed and stable external opponent. It also made the numbers easier to reason about. Instead of saying "`v2.5` is better than `v2.2` under this particular succession rule", it made much more sense to argue that "`v2.9` scored way better than `v2.5` against stockfish".
+
+Re-running all approved versions so far against `stockfish-1350` produced a cleaner signal:
+
+| Version | Wins | Draws | Losses | Score rate |
+|---|---:|---:|---:|---:|
+| `v2.0` | 160 | 94 | 246 | 0.4140 |
+| `v2.2` | 258 | 110 | 132 | 0.6260 |
+| `v2.5` | 239 | 122 | 139 | 0.6000 |
+| `v2.8` | 247 | 110 | 143 | 0.6040 |
+| `v2.9` | 271 | 106 | 123 | 0.6480 |
+
+> From here, you can kind of see what I meant by the **earlier trap**: Just because `v2.5` was approved for scoring better against `v2.2`, does not mean that `v2.5` would score better than `v2.2` against a different opponent!
+
+Additional, I think it's important to note that while the draw problem did not disappear with this shift, it certainly became less dominant (My guess was that atleast stockfish was able to convert advantage far more consistently than my engines). More importantly, the evaluator became easier to trust. A fixed opponent cannot solve every measurement problem, but it definitely removes one source of drift.
+
+## "Get ready for a major remodel fellas", said Tony Stark
+
+After `v2.9`, I halted the process on developing more engines.
+
+`v2.9` had the best `v2` score rate so far: `0.6480` against `stockfish-1350`, adding a small knight outpost term on top of rook open-file scoring, boosting its board evaluation. And the pattern was clear: the agent was good at proposing narrow static evaluation improvements and validating them through the harness.
+
+But I had been wanting to make somme structural changes to the chess engine, mainly with utilizing some form of persistent transposition table, which would let a game reuse search memory instead of starting cold every turn, as well as an opening lookup which could avoid spending the full `100ms` budget on early-book positions.
+
+That became the new V3 lineage. It should be noted that `v3.0` actually scored lower than `v2.9` in the local evaluation: `0.6110` instead of `0.6480`. And under a purely automatic promotion rule, that would be rejected. However, for this specific modification, I approved it deliberately because the version was not meant to maximize the score immediately. It was meant to create a better base for future experiments.
+
+The thought process for why was straight-forward: Currently, we're **throwing away the Transposition Table entries after every move** made by the engine. While the debugging revealed that the transposition table was not a major part of what makes the search as fast as it was, I am looking into a future where our engine will continuously improve in its search efficiency. And when that happens, and we're able to search far deeper into the position, maintaining a populated transposition table becomes far more impactful in search optimization!
+
+This was when I had uncover a useful boundaries on the system while working on the project:
+
+> Autonomous research loops are good at local pressure. They are not automatically good at deciding when the coordinate system should change.
+
+The loop can test whether a candidate improves the current game. It can remember what failed. It can apply pressure against the benchmark. But someone still needs to decide when a lower short-term score is acceptable because the new structure opens a better search space.
+
+That is not a weakness of the loop. It is a _design responsibility_.
+
+### To halt or not to halt?
+
+The second major modification of the project came from my modification of the `autoresearch` workflow. Up till now, the paradigm leaned too heavily on Codex as the long-running orchestrator.
+
+Just to list what Codex was responsible for: The agent had instructions to follow. It had to read files across the repo to gather enough context. It was tasked to edit the engine source code for improvements. It had to run its own evaluation contract. It needed to ensure to update the `ATTEMPTS.md` after each experiment. And the hardest of all, it had to ensure version control via Git, where it has to make decisions on when to commit and when to `git reset` when an experiment is rejected.
+
+And as any experienced users of LLMs would tell you, [context rot](https://www.producttalk.org/context-rot/) starts to become an issue regardless of the models we're working with, and how much context windows it can handle. This means that certain instructions you absolutely want Codex to abide by, may just all of a sudden be forgotten!
+
+![Codex's Context Window Info via `/status`](/blog/autoresearch-chess/codex_context-window.png)
+
+> Here's an example screenshot on how Codex provides information on Context Windows via `/status` command.
+
+In the case of my chess evaluation, it was extremely slow, since I had to run roughly `500` games of chess, for an average of each game lasting about `10 seconds.` That's **one and a half hour** of non-stop evaluation! During those stretches, I saw the uncomfortable part of depending on a general CLI agent for workflow guarantees. _It might stop._ Codex might randomly decide that the run was taking too long. It might lose the exact importance of a rule (like the files they were not allowed to modify) after enough experiments. It might do almost everything right and then fail at the boring part that actually makes the experiment auditable.
+
+I did not want approval rules, git commits, evaluator execution, and attempt logging to depend on whether an agent stayed perfectly obedient for hours.
+
+So I moved the strict loop into Python.
+
+Codex still proposes and implements a candidate. Python owns the rest: sandbox creation, seed selection, per-run instruction generation, build execution, evaluation, approval or rejection, attempt logging, changelog updates, and commits.
+
+That split made the system less prone to random behavior, and provided far more control and confidence for the user.
+
+The agent no longer has to hold the whole protocol in its head. Each experiment starts with a fresh sandbox with only a focused `PROGRAM.md`, the relevant source file, a copied attempt history (kind of the lab notebook I was talking about), and a `RETURN.json` contract. From there, Codex only needs to make the candidate change and report on its decision (basically, what the hypotheses was and what the implementation includes), all while the **python orchestrator handles the parts where consistency matters more than creativity.**
+
+That makes the overall system more reliable and also cheaper in the ways that matter operationally:
+- less context to maintain
+- less token usage to burn on workflow bookkeeping
+- less room for inconsistent decisions around evaluator handling
+- a more repeatable contract between "agent proposes a change" and "system evaluates and records it"
+
+<div style={{ border: "1px solid rgba(148, 163, 184, 0.35)", borderRadius: "18px", padding: "1rem", margin: "1.5rem 0", background: "rgba(15, 23, 42, 0.04)" }}>
+  <strong>Media slot: workflow diagram.</strong>
+  <div style={{ marginTop: "0.45rem" }}>
+    Planned visual: <code>seed engine</code> to <code>sandbox</code> to <code>Codex candidate</code> to <code>build/evaluate</code> to <code>approve/reject</code> to <code>ATTEMPTS.md</code>. The main contrast should be "agent writes code" versus "script owns the lab protocol."
+  </div>
+</div>
+
+## What the attempt log started to teach
+
+Once the Python orchestrator was in place, the project stopped feeling like a proof-of-concept and started feeling like a small research apparatus. And let me say, this was the exact moment during the project where I felt like everything clicked like a well-oiled machine. I was able to consistently generate the next 16 experiments from `v3.1` to `v3.16`, without any issue stemming from the system level.
+
+The attempt log became more valuable than any single engine file. It was no longer just a changelog. It was a record of hypotheses under pressure.
+
+| Version | Score rate | Main accepted change |
+|---|---:|---|
+| `v3.4` | 0.6460 | Material-aware draw behavior |
+| `v3.5` | 0.7130 | Principal-variation search |
+| `v3.6` | 0.7350 | Root aspiration windows |
+| `v3.10` | 0.7470 | Late-move reductions and killer ordering |
+| `v3.11` | 0.7565 | Bishop mobility and passed-pawn conversion terms |
+| `v3.13` | 0.7775 | Guarded null-move pruning |
+| `v3.14` | 0.8085 | Reverse futility pruning |
+| `v3.15` | 0.8375 | Shallow quiet-move futility pruning |
+
+<BlogPostVideo
+  src="/blog/autoresearch-chess/modified_autoresearch-for-chess.webm"
+  title="Showcase demonstration on the modified autoresearch workflow"
+/>
+
+> This video showcases and highlights the modified and improved `autoresearch-chess` workflow that was powered by Python as an orchestrator using Codex SDK.
+
+I know many will argue that "You are not learning anything useful about Chess Engines at this point on, and is simply just letting the AI model do all the work". And while that is true to some extend, it was _never my intention to learn everything there is to know about how to make the perfect Chess Engine_. Just knowing the fundamentals to a good chess engine, especially with implementation features that can benefit other problems (e.g. Mini-max with Alpha-Beta pruning) is more than enough for me to be happy with my learning adventure.
+
+Ofcourse it is also not the fantasy of full autonomy that drives me to want to progress the chess engine even further in the future, but rather the practical narrowing of uncertainty that comes with slowly having a stronger engine that even I struggle to win against.
+
+## There is no perfect solution...
+
+### Rejection records may hinder the future
+
+In a normal feature workflow, a failed branch is often discarded. In this workflow however, the rejection itself serves as data. A rejected candidate tells the next run where not to waste effort on, or at least where to be more careful.
+
+For example, the rejected bishop-pair bonus was a reminder that chess intuition alone is too weak as an approval argument. The protected-passed-pawn attempt showed diminishing returns from stacking similar pawn bonuses. 
+
+This is where the append-only `ATTEMPTS.md` file became one of the most important artifacts in the repo. It gives future runs a memory that is more precise than "randomly come up with an improvement". It records the hypothesis, implementation summary, score rate and most importantly an inferred conclusion. That makes it possible to reason about whether an idea failed because it was conceptually bad, tested too early, implemented too broadly, or simply too expensive for a `100ms` engine.
+
+However, **there is a risk here too.** A growing attempt history can make the agent too conservative. A rejected idea from `v2.5` might deserve another attempt after `v3.15`, because the surrounding engine has changed. The log should discourage useless repetition of ideas, not forbid retesting forever.
+
+That is a subtle problem, and I do not think the current workflow solves it yet. I can't confidently test whether or not having these rejected attempt records negatively impact future experiment loops, so the best I can do is to be honest about it and let it be known.
+
+### Sacrificing the Rook for an Idea
+
+Another limitation lies in the system's setup for the experiments. Right now, each experiment tends to test one or two hypotheses. That is good for interpretability, while also minimizing the complexity of the engine so that Codex can reason about the implementation. But some improvements may require a dependency chain. Idea `A` might look weak until idea `B` exists. Idea `C` might only pay off after the search has a different pruning profile. If the loop mostly tries isolated changes, it may miss combinations that need scaffolding.
+
+> And no, increasing the number of hypotheses does not necessary tackle the innate flaw of the setup.
+
+## What this taught me about autonomous research
+
+The phrase "autonomous research" can easily become too large to be useful, so here is the narrower claim I am comfortable making:
+
+This workflow works well when _hypotheses can be be made about a given system_, when _evaluation is consistent and quantifiably sound_, and when `the benchmark is good enough to tell when the change yielded actual improvement`. And Chess happened to be a good testbed for it because chess-engine ideas can be written as concrete hypotheses. "Add a passed-pawn term", "Try principal-variation search". These are not vague product wishes. They are implementable claims about move quality under a time budget.
+
+The benchmark was also clear enough to punish bad ideas. `stockfish-1350` is not a perfect measure of chess strength, but it is a fixed opponent with enough resistance to expose many weak changes. That made the loop useful without pretending it was measuring everything.
+
+The biggest design shift was accepting that the agent should not own the lab. Agents are useful at proposing and editing. They are less trustworthy as the orchestrator of a long-running protocol. Once I moved that same orchestration into Python, the workflow became easier to trust. The system stopped relying on the agent's mood across a long session and started treating it as one component inside a stricter experiment machine.
+
+For now, the result is enough to justify continuing.
+
+The engine moved from `v2.0` scoring `0.4140` against `stockfish-1350` to `v3.15` scoring `0.8375` under the later full contract. The path there was not clean. It included rejected chess ideas, failed builds, manual judgment calls, and a rewrite of the workflow boundary itself.
+
+That mess is exactly why I trust the result more.

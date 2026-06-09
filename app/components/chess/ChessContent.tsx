@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { ToastContainer, toast, Slide } from "react-toastify";
-import ChessVersionInfo, { type ChessVersionMetadata } from "./ChessVersionInfo";
+import ChessVersionInfo, {
+  type ChessMetadata,
+  type ChessVersionMetadata,
+} from "./ChessVersionInfo";
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
 type ChessBotOption = {
@@ -68,9 +71,7 @@ type ChessApiRequestPayload = {
   reset_context?: boolean;
 };
 
-type ChessMetadataResponse = {
-  versions?: ChessVersionMetadata[];
-};
+type ChessMetadataResponse = ChessMetadata;
 
 const CHESS_API_BASE_URL = "https://chess.sneakyowl.net";
 const CHESS_METADATA_URL = `${CHESS_API_BASE_URL}/api/chess/metadata`;
@@ -85,8 +86,10 @@ const CHESS_V0_BASELINE: ChessVersionMetadata = {
   hypotheses: [
     "Surely random is better than doing absolutely nothing... right?",
   ],
-  stockfish_1350: {
-    text: "Why would anyone expect random nonsense to survive Stockfish? 0.0",
+  evaluation_opponents: {
+    "stockfish-1350": {
+      text: "Why would anyone expect random nonsense to survive Stockfish? 0.0",
+    },
   },
   limitations: [
     "Zero brain cells. It just moves and prays that you blunder harder than random play.",
@@ -955,6 +958,7 @@ const ChessContent = () => {
   const [latestApiResponse, setLatestApiResponse] =
     useState<ChessApiResponse | null>(null);
   const [chessVersions, setChessVersions] = useState<ChessVersionMetadata[]>([]);
+  const [chessMetadata, setChessMetadata] = useState<ChessMetadata | undefined>();
   const [metadataLoading, setMetadataLoading] = useState(true);
   const [metadataError, setMetadataError] = useState<string | null>(null);
   const [historyStartFen, setHistoryStartFen] = useState(STARTING_FEN);
@@ -1317,6 +1321,10 @@ const ChessContent = () => {
         }
 
         setChessVersions(normalizedVersionsWithBaseline);
+        setChessMetadata({
+          ...metadata,
+          versions: normalizedVersionsWithBaseline,
+        });
         const latestServedVersion =
           normalizedVersionsWithBaseline
             .filter((versionInfo) => versionInfo.served)
@@ -1339,6 +1347,7 @@ const ChessContent = () => {
         const message = error instanceof Error ? error.message : "Unknown metadata error";
         setMetadataError(message);
         setChessVersions([]);
+        setChessMetadata(undefined);
         setBotVersion("");
       } finally {
         if (!cancelled) {
@@ -1471,6 +1480,7 @@ const ChessContent = () => {
       <ChessDebugPanel response={latestApiResponse} />
       <ChessVersionInfo
         versions={chessVersions}
+        metadata={chessMetadata}
         isLoading={metadataLoading}
         error={metadataError}
       />

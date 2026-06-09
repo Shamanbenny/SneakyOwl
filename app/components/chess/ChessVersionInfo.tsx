@@ -1,22 +1,16 @@
 import React from "react";
 
-export type ChessVersionMetadata = {
-  version: string;
-  api_version?: string;
-  engine_file?: string;
-  served: boolean;
-  status?: string;
-  hypotheses: string[];
-  summary?: string;
-  implementation_summary?: string;
-  stockfish_1350?: {
-    text?: string;
-  };
-  limitations: string[];
-};
+import ChessScoreRateGraph, {
+  getEvaluationOpponentNames,
+  type ChessMetadata,
+  type ChessVersionMetadata,
+} from "./ChessScoreRateGraph";
+
+export type { ChessMetadata, ChessVersionMetadata };
 
 type ChessVersionInfoProps = {
   versions: ChessVersionMetadata[];
+  metadata?: ChessMetadata;
   isLoading: boolean;
   error: string | null;
 };
@@ -48,8 +42,35 @@ const compareVersionsDescending = (
   return 0;
 };
 
+const formatOpponentName = (name: string) => name.replace(/-/g, " ");
+
+const getBenchmarkTexts = (versionInfo: ChessVersionMetadata) => {
+  const benchmarkEntries = Object.entries(versionInfo.evaluation_opponents ?? {})
+    .map(([opponentName, result]) => ({
+      opponentName,
+      text: result.text,
+    }))
+    .filter((entry) => entry.text);
+
+  if (benchmarkEntries.length > 0) {
+    return benchmarkEntries;
+  }
+
+  if (versionInfo.stockfish_1350?.text) {
+    return [
+      {
+        opponentName: "stockfish-1350",
+        text: versionInfo.stockfish_1350.text,
+      },
+    ];
+  }
+
+  return [];
+};
+
 const ChessVersionInfo = ({
   versions,
+  metadata,
   isLoading,
   error,
 }: ChessVersionInfoProps) => {
@@ -64,6 +85,8 @@ const ChessVersionInfo = ({
   const orderedVersions = [...approvedVersions].sort((leftVersion, rightVersion) =>
     compareVersionsDescending(leftVersion.version, rightVersion.version),
   );
+  const graphMetadata = metadata ?? { versions };
+  const opponentNames = getEvaluationOpponentNames(graphMetadata);
 
   return (
     <div className="mt-4 p-4 text-[color:var(--site-text)]">
@@ -87,6 +110,17 @@ const ChessVersionInfo = ({
         <p className="site-surface-card rounded-lg p-4 text-center text-[color:var(--site-text-muted)]">
           No approved chess bot information is available right now.
         </p>
+      ) : null}
+      {!isLoading && !error && opponentNames.length > 0 ? (
+        <div className="mb-5 space-y-4">
+          {opponentNames.map((opponentName) => (
+            <ChessScoreRateGraph
+              key={opponentName}
+              opponentName={opponentName}
+              metadata={graphMetadata}
+            />
+          ))}
+        </div>
       ) : null}
       <div className="space-y-4">
         {orderedVersions.map((versionInfo) => (
@@ -132,12 +166,25 @@ const ChessVersionInfo = ({
                 <li>No hypotheses recorded.</li>
               )}
             </ul>
-            <p className="mt-2">
+            <div className="mt-2">
               <strong className="font-semibold text-[color:var(--site-text-strong)]">
-                Score against Stockfish:
+                Benchmark results:
               </strong>{" "}
-              {versionInfo.stockfish_1350?.text ?? "Not benchmarked."}
-            </p>
+              {getBenchmarkTexts(versionInfo).length > 0 ? (
+                <ul className="mt-1 list-inside list-disc">
+                  {getBenchmarkTexts(versionInfo).map((entry) => (
+                    <li key={entry.opponentName}>
+                      <span className="capitalize">
+                        {formatOpponentName(entry.opponentName)}:
+                      </span>{" "}
+                      {entry.text}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                "Not benchmarked."
+              )}
+            </div>
             {versionInfo.limitations.length > 0 ? (
               <>
                 <p className="mt-2">
