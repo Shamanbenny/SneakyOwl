@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import { useEffect, useState, type ReactElement, type ReactNode } from "react";
-import { FaArrowUpRightFromSquare, FaCode, FaReact } from "react-icons/fa6";
+import {
+  FaArrowUpRightFromSquare,
+  FaCode,
+  FaQuoteLeft,
+  FaQuoteRight,
+  FaReact,
+} from "react-icons/fa6";
 import {
   SiTypescript,
   SiFirebase,
@@ -47,6 +53,7 @@ type ProjectItem = FlowingMenuItemData & {
   projectType: string;
   tags: TechTag[];
   testimonial?: string[];
+  testimonialAttribution?: string;
 } & ProjectLinks;
 
 const FLOWING_MENU_VISIBLE_TAGS = {
@@ -302,6 +309,7 @@ const PROJECTS: ProjectItem[] = [
       "Under the leadership of Lee Jia Quan, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users.",
       "I am pleased to commend the team's professionalism, adaptability, and collaborative spirit. Their efforts exemplify the qualities of an effective software development team and showcase the practical impact that student-led projects can achieve when guided by a clear understanding of user needs.",
     ],
+    testimonialAttribution: "Dr. Andie, 14 June 2026",
     text: "Raffles Go",
   },
   {
@@ -459,30 +467,34 @@ const PROJECTS: ProjectItem[] = [
 
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
 
-const renderTestimonialTooltip = (testimonial: string[]) => (
+const renderTestimonialTooltip = (
+  testimonial: string[],
+  attribution?: string,
+) => (
   <div className="rounded-[14px] bg-[color:rgba(255,255,255,0.02)] px-4 py-3 text-[0.8rem] leading-6 text-[color:var(--site-text)]">
     <div className="space-y-4">
       {testimonial.map((paragraph, index) => (
         <p key={`${paragraph.slice(0, 32)}-${index}`} className="m-0">
           {index === 0 ? (
-            <span
+            <FaQuoteLeft
               aria-hidden="true"
-              className="mr-1 inline-block text-[1.3rem] font-semibold leading-none text-[color:var(--site-text-muted)]"
-            >
-              &ldquo;
-            </span>
+              className="mr-1 inline-block h-[0.8rem] w-[0.8rem] -translate-y-[0.02rem] text-[color:var(--site-text-muted)]"
+            />
           ) : null}
           {paragraph}
           {index === testimonial.length - 1 ? (
-            <span
+            <FaQuoteRight
               aria-hidden="true"
-              className="ml-1 inline-block text-[1.3rem] font-semibold leading-none text-[color:var(--site-text-muted)]"
-            >
-              &rdquo;
-            </span>
+              className="ml-1 inline-block h-[0.8rem] w-[0.8rem] -translate-y-[0.02rem] text-[color:var(--site-text-muted)]"
+            />
           ) : null}
         </p>
       ))}
+      {attribution ? (
+        <p className="m-0 text-[0.76rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--site-accent)]">
+          {attribution}
+        </p>
+      ) : null}
     </div>
   </div>
 );
@@ -589,7 +601,10 @@ const ProjectPreviewCard = ({
                   </button>
                 }
               >
-                {renderTestimonialTooltip(project.testimonial)}
+                {renderTestimonialTooltip(
+                  project.testimonial,
+                  project.testimonialAttribution,
+                )}
               </InfoTooltip>
             </>
           ) : null}
@@ -683,7 +698,10 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
                   </button>
                 }
               >
-                {renderTestimonialTooltip(project.testimonial)}
+                {renderTestimonialTooltip(
+                  project.testimonial,
+                  project.testimonialAttribution,
+                )}
               </InfoTooltip>
             </>
           ) : null}
