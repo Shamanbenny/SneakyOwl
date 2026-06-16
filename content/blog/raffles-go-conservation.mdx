@@ -264,7 +264,6 @@ To me, that is a much stronger outcome than simply saying the project was "done.
 
 <div
   style={{
-    position: "relative",
     margin: "1.5rem 0",
     padding: "1.4rem 1.35rem",
     borderLeft: "3px solid var(--site-accent-border-strong)",
@@ -272,52 +271,48 @@ To me, that is a much stronger outcome than simply saying the project was "done.
     background: "var(--site-bg-soft)",
   }}
 >
-  <div
-    aria-hidden="true"
-    style={{
-      position: "absolute",
-      top: "0.3rem",
-      left: "0.7rem",
-      fontSize: "3rem",
-      lineHeight: 1,
-      fontWeight: 700,
-      color: "var(--site-accent-border-strong)",
-      opacity: 0.7,
-    }}
-  >
-    "
-  </div>
-  <div
-    aria-hidden="true"
-    style={{
-      position: "absolute",
-      right: "0.9rem",
-      bottom: "-0.55rem",
-      fontSize: "3rem",
-      lineHeight: 1,
-      fontWeight: 700,
-      color: "var(--site-accent-border-strong)",
-      opacity: 0.7,
-    }}
-  >
-    "
-  </div>
-  <div style={{ position: "relative", zIndex: 1, padding: "0 1.1rem" }}>
-    <p style={{ marginTop: 0 }}>
+  <div style={{ display: "grid", gap: "1rem", padding: "0 1.1rem" }}>
+    <p style={{ margin: 0 }}>
+      <span
+        aria-hidden="true"
+        style={{
+          display: "inline-block",
+          marginRight: "0.2rem",
+          fontSize: "1.5rem",
+          lineHeight: 1,
+          fontWeight: 700,
+          color: "var(--site-text-muted)",
+        }}
+      >
+        &ldquo;
+      </span>
       What began as a project assignment for NUS CS3213 evolved into a solution with genuine potential for real-world deployment. The group demonstrated a strong commitment to understanding and addressing the pain points faced by both volunteers and organizers within the Raffles' Banded Langur Working Group (RBLWG) Citizen Science Programme.
     </p>
-    <p>
+    <p style={{ margin: 0 }}>
       Throughout the project, the group successfully fulfilled the key requirements and expectations that I briefly communicated at the start of the project. Additionally, suggestions raised during the demonstration sessions were implemented promptly, reflecting their technical competence and dedication to delivering a high-quality solution.
     </p>
-    <p>
+    <p style={{ margin: 0 }}>
       Under the leadership of <strong>Lee Jia Quan</strong>, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users.
     </p>
-    <p style={{ marginBottom: "0.85rem" }}>
+    <p style={{ margin: 0 }}>
       I am pleased to commend the team's professionalism, adaptability, and collaborative spirit. Their efforts exemplify the qualities of an effective software development team and showcase the practical impact that student-led projects can achieve when guided by a clear understanding of user needs.
+      <span
+        aria-hidden="true"
+        style={{
+          display: "inline-block",
+          marginLeft: "0.2rem",
+          fontSize: "1.5rem",
+          lineHeight: 1,
+          fontWeight: 700,
+          color: "var(--site-text-muted)",
+        }}
+      >
+        &rdquo;
+      </span>
     </p>
     <p
       style={{
-        marginBottom: 0,
+        margin: "0.1rem 0 0",
         fontSize: "0.95rem",
         fontWeight: 700,
         color: "var(--site-accent)",
