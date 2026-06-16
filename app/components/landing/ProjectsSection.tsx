@@ -46,6 +46,7 @@ type ProjectItem = FlowingMenuItemData & {
   previewImage: string;
   projectType: string;
   tags: TechTag[];
+  testimonial?: string;
 } & ProjectLinks;
 
 const FLOWING_MENU_VISIBLE_TAGS = {
@@ -295,6 +296,8 @@ const PROJECTS: ProjectItem[] = [
         priority: 4,
       },
     ],
+    testimonial:
+      "What began as a project assignment for NUS CS3213 evolved into a solution with genuine potential for real-world deployment. The group demonstrated a strong commitment to understanding and addressing the pain points faced by both volunteers and organizers within the Raffles' Banded Langur Working Group (RBLWG) Citizen Science Programme. Throughout the project, the group successfully fulfilled the key requirements and expectations that I briefly communicated at the start of the project. Additionally, suggestions raised during the demonstration sessions were implemented promptly, reflecting their technical competence and dedication to delivering a high-quality solution. Under the leadership of Lee Jia Quan, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users. I am pleased to commend the team's professionalism, adaptability, and collaborative spirit. Their efforts exemplify the qualities of an effective software development team and showcase the practical impact that student-led projects can achieve when guided by a clear understanding of user needs.",
     text: "Raffles Go",
   },
   {
@@ -452,6 +455,24 @@ const PROJECTS: ProjectItem[] = [
 
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
 
+const renderTestimonialTooltip = (testimonial: string) => (
+  <div className="relative overflow-hidden rounded-[14px] bg-[color:rgba(255,255,255,0.02)] px-4 py-3 text-[0.8rem] leading-6 text-[color:var(--site-text)]">
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute left-3 top-2 text-[1.9rem] font-semibold leading-none text-[color:var(--site-accent-border-strong)] opacity-70"
+    >
+      "
+    </span>
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute bottom-1 right-3 text-[1.9rem] font-semibold leading-none text-[color:var(--site-accent-border-strong)] opacity-70"
+    >
+      "
+    </span>
+    <p className="relative m-0 px-4">{testimonial}</p>
+  </div>
+);
+
 const ProjectPreviewCard = ({
   project,
   framed = true,
@@ -508,6 +529,19 @@ const ProjectPreviewCard = ({
           <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
             {project.description}
           </p>
+          {project.testimonial ? (
+            <div className="mt-4">
+              <InfoTooltip
+                ariaLabel={`${project.text} testimonial`}
+                className="inline-flex items-center rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]"
+                panelClassName="max-w-[min(420px,calc(100vw-24px))] rounded-[18px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 text-[color:var(--site-text-muted)] shadow-[0_18px_45px_rgba(0,0,0,0.3)]"
+                preferredPlacement="top"
+                trigger={<button type="button">Hover here</button>}
+              >
+                {renderTestimonialTooltip(project.testimonial)}
+              </InfoTooltip>
+            </div>
+          ) : null}
         </div>
         <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-2 pt-5 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
           {ctas.map((cta, index) => (
@@ -576,6 +610,19 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
         <p className="w-full text-[0.94rem] leading-7 text-[color:var(--site-text-strong)] sm:text-[0.98rem]">
           {project.description}
         </p>
+        {project.testimonial ? (
+          <div className="mt-4">
+            <InfoTooltip
+              ariaLabel={`${project.text} testimonial`}
+              className="inline-flex items-center rounded-full border border-[color:var(--site-accent-border-soft)] bg-[color:var(--site-bg-strong)] px-3 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-text-muted)]"
+              panelClassName="max-w-[min(420px,calc(100vw-24px))] rounded-[18px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 text-[color:var(--site-text-muted)] shadow-[0_18px_45px_rgba(0,0,0,0.3)]"
+              preferredPlacement="top"
+              trigger={<button type="button">Hover here</button>}
+            >
+              {renderTestimonialTooltip(project.testimonial)}
+            </InfoTooltip>
+          </div>
+        ) : null}
         <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.9rem] font-semibold text-[color:var(--site-accent)]">
           {ctas.map((cta, index) => (
             <div key={`${project.text}-${cta.key}`} className="contents">
