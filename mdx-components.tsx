@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa6";
 
 import BlogCodeBlock from "@/app/components/blog/BlogCodeBlock";
 import BlogPostHeading from "@/app/components/blog/BlogPostHeading";
@@ -25,6 +26,8 @@ import {
 import { Compare } from "@/app/components/shared/ui/compare";
 
 export const mdxComponents: MDXComponents = {
+  BlogInlineQuoteLeft: (props) => <FaQuoteLeft {...props} />,
+  BlogInlineQuoteRight: (props) => <FaQuoteRight {...props} />,
   BlogPostVideo,
   ChessScoreRateGraph,
   Compare,
