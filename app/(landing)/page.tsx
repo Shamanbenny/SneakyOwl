@@ -7,6 +7,7 @@ import CuriousCatClickTrap from "@/app/components/landing/CuriousCatClickTrap";
 import GitHubCommitSnake from "@/app/components/landing/GitHubCommitSnake";
 import LandingReviews from "@/app/components/landing/LandingReviews";
 import LandingTimeline from "@/app/components/landing/LandingTimeline";
+import type { TimelineFilter } from "@/app/components/landing/LandingTimeline";
 import LocationMapCard from "@/app/components/landing/LocationMapCard";
 import MagicBento from "@/app/components/landing/MagicBento";
 import ProfileHoloCard from "@/app/components/landing/ProfileHoloCard";
@@ -51,6 +52,8 @@ const LandingPage: React.FC = () => {
   const emailHref = "mailto:lee.jia.quan@u.nus.edu";
   const [isAliasHovered, setIsAliasHovered] = useState(false);
   const [isPageReady, setIsPageReady] = useState(false);
+  const [selectedTimelineFilter, setSelectedTimelineFilter] =
+    useState<TimelineFilter>("all");
 
   useEffect(() => {
     let isActive = true;
@@ -87,6 +90,10 @@ const LandingPage: React.FC = () => {
 
   const navigateToProjects = () => navigateToSection("projects");
   const navigateToTimeline = () => navigateToSection("timeline");
+  const navigateToTimelineFilter = (filter: TimelineFilter) => {
+    setSelectedTimelineFilter(filter);
+    navigateToTimeline();
+  };
 
   const renderCardEyebrow = (label: string, status?: "busy" | "available") => (
     <span className="inline-flex items-center gap-[0.45rem] text-[0.65em] uppercase tracking-[0.06em] text-[color:var(--site-text-muted)]">
@@ -158,7 +165,7 @@ const LandingPage: React.FC = () => {
     {
       id: "experience",
       size: "small" as const,
-      onClick: navigateToTimeline,
+      onClick: () => navigateToTimelineFilter("work"),
       content: renderDefaultCardContent({
         label: "Work Experience",
         value: "1 year",
@@ -168,7 +175,7 @@ const LandingPage: React.FC = () => {
     {
       id: "current-gpa",
       size: "small" as const,
-      onClick: navigateToTimeline,
+      onClick: () => navigateToTimelineFilter("education"),
       content: renderDefaultCardContent({
         label: "Current GPA",
         value: "4.5",
@@ -287,7 +294,7 @@ const LandingPage: React.FC = () => {
         <ProjectsSection />
         <SkillsSection />
         <div id="timeline" className="scroll-mt-[10px]">
-          <LandingTimeline />
+          <LandingTimeline selectedFilter={selectedTimelineFilter} />
         </div>
         <div
           id="reviews"

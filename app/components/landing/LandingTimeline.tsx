@@ -6,7 +6,7 @@ import "aos/dist/aos.css";
 import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
-type TimelineFilter = "all" | "education" | "work" | "misc";
+export type TimelineFilter = "all" | "education" | "work" | "misc";
 type TimelineCategory = Exclude<TimelineFilter, "all">;
 
 type TimelineItem = {
@@ -56,6 +56,17 @@ const TIMELINE_CATEGORY_META: Record<TimelineCategory, TimelineCategoryMeta> = {
 const TIMELINE_FILTERS: TimelineFilter[] = ["all", "work", "education", "misc"];
 
 const TIMELINE_ITEMS: TimelineItem[] = [
+  {
+    category: "work",
+    details: [
+      "Credit-bearing internship under NUS ATAP.",
+      "More details soon...",
+    ],
+    id: "synapxe-intern",
+    organization: "Synapxe",
+    period: "June 2026 - Dec 2026",
+    title: "Intern Software Engineer",
+  },
   {
     category: "education",
     details: [
@@ -201,8 +212,12 @@ const alignScrollToTimeline = () => {
   });
 };
 
-const LandingTimeline = () => {
-  const [activeFilter, setActiveFilter] = useState<TimelineFilter>("all");
+const LandingTimeline = ({
+  selectedFilter = "all",
+}: {
+  selectedFilter?: TimelineFilter;
+}) => {
+  const [activeFilter, setActiveFilter] = useState<TimelineFilter>(selectedFilter);
   const previousFilterRef = useRef<TimelineFilter | null>(null);
 
   useEffect(() => {
@@ -210,6 +225,10 @@ const LandingTimeline = () => {
   }, []);
 
   const filteredItems = getFilteredItems(activeFilter);
+
+  useEffect(() => {
+    setActiveFilter(selectedFilter);
+  }, [selectedFilter]);
 
   useEffect(() => {
     if (previousFilterRef.current === null) {
@@ -258,10 +277,9 @@ const LandingTimeline = () => {
                 setActiveFilter(filter);
               }}
               className={`rounded-full border px-4 py-2 text-[0.78rem] font-semibold uppercase tracking-[0.14em] transition-colors duration-150 sm:text-[0.82rem]
-                ${
-                  isActive
-                    ? "border-[color:var(--site-accent-border-soft)] bg-[color:var(--site-accent-strong)] text-[color:var(--site-text-strong)]"
-                    : "border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)] hover:text-[color:var(--site-text-strong)]"
+                ${isActive
+                  ? "border-[color:var(--site-accent-border-soft)] bg-[color:var(--site-accent-strong)] text-[color:var(--site-text-strong)]"
+                  : "border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)] hover:text-[color:var(--site-text-strong)]"
                 }`}
               aria-pressed={isActive}
             >
