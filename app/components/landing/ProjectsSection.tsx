@@ -461,13 +461,13 @@ const renderTestimonialTooltip = (testimonial: string) => (
       aria-hidden="true"
       className="pointer-events-none absolute left-3 top-2 text-[1.9rem] font-semibold leading-none text-[color:var(--site-accent-border-strong)] opacity-70"
     >
-      "
+      &ldquo;
     </span>
     <span
       aria-hidden="true"
       className="pointer-events-none absolute bottom-1 right-3 text-[1.9rem] font-semibold leading-none text-[color:var(--site-accent-border-strong)] opacity-70"
     >
-      "
+      &rdquo;
     </span>
     <p className="relative m-0 px-4">{testimonial}</p>
   </div>
