@@ -51,6 +51,7 @@ Open `http://localhost:3000` in your browser.
 app/
   (landing)/page.tsx    Landing page
   chess/page.tsx        Chess page
+  tools/                Planned useful-tools section
   components/           Reusable UI components
   globals.css           Global styles
 public/
@@ -67,8 +68,12 @@ Review that configuration before changing deployment targets.
 
 ## To-do
 
-- [X] Implement Collapsible Card for Projects and Skills on lg: breakpoints and smaller
-- [ ] Add Blog Posts & Project Blog Posts page
-- [ ] Create detailed Project Blog Posts for completed projects
-- [ ] Develop methods to pit Chess Bot versions against one another to get performance results over 1000 games for each comparison
-- [ ] Continue optimizing Chess Bot
+- [ ] Build `/tools` as a useful-tools section for practical day-to-day utilities.
+- [ ] Add the first tool under `app/tools/food-map/` using that slug only until a final name is chosen.
+- [ ] Reuse RafflesGo's Leaflet pattern for click-to-drop pins, draggable markers, GPS-based placement, and saved-marker detail views.
+- [ ] Decide whether Firebase or Supabase should power Google auth, personal food entries, share codes, watch lists, and revocation.
+- [ ] Design a personal food-place entry form with place name, cost per person, optional items bought, rating out of 10, and comments.
+- [ ] Add friend sharing through QR/link/manual code entry, plus controls to remove watched lists and stop sharing with specific viewers.
+- [ ] Add clustered map pins for close-proximity entries with a cluster detail list on click.
+- [ ] Resolve naming and product-scope questions in `app/tools/food-map/QUESTIONS.md`.
+- [x] Document the first-pass tools and food-map plan in `app/tools/`.
