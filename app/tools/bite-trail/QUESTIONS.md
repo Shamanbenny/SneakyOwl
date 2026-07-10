@@ -2,22 +2,7 @@
 
 ## Naming
 
-Would you like to keep the temporary `food-map` name, or choose something else?
-
-Current suggestions:
-
-- NibbleAtlas
-- MakanMarks
-- CraveCartographer
-- PlatePins
-- BiteTrail
-- Forkprints
-- TasteTrace
-- MealMosaic
-- Pinchlist
-- SnackSignal
-
-My shortlist is `BiteTrail`.
+Resolved: the tool is named **BiteTrail** and lives at `/tools/bite-trail`.
 
 ## Product Scope
 

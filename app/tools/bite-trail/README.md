@@ -1,6 +1,6 @@
-# Food Map Working Plan
+# BiteTrail Plan
 
-`food-map` is the temporary working name for a personal and social food-place map. Users sign in, drop pins for places they have eaten at, record meal details, and optionally view friends' shared lists on the same map.
+BiteTrail is a personal and social food-place map. Users sign in, drop pins for places they have eaten at, record meal details, and optionally view friends' shared lists on the same map.
 
 ## RafflesGo Map Behavior To Reuse
 
@@ -19,7 +19,7 @@ Important mechanics:
 - Manual latitude/longitude fields can push coordinates back into the map through `externalLat` and `externalLng`.
 - Saved records are rendered as `<Marker><Popup>...</Popup></Marker>` in the read-only map.
 
-Food Map should reuse the same conceptual split:
+BiteTrail should reuse the same conceptual split:
 
 - A reusable map picker for creating/editing one food-place entry.
 - A read-only/exploratory map for many saved food entries.
@@ -72,11 +72,11 @@ User/list fields:
 
 ## Implementation Todo
 
-- [ ] Choose final tool name and URL slug.
+- [x] Choose final tool name and URL slug: BiteTrail at `/tools/bite-trail`.
 - [ ] Decide backend: Firebase is the most direct fit because RafflesGo already uses Firebase patterns; Supabase is also viable if relational sharing rules are preferred.
-- [ ] Add `/tools` index route.
-- [ ] Add the first tool route under the selected slug.
-- [ ] Add Google sign-in.
+- [x] Add `/tools` index route.
+- [x] Add the first tool route under the selected slug.
+- [x] Add Google sign-in smoke-test UI.
 - [ ] Add database schema and access rules.
 - [ ] Build create/edit entry form.
 - [ ] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.
@@ -90,19 +90,6 @@ User/list fields:
 - [ ] Add empty, loading, auth-required, permission-denied, and offline/error states.
 - [ ] Verify mobile map usability, especially GPS permission errors and bottom-sheet detail panels.
 
-## Suggested Naming Directions
+## Name
 
-- **NibbleAtlas**: playful, compact, and map-forward.
-- **MakanMarks**: Singapore-flavored, memorable, and pin/list oriented.
-- **CraveCartographer**: distinctive, a little grand, and clearly map-based.
-- **PlatePins**: direct, simple, and easy to understand.
-- **BiteTrail**: emphasizes personal history and friend discovery.
-- **Forkprints**: suggests a footprint of meals over time.
-- **TasteTrace**: clean and flexible for future non-map food features.
-- **MealMosaic**: good if the tool leans into friends' lists layered together.
-- **Pinchlist**: short, app-like, and list/pin adjacent.
-- **SnackSignal**: quirky and social, better if sharing becomes central.
-
-## Current Recommendation
-
-Use `NibbleAtlas` or `MakanMarks` if the app should feel memorable and personal. Use `PlatePins` if the priority is immediate clarity.
+The selected product name is **BiteTrail**.

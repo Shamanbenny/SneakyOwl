@@ -10,8 +10,9 @@ import {
   FaHistory,
   FaLaptopCode,
   FaQuoteLeft,
+  FaTools,
 } from "react-icons/fa";
-import { FaBookOpen } from "react-icons/fa6";
+import { FaBookOpen, FaMapLocationDot } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
 import Dock, { type DockEntry } from "@/app/components/shared/navigation/Dock";
@@ -32,7 +33,7 @@ const SITE_COLORS = {
 } as const;
 
 type LandingSection = (typeof LANDING_SECTIONS)[number];
-type ActiveDockItem = LandingSection | "blog" | "chess" | null;
+type ActiveDockItem = LandingSection | "blog" | "chess" | "tools" | "biteTrail" | null;
 type MobileMenuItem = {
   ariaLabel: string;
   className?: string;
@@ -183,6 +184,16 @@ const NavBar = () => {
         return;
       }
 
+      if (pathname === "/tools/bite-trail") {
+        setActiveDockItem("biteTrail");
+        return;
+      }
+
+      if (pathname === "/tools" || pathname.startsWith("/tools/")) {
+        setActiveDockItem("tools");
+        return;
+      }
+
       setActiveDockItem(null);
       return;
     }
@@ -264,7 +275,18 @@ const NavBar = () => {
     router.push("/blog");
   };
 
+  const goToToolsPage = () => {
+    setActiveDockItem("tools");
+    router.push("/tools");
+  };
+
+  const goToBiteTrailPage = () => {
+    setActiveDockItem("biteTrail");
+    router.push("/tools/bite-trail");
+  };
+
   const currentPageHasSections = pathname === "/";
+  const currentPageHasTools = pathname === "/tools" || pathname.startsWith("/tools/");
   const sectionNavItems: SectionNavItem[] = currentPageHasSections
     ? [
         {
@@ -332,6 +354,24 @@ const NavBar = () => {
       label: "Chess Page",
       onClick: goToChessPage,
     },
+    ...(currentPageHasTools ? [{ type: "divider" as const }] : []),
+    {
+      className: dockItemClass(activeDockItem === "tools"),
+      icon: <FaTools size={19} />,
+      label: "Tools",
+      onClick: goToToolsPage,
+    },
+    ...(currentPageHasTools
+      ? [
+          {
+            className: dockItemClass(activeDockItem === "biteTrail"),
+            icon: <FaMapLocationDot size={19} />,
+            label: "BiteTrail",
+            onClick: goToBiteTrailPage,
+          },
+        ]
+      : []),
+    ...(currentPageHasTools ? [{ type: "divider" as const }] : []),
     {
       icon: <FaEnvelope size={18} />,
       label: "Email Me",
@@ -367,6 +407,22 @@ const NavBar = () => {
         label: "Chess Page",
         onClick: goToChessPage,
       },
+      {
+        ariaLabel: "Open the tools page",
+        className: mobileMenuItemClass(activeDockItem === "tools"),
+        label: "Tools",
+        onClick: goToToolsPage,
+      },
+      ...(currentPageHasTools
+        ? [
+            {
+              ariaLabel: "Open the BiteTrail tool",
+              className: mobileMenuItemClass(activeDockItem === "biteTrail"),
+              label: "> BiteTrail",
+              onClick: goToBiteTrailPage,
+            },
+          ]
+        : []),
     ],
     [
       {

@@ -17,7 +17,7 @@ and static assets served from `public/`.
 
 ### Prerequisites
 
-- Node.js 18 or later
+- Node.js 20 or later
 - npm
 
 ### Installation
@@ -68,12 +68,13 @@ Review that configuration before changing deployment targets.
 
 ## To-do
 
-- [ ] Build `/tools` as a useful-tools section for practical day-to-day utilities.
-- [ ] Add the first tool under `app/tools/food-map/` using that slug only until a final name is chosen.
+- [x] Build `/tools` as a useful-tools section for practical day-to-day utilities.
+- [x] Add the first tool under `app/tools/bite-trail/` using the BiteTrail name.
 - [ ] Reuse RafflesGo's Leaflet pattern for click-to-drop pins, draggable markers, GPS-based placement, and saved-marker detail views.
 - [ ] Decide whether Firebase or Supabase should power Google auth, personal food entries, share codes, watch lists, and revocation.
 - [ ] Design a personal food-place entry form with place name, cost per person, optional items bought, rating out of 10, and comments.
 - [ ] Add friend sharing through QR/link/manual code entry, plus controls to remove watched lists and stop sharing with specific viewers.
 - [ ] Add clustered map pins for close-proximity entries with a cluster detail list on click.
-- [ ] Resolve naming and product-scope questions in `app/tools/food-map/QUESTIONS.md`.
-- [x] Document the first-pass tools and food-map plan in `app/tools/`.
+- [ ] Resolve remaining product-scope questions in `app/tools/bite-trail/QUESTIONS.md`.
+- [x] Document the first-pass tools and BiteTrail plan in `app/tools/`.
+- [x] Add Firebase Google auth smoke-test UI for BiteTrail.

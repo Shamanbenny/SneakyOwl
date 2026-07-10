@@ -13,14 +13,15 @@ This folder is reserved for a future `/tools` section on SneakyOwl: a collection
 
 ```text
 app/tools/
-  page.tsx                  Tools index route, once implemented
+  page.tsx                  Tools index route
   README.md                 Planning notes for the tools section
-  food-map/
+  bite-trail/
+    page.tsx                BiteTrail route
     README.md               Product plan and todo list for the first tool
     ARCHITECTURE.md         Map/auth/database/sharing design notes
-    QUESTIONS.md            Clarifications to resolve before implementation
+    QUESTIONS.md            Remaining clarifications to resolve before full implementation
 ```
 
 ## Initial Tool
 
-The first planned tool is currently using the working slug `food-map`. The final product name is undecided; see `food-map/QUESTIONS.md` for naming options.
+The first tool is `BiteTrail`, available at `/tools/bite-trail`.

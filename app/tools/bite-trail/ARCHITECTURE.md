@@ -7,8 +7,8 @@ SneakyOwl already has Leaflet installed and imports `leaflet/dist/leaflet.css` i
 Recommended component split:
 
 ```text
-app/tools/[final-slug]/page.tsx
-app/components/tools/[final-slug]/
+app/tools/bite-trail/page.tsx
+app/components/tools/bite-trail/
   ToolShell.tsx
   AuthGate.tsx
   FoodEntryMap.tsx
@@ -157,7 +157,7 @@ Owners can:
 Share URL shape:
 
 ```text
-/tools/[final-slug]/join?code=<random-code>
+/tools/bite-trail/join?code=<random-code>
 ```
 
 Manual entry:
