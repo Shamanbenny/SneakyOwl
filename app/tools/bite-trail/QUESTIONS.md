@@ -1,8 +1,21 @@
 # Clarification Questions
 
-## Naming
+## Resolved Decisions
 
-Resolved: the tool is named **BiteTrail** and lives at `/tools/bite-trail`.
+- Naming: the tool is named **BiteTrail** and lives at `/tools/bite-trail`.
+- First tools route: `/tools`.
+- Initial auth provider: Firebase Google Authentication.
+- Map library: Leaflet.
+- Map tiles: OpenStreetMap default tiles.
+- Current map UI data: sample food entries only; not real backend data yet.
+- Current clustering approach: `leaflet.markercluster`, with a plain marker fallback if clustering fails to load.
+- Marker visual direction: teardrop pins.
+- Own-entry marker color: site green accent.
+- Friend-entry marker color: `--site-accent-cyan`, matching the landing page competition accent.
+- Cluster marker color: inverted black/accent teardrop with an accent count circle.
+- Rating format: whole-number rating out of 10.
+- Entry fields should include cuisine genre.
+- Privacy page exists for OAuth verification support, but no main navigation link is required.
 
 ## Product Scope
 
@@ -16,19 +29,28 @@ Resolved: the tool is named **BiteTrail** and lives at `/tools/bite-trail`.
 8. Should friends be able to see your full historical list immediately after adding your code, or should you approve watchers first?
 9. When you rotate/revoke a share code, should existing watchers keep access or lose access immediately?
 10. Should owner-side removal of a watcher notify the removed viewer in-app, silently remove access, or both?
-11. Should the rating be integer-only from 1 to 10, decimal from 0.0 to 10.0, or a quick slider?
+11. Should rating input be a segmented set of whole numbers, a stepper, or a slider constrained to integer values?
 12. Should cost per person be a number only, or should it allow ranges like `$10-$15`?
 13. Which default currency should be used: SGD, user's locale, or user-configurable?
 14. Should comments be private notes, friend-visible by default, or configurable per entry?
-15. Should users be able to export their list later as CSV/JSON?
-16. Should the app work meaningfully offline, at least for viewing cached entries or drafting a new entry?
-17. Should the public tools index show this as an experimental/beta tool or a polished utility?
+15. Should cuisine genre be single-select, multi-select, or free-text with suggestions?
+16. What initial cuisine genre set should ship? Current examples: fast food, western, Korean, Japanese, cafe, dessert, hawker.
+17. Should users be able to export their list later as CSV/JSON?
+18. Should the app work meaningfully offline, at least for viewing cached entries or drafting a new entry?
+19. Should the public tools index show this as an experimental/beta tool or a polished utility?
 
 ## Technical Decisions
 
-1. Firebase or Supabase?
-2. Is GitHub Pages/static export still the target deployment for SneakyOwl?
-3. If static export remains required, are you comfortable with all auth/database interactions happening through a browser SDK?
-4. Should we avoid introducing a backend server for now?
-5. Should marker clustering depend on a package, or should we implement a small custom cluster layer?
-6. Should map tiles remain OpenStreetMap default tiles, or should the tool use a custom tile provider/style?
+1. Is GitHub Pages/static export still the target deployment for SneakyOwl?
+2. If static export remains required, are you comfortable with all auth/database interactions happening through a browser SDK?
+3. Should real BiteTrail entries be stored directly through Firebase client SDK first, or should the later Flask/Vercel backend mediate any writes?
+4. Which BiteTrail workflows, if any, require the deferred Flask/Vercel backend instead of Firebase client SDK?
+5. Should marker clustering stay on `leaflet.markercluster`, or should it eventually become a custom cluster layer for tighter styling/control?
+6. Should map tiles remain OpenStreetMap default tiles long term, or should the tool use a custom tile provider/style later?
+7. Should `mockFoodEntries.ts` be renamed to `sampleFoodEntries.ts` once the current UI pass settles?
+
+## Known Sample Data Fixes
+
+- Ratings currently need correction to whole numbers.
+- Cuisine genre is missing and should be added before the sample data is used as a reference for form/schema work.
+- Sample entries should represent the eventual entry form fields: place name, cuisine genre, cost per person, optional items bought, whole-number rating out of 10, comments, owner/list source, and visit date.

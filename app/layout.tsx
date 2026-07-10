@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Ubuntu_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "./globals.css";
 
 const bodyFont = Ubuntu_Mono({ weight: "400", subsets: ["latin"] });

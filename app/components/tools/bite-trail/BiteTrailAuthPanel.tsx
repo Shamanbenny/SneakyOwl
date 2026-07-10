@@ -12,11 +12,8 @@ import {
 } from "firebase/auth";
 import { FaArrowRightFromBracket, FaGoogle, FaMapLocationDot } from "react-icons/fa6";
 
-import {
-  getFirebaseClient,
-  isFirebaseConfigured,
-  requiredFirebaseEnvVars,
-} from "@/lib/firebase";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import { getFirebaseClient } from "@/lib/firebase";
 
 const getReadableAuthError = (error: unknown) => {
   const authError = error as Partial<AuthError>;
@@ -61,6 +58,7 @@ const BiteTrailAuthPanel = () => {
 
   const loginWithGoogle = async () => {
     if (!firebaseClient) {
+      setAuthError("BiteTrail sign-in is not available right now.");
       return;
     }
 
@@ -95,60 +93,41 @@ const BiteTrailAuthPanel = () => {
     }
   };
 
-  if (!isFirebaseConfigured) {
-    return (
-      <div className="rounded-[22px] border border-[color:var(--site-accent-border-subtle)] bg-[color:var(--site-bg-soft)] p-5 text-[color:var(--site-text)] sm:p-6">
-        <p className="mb-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-accent-soft)]">
-          Firebase setup required
-        </p>
-        <p className="text-[0.95rem] leading-7 text-[color:var(--site-text-strong)]">
-          BiteTrail is ready to use Firebase auth, but the frontend environment
-          variables have not been filled in yet.
-        </p>
-        <div className="mt-4 grid gap-2 text-[0.82rem] text-[color:var(--site-text-muted)]">
-          {requiredFirebaseEnvVars.map((envVar) => (
-            <code
-              key={envVar}
-              className="rounded-lg border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] px-3 py-2"
-            >
-              {envVar}
-            </code>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="rounded-[22px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-5 sm:p-6">
+    <div className="site-surface-card rounded-[26px] p-5 sm:p-6 xl:flex xl:flex-col xl:justify-center">
       <div className="mb-5 flex items-center gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--site-accent-border-soft)] bg-[color:rgba(16,185,129,0.1)] text-[color:var(--site-accent-soft)]">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-[0.75rem] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)] text-[color:var(--site-accent-soft)] max-sm:hidden">
           <FaMapLocationDot className="h-5 w-5" />
         </span>
         <div>
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]">
             BiteTrail account
           </p>
-          <h2 className="text-[1.3rem] font-semibold text-[color:var(--site-text-strong)]">
-            {isAuthReady
-              ? user
-                ? `Welcome back, ${user.displayName ?? "food explorer"}`
-                : "Login with Google"
-              : "Checking session..."}
+          <h2 className="text-[1.3rem] font-semibold text-[color:var(--site-text-strong)] max-sm:text-[1.15rem]">
+            {!isAuthReady ? "Checking session..." : null}
+            {isAuthReady && !user ? "Get started here" : null}
+            {isAuthReady && user ? (
+              <span>
+                Welcome back, {(user.displayName || "food explorer") + " "}
+                {user.email ? (
+                  <span className="inline-flex align-middle">
+                    <InfoTooltip
+                      ariaLabel="Signed-in account"
+                      preferredPlacement="top"
+                      panelClassName="text-[color:var(--site-text-strong)]"
+                    >
+                      Signed in as {user.email}
+                    </InfoTooltip>
+                  </span>
+                ) : null}
+              </span>
+            ) : null}
           </h2>
         </div>
       </div>
 
       {user ? (
         <div className="flex flex-col gap-4">
-          <div className="rounded-[18px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] p-4">
-            <p className="text-[0.85rem] text-[color:var(--site-text-muted)]">
-              Signed in as
-            </p>
-            <p className="mt-1 break-words text-[color:var(--site-text-strong)]">
-              {user.email}
-            </p>
-          </div>
           <button
             type="button"
             onClick={logout}
@@ -164,7 +143,7 @@ const BiteTrailAuthPanel = () => {
           type="button"
           onClick={loginWithGoogle}
           disabled={isSubmitting || !isAuthReady}
-          className="site-button-primary inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg px-4 text-[0.92rem] font-semibold disabled:pointer-events-none disabled:opacity-55"
+          className="site-button-primary inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg px-4 sm:text-[0.92rem] font-semibold disabled:pointer-events-none disabled:opacity-55"
         >
           <FaGoogle className="h-4 w-4" />
           {isSubmitting ? "Opening Google..." : "Login with Google"}

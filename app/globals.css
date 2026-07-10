@@ -1698,6 +1698,128 @@ body *::selection {
   filter: saturate(0.8) brightness(0.92) contrast(1.08);
 }
 
+.bite-trail-map-frame .leaflet-container,
+.bite-trail-map-frame .leaflet-pane,
+.bite-trail-map-frame .leaflet-tile-container {
+  background-color: var(--site-bg-soft) !important;
+}
+
+.bite-trail-map-frame .leaflet-container {
+  font-family: inherit;
+}
+
+.bite-trail-map-frame .leaflet-control-container {
+  display: none;
+}
+
+.bite-trail-map-frame .leaflet-tile {
+  filter: saturate(0.96) contrast(1.02);
+}
+
+.bite-trail-marker-icon,
+.bite-trail-cluster-icon {
+  background: transparent;
+  border: 0;
+}
+
+.bite-trail-marker {
+  position: relative;
+  display: inline-flex;
+  width: 32px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.36));
+}
+
+.bite-trail-marker::before {
+  position: absolute;
+  top: 4px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  content: "";
+  transform: rotate(45deg);
+  border: 2px solid rgba(10, 10, 10, 0.92);
+  border-radius: 50% 50% 8% 50%;
+  background-color: var(--site-accent);
+}
+
+.bite-trail-marker__dot {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background-color: var(--site-bg-strong);
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.12);
+}
+
+.bite-trail-marker--friend::before {
+  background-color: var(--site-accent-cyan);
+}
+
+.bite-trail-cluster {
+  position: relative;
+  display: inline-flex;
+  width: 48px;
+  height: 54px;
+  align-items: center;
+  justify-content: center;
+  color: var(--site-bg-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.38));
+}
+
+.bite-trail-cluster::before {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 38px;
+  height: 38px;
+  content: "";
+  transform: rotate(45deg);
+  border: 2px solid var(--site-accent);
+  border-radius: 50% 50% 8% 50%;
+  background-color: var(--site-bg-strong);
+  box-shadow: 0 0 0 6px var(--site-accent-glow-faint);
+}
+
+.bite-trail-cluster span {
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  z-index: 1;
+  display: inline-flex;
+  min-width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background-color: var(--site-accent);
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.42);
+}
+
+.bite-trail-marker-tooltip {
+  border: 1px solid var(--site-border-strong);
+  border-radius: 999px;
+  background-color: var(--site-bg-chrome);
+  color: var(--site-text-strong);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
+  font-family: inherit;
+  font-size: 0.76rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.bite-trail-marker-tooltip::before {
+  border-top-color: var(--site-bg-chrome);
+}
+
 /* Original @media: max-sm:w-[300px] sm:w-[640px] md:w-[768px] lg:w-[1024px] xl:w-[1280px] xxl:w-[1600px] */
 /* Navbar: 64px from sm and md; 80px from lg onwards */
 /* Therefore... max-sm:w-[300px] sm:w-[560px] md:w-[680px] lg:w-[910px] xl:w-[1160px] xxl:w-[1480px] */

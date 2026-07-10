@@ -4,7 +4,22 @@
 
 SneakyOwl already has Leaflet installed and imports `leaflet/dist/leaflet.css` in `app/layout.tsx`, so the map implementation can stay in the existing stack.
 
-Recommended component split:
+Current implementation:
+
+```text
+app/tools/bite-trail/page.tsx
+app/components/tools/bite-trail/
+  BiteTrailAuthPanel.tsx
+  BiteTrailMap.tsx
+  BiteTrailSparklesTitle.tsx
+  mockFoodEntries.ts
+```
+
+`BiteTrailMap.tsx` is the current Leaflet/OpenStreetMap map foundation. It uses
+sample data for visual design, but the map component itself is intended to evolve into
+the real BiteTrail map rather than remain a temporary mock component.
+
+Longer-term component split:
 
 ```text
 app/tools/bite-trail/page.tsx
@@ -39,6 +54,7 @@ Exploration map:
 - Normalize entries into a single client-side map item model.
 - Render individual markers for sparse areas.
 - Cluster nearby markers by zoom level.
+- Use OpenStreetMap default tiles for now because they are more realistic and user-friendly than the previous black/gray map direction.
 - Cluster click behavior:
   - If zoomed out, optionally zoom toward cluster bounds.
   - Also open a side panel or bottom sheet with the represented entries.
@@ -52,14 +68,29 @@ Preferred detail UI:
 - Mobile: bottom sheet.
 - Popup can remain as a lightweight preview, but the richer description panel should be outside the Leaflet popup so forms, actions, and long comments remain usable.
 
+Current map UI decisions:
+
+- The "Singapore" recenter button calls `setView(SINGAPORE_CENTER, SINGAPORE_ZOOM)` in `BiteTrailMap.tsx`.
+- Change the default center by editing `SINGAPORE_CENTER`.
+- Change the default zoom by editing `SINGAPORE_ZOOM`.
+- Individual pins are teardrop markers, not regular circles.
+- Own-entry pins use black border, green accent fill, and black inner dot.
+- Friend-entry pins use the same shape but replace green with `--site-accent-cyan`, matching the landing page competition accent.
+- Cluster pins use the inverted treatment: green accent border, black fill, and green inner count circle.
+
 ## Clustering
 
-Options:
+Current choice:
 
-- Use a maintained Leaflet clustering package if compatible with React 19 and Next 15.
+- Use `leaflet.markercluster` for the first implementation.
+- Import the package client-side after Leaflet is loaded.
+- If the marker-cluster chunk fails, fall back to a plain Leaflet feature group so the map still renders without clusters.
+
+Alternative retained for later:
+
 - If package compatibility is poor, compute clusters in client state using current map bounds/zoom and a screen-pixel radius.
 
-First implementation can use a simple grid-based clustering algorithm:
+Possible custom grid-based clustering algorithm:
 
 - Convert lat/lng to map layer points with Leaflet's map projection.
 - Bucket points by `clusterRadiusPx`, for example 44 to 56 px.
@@ -70,7 +101,13 @@ This avoids coupling the app to an unmaintained React wrapper and keeps cluster 
 
 ## Backend Choice
 
-Firebase is the lower-friction first choice:
+Current decision:
+
+- Firebase Google Authentication is already wired into the BiteTrail auth smoke test.
+- The full data backend is still not implemented.
+- The separate Flask/Vercel backend can still be added later, but it is deferred while the UI and Firebase auth foundation are validated.
+
+Firebase remains the lower-friction first choice for BiteTrail storage:
 
 - RafflesGo already demonstrates Firebase auth, Firestore collections, and auth middleware patterns.
 - Google sign-in is first-class.
@@ -104,6 +141,7 @@ users/{userId}/entries/{entryId}
   latitude
   longitude
   geohash
+  cuisineGenre
   costPerPerson
   currency
   ratingOutOf10
@@ -135,6 +173,17 @@ Notes:
 - Use a random, high-entropy code, not an incrementing identifier.
 - Revoking a code should prevent new watchers from joining.
 - Existing watchers can either remain until explicitly removed or be removed on rotation; this is a product decision.
+- `ratingOutOf10` should be stored as an integer.
+- `cuisineGenre` should be added before real entry creation is implemented.
+
+## Sample Data Status
+
+`mockFoodEntries.ts` currently exists only to drive the visual map UI. It needs a cleanup pass before it is used as a schema reference:
+
+- Rename or document it clearly as sample data if the filename becomes confusing.
+- Convert ratings to whole numbers.
+- Add cuisine genre values such as fast food, western, Korean, Japanese, cafe, dessert, and hawker.
+- Keep the sample entries close to the fields expected in the real create/edit form.
 
 ## Access Rules
 

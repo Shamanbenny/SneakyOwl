@@ -48,9 +48,10 @@ Entry fields:
 - `placeName`
 - `latitude`
 - `longitude`
+- `cuisineGenre` such as fast food, western, Korean, Japanese, cafe, dessert, hawker, etc.
 - `costPerPerson`
 - `currency`
-- `ratingOutOf10`
+- `ratingOutOf10` as a whole number
 - `itemsBought` optional text/list
 - `comments`
 - `visitedAt`
@@ -73,16 +74,24 @@ User/list fields:
 ## Implementation Todo
 
 - [x] Choose final tool name and URL slug: BiteTrail at `/tools/bite-trail`.
-- [ ] Decide backend: Firebase is the most direct fit because RafflesGo already uses Firebase patterns; Supabase is also viable if relational sharing rules are preferred.
+- [x] Decide initial auth provider: Firebase Google Authentication.
 - [x] Add `/tools` index route.
 - [x] Add the first tool route under the selected slug.
 - [x] Add Google sign-in smoke-test UI.
+- [x] Add a Leaflet/OpenStreetMap map preview using sample food-entry data.
+- [x] Add selected pin detail panel and cluster list panel.
+- [x] Add marker clustering with `leaflet.markercluster`.
+- [x] Use realistic OpenStreetMap tiles instead of a black/gray map style.
+- [x] Style map pins as teardrops, with green for own entries and the landing page competition blue for friends.
+- [ ] Decide final backend/storage shape for entries, share codes, watch lists, and revocation. Firebase is still the strongest current direction, but the separate Flask/Vercel backend is deferred for later.
+- [ ] Correct the sample food-entry data before treating it as the model source of truth:
+  - Ratings should be whole numbers out of 10, not decimal scores.
+  - Entries need a cuisine genre such as fast food, western, Korean, Japanese, cafe, dessert, or hawker.
+  - Sample copy should model the actual fields expected in the entry form.
 - [ ] Add database schema and access rules.
 - [ ] Build create/edit entry form.
 - [ ] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.
-- [ ] Build read-only map with selected pin detail panel.
-- [ ] Add marker clustering for nearby entries.
-- [ ] Add cluster click panel listing all entries represented by that cluster.
+- [ ] Connect the current map preview to real persisted entries once storage is ready.
 - [ ] Add share code generation and QR rendering.
 - [ ] Add friend-list import by code/link.
 - [ ] Add watch-list management.
@@ -93,3 +102,17 @@ User/list fields:
 ## Name
 
 The selected product name is **BiteTrail**.
+
+## Decisions So Far
+
+- Tools route: `/tools`.
+- BiteTrail route: `/tools/bite-trail`.
+- Authentication smoke test: Firebase Google Authentication.
+- Current map library: Leaflet.
+- Current map tiles: OpenStreetMap default tiles.
+- Current clustering package: `leaflet.markercluster`.
+- Detail layout: desktop side panel, mobile-friendly stacked panel for now.
+- Marker colors: own entries use the site green accent; friend entries use `--site-accent-cyan`, matching the landing page competition accent.
+- Rating format: whole-number score out of 10.
+- Required entry taxonomy: add cuisine genre.
+- The current data is sample data for visual design only and should not be treated as final schema correctness.

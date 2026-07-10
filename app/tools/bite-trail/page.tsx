@@ -1,56 +1,37 @@
-import { Poppins } from "next/font/google";
-import Link from "next/link";
-
 import BiteTrailAuthPanel from "@/app/components/tools/bite-trail/BiteTrailAuthPanel";
+import BiteTrailMap from "@/app/components/tools/bite-trail/BiteTrailMap";
 import BiteTrailSparklesTitle from "@/app/components/tools/bite-trail/BiteTrailSparklesTitle";
 import NavBar from "@/app/components/shared/navigation/NavBar";
 
-const biteTrailFont = Poppins({ weight: "400", subsets: ["latin"] });
-
 export default function BiteTrailPage() {
   return (
-    <div className={`site-page-shell min-h-screen ${biteTrailFont.className}`}>
+    <div className="site-page-shell min-h-screen">
       <NavBar />
       <main
-        className="mx-auto grid min-h-screen content-center gap-6 pt-[96px]
+        className="mx-auto grid min-h-screen content-center gap-6 max-sm:pt-4 pt-[100px]
           max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
           lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
       >
-        <BiteTrailSparklesTitle />
+        <BiteTrailSparklesTitle>
+          <section className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.7fr)] xxl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:items-stretch">
+            <div className="site-surface-card flex min-h-[200px] flex-col justify-between overflow-hidden rounded-[26px] border-[color:var(--site-accent-border-subtle)] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24),0_0_18px_rgba(16,185,129,0.035)] sm:p-6">
+              <div>
+                <h2 className="font-semibold leading-tight text-[color:var(--site-text-strong)] xs:text-[1.9rem] sm:text-[2rem] md:text-[2.2rem] lg:text-[3rem] xl:text-[2.9rem] xxl:text-[3.4rem]">
+                  <span className="text-[color:var(--site-accent)]">Your meal map</span>{" "}
+                  starts here.
+                </h2>
+                <p className="mt-5 text-[1rem] leading-8 text-[color:var(--site-text)]">
+                  Insert general description about Bite Trail here. This should not only work when the user is logged in, but should also make sense when the user is not logged in.
+                </p>
+              </div>
+            </div>
 
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:items-stretch">
-          <div className="site-surface-card flex min-h-[420px] flex-col justify-between overflow-hidden rounded-[26px] p-6 sm:p-8">
-            <div>
-              <h2 className="text-[2.2rem] font-semibold leading-tight text-[color:var(--site-text-strong)] sm:text-[3rem] lg:text-[3.4rem]">
-                Your meal map starts here.
-              </h2>
-              <p className="mt-5 text-[1rem] leading-8 text-[color:var(--site-text)]">
-                Sign in now to confirm the Firebase project is wired correctly.
-                Map pins, sharing, QR invites, and friend watch lists will build
-                on top of this account layer next.
-              </p>
-            </div>
-            <div className="mt-8 grid grid-cols-1 gap-3 text-[0.82rem] text-[color:var(--site-text-muted)] sm:grid-cols-3">
-              <div className="rounded-[16px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4">
-                Google auth
-              </div>
-              <div className="rounded-[16px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4">
-                Firebase sync
-              </div>
-              <div className="rounded-[16px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4">
-                Map tools next
-              </div>
-            </div>
-            <Link
-              href="/privacy"
-              className="mt-5 inline-flex w-fit text-[0.9rem] text-[color:var(--site-accent-soft)] underline-offset-4 hover:underline"
-            >
-              Privacy Policy
-            </Link>
+            <BiteTrailAuthPanel />
+          </section>
+          <div className="mt-6">
+            <BiteTrailMap />
           </div>
-
-          <BiteTrailAuthPanel />
-        </section>
+        </BiteTrailSparklesTitle>
       </main>
     </div>
   );
