@@ -65,7 +65,7 @@ const TOOLS: ToolItem[] = [
         label: "Flask API",
       },
     ],
-    text: "BiteTrail",
+    text: "Bite Trail",
     toolType: "Food Map Tool",
   },
 ];
@@ -216,11 +216,8 @@ const ToolsShowcase = () => {
         max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
         lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
     >
-      <h1
-        className="site-section-heading z-[6] mx-auto mb-3 w-[90%] border-b-2 pt-5 text-center text-[1.4rem]
-          max-lg:pt-3 lg:text-[1.8rem] xl:mb-5 xl:text-[2rem] xxl:text-[2.4rem]"
-      >
-        Tools
+      <h1 className="pb-4 text-center text-[4rem] text-[color:var(--site-accent)] drop-shadow-[0_0_6px] max-sm:text-[3rem]">
+        /tools
       </h1>
 
       <div className="grid gap-5 xl:hidden">

@@ -351,7 +351,7 @@ const NavBar = () => {
     {
       className: dockItemClass(activeDockItem === "chess"),
       icon: <FaChess size={20} />,
-      label: "Chess Page",
+      label: "Chess",
       onClick: goToChessPage,
     },
     ...(currentPageHasTools ? [{ type: "divider" as const }] : []),
