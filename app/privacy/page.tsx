@@ -10,7 +10,7 @@ const contactEmail = "macdonaldbenny1@gmail.com";
 export const metadata: Metadata = {
   title: "Privacy Policy | SneakyOwl",
   description:
-    "Privacy policy for SneakyOwl and BiteTrail, including Google sign-in and planned food map data.",
+    "Privacy policy for SneakyOwl, its shared profile, and its tools including BiteTrail.",
 };
 
 const policySections = [
@@ -18,23 +18,24 @@ const policySections = [
     title: "Information We Collect",
     body: [
       "When you sign in with Google, SneakyOwl may receive your Google display name, email address, profile photo, and a Firebase authentication user ID.",
-      "For BiteTrail, future features may let you save food places you visited, map pin locations, meal cost per person, purchased items, ratings, comments, sharing codes, QR links, and friend watch-list preferences.",
+      "Tools may collect the information needed to provide their features. For BiteTrail, this includes food places you visited, map pin locations, meal cost per person, purchased items, ratings, comments, sharing codes, QR links, and friend watch-list preferences.",
       "The site may also receive basic technical information normally sent by your browser, such as device type, browser type, pages visited, timestamps, and approximate region.",
     ],
   },
   {
     title: "How We Use Information",
     body: [
-      "We use account information to let you sign in, identify your personal BiteTrail list, and keep your saved data attached to your account.",
-      "We use BiteTrail entries to display your saved food places on a map, support list sharing features you choose to use, and help improve the tool.",
+      "We use account information to let you sign in, provide your shared profile, identify your tool data, and keep saved data attached to your account.",
+      "Signing in gives you access to the tools supported by SneakyOwl and represents acceptance of their use as described by this policy. Tool-specific settings use sensible defaults and may be customized from your profile where available.",
+      "We use BiteTrail entries to display your saved food places on a map and support list-sharing features you choose to use.",
       "We do not sell your personal information.",
     ],
   },
   {
     title: "Storage and Service Providers",
     body: [
-      "SneakyOwl uses Firebase and Google Cloud services for authentication and may use Firebase or related backend services to store BiteTrail data.",
-      "These providers process data according to their own security and privacy practices. Access to project data is limited to what is needed to operate and maintain the site.",
+      "SneakyOwl uses Firebase and Google Cloud services for Google authentication. The current profile and BiteTrail preview interfaces use mock values and are not connected to Firestore persistence yet.",
+      "When persistence is enabled, Firebase or related backend services may store account profile preferences and tool data. These providers process data according to their own security and privacy practices. Access to project data is limited to what is needed to operate and maintain the site.",
     ],
   },
   {
@@ -47,14 +48,14 @@ const policySections = [
   {
     title: "Data Controls",
     body: [
-      "You may stop using Google sign-in at any time. Future BiteTrail features are planned to include controls for removing saved places, removing people from your watch list, and stopping list sharing.",
-      `To request account or data deletion before self-service controls are available, email ${contactEmail}.`,
+      "You may stop using Google sign-in at any time. The profile page is intended to provide account and tool-preference controls, while each tool will provide controls for its own data where available.",
+      `To request account or data deletion, or to ask what account data is currently held, email ${contactEmail}.`,
     ],
   },
   {
     title: "Location Data",
     body: [
-      "BiteTrail may let you place map pins at your current location or another location you choose. Location data is used to save and display your food-place entries.",
+      "BiteTrail may let you place map pins at your current location or another location you choose. Location data is used to save and display your food-place entries when persistence is enabled.",
       "Do not save sensitive locations or private information in comments if you do not want them visible to people you share your list with.",
     ],
   },
@@ -67,7 +68,7 @@ const policySections = [
   {
     title: "Changes",
     body: [
-      "This policy may be updated as BiteTrail adds map, storage, sharing, and account-management features. The effective date will be updated when meaningful changes are made.",
+      "This policy may be updated as SneakyOwl adds tools, storage, sharing, and account-management features. The effective date will be updated when meaningful changes are made.",
     ],
   },
 ];
@@ -81,7 +82,9 @@ export default function PrivacyPage() {
           max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
           lg:w-[910px] xl:w-[980px]"
       >
-        <h1 className="mb-4 text-center text-[3.4rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-accent-soft)]">Sneaky Owl</h1>
+        <h1 className="mb-4 text-center text-[3.4rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-accent-soft)]">
+          Sneaky Owl
+        </h1>
         <header className="site-surface-card rounded-[26px] p-6 sm:p-8">
           <h1 className="text-[2.2rem] font-semibold leading-tight text-[color:var(--site-text-strong)] sm:text-[3rem]">
             Privacy Policy

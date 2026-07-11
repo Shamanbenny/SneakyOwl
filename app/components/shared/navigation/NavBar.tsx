@@ -1,7 +1,13 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import {
   FaCode,
   FaChess,
@@ -12,13 +18,19 @@ import {
   FaQuoteLeft,
   FaTools,
 } from "react-icons/fa";
-import { FaBookOpen, FaMapLocationDot } from "react-icons/fa6";
+import { FaBookOpen, FaMapLocationDot, FaUser } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
 import Dock, { type DockEntry } from "@/app/components/shared/navigation/Dock";
 import StaggeredMenu from "@/app/components/shared/navigation/StaggeredMenu";
 
-const LANDING_SECTIONS = ["home", "projects", "skills", "timeline", "reviews"] as const;
+const LANDING_SECTIONS = [
+  "home",
+  "projects",
+  "skills",
+  "timeline",
+  "reviews",
+] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
 const NAV_TOP_LOCK_OFFSET = 24;
@@ -33,7 +45,14 @@ const SITE_COLORS = {
 } as const;
 
 type LandingSection = (typeof LANDING_SECTIONS)[number];
-type ActiveDockItem = LandingSection | "blog" | "chess" | "tools" | "biteTrail" | null;
+type ActiveDockItem =
+  | LandingSection
+  | "blog"
+  | "chess"
+  | "tools"
+  | "biteTrail"
+  | "profile"
+  | null;
 type MobileMenuItem = {
   ariaLabel: string;
   className?: string;
@@ -80,7 +99,8 @@ const mobileMenuItemClass = (isActive: boolean, withSectionBreak = false) =>
     withSectionBreak && "sm-panel-itemWrap--sectionBreak",
   );
 
-const ResponsiveStaggeredMenu = StaggeredMenu as unknown as ComponentType<StaggeredMenuProps>;
+const ResponsiveStaggeredMenu =
+  StaggeredMenu as unknown as ComponentType<StaggeredMenuProps>;
 
 const NavBar = () => {
   const pathname = usePathname();
@@ -189,6 +209,11 @@ const NavBar = () => {
         return;
       }
 
+      if (pathname === "/profile") {
+        setActiveDockItem("profile");
+        return;
+      }
+
       if (pathname === "/tools" || pathname.startsWith("/tools/")) {
         setActiveDockItem("tools");
         return;
@@ -232,8 +257,10 @@ const NavBar = () => {
   };
 
   const scrollToSection = (section: HTMLElement) => {
-    const scrollMarginTop = Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
-    const top = window.scrollY + section.getBoundingClientRect().top - scrollMarginTop;
+    const scrollMarginTop =
+      Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+    const top =
+      window.scrollY + section.getBoundingClientRect().top - scrollMarginTop;
 
     window.scrollTo({
       behavior: "smooth",
@@ -285,8 +312,14 @@ const NavBar = () => {
     router.push("/tools/bite-trail");
   };
 
+  const goToProfilePage = () => {
+    setActiveDockItem("profile");
+    router.push("/profile");
+  };
+
   const currentPageHasSections = pathname === "/";
-  const currentPageHasTools = pathname === "/tools" || pathname.startsWith("/tools/");
+  const currentPageHasTools =
+    pathname === "/tools" || pathname.startsWith("/tools/");
   const sectionNavItems: SectionNavItem[] = currentPageHasSections
     ? [
         {
@@ -373,6 +406,12 @@ const NavBar = () => {
       : []),
     ...(currentPageHasTools ? [{ type: "divider" as const }] : []),
     {
+      className: dockItemClass(activeDockItem === "profile"),
+      icon: <FaUser size={18} />,
+      label: "Profile",
+      onClick: goToProfilePage,
+    },
+    {
       icon: <FaEnvelope size={18} />,
       label: "Email Me",
       onClick: openEmailComposer,
@@ -426,8 +465,14 @@ const NavBar = () => {
     ],
     [
       {
+        ariaLabel: "Open my profile",
+        className: mobileMenuItemClass(activeDockItem === "profile", true),
+        label: "Profile",
+        onClick: goToProfilePage,
+      },
+      {
         ariaLabel: `Send an email to ${EMAIL_ADDRESS}`,
-        className: mobileMenuItemClass(false, true),
+        className: mobileMenuItemClass(false),
         label: "Email Me",
         onClick: openEmailComposer,
       },

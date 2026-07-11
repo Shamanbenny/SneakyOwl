@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   browserLocalPersistence,
   type AuthError,
@@ -10,7 +11,12 @@ import {
   signOut,
   type User,
 } from "firebase/auth";
-import { FaArrowRightFromBracket, FaGoogle, FaMapLocationDot, FaUser } from "react-icons/fa6";
+import {
+  FaArrowRightFromBracket,
+  FaGoogle,
+  FaMapLocationDot,
+  FaUser,
+} from "react-icons/fa6";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 import { getFirebaseClient } from "@/lib/firebase";
@@ -86,7 +92,8 @@ const BiteTrailAuthPanel = () => {
     try {
       await signOut(firebaseClient.auth);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Sign-out failed.";
+      const message =
+        error instanceof Error ? error.message : "Sign-out failed.";
       setAuthError(message);
     } finally {
       setIsSubmitting(false);
@@ -128,15 +135,13 @@ const BiteTrailAuthPanel = () => {
 
       {user ? (
         <div className="flex flex-col gap-4">
-          <button
-            type="button"
-            disabled
-            title="My profile is not available yet"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)] px-4 text-[0.92rem] font-semibold text-[color:var(--site-text)] transition disabled:cursor-not-allowed disabled:opacity-60"
+          <Link
+            href="/profile"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)] px-4 text-[0.92rem] font-semibold text-[color:var(--site-text)] transition hover:border-[color:var(--site-accent-border-strong)] hover:text-[color:var(--site-accent-soft)]"
           >
             <FaUser className="h-4 w-4" />
             My profile
-          </button>
+          </Link>
           <button
             type="button"
             onClick={logout}
@@ -152,7 +157,7 @@ const BiteTrailAuthPanel = () => {
           type="button"
           onClick={loginWithGoogle}
           disabled={isSubmitting || !isAuthReady}
-          className="site-button-primary inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg px-4 sm:text-[0.92rem] font-semibold disabled:pointer-events-none disabled:opacity-55"
+          className="site-button-primary inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg px-4 font-semibold disabled:pointer-events-none disabled:opacity-55 sm:text-[0.92rem]"
         >
           <FaGoogle className="h-4 w-4" />
           {isSubmitting ? "Opening Google..." : "Login with Google"}

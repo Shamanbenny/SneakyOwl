@@ -31,6 +31,7 @@ Current implementation status:
 
 - `/tools` renders a tools index that links to BiteTrail.
 - `/tools/bite-trail` has the BiteTrail landing/auth layout.
+- `/profile` has the shared profile and tool-preferences preview; it currently uses local mock values only.
 - BiteTrail uses Firebase Google Authentication for the current sign-in smoke test.
 - BiteTrail has a Leaflet/OpenStreetMap map foundation backed by grouped sample place/visit data.
 - The map renders one pin per place, aggregates only visible visits for filtering, supports marker clustering, and shows fully expanded visit records in the selected-place panel.

@@ -7,6 +7,7 @@ import ChessVersionInfo, {
   type ChessVersionMetadata,
 } from "./ChessVersionInfo";
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import DropdownField from "@/app/components/shared/ui/DropdownField";
 
 type ChessBotOption = {
   label: string;
@@ -128,8 +129,10 @@ const getNumberDebugValue = (
   return typeof value === "number" ? value : undefined;
 };
 
-const getDetailValue = (details: ChessApiDebugDetails | undefined, key: string) =>
-  details?.[key];
+const getDetailValue = (
+  details: ChessApiDebugDetails | undefined,
+  key: string,
+) => details?.[key];
 
 const getUciFromMove = ({
   from,
@@ -188,16 +191,18 @@ const getEvalFillPercentage = (whitePerspectiveScore: number) => {
 const SCORE_TOOLTIP_CONTENT = (
   <div className="space-y-3">
     <p className="m-0">
-      The engine reports score in centipawns from the side-to-move perspective. Just to put that
-      into perspective, a pawn is worth about <strong>100</strong> points.
+      The engine reports score in centipawns from the side-to-move perspective.
+      Just to put that into perspective, a pawn is worth about{" "}
+      <strong>100</strong> points.
     </p>
     <p className="m-0">
-      For you as the player: A{" "}
-      <strong>negative</strong> score is better for you, while a{" "}
-      <strong>positive</strong> score is better for the agent.
+      For you as the player: A <strong>negative</strong> score is better for
+      you, while a <strong>positive</strong> score is better for the agent.
     </p>
     <div>
-      <p className="m-0 font-semibold text-[color:var(--site-text-strong)]">Quick reference</p>
+      <p className="m-0 font-semibold text-[color:var(--site-text-strong)]">
+        Quick reference
+      </p>
       <div className="mt-2 overflow-hidden rounded-md border border-[color:var(--site-border)]">
         <table className="w-full border-collapse text-left text-xs">
           <thead className="bg-[color:var(--site-bg-soft)] text-[color:var(--site-text-strong)]">
@@ -232,7 +237,9 @@ const SCORE_TOOLTIP_CONTENT = (
       </div>
     </div>
     <div>
-      <p className="m-0 font-semibold text-[color:var(--site-text-strong)]">Piece values</p>
+      <p className="m-0 font-semibold text-[color:var(--site-text-strong)]">
+        Piece values
+      </p>
       <div className="mt-2 overflow-hidden rounded-md border border-[color:var(--site-border)]">
         <table className="w-full border-collapse text-left text-xs">
           <thead className="bg-[color:var(--site-bg-soft)] text-[color:var(--site-text-strong)]">
@@ -267,9 +274,9 @@ const SCORE_TOOLTIP_CONTENT = (
       </div>
     </div>
     <p className="m-0">
-      This is an internal evaluation scale, not a win probability. Because the engine is
-      heuristic-driven, treat score values as a rough directional signal rather
-      than a precise measurement.
+      This is an internal evaluation scale, not a win probability. Because the
+      engine is heuristic-driven, treat score values as a rough directional
+      signal rather than a precise measurement.
     </p>
   </div>
 );
@@ -299,7 +306,8 @@ const EvaluationBar = ({
 
   const whitePerspectiveScore = botColor === "w" ? score : -score;
   const whiteFill = clamp(getEvalFillPercentage(whitePerspectiveScore), 0, 100);
-  const userPerspectiveScore = playerColor === "w" ? whitePerspectiveScore : -whitePerspectiveScore;
+  const userPerspectiveScore =
+    playerColor === "w" ? whitePerspectiveScore : -whitePerspectiveScore;
   const absScore = Math.abs(userPerspectiveScore);
   const evaluationText =
     userPerspectiveScore > 0
@@ -361,10 +369,7 @@ const getNumericLikeValue = (value: unknown) => {
   return undefined;
 };
 
-const getDeltaAsBoolean = (
-  beforeValue: unknown,
-  afterValue: unknown,
-) => {
+const getDeltaAsBoolean = (beforeValue: unknown, afterValue: unknown) => {
   const before = getNumericLikeValue(beforeValue);
   const after = getNumericLikeValue(afterValue);
 
@@ -462,7 +467,9 @@ const getOpeningBookSummary = (details: ChessApiDebugDetails | undefined) => {
     return undefined;
   }
 
-  const matchedPosition = getBooleanLikeValue(getDetailValue(details, "matched_position"));
+  const matchedPosition = getBooleanLikeValue(
+    getDetailValue(details, "matched_position"),
+  );
   const selectedMove = getDetailValue(details, "selected_move_uci");
   const skippedReason = getDetailValue(details, "skipped_reason");
 
@@ -486,12 +493,14 @@ const getOpeningBookItems = (
     return [
       {
         label: "Debug payload returned",
-        tooltip: "Whether the API response included the nested opening_book diagnostics object.",
+        tooltip:
+          "Whether the API response included the nested opening_book diagnostics object.",
         value: false,
       },
       {
         label: "Opening path",
-        tooltip: "The C# V3 engine still checks the opening book before search, but the current API payload may not expose the old detailed diagnostics.",
+        tooltip:
+          "The C# V3 engine still checks the opening book before search, but the current API payload may not expose the old detailed diagnostics.",
         value: "not reported",
       },
     ];
@@ -509,12 +518,14 @@ const getOpeningBookItems = (
   return [
     {
       label: "Book enabled",
-      tooltip: "Whether opening-book lookup was allowed to run for this request.",
+      tooltip:
+        "Whether opening-book lookup was allowed to run for this request.",
       value: getDetailValue(details, "enabled"),
     },
     {
       label: "Book match found",
-      tooltip: "Whether the current normalized position existed in the opening-book file.",
+      tooltip:
+        "Whether the current normalized position existed in the opening-book file.",
       value: getDetailValue(details, "matched_position"),
     },
     {
@@ -524,27 +535,32 @@ const getOpeningBookItems = (
     },
     {
       label: "Candidate moves",
-      tooltip: "How many move options were stored for this exact book position.",
+      tooltip:
+        "How many move options were stored for this exact book position.",
       value: getDetailValue(details, "candidate_move_count"),
     },
     {
       label: "Legal book moves",
-      tooltip: "How many stored book moves were legal in the current board position.",
+      tooltip:
+        "How many stored book moves were legal in the current board position.",
       value: getDetailValue(details, "legal_candidate_move_count"),
     },
     {
       label: "Cache hit this request",
-      tooltip: "True means the opening book was already loaded in process memory and this call reused it.",
+      tooltip:
+        "True means the opening book was already loaded in process memory and this call reused it.",
       value: cacheHitThisRequest,
     },
     {
       label: "Cache miss this request",
-      tooltip: "True means the loader had to fetch the opening-book data instead of reusing the in-process cache.",
+      tooltip:
+        "True means the loader had to fetch the opening-book data instead of reusing the in-process cache.",
       value: cacheMissThisRequest,
     },
     {
       label: "Loaded from disk this call",
-      tooltip: "Whether the opening-book file was freshly loaded during this request.",
+      tooltip:
+        "Whether the opening-book file was freshly loaded during this request.",
       value: getDetailValue(details, "lookup_loaded_during_call"),
     },
     {
@@ -554,12 +570,14 @@ const getOpeningBookItems = (
     },
     {
       label: "Book positions",
-      tooltip: "How many distinct normalized positions exist in the lookup file.",
+      tooltip:
+        "How many distinct normalized positions exist in the lookup file.",
       value: getDetailValue(details, "lookup_position_count"),
     },
     {
       label: "Lookup time",
-      tooltip: "Time spent preparing the opening-book data for this request. Cached reads are usually near zero.",
+      tooltip:
+        "Time spent preparing the opening-book data for this request. Cached reads are usually near zero.",
       value: getDetailValue(details, "lookup_load_elapsed_seconds"),
     },
     {
@@ -575,12 +593,14 @@ const getOpeningBookItems = (
     },
     {
       label: "Required piece count",
-      tooltip: "The opening book only runs when this many pieces remain on the board.",
+      tooltip:
+        "The opening book only runs when this many pieces remain on the board.",
       value: getDetailValue(details, "requires_full_starting_piece_count"),
     },
     {
       label: "Skipped reason",
-      tooltip: "Why the opening book did not return a move. n/a means nothing was skipped.",
+      tooltip:
+        "Why the opening book did not return a move. n/a means nothing was skipped.",
       value: getDetailValue(details, "skipped_reason"),
     },
   ];
@@ -591,9 +611,15 @@ const getTtContextSummary = (details: ChessApiDebugDetails | undefined) => {
     return undefined;
   }
 
-  const contextCreated = getBooleanLikeValue(getDetailValue(details, "context_created"));
-  const contextFound = getBooleanLikeValue(getDetailValue(details, "context_found"));
-  const resetRequested = getBooleanLikeValue(getDetailValue(details, "reset_requested"));
+  const contextCreated = getBooleanLikeValue(
+    getDetailValue(details, "context_created"),
+  );
+  const contextFound = getBooleanLikeValue(
+    getDetailValue(details, "context_found"),
+  );
+  const resetRequested = getBooleanLikeValue(
+    getDetailValue(details, "reset_requested"),
+  );
   const skippedReason = getDetailValue(details, "skipped_reason");
 
   if (contextCreated) {
@@ -620,12 +646,14 @@ const getTtContextItems = (
     return [
       {
         label: "Debug payload returned",
-        tooltip: "Whether the API response included the nested tt_context diagnostics object.",
+        tooltip:
+          "Whether the API response included the nested tt_context diagnostics object.",
         value: false,
       },
       {
         label: "Context path",
-        tooltip: "The frontend sends game_id and reset_context for V3 bots so the Render API can reuse per-game search context when available.",
+        tooltip:
+          "The frontend sends game_id and reset_context for V3 bots so the Render API can reuse per-game search context when available.",
         value: "request context sent for V3 bots",
       },
     ];
@@ -644,52 +672,62 @@ const getTtContextItems = (
     },
     {
       label: "Existing context found",
-      tooltip: "True means the server already had saved state for this context id before handling the request.",
+      tooltip:
+        "True means the server already had saved state for this context id before handling the request.",
       value: getDetailValue(details, "context_found"),
     },
     {
       label: "Created new context",
-      tooltip: "True means a fresh context object was created during this request.",
+      tooltip:
+        "True means a fresh context object was created during this request.",
       value: getDetailValue(details, "context_created"),
     },
     {
       label: "Reset requested",
-      tooltip: "Whether the request explicitly asked the server to reset the saved context first.",
+      tooltip:
+        "Whether the request explicitly asked the server to reset the saved context first.",
       value: getDetailValue(details, "reset_requested"),
     },
     {
       label: "Context reset",
-      tooltip: "True means an existing context was cleared and restarted during this request.",
+      tooltip:
+        "True means an existing context was cleared and restarted during this request.",
       value: getDetailValue(details, "context_reset"),
     },
     {
       label: "Searches before request",
-      tooltip: "How many searches had already been run inside this context before this request started.",
+      tooltip:
+        "How many searches had already been run inside this context before this request started.",
       value: getDetailValue(details, "search_count_before"),
     },
     {
       label: "Searches after request",
-      tooltip: "How many searches had been completed in this context after this request finished.",
+      tooltip:
+        "How many searches had been completed in this context after this request finished.",
       value: getDetailValue(details, "search_count_after"),
     },
     {
       label: "TT entries before search",
-      tooltip: "The sampled number of transposition-table entries before search began. n/a usually means no search ran.",
+      tooltip:
+        "The sampled number of transposition-table entries before search began. n/a usually means no search ran.",
       value: getDetailValue(details, "tt_entries_before"),
     },
     {
       label: "TT entries after search",
-      tooltip: "The sampled number of transposition-table entries after search ended. n/a usually means no search ran.",
+      tooltip:
+        "The sampled number of transposition-table entries after search ended. n/a usually means no search ran.",
       value: getDetailValue(details, "tt_entries_after"),
     },
     {
       label: "Active contexts in memory",
-      tooltip: "How many per-game contexts the process was holding after this request.",
+      tooltip:
+        "How many per-game contexts the process was holding after this request.",
       value: getDetailValue(details, "cache_size_after"),
     },
     {
       label: "Contexts evicted",
-      tooltip: "How many old contexts were removed during this request because of expiry or cache limits.",
+      tooltip:
+        "How many old contexts were removed during this request because of expiry or cache limits.",
       value: getDetailValue(details, "evicted_context_count"),
     },
     {
@@ -849,7 +887,9 @@ const buildBoardHistoryText = (
       `san=${entry.san}`,
       `uci=${entry.uci}`,
       entry.botVersion ? `bot=${entry.botVersion}` : null,
-      typeof entry.debug?.score === "number" ? `score=${entry.debug.score}` : null,
+      typeof entry.debug?.score === "number"
+        ? `score=${entry.debug.score}`
+        : null,
       typeof entry.debug?.completed_depth === "number"
         ? `depth=${entry.debug.completed_depth}`
         : null,
@@ -882,8 +922,7 @@ const BoardHistoryPanel = ({
               Board History
             </h2>
             <p className="mt-1 text-sm text-[color:var(--site-text-muted)]">
-              Stack of applied moves for debugging and replay. Please click on
-              {" "}
+              Stack of applied moves for debugging and replay. Please click on{" "}
               &quot;Copy Board History&quot; and drop me an email if you
               encounter a catastrophic blunder by the latest Chess Engine.
             </p>
@@ -915,7 +954,9 @@ const BoardHistoryPanel = ({
                     {entry.ply}. {entry.actor}
                   </span>
                   <span>{entry.san}</span>
-                  <span className="text-[color:var(--site-text-muted)]">UCI {entry.uci}</span>
+                  <span className="text-[color:var(--site-text-muted)]">
+                    UCI {entry.uci}
+                  </span>
                   {entry.botVersion ? (
                     <span className="text-[color:var(--site-text-muted)]">
                       {entry.botVersion}
@@ -933,11 +974,15 @@ const BoardHistoryPanel = ({
                   ) : null}
                 </div>
                 <p className="mt-2 break-all text-xs text-[color:var(--site-text-muted)]">
-                  <span className="font-medium text-[color:var(--site-text)]">Before:</span>{" "}
+                  <span className="font-medium text-[color:var(--site-text)]">
+                    Before:
+                  </span>{" "}
                   {entry.fenBefore}
                 </p>
                 <p className="mt-1 break-all text-xs text-[color:var(--site-text-muted)]">
-                  <span className="font-medium text-[color:var(--site-text)]">After:</span>{" "}
+                  <span className="font-medium text-[color:var(--site-text)]">
+                    After:
+                  </span>{" "}
                   {entry.fenAfter}
                 </p>
               </li>
@@ -957,19 +1002,27 @@ const ChessContent = () => {
   const [playerColor, setPlayerColor] = useState<PlayerColor>("w");
   const [latestApiResponse, setLatestApiResponse] =
     useState<ChessApiResponse | null>(null);
-  const [chessVersions, setChessVersions] = useState<ChessVersionMetadata[]>([]);
-  const [chessMetadata, setChessMetadata] = useState<ChessMetadata | undefined>();
+  const [chessVersions, setChessVersions] = useState<ChessVersionMetadata[]>(
+    [],
+  );
+  const [chessMetadata, setChessMetadata] = useState<
+    ChessMetadata | undefined
+  >();
   const [metadataLoading, setMetadataLoading] = useState(true);
   const [metadataError, setMetadataError] = useState<string | null>(null);
   const [historyStartFen, setHistoryStartFen] = useState(STARTING_FEN);
   const [boardHistory, setBoardHistory] = useState<BoardHistoryEntry[]>([]);
-  const [historyCopyState, setHistoryCopyState] = useState<"idle" | "copied">("idle");
+  const [historyCopyState, setHistoryCopyState] = useState<"idle" | "copied">(
+    "idle",
+  );
   const fenInputRef = useRef<HTMLInputElement>(null); // Ref for the FEN input field
   const gameIdRef = useRef<string | null>(null);
   const resetContextOnNextMoveRef = useRef(true);
   const playerUndoFenStackRef = useRef<string[]>([]);
   const activeBotRequestIdRef = useRef(0);
-  const historyCopyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const historyCopyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   if (gameIdRef.current === null) {
     gameIdRef.current = createGameId();
@@ -982,7 +1035,8 @@ const ChessContent = () => {
     )
     .map((versionInfo) => ({
       label: `Chess Bot ${versionInfo.version}`,
-      apiVersion: versionInfo.api_version ?? versionInfo.version.replace(".", "_"),
+      apiVersion:
+        versionInfo.api_version ?? versionInfo.version.replace(".", "_"),
       value: versionInfo.version,
     }));
 
@@ -1164,7 +1218,9 @@ const ChessContent = () => {
         const appliedMove = currGame.move(move);
 
         if (appliedMove === null) {
-          throw new Error("API returned an invalid move for the current position.");
+          throw new Error(
+            "API returned an invalid move for the current position.",
+          );
         }
 
         if (activeBotRequestIdRef.current !== requestId) {
@@ -1294,11 +1350,15 @@ const ChessContent = () => {
       try {
         const response = await fetch(CHESS_METADATA_URL);
         if (!response.ok) {
-          throw new Error(`${response.status} ${response.statusText || "response"}`);
+          throw new Error(
+            `${response.status} ${response.statusText || "response"}`,
+          );
         }
 
         const metadata = (await response.json()) as ChessMetadataResponse;
-        const versions = Array.isArray(metadata.versions) ? metadata.versions : [];
+        const versions = Array.isArray(metadata.versions)
+          ? metadata.versions
+          : [];
         const normalizedVersions = versions.map((versionInfo) => ({
           ...versionInfo,
           served: Boolean(versionInfo.served),
@@ -1310,7 +1370,8 @@ const ChessContent = () => {
             : [],
         }));
         const hasBaselineVersion = normalizedVersions.some(
-          (versionInfo) => versionInfo.version.toLowerCase() === CHESS_V0_BASELINE.version,
+          (versionInfo) =>
+            versionInfo.version.toLowerCase() === CHESS_V0_BASELINE.version,
         );
         const normalizedVersionsWithBaseline = hasBaselineVersion
           ? normalizedVersions
@@ -1329,7 +1390,10 @@ const ChessContent = () => {
           normalizedVersionsWithBaseline
             .filter((versionInfo) => versionInfo.served)
             .sort((leftVersion, rightVersion) =>
-              compareVersionsDescending(leftVersion.version, rightVersion.version),
+              compareVersionsDescending(
+                leftVersion.version,
+                rightVersion.version,
+              ),
             )[0]?.version ?? "";
         setBotVersion((currentVersion) =>
           normalizedVersionsWithBaseline.some(
@@ -1344,7 +1408,8 @@ const ChessContent = () => {
           return;
         }
 
-        const message = error instanceof Error ? error.message : "Unknown metadata error";
+        const message =
+          error instanceof Error ? error.message : "Unknown metadata error";
         setMetadataError(message);
         setChessVersions([]);
         setChessMetadata(undefined);
@@ -1366,30 +1431,46 @@ const ChessContent = () => {
   useEffect(() => {
     syncTurnState(game);
 
-    if (!game.isGameOver() && game.turn() !== playerColor && servedBotOptions.length > 0) {
+    if (
+      !game.isGameOver() &&
+      game.turn() !== playerColor &&
+      servedBotOptions.length > 0
+    ) {
       makeBotMove();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerColor]);
 
   useEffect(() => {
-    if (!metadataLoading && botVersion && !game.isGameOver() && game.turn() !== playerColor) {
+    if (
+      !metadataLoading &&
+      botVersion &&
+      !game.isGameOver() &&
+      game.turn() !== playerColor
+    ) {
       makeBotMove();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metadataLoading, botVersion]);
 
-  useEffect(() => () => {
-    if (historyCopyTimeoutRef.current) {
-      clearTimeout(historyCopyTimeoutRef.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (historyCopyTimeoutRef.current) {
+        clearTimeout(historyCopyTimeoutRef.current);
+      }
+    },
+    [],
+  );
 
   return (
     <>
       <div className="mt-4 text-center text-2xl">{turnMessage}</div>
       <EvaluationBar
-        score={typeof latestApiResponse?.debug?.score === "number" ? latestApiResponse.debug.score : undefined}
+        score={
+          typeof latestApiResponse?.debug?.score === "number"
+            ? latestApiResponse.debug.score
+            : undefined
+        }
         playerColor={playerColor}
       />
       <div
@@ -1442,14 +1523,16 @@ const ChessContent = () => {
       </div>
       <div className="mt-4 text-center">
         Play as (You):
-        <select
-          className="site-select mx-2 rounded p-2"
+        <DropdownField
+          ariaLabel="Play as"
+          className="mx-2 inline-block min-w-[8rem] align-middle"
+          options={[
+            { label: "White", value: "w" },
+            { label: "Black", value: "b" },
+          ]}
           value={playerColor}
-          onChange={(e) => setPlayerColor(e.target.value as PlayerColor)}
-        >
-          <option value="w">White</option>
-          <option value="b">Black</option>
-        </select>
+          onChange={(value) => setPlayerColor(value as PlayerColor)}
+        />
       </div>
       <div className="mt-4 text-center">
         Current Bot Version:
@@ -1458,24 +1541,17 @@ const ChessContent = () => {
             Live chess versions unavailable
           </span>
         ) : (
-          <select
-            className="site-select mx-2 rounded p-2"
+          <DropdownField
+            ariaLabel="Current bot version"
+            className="mx-2 inline-block min-w-[12rem] align-middle"
+            options={servedBotOptions.map(({ label, value }) => ({
+              label,
+              value,
+            }))}
             value={botVersion}
-            onChange={(e) => setBotVersion(e.target.value)}
+            onChange={setBotVersion}
             disabled={metadataLoading || servedBotOptions.length === 0}
-          >
-            {servedBotOptions.length > 0 ? (
-              servedBotOptions.map((option) => (
-                <option key={option.apiVersion} value={option.value}>
-                  {option.label}
-                </option>
-              ))
-            ) : (
-              <option value="">
-                {metadataLoading ? "Loading versions..." : "No served versions"}
-              </option>
-            )}
-          </select>
+          />
         )}
       </div>
       <BoardHistoryPanel

@@ -43,7 +43,8 @@ type BiteTrailFilters = {
 };
 
 const CURRENT_USER_NAME =
-  mockFoodEntries.find((entry) => entry.ownerKind === "you")?.ownerName ?? "You";
+  mockFoodEntries.find((entry) => entry.ownerKind === "you")?.ownerName ??
+  "You";
 const OWNER_OPTIONS = [
   CURRENT_USER_NAME,
   ...Array.from(new Set(mockFoodEntries.map((entry) => entry.ownerName)))
@@ -62,30 +63,35 @@ const DEFAULT_FILTERS: BiteTrailFilters = {
   maxCost: COST_FILTER_MAX,
   minCost: COST_FILTER_MIN,
   minRating: 0,
-  ownerNames: OWNER_OPTIONS,
+  ownerNames: [],
 };
 
-const CUISINE_OPTIONS = ([
-  "hawker",
-  "cafe",
-  "Chinese",
-  "dessert",
-  "fast food",
-  "western",
-  "Korean",
-  "Japanese",
-  "Thai",
-  "Indian",
-  "Malay",
-  "Others",
-  "seafood",
-] as BiteTrailCuisineGenre[]).sort((firstCuisine, secondCuisine) => {
+const CUISINE_OPTIONS = (
+  [
+    "hawker",
+    "cafe",
+    "Chinese",
+    "dessert",
+    "fast food",
+    "western",
+    "Korean",
+    "Japanese",
+    "Thai",
+    "Indian",
+    "Malay",
+    "Others",
+    "seafood",
+  ] as BiteTrailCuisineGenre[]
+).sort((firstCuisine, secondCuisine) => {
   if (firstCuisine === "Others") return 1;
   if (secondCuisine === "Others") return -1;
   return firstCuisine.localeCompare(secondCuisine);
 });
 
-const formatCurrency = (cost: number, currency: BiteTrailFoodEntry["currency"] = "SGD") =>
+const formatCurrency = (
+  cost: number,
+  currency: BiteTrailFoodEntry["currency"] = "SGD",
+) =>
   new Intl.NumberFormat("en-SG", {
     currency,
     maximumFractionDigits: 2,
@@ -130,15 +136,13 @@ const EntryStat = ({
       <span className="text-[color:var(--site-accent-soft)]">{icon}</span>
       {label}
     </div>
-    <p className="text-[0.95rem] text-[color:var(--site-text-strong)]">{value}</p>
+    <p className="text-[0.95rem] text-[color:var(--site-text-strong)]">
+      {value}
+    </p>
   </div>
 );
 
-const EntryDetailPanel = ({
-  place,
-}: {
-  place: VisibleBiteTrailPlace;
-}) => (
+const EntryDetailPanel = ({ place }: { place: VisibleBiteTrailPlace }) => (
   <div className="flex min-h-full flex-col p-5">
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
@@ -190,7 +194,9 @@ const EntryDetailPanel = ({
                   ) : (
                     <FaUsers className="text-[color:var(--site-accent-soft)]" />
                   )}
-                  {visit.ownerName === CURRENT_USER_NAME ? "Your visit" : `${visit.ownerName}'s visit`}
+                  {visit.ownerName === CURRENT_USER_NAME
+                    ? "Your visit"
+                    : `${visit.ownerName}'s visit`}
                 </p>
                 <p className="mt-1 text-[0.78rem] text-[color:var(--site-text-muted)]">
                   {visit.visitedAt}
@@ -198,17 +204,24 @@ const EntryDetailPanel = ({
               </div>
               <div className="text-right text-[0.82rem] text-[color:var(--site-text)]">
                 <p>Rating: {visit.ratingOutOf10} / 10</p>
-                <p>Cost: {formatCurrency(visit.costPerPerson, visit.currency)} / pax</p>
+                <p>
+                  Cost: {formatCurrency(visit.costPerPerson, visit.currency)} /
+                  pax
+                </p>
               </div>
             </div>
             {visit.itemsBought ? (
               <p className="mt-3 leading-6 text-[color:var(--site-text)]">
-                <span className="font-semibold text-[color:var(--site-accent-soft)]">Ordered: </span>
+                <span className="font-semibold text-[color:var(--site-accent-soft)]">
+                  Ordered:{" "}
+                </span>
                 {visit.itemsBought}
               </p>
             ) : null}
             <p className="mt-3 leading-6 text-[color:var(--site-text)]">
-              <span className="font-semibold text-[color:var(--site-accent-soft)]">Comments: </span>
+              <span className="font-semibold text-[color:var(--site-accent-soft)]">
+                Comments:{" "}
+              </span>
               {visit.comments}
             </p>
           </article>
@@ -242,7 +255,9 @@ const EntryListPanel = ({
         {heading}
       </h3>
     ) : null}
-    <div className={`${heading ? "mt-5" : "mt-0"} min-h-0 flex-1 overflow-y-auto pr-3 [scrollbar-gutter:stable]`}>
+    <div
+      className={`${heading ? "mt-5" : "mt-0"} min-h-0 flex-1 overflow-y-auto pr-3 [scrollbar-gutter:stable]`}
+    >
       <div className="grid gap-3">
         {entries.map((entry) => (
           <button
@@ -259,7 +274,8 @@ const EntryListPanel = ({
               {entry.placeName}
             </span>
             <span className="mt-1 block text-[0.82rem] text-[color:var(--site-text-muted)]">
-              {entry.neighborhood} · {formatCuisineLabel(entry.cuisineGenre)} · {entry.averageRating.toFixed(1)} / 10 ·{" "}
+              {entry.neighborhood} · {formatCuisineLabel(entry.cuisineGenre)} ·{" "}
+              {entry.averageRating.toFixed(1)} / 10 ·{" "}
               {formatCurrency(entry.averageCost, entry.currency)}
             </span>
           </button>
@@ -291,7 +307,8 @@ const FilterPanel = ({
   const cuisineMenuRef = useRef<HTMLDivElement>(null);
   const ownerMenuRef = useRef<HTMLDivElement>(null);
   const allOwnersSelected = filters.ownerNames.length === OWNER_OPTIONS.length;
-  const allCuisinesSelected = filters.cuisineGenres.length === CUISINE_OPTIONS.length;
+  const allCuisinesSelected =
+    filters.cuisineGenres.length === CUISINE_OPTIONS.length;
 
   useEffect(() => {
     if (!isCuisineMenuOpen && !isOwnerMenuOpen) {
@@ -303,7 +320,10 @@ const FilterPanel = ({
         return;
       }
 
-      if (isCuisineMenuOpen && !cuisineMenuRef.current?.contains(event.target)) {
+      if (
+        isCuisineMenuOpen &&
+        !cuisineMenuRef.current?.contains(event.target)
+      ) {
         setIsCuisineMenuOpen(false);
       }
       if (isOwnerMenuOpen && !ownerMenuRef.current?.contains(event.target)) {
@@ -312,12 +332,15 @@ const FilterPanel = ({
     };
 
     document.addEventListener("pointerdown", closeMenusOnOutsideClick);
-    return () => document.removeEventListener("pointerdown", closeMenusOnOutsideClick);
+    return () =>
+      document.removeEventListener("pointerdown", closeMenusOnOutsideClick);
   }, [isCuisineMenuOpen, isOwnerMenuOpen]);
 
   const toggleCuisine = (cuisine: BiteTrailCuisineGenre) => {
     const cuisineGenres = filters.cuisineGenres.includes(cuisine)
-      ? filters.cuisineGenres.filter((selectedCuisine) => selectedCuisine !== cuisine)
+      ? filters.cuisineGenres.filter(
+          (selectedCuisine) => selectedCuisine !== cuisine,
+        )
       : [...filters.cuisineGenres, cuisine];
     onChange({ ...filters, cuisineGenres });
   };
@@ -330,184 +353,253 @@ const FilterPanel = ({
   };
 
   return (
-  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5">
-    <div className="grid gap-5">
-      <div ref={ownerMenuRef} className="relative text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]">
-        <span className="block">Watch List</span>
-        <button
-          type="button"
-          onClick={() => setIsOwnerMenuOpen((isOpen) => !isOpen)}
-          aria-expanded={isOwnerMenuOpen}
-          aria-haspopup="listbox"
-          className={`${filterSelectClassName} flex items-center justify-between text-left hover:border-[color:var(--site-accent-border-soft-hover)] focus:border-[color:var(--site-accent-border-soft-hover)]`}
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5">
+      <div className="grid gap-5">
+        <div
+          ref={ownerMenuRef}
+          className="relative text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]"
         >
-          <span>
-            {filters.ownerNames.length === 0
-              ? "All lists"
-              : `${filters.ownerNames.length} ${filters.ownerNames.length === 1 ? "person" : "people"} selected`}
-          </span>
-          <FaChevronDown className={`text-[0.7rem] transition-transform ${isOwnerMenuOpen ? "rotate-180" : ""}`} />
-        </button>
-        {isOwnerMenuOpen ? (
-          <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-chrome)] shadow-[0_16px_32px_rgba(0,0,0,0.32)]" role="listbox">
-            <div className="max-h-[440px] overflow-y-auto p-2">
-            <button
-              type="button"
-              onClick={() => onChange({ ...filters, ownerNames: allOwnersSelected ? [] : OWNER_OPTIONS })}
-              className="mb-1 w-full rounded-[0.55rem] px-3 py-2 text-left text-[0.8rem] font-semibold normal-case tracking-normal text-[color:var(--site-text-strong)] hover:bg-[color:var(--site-bg-soft)]"
+          <span className="block">Watch List</span>
+          <button
+            type="button"
+            onClick={() => setIsOwnerMenuOpen((isOpen) => !isOpen)}
+            aria-expanded={isOwnerMenuOpen}
+            aria-haspopup="listbox"
+            className={`${filterSelectClassName} flex items-center justify-between text-left hover:border-[color:var(--site-accent-border-soft-hover)] focus:border-[color:var(--site-accent-border-soft-hover)]`}
+          >
+            <span>
+              {filters.ownerNames.length === 0
+                ? "All lists"
+                : `${filters.ownerNames.length} ${filters.ownerNames.length === 1 ? "person" : "people"} selected`}
+            </span>
+            <FaChevronDown
+              className={`text-[0.7rem] transition-transform ${isOwnerMenuOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {isOwnerMenuOpen ? (
+            <div
+              className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-chrome)] shadow-[0_16px_32px_rgba(0,0,0,0.32)]"
+              role="listbox"
             >
-              {allOwnersSelected ? "Unselect all" : "Select all"}
-            </button>
-            {OWNER_OPTIONS.map((ownerName) => {
-              const isSelected = filters.ownerNames.includes(ownerName);
-              return (
-                <label key={ownerName} className="flex cursor-pointer items-center gap-3 rounded-[0.55rem] px-3 py-2 text-[0.8rem] font-normal normal-case tracking-normal text-[color:var(--site-text)] hover:bg-[color:var(--site-bg-soft)]">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleOwner(ownerName)}
-                    className="h-4 w-4 accent-[color:var(--site-accent)]"
-                  />
-                  <span>{ownerName === CURRENT_USER_NAME ? `${ownerName} (you)` : ownerName}</span>
-                </label>
-              );
-            })}
+              <div className="max-h-[440px] overflow-y-auto p-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onChange({
+                      ...filters,
+                      ownerNames: allOwnersSelected ? [] : OWNER_OPTIONS,
+                    })
+                  }
+                  className="mb-1 w-full rounded-[0.55rem] px-3 py-2 text-left text-[0.8rem] font-semibold normal-case tracking-normal text-[color:var(--site-text-strong)] hover:bg-[color:var(--site-bg-soft)]"
+                >
+                  {allOwnersSelected ? "Unselect all" : "Select all"}
+                </button>
+                {OWNER_OPTIONS.map((ownerName) => {
+                  const isSelected = filters.ownerNames.includes(ownerName);
+                  return (
+                    <label
+                      key={ownerName}
+                      className="flex cursor-pointer items-center gap-3 rounded-[0.55rem] px-3 py-2 text-[0.8rem] font-normal normal-case tracking-normal text-[color:var(--site-text)] hover:bg-[color:var(--site-bg-soft)]"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleOwner(ownerName)}
+                        className="h-4 w-4 accent-[color:var(--site-accent)]"
+                      />
+                      <span>
+                        {ownerName === CURRENT_USER_NAME
+                          ? `${ownerName} (you)`
+                          : ownerName}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ) : null}
-      </div>
+          ) : null}
+        </div>
 
-      <div ref={cuisineMenuRef} className="relative text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]">
-        <span className="block">Cuisine</span>
-        <button
-          type="button"
-          onClick={() => setIsCuisineMenuOpen((isOpen) => !isOpen)}
-          aria-expanded={isCuisineMenuOpen}
-          aria-haspopup="listbox"
-          className={`${filterSelectClassName} flex items-center justify-between text-left hover:border-[color:var(--site-accent-border-soft-hover)] focus:border-[color:var(--site-accent-border-soft-hover)]`}
+        <div
+          ref={cuisineMenuRef}
+          className="relative text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]"
         >
-          <span>
-            {filters.cuisineGenres.length === 0
-              ? "All cuisines"
-              : `${filters.cuisineGenres.length} ${filters.cuisineGenres.length === 1 ? "cuisine" : "cuisines"} selected`}
-          </span>
-          <FaChevronDown className={`text-[0.7rem] transition-transform ${isCuisineMenuOpen ? "rotate-180" : ""}`} />
-        </button>
-        {isCuisineMenuOpen ? (
-          <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-chrome)] shadow-[0_16px_32px_rgba(0,0,0,0.32)]" role="listbox">
-            <div className="max-h-[350px] overflow-y-auto p-2">
-            <button
-              type="button"
-              onClick={() => onChange({ ...filters, cuisineGenres: allCuisinesSelected ? [] : CUISINE_OPTIONS })}
-              className="mb-1 w-full rounded-[0.55rem] px-3 py-2 text-left text-[0.8rem] font-semibold normal-case tracking-normal text-[color:var(--site-text-strong)] hover:bg-[color:var(--site-bg-soft)]"
+          <span className="block">Cuisine</span>
+          <button
+            type="button"
+            onClick={() => setIsCuisineMenuOpen((isOpen) => !isOpen)}
+            aria-expanded={isCuisineMenuOpen}
+            aria-haspopup="listbox"
+            className={`${filterSelectClassName} flex items-center justify-between text-left hover:border-[color:var(--site-accent-border-soft-hover)] focus:border-[color:var(--site-accent-border-soft-hover)]`}
+          >
+            <span>
+              {filters.cuisineGenres.length === 0
+                ? "All cuisines"
+                : `${filters.cuisineGenres.length} ${filters.cuisineGenres.length === 1 ? "cuisine" : "cuisines"} selected`}
+            </span>
+            <FaChevronDown
+              className={`text-[0.7rem] transition-transform ${isCuisineMenuOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {isCuisineMenuOpen ? (
+            <div
+              className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-chrome)] shadow-[0_16px_32px_rgba(0,0,0,0.32)]"
+              role="listbox"
             >
-              {allCuisinesSelected ? "Unselect all" : "Select all"}
-            </button>
-            {CUISINE_OPTIONS.map((cuisine) => (
-              <label
-                key={cuisine}
-                className="flex cursor-pointer items-center gap-3 rounded-[0.55rem] px-3 py-2 text-[0.8rem] font-normal normal-case tracking-normal text-[color:var(--site-text)] hover:bg-[color:var(--site-bg-soft)]"
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.cuisineGenres.includes(cuisine)}
-                  onChange={() => toggleCuisine(cuisine)}
-                  className="h-4 w-4 accent-[color:var(--site-accent)]"
-                />
-                <span>{formatCuisineLabel(cuisine)}</span>
-              </label>
-            ))}
+              <div className="max-h-[350px] overflow-y-auto p-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onChange({
+                      ...filters,
+                      cuisineGenres: allCuisinesSelected ? [] : CUISINE_OPTIONS,
+                    })
+                  }
+                  className="mb-1 w-full rounded-[0.55rem] px-3 py-2 text-left text-[0.8rem] font-semibold normal-case tracking-normal text-[color:var(--site-text-strong)] hover:bg-[color:var(--site-bg-soft)]"
+                >
+                  {allCuisinesSelected ? "Unselect all" : "Select all"}
+                </button>
+                {CUISINE_OPTIONS.map((cuisine) => (
+                  <label
+                    key={cuisine}
+                    className="flex cursor-pointer items-center gap-3 rounded-[0.55rem] px-3 py-2 text-[0.8rem] font-normal normal-case tracking-normal text-[color:var(--site-text)] hover:bg-[color:var(--site-bg-soft)]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.cuisineGenres.includes(cuisine)}
+                      onChange={() => toggleCuisine(cuisine)}
+                      className="h-4 w-4 accent-[color:var(--site-accent)]"
+                    />
+                    <span>{formatCuisineLabel(cuisine)}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
+
+        <div className="text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]">
+          <span className="flex items-center gap-2">
+            <span>Minimum rating</span>
+            <InfoTooltip
+              ariaLabel="About minimum rating"
+              preferredPlacement="top"
+            >
+              <p className="m-0">
+                Only entries at or above the selected rating will be shown. The
+                higher the rating, the better the bite!
+              </p>
+            </InfoTooltip>
+          </span>
+          <span className="mt-2 flex items-center justify-between text-[0.84rem] font-normal normal-case tracking-normal text-[color:var(--site-text-strong)]">
+            <span>
+              {filters.minRating === 0
+                ? "Any rating"
+                : `${filters.minRating} / 10 or higher`}
+            </span>
+          </span>
+          <span className="relative mt-3 block h-5">
+            <span className="absolute left-0 right-0 top-2 h-1 rounded-full bg-[color:var(--site-border-strong)]" />
+            <span
+              className="absolute left-0 top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
+              style={{ width: `${filters.minRating * 10}%` }}
+            />
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="1"
+              value={filters.minRating}
+              onChange={(event) =>
+                onChange({ ...filters, minRating: Number(event.target.value) })
+              }
+              aria-label="Minimum rating"
+              className="bite-trail-range absolute inset-0 h-5 w-full"
+            />
+          </span>
+        </div>
+
+        <div className="text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]">
+          <span className="flex items-center gap-2">
+            <span>Cost per person</span>
+            <InfoTooltip
+              ariaLabel="About cost per person"
+              preferredPlacement="top"
+            >
+              <p className="m-0">
+                Only entries within the selected per-person cost range will be
+                shown. This is just an estimate, so prices may vary per visit!
+              </p>
+            </InfoTooltip>
+          </span>
+          <span className="mt-2 flex items-center justify-between text-[0.84rem] font-normal normal-case tracking-normal text-[color:var(--site-text-strong)]">
+            <span>
+              S${filters.minCost} - S${filters.maxCost}
+            </span>
+            <span>SGD</span>
+          </span>
+          <span className="relative mt-3 block h-5">
+            <span className="absolute left-0 right-0 top-2 h-1 rounded-full bg-[color:var(--site-border-strong)]" />
+            <span
+              className="absolute top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
+              style={{
+                left: `${((filters.minCost - COST_FILTER_MIN) / (COST_FILTER_MAX - COST_FILTER_MIN)) * 100}%`,
+                right: `${((COST_FILTER_MAX - filters.maxCost) / (COST_FILTER_MAX - COST_FILTER_MIN)) * 100}%`,
+              }}
+            />
+            <input
+              type="range"
+              min={COST_FILTER_MIN}
+              max={COST_FILTER_MAX}
+              step="1"
+              value={filters.minCost}
+              onChange={(event) =>
+                onChange({
+                  ...filters,
+                  minCost: Math.min(
+                    Number(event.target.value),
+                    filters.maxCost,
+                  ),
+                })
+              }
+              aria-label="Minimum cost per person"
+              className="bite-trail-range absolute inset-0 h-5 w-full"
+            />
+            <input
+              type="range"
+              min={COST_FILTER_MIN}
+              max={COST_FILTER_MAX}
+              step="1"
+              value={filters.maxCost}
+              onChange={(event) =>
+                onChange({
+                  ...filters,
+                  maxCost: Math.max(
+                    Number(event.target.value),
+                    filters.minCost,
+                  ),
+                })
+              }
+              aria-label="Maximum cost per person"
+              className="bite-trail-range absolute inset-0 h-5 w-full"
+            />
+          </span>
+        </div>
       </div>
 
-      <div className="text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]">
-        <span className="flex items-center gap-2">
-          <span>Minimum rating</span>
-          <InfoTooltip ariaLabel="About minimum rating" preferredPlacement="top">
-            <p className="m-0">Only entries at or above the selected rating will be shown. The higher the rating, the better the bite!</p>
-          </InfoTooltip>
-        </span>
-        <span className="mt-2 flex items-center justify-between text-[0.84rem] font-normal normal-case tracking-normal text-[color:var(--site-text-strong)]">
-          <span>{filters.minRating === 0 ? "Any rating" : `${filters.minRating} / 10 or higher`}</span>
-        </span>
-        <span className="relative mt-3 block h-5">
-          <span className="absolute left-0 right-0 top-2 h-1 rounded-full bg-[color:var(--site-border-strong)]" />
-          <span
-            className="absolute left-0 top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
-            style={{ width: `${filters.minRating * 10}%` }}
-          />
-          <input
-            type="range"
-            min="0"
-            max="10"
-            step="1"
-            value={filters.minRating}
-            onChange={(event) => onChange({ ...filters, minRating: Number(event.target.value) })}
-            aria-label="Minimum rating"
-            className="bite-trail-range absolute inset-0 h-5 w-full"
-          />
-        </span>
-      </div>
+      <button
+        type="button"
+        onClick={onApply}
+        className="mt-6 inline-flex items-center justify-center gap-2 rounded-[0.75rem] border border-[color:var(--site-accent-border-strong)] bg-[color:var(--site-accent-strong)] px-4 py-3 text-[0.84rem] font-semibold text-[color:var(--site-text-strong)] transition hover:bg-[color:var(--site-accent)] focus-visible:bg-[color:var(--site-accent)]"
+      >
+        <FaFilter />
+        Filter entries
+      </button>
 
-      <div className="text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text-muted)]">
-        <span className="flex items-center gap-2">
-          <span>Cost per person</span>
-          <InfoTooltip ariaLabel="About cost per person" preferredPlacement="top">
-            <p className="m-0">Only entries within the selected per-person cost range will be shown. This is just an estimate, so prices may vary per visit!</p>
-          </InfoTooltip>
-        </span>
-        <span className="mt-2 flex items-center justify-between text-[0.84rem] font-normal normal-case tracking-normal text-[color:var(--site-text-strong)]">
-          <span>S${filters.minCost} - S${filters.maxCost}</span>
-          <span>SGD</span>
-        </span>
-        <span className="relative mt-3 block h-5">
-          <span className="absolute left-0 right-0 top-2 h-1 rounded-full bg-[color:var(--site-border-strong)]" />
-          <span
-            className="absolute top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
-            style={{
-              left: `${((filters.minCost - COST_FILTER_MIN) / (COST_FILTER_MAX - COST_FILTER_MIN)) * 100}%`,
-              right: `${((COST_FILTER_MAX - filters.maxCost) / (COST_FILTER_MAX - COST_FILTER_MIN)) * 100}%`,
-            }}
-          />
-          <input
-            type="range"
-            min={COST_FILTER_MIN}
-            max={COST_FILTER_MAX}
-            step="1"
-            value={filters.minCost}
-            onChange={(event) => onChange({ ...filters, minCost: Math.min(Number(event.target.value), filters.maxCost) })}
-            aria-label="Minimum cost per person"
-            className="bite-trail-range absolute inset-0 h-5 w-full"
-          />
-          <input
-            type="range"
-            min={COST_FILTER_MIN}
-            max={COST_FILTER_MAX}
-            step="1"
-            value={filters.maxCost}
-            onChange={(event) => onChange({ ...filters, maxCost: Math.max(Number(event.target.value), filters.minCost) })}
-            aria-label="Maximum cost per person"
-            className="bite-trail-range absolute inset-0 h-5 w-full"
-          />
-        </span>
-      </div>
+      <p className="mt-4 text-[0.78rem] leading-6 text-[color:var(--site-text-muted)]">
+        Apply filters to update the visible pins and entry list together.
+      </p>
     </div>
-
-    <button
-      type="button"
-      onClick={onApply}
-      className="mt-6 inline-flex items-center justify-center gap-2 rounded-[0.75rem] border border-[color:var(--site-accent-border-strong)] bg-[color:var(--site-accent-strong)] px-4 py-3 text-[0.84rem] font-semibold text-[color:var(--site-text-strong)] transition hover:bg-[color:var(--site-accent)] focus-visible:bg-[color:var(--site-accent)]"
-    >
-      <FaFilter />
-      Filter entries
-    </button>
-
-    <p className="mt-4 text-[0.78rem] leading-6 text-[color:var(--site-text-muted)]">
-      Apply filters to update the visible pins and entry list together.
-    </p>
-  </div>
   );
 };
 
@@ -522,42 +614,55 @@ const BiteTrailMap = () => {
   const [isLocatingUser, setIsLocatingUser] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [draftFilters, setDraftFilters] = useState<BiteTrailFilters>(DEFAULT_FILTERS);
-  const [appliedFilters, setAppliedFilters] = useState<BiteTrailFilters>(DEFAULT_FILTERS);
-  const [expandedPanel, setExpandedPanel] = useState<"filters" | "entries">("entries");
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(
-    null,
+  const [draftFilters, setDraftFilters] =
+    useState<BiteTrailFilters>(DEFAULT_FILTERS);
+  const [appliedFilters, setAppliedFilters] =
+    useState<BiteTrailFilters>(DEFAULT_FILTERS);
+  const [expandedPanel, setExpandedPanel] = useState<"filters" | "entries">(
+    "entries",
   );
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [clusterEntryIds, setClusterEntryIds] = useState<string[]>([]);
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
   selectedPlaceIdRef.current = selectedPlaceId;
 
   const entries = useMemo(
-    () => allPlaces.flatMap((place) => {
-      const visibleVisits = place.visits.filter(
-        (visit) =>
-          appliedFilters.ownerNames.length === 0 ||
-          appliedFilters.ownerNames.includes(visit.ownerName),
-      );
-      const matchesCuisine =
-        appliedFilters.cuisineGenres.length === 0 ||
-        appliedFilters.cuisineGenres.includes(place.cuisineGenre);
-      const averageRating =
-        visibleVisits.reduce((total, visit) => total + visit.ratingOutOf10, 0) /
-        (visibleVisits.length || 1);
-      const averageCost =
-        visibleVisits.reduce((total, visit) => total + visit.costPerPerson, 0) /
-        (visibleVisits.length || 1);
-      const matchesRating = averageRating >= appliedFilters.minRating;
-      const matchesCost =
-        averageCost >= appliedFilters.minCost && averageCost <= appliedFilters.maxCost;
+    () =>
+      allPlaces.flatMap((place) => {
+        const visibleVisits = place.visits.filter(
+          (visit) =>
+            appliedFilters.ownerNames.length === 0 ||
+            appliedFilters.ownerNames.includes(visit.ownerName),
+        );
+        const matchesCuisine =
+          appliedFilters.cuisineGenres.length === 0 ||
+          appliedFilters.cuisineGenres.includes(place.cuisineGenre);
+        const averageRating =
+          visibleVisits.reduce(
+            (total, visit) => total + visit.ratingOutOf10,
+            0,
+          ) / (visibleVisits.length || 1);
+        const averageCost =
+          visibleVisits.reduce(
+            (total, visit) => total + visit.costPerPerson,
+            0,
+          ) / (visibleVisits.length || 1);
+        const matchesRating = averageRating >= appliedFilters.minRating;
+        const matchesCost =
+          averageCost >= appliedFilters.minCost &&
+          averageCost <= appliedFilters.maxCost;
 
-      if (!visibleVisits.length || !matchesCuisine || !matchesRating || !matchesCost) {
-        return [];
-      }
+        if (
+          !visibleVisits.length ||
+          !matchesCuisine ||
+          !matchesRating ||
+          !matchesCost
+        ) {
+          return [];
+        }
 
-      return [{ ...place, averageCost, averageRating, visibleVisits }];
-    }),
+        return [{ ...place, averageCost, averageRating, visibleVisits }];
+      }),
     [allPlaces, appliedFilters],
   );
 
@@ -579,7 +684,10 @@ const BiteTrailMap = () => {
       marker
         .getElement()
         ?.querySelector(".bite-trail-marker")
-        ?.classList.toggle("bite-trail-marker--selected", entryId === selectedPlaceIdRef.current);
+        ?.classList.toggle(
+          "bite-trail-marker--selected",
+          entryId === selectedPlaceIdRef.current,
+        );
     });
   };
 
@@ -591,7 +699,8 @@ const BiteTrailMap = () => {
       return;
     }
 
-    const visibleParent = markerClusterGroupRef.current?.getVisibleParent(marker);
+    const visibleParent =
+      markerClusterGroupRef.current?.getVisibleParent(marker);
     const isGrouped = Boolean(visibleParent && visibleParent !== marker);
     const tooltipLatLng = visibleParent?.getLatLng() ?? marker.getLatLng();
 
@@ -675,10 +784,13 @@ const BiteTrailMap = () => {
                   cluster.getChildCount(),
                   Boolean(
                     selectedPlaceIdRef.current &&
-                      cluster.getAllChildMarkers().some(
-                        (marker: L.Marker) =>
-                          entryByMarker.get(L.stamp(marker))?.id === selectedPlaceIdRef.current,
-                      ),
+                      cluster
+                        .getAllChildMarkers()
+                        .some(
+                          (marker: L.Marker) =>
+                            entryByMarker.get(L.stamp(marker))?.id ===
+                            selectedPlaceIdRef.current,
+                        ),
                   ),
                 ),
                 iconAnchor: [24, 52],
@@ -699,7 +811,10 @@ const BiteTrailMap = () => {
         const marker = L.marker([entry.latitude, entry.longitude], {
           icon: L.divIcon({
             className: "bite-trail-marker-icon",
-            html: createEntryIconHtml(entry, entry.id === selectedPlaceIdRef.current),
+            html: createEntryIconHtml(
+              entry,
+              entry.id === selectedPlaceIdRef.current,
+            ),
             iconAnchor: [12, 12],
             iconSize: [24, 24],
           }),
@@ -727,7 +842,8 @@ const BiteTrailMap = () => {
       if (hasMarkerCluster) {
         markers.on("clusterclick", (event) => {
           const clusterEvent = event as ClusterEvent;
-          const originalEvent = (clusterEvent as L.LeafletMouseEvent).originalEvent;
+          const originalEvent = (clusterEvent as L.LeafletMouseEvent)
+            .originalEvent;
           if (originalEvent) {
             L.DomEvent.stopPropagation(originalEvent);
           }
@@ -736,19 +852,26 @@ const BiteTrailMap = () => {
           const nextClusterEntries = clusterEvent.layer
             .getAllChildMarkers()
             .map((marker: L.Marker) => entryByMarker.get(L.stamp(marker)))
-            .filter((entry: VisibleBiteTrailPlace | undefined): entry is VisibleBiteTrailPlace =>
-              Boolean(entry),
+            .filter(
+              (
+                entry: VisibleBiteTrailPlace | undefined,
+              ): entry is VisibleBiteTrailPlace => Boolean(entry),
             );
 
-          setClusterEntryIds(nextClusterEntries.map((entry: VisibleBiteTrailPlace) => entry.id));
+          setClusterEntryIds(
+            nextClusterEntries.map((entry: VisibleBiteTrailPlace) => entry.id),
+          );
           setSelectedPlaceId(null);
           setExpandedPanel("entries");
           const revealNextClusterLevel = () => {
             const visibleParents = new Set(
-              childMarkers.map((marker: L.Marker) => clusterGroup.getVisibleParent(marker)),
+              childMarkers.map((marker: L.Marker) =>
+                clusterGroup.getVisibleParent(marker),
+              ),
             );
             const hasIndividualMarker = childMarkers.some(
-              (marker: L.Marker) => clusterGroup.getVisibleParent(marker) === marker,
+              (marker: L.Marker) =>
+                clusterGroup.getVisibleParent(marker) === marker,
             );
             const maxZoom = map.getMaxZoom();
 
@@ -859,9 +982,12 @@ const BiteTrailMap = () => {
     const entryCenter: [number, number] = [entry.latitude, entry.longitude];
     const currentZoom = map.getZoom();
     const maxZoom = map.getMaxZoom();
-    const visibleParent = markerClusterGroupRef.current?.getVisibleParent(marker);
+    const visibleParent =
+      markerClusterGroupRef.current?.getVisibleParent(marker);
     const parentCluster =
-      visibleParent && visibleParent !== marker ? (visibleParent as L.MarkerCluster) : null;
+      visibleParent && visibleParent !== marker
+        ? (visibleParent as L.MarkerCluster)
+        : null;
     const siblingMarkers = parentCluster?.getAllChildMarkers() ?? [marker];
     let targetZoom = currentZoom;
 
@@ -929,7 +1055,11 @@ const BiteTrailMap = () => {
         <div className="relative border-b border-[color:var(--site-border)]">
           <button
             type="button"
-            onClick={() => setExpandedPanel(expandedPanel === "filters" ? "entries" : "filters")}
+            onClick={() =>
+              setExpandedPanel(
+                expandedPanel === "filters" ? "entries" : "filters",
+              )
+            }
             className="flex w-full items-center gap-3 px-5 py-4 pr-16 text-left"
             aria-expanded={expandedPanel === "filters"}
           >
@@ -974,7 +1104,11 @@ const BiteTrailMap = () => {
       >
         <button
           type="button"
-          onClick={() => setExpandedPanel(expandedPanel === "entries" ? "filters" : "entries")}
+          onClick={() =>
+            setExpandedPanel(
+              expandedPanel === "entries" ? "filters" : "entries",
+            )
+          }
           className="flex items-center gap-3 border-b border-[color:var(--site-border)] px-5 py-4 text-left"
           aria-expanded={expandedPanel === "entries"}
         >
@@ -1012,7 +1146,7 @@ const BiteTrailMap = () => {
   );
 
   return (
-    <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)] xl:h-[700px]">
+    <section className="grid gap-6 xl:h-[700px] xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)]">
       <div className="site-surface-card overflow-hidden rounded-[26px] p-3 sm:p-4">
         <div className="bite-trail-map-frame relative h-[420px] overflow-hidden rounded-[18px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] sm:h-[500px] xl:h-[620px]">
           <div
@@ -1037,7 +1171,11 @@ const BiteTrailMap = () => {
                   aria-label="Center map to my current location"
                   className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-chrome)] text-[color:var(--site-text-strong)] shadow-[0_14px_30px_rgba(0,0,0,0.34)] transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)] hover:text-[color:var(--site-accent-soft)] focus-visible:border-[color:var(--site-accent-border-soft-hover)] focus-visible:text-[color:var(--site-accent-soft)] disabled:pointer-events-none disabled:opacity-55"
                 >
-                  <FaLocationCrosshairs className={isLocatingUser ? "h-4 w-4 animate-pulse" : "h-4 w-4"} />
+                  <FaLocationCrosshairs
+                    className={
+                      isLocatingUser ? "h-4 w-4 animate-pulse" : "h-4 w-4"
+                    }
+                  />
                 </button>
               }
             >
@@ -1071,7 +1209,9 @@ const BiteTrailMap = () => {
               </button>
             }
           >
-            <p className="m-0">Center map to Singapore. Change this under My Profile!</p>
+            <p className="m-0">
+              Center map to Singapore. Change this under "Default location for maps" in "My profile"!
+            </p>
           </InfoTooltip>
           <div className="flex flex-wrap items-center gap-2 text-[0.76rem] text-[color:var(--site-text-muted)]">
             <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-3 py-1.5 text-[0.78rem] text-[color:var(--site-text)]">
@@ -1086,10 +1226,13 @@ const BiteTrailMap = () => {
               <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent-cyan)]" />
               Friends
             </span>
-            <InfoTooltip ariaLabel="Leaflet map attribution" preferredPlacement="left">
+            <InfoTooltip
+              ariaLabel="Leaflet map attribution"
+              preferredPlacement="left"
+            >
               <p className="m-0">
-                Map tiles are rendered with Leaflet and OpenStreetMap. Entries are sample data
-                for the current UI pass.
+                Map tiles are rendered with Leaflet and OpenStreetMap. Entries
+                are sample data for the current UI pass.
               </p>
             </InfoTooltip>
           </div>
