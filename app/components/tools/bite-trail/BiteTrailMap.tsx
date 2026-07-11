@@ -21,7 +21,6 @@ import {
   type BiteTrailCuisineGenre,
   type BiteTrailFoodEntry,
   type BiteTrailPlace,
-  mockFoodEntries,
   mockFoodPlaces,
 } from "@/app/components/tools/bite-trail/mockFoodEntries";
 
@@ -42,29 +41,7 @@ type BiteTrailFilters = {
   ownerNames: string[];
 };
 
-const CURRENT_USER_NAME =
-  mockFoodEntries.find((entry) => entry.ownerKind === "you")?.ownerName ??
-  "You";
-const OWNER_OPTIONS = [
-  CURRENT_USER_NAME,
-  ...Array.from(new Set(mockFoodEntries.map((entry) => entry.ownerName)))
-    .filter((ownerName) => ownerName !== CURRENT_USER_NAME)
-    .sort((firstOwner, secondOwner) => firstOwner.localeCompare(secondOwner)),
-];
-const COST_FILTER_MIN = Math.floor(
-  Math.min(...mockFoodEntries.map((entry) => entry.costPerPerson)),
-);
-const COST_FILTER_MAX = Math.ceil(
-  Math.max(...mockFoodEntries.map((entry) => entry.costPerPerson)),
-);
-
-const DEFAULT_FILTERS: BiteTrailFilters = {
-  cuisineGenres: [],
-  maxCost: COST_FILTER_MAX,
-  minCost: COST_FILTER_MIN,
-  minRating: 0,
-  ownerNames: [],
-};
+const CURRENT_USER_NAME = "You";
 
 const CUISINE_OPTIONS = (
   [
@@ -142,7 +119,13 @@ const EntryStat = ({
   </div>
 );
 
-const EntryDetailPanel = ({ place }: { place: VisibleBiteTrailPlace }) => (
+const EntryDetailPanel = ({
+  place,
+  currentUserName,
+}: {
+  place: VisibleBiteTrailPlace;
+  currentUserName: string;
+}) => (
   <div className="flex min-h-full flex-col p-5">
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
@@ -189,12 +172,12 @@ const EntryDetailPanel = ({ place }: { place: VisibleBiteTrailPlace }) => (
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <p className="inline-flex items-center gap-2 font-semibold text-[color:var(--site-accent-soft)]">
-                  {visit.ownerName === CURRENT_USER_NAME ? (
+                  {visit.ownerName === currentUserName ? (
                     <FaUser className="text-[color:var(--site-accent-soft)]" />
                   ) : (
                     <FaUsers className="text-[color:var(--site-accent-soft)]" />
                   )}
-                  {visit.ownerName === CURRENT_USER_NAME
+                  {visit.ownerName === currentUserName
                     ? "Your visit"
                     : `${visit.ownerName}'s visit`}
                 </p>
@@ -297,16 +280,24 @@ const FilterPanel = ({
   filters,
   onChange,
   onApply,
+  ownerOptions,
+  costFilterMin,
+  costFilterMax,
+  currentUserName,
 }: {
   filters: BiteTrailFilters;
   onChange: (filters: BiteTrailFilters) => void;
   onApply: () => void;
+  ownerOptions: string[];
+  costFilterMin: number;
+  costFilterMax: number;
+  currentUserName: string;
 }) => {
   const [isCuisineMenuOpen, setIsCuisineMenuOpen] = useState(false);
   const [isOwnerMenuOpen, setIsOwnerMenuOpen] = useState(false);
   const cuisineMenuRef = useRef<HTMLDivElement>(null);
   const ownerMenuRef = useRef<HTMLDivElement>(null);
-  const allOwnersSelected = filters.ownerNames.length === OWNER_OPTIONS.length;
+  const allOwnersSelected = filters.ownerNames.length === ownerOptions.length;
   const allCuisinesSelected =
     filters.cuisineGenres.length === CUISINE_OPTIONS.length;
 
@@ -387,14 +378,14 @@ const FilterPanel = ({
                   onClick={() =>
                     onChange({
                       ...filters,
-                      ownerNames: allOwnersSelected ? [] : OWNER_OPTIONS,
+                      ownerNames: allOwnersSelected ? [] : ownerOptions,
                     })
                   }
                   className="mb-1 w-full rounded-[0.55rem] px-3 py-2 text-left text-[0.8rem] font-semibold normal-case tracking-normal text-[color:var(--site-text-strong)] hover:bg-[color:var(--site-bg-soft)]"
                 >
                   {allOwnersSelected ? "Unselect all" : "Select all"}
                 </button>
-                {OWNER_OPTIONS.map((ownerName) => {
+                {ownerOptions.map((ownerName) => {
                   const isSelected = filters.ownerNames.includes(ownerName);
                   return (
                     <label
@@ -408,7 +399,7 @@ const FilterPanel = ({
                         className="h-4 w-4 accent-[color:var(--site-accent)]"
                       />
                       <span>
-                        {ownerName === CURRENT_USER_NAME
+                        {ownerName === currentUserName
                           ? `${ownerName} (you)`
                           : ownerName}
                       </span>
@@ -543,14 +534,14 @@ const FilterPanel = ({
             <span
               className="absolute top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
               style={{
-                left: `${((filters.minCost - COST_FILTER_MIN) / (COST_FILTER_MAX - COST_FILTER_MIN)) * 100}%`,
-                right: `${((COST_FILTER_MAX - filters.maxCost) / (COST_FILTER_MAX - COST_FILTER_MIN)) * 100}%`,
+                left: `${((filters.minCost - costFilterMin) / (costFilterMax - costFilterMin || 1)) * 100}%`,
+                right: `${((costFilterMax - filters.maxCost) / (costFilterMax - costFilterMin || 1)) * 100}%`,
               }}
             />
             <input
               type="range"
-              min={COST_FILTER_MIN}
-              max={COST_FILTER_MAX}
+              min={costFilterMin}
+              max={costFilterMax}
               step="1"
               value={filters.minCost}
               onChange={(event) =>
@@ -567,8 +558,8 @@ const FilterPanel = ({
             />
             <input
               type="range"
-              min={COST_FILTER_MIN}
-              max={COST_FILTER_MAX}
+              min={costFilterMin}
+              max={costFilterMax}
               step="1"
               value={filters.maxCost}
               onChange={(event) =>
@@ -603,8 +594,68 @@ const FilterPanel = ({
   );
 };
 
-const BiteTrailMap = () => {
-  const allPlaces = mockFoodPlaces;
+const BiteTrailMap = ({
+  places = mockFoodPlaces,
+  currentUserName = CURRENT_USER_NAME,
+}: {
+  places?: BiteTrailPlace[];
+  currentUserName?: string;
+}) => {
+  const allPlaces = places;
+  const ownerOptions = useMemo(
+    () => [
+      currentUserName,
+      ...Array.from(
+        new Set(
+          allPlaces.flatMap((place) =>
+            place.visits.map((visit) => visit.ownerName),
+          ),
+        ),
+      )
+        .filter((ownerName) => ownerName !== currentUserName)
+        .sort((firstOwner, secondOwner) =>
+          firstOwner.localeCompare(secondOwner),
+        ),
+    ],
+    [allPlaces, currentUserName],
+  );
+  const costFilterMin = useMemo(
+    () =>
+      Math.floor(
+        Math.min(
+          ...allPlaces.flatMap((place) =>
+            place.visits.map((visit) => visit.costPerPerson),
+          ),
+          0,
+        ),
+      ),
+    [allPlaces],
+  );
+  const costFilterMax = useMemo(
+    () =>
+      Math.max(
+        Math.ceil(
+          Math.max(
+            ...allPlaces.flatMap((place) =>
+              place.visits.map((visit) => visit.costPerPerson),
+            ),
+            1,
+          ),
+        ),
+        costFilterMin,
+      ),
+    [allPlaces, costFilterMin],
+  );
+  const defaultFilters = useMemo<BiteTrailFilters>(
+    () => ({
+      cuisineGenres: [],
+      maxCost: costFilterMax,
+      minCost: costFilterMin,
+      minRating: 0,
+      ownerNames: [],
+    }),
+    [costFilterMax, costFilterMin],
+  );
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerRefs = useRef<Map<string, L.Marker>>(new Map());
@@ -615,9 +666,9 @@ const BiteTrailMap = () => {
   const [mapError, setMapError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [draftFilters, setDraftFilters] =
-    useState<BiteTrailFilters>(DEFAULT_FILTERS);
+    useState<BiteTrailFilters>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
-    useState<BiteTrailFilters>(DEFAULT_FILTERS);
+    useState<BiteTrailFilters>(defaultFilters);
   const [expandedPanel, setExpandedPanel] = useState<"filters" | "entries">(
     "entries",
   );
@@ -625,6 +676,12 @@ const BiteTrailMap = () => {
   const [clusterEntryIds, setClusterEntryIds] = useState<string[]>([]);
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
   selectedPlaceIdRef.current = selectedPlaceId;
+
+  useEffect(() => {
+    setDraftFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setSelectedPlaceId(null);
+  }, [defaultFilters]);
 
   const entries = useMemo(
     () =>
@@ -938,6 +995,13 @@ const BiteTrailMap = () => {
       return;
     }
 
+    if (!window.isSecureContext) {
+      setLocationError(
+        "Location requires HTTPS on a phone. Open the secure site or use an HTTPS local development URL.",
+      );
+      return;
+    }
+
     setIsLocatingUser(true);
     setLocationError(null);
 
@@ -953,8 +1017,20 @@ const BiteTrailMap = () => {
         setSelectedPlaceId(null);
         setIsLocatingUser(false);
       },
-      () => {
-        setLocationError("Location permission was denied or unavailable.");
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError(
+            "Location permission was denied. Allow location access for this site in your browser settings, then try again.",
+          );
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setLocationError(
+            "Your device could not determine its location. Check that phone location services are enabled.",
+          );
+        } else {
+          setLocationError(
+            "The location request timed out. Try again where your phone has a clearer GPS signal.",
+          );
+        }
         setIsLocatingUser(false);
       },
       {
@@ -1029,8 +1105,8 @@ const BiteTrailMap = () => {
   };
 
   const clearFilters = () => {
-    setDraftFilters(DEFAULT_FILTERS);
-    setAppliedFilters(DEFAULT_FILTERS);
+    setDraftFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
     setSelectedPlaceId(null);
     setClusterEntryIds([]);
     setExpandedPanel("entries");
@@ -1095,6 +1171,10 @@ const BiteTrailMap = () => {
             filters={draftFilters}
             onChange={setDraftFilters}
             onApply={applyFilters}
+            ownerOptions={ownerOptions}
+            costFilterMin={costFilterMin}
+            costFilterMax={costFilterMax}
+            currentUserName={currentUserName}
           />
         ) : null}
       </section>
@@ -1123,7 +1203,10 @@ const BiteTrailMap = () => {
         {expandedPanel === "entries" ? (
           selectedPlace ? (
             <div className="min-h-0 flex-1 overflow-y-auto">
-              <EntryDetailPanel place={selectedPlace} />
+              <EntryDetailPanel
+                place={selectedPlace}
+                currentUserName={currentUserName}
+              />
             </div>
           ) : clusterEntries.length > 0 ? (
             <EntryListPanel
@@ -1210,7 +1293,8 @@ const BiteTrailMap = () => {
             }
           >
             <p className="m-0">
-              Center map to Singapore. Change this under "Default location for maps" in "My profile"!
+              Center map to Singapore. Change this under &quot;Default location
+              for maps&quot; in &quot;My profile&quot;!
             </p>
           </InfoTooltip>
           <div className="flex flex-wrap items-center gap-2 text-[0.76rem] text-[color:var(--site-text-muted)]">

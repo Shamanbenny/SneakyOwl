@@ -21,15 +21,17 @@ const BiteTrailSparklesTitle = ({ children }: BiteTrailSparklesTitleProps) => {
         <div className="absolute left-1/2 top-0 h-[5px] w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-[color:var(--site-accent-teal)] to-transparent blur-sm" />
         <div className="absolute left-1/2 top-0 h-px w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-[color:var(--site-accent-teal)] to-transparent" />
 
-        <SparklesCore
-          background="transparent"
-          minSize={0.35}
-          maxSize={1}
-          particleDensity={200}
-          className="pointer-events-none absolute inset-0 h-full w-full"
-          particleColor="#6ee7b7"
-          speed={3}
-        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] overflow-hidden">
+          <SparklesCore
+            background="transparent"
+            minSize={0.35}
+            maxSize={1}
+            particleDensity={200}
+            className="absolute inset-0 h-full w-full"
+            particleColor="#6ee7b7"
+            speed={3}
+          />
+        </div>
         <div className="pointer-events-none absolute inset-0 rounded-[34px] shadow-[inset_0_0_34px_rgba(10,10,10,0.78)]" />
         <div className="relative z-10">{children}</div>
       </div>

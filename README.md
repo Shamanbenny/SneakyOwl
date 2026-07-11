@@ -6,10 +6,11 @@ React components and static assets served from `public/`.
 
 ## Tech Stack
 
-- Next.js 15
-- React 19
-- TypeScript
+- Next.js 15 with the App Router and static export configuration
+- React 19 and TypeScript
 - Tailwind CSS
+- Firebase Authentication with Google sign-in
+- Cloud Firestore with client-side access protected by Firestore Security Rules
 - ESLint
 - Prettier with `prettier-plugin-tailwindcss`
 
@@ -61,10 +62,21 @@ public/
 
 ## Deployment Note
 
-This project is currently configured for static export in
-[next.config.mjs](./next.config.mjs) with `output: "export"`, which is suitable
-for GitHub Pages style deployments.
-Review that configuration before changing deployment targets.
+The frontend is currently configured for static export in
+[next.config.mjs](./next.config.mjs) with `output: "export"`. The separate
+`sneakyowl-flask/` project contains the Vercel Flask API for privileged workflows.
+
+## Deploying Firestore Rules
+
+From the root repo directory, deploy the Firestore Security Rules with:
+
+```bash
+npm install -g firebase-tools
+firebase deploy --only firestore:rules --project sneakyowl-firebase
+```
+
+The Firebase CLI uses [firebase.json](./firebase.json) to locate
+[firestore.rules](./firestore.rules).
 
 ## To-do
 

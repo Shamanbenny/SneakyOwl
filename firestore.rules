@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function follows(ownerUid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid)/following/$(ownerUid));
+    }
+
+    function blockedBy(ownerUid) {
+      return exists(/databases/$(database)/documents/users/$(ownerUid)/blockedViewers/$(request.auth.uid));
+    }
+
+    function mayReadOwnerData(ownerUid) {
+      return owns(ownerUid) || (follows(ownerUid) && !blockedBy(ownerUid));
+    }
+
+    function hasAllowedDisplayName() {
+      return request.resource.data.displayName is string
+        && request.resource.data.displayName != ''
+        && (request.resource.data.displayName != 'SneakyOwl'
+          || request.auth.uid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2');
+    }
+
+    match /users/{uid} {
+      // Profiles contain only a public display name and photo URL. Preferences
+      // remain in a separate owner-only document.
+      allow read: if signedIn();
+      allow create: if owns(uid)
+        && hasAllowedDisplayName()
+        && request.resource.data.keys().hasOnly([
+          'displayName', 'photoURL', 'createdAt', 'updatedAt'
+        ]);
+      allow update: if owns(uid)
+        && hasAllowedDisplayName()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName', 'photoURL', 'updatedAt'
+        ]);
+      allow delete: if false;
+
+      match /preferences/bite-trail {
+        allow read, write: if owns(uid);
+      }
+
+      match /following/{ownerUid} {
+        allow read, create, delete: if owns(uid);
+        allow update: if false;
+      }
+
+      match /blockedViewers/{viewerUid} {
+        allow read, create, delete: if owns(uid);
+        allow update: if false;
+      }
+
+      match /places/{placeId} {
+        allow read: if mayReadOwnerData(uid);
+        allow create: if owns(uid)
+          && request.resource.data.keys().hasOnly([
+            'name', 'locationLabel', 'latitude', 'longitude', 'cuisineGenre',
+            'createdAt', 'updatedAt'
+          ]);
+        // Place metadata and deletion are backend-controlled after creation.
+        allow update, delete: if false;
+
+        match /visits/{visitId} {
+          allow read: if mayReadOwnerData(uid);
+          allow create: if owns(uid)
+            && request.resource.data.ownerUid == request.auth.uid
+            && request.resource.data.keys().hasOnly([
+              'ownerUid', 'ratingOutOf10', 'costPerPerson', 'currency',
+              'itemsBought', 'comments', 'visitedAt', 'createdAt'
+            ]);
+          // Visits are append-only in the client. Flask performs deletion.
+          allow update, delete: if false;
+        }
+      }
+    }
+
+    match /auditEvents/{eventId} {
+      allow read, write: if false;
+    }
+  }
+}

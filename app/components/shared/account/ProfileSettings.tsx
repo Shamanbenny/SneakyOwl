@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { onAuthStateChanged, updateProfile, type User } from "firebase/auth";
 import {
   FaCheck,
   FaCopy,
@@ -15,69 +16,182 @@ import {
 } from "react-icons/fa6";
 
 import DropdownField from "@/app/components/shared/ui/DropdownField";
+import LoginRequiredPanel from "@/app/components/shared/account/LoginRequiredPanel";
+import {
+  ensureBiteTrailProfile,
+  getBiteTrailPreferences,
+  getBiteTrailProfile,
+  getBiteTrailShareLink,
+  listFollowing,
+  normalizeBiteTrailDisplayName,
+  removeFollowing,
+  saveBiteTrailPreferences,
+  saveBiteTrailProfile,
+  type BiteTrailCurrency,
+  type BiteTrailFollowing,
+  type BiteTrailMapStart,
+} from "@/lib/bite-trail";
+import { getFirebaseClient } from "@/lib/firebase";
 
-const MOCK_PROFILE = {
-  displayName: "Benny SneakyOwl",
-  email: "macdonaldbenny1@gmail.com",
-  photoInitials: "BS",
-};
-
-const MOCK_CURRENCY_OPTIONS = [
+const CURRENCY_OPTIONS = [
   { currency: "Singapore dollar", value: "SGD" },
   { currency: "US dollar", value: "USD" },
   { currency: "Malaysian ringgit", value: "MYR" },
 ];
 
-type MockFriend = {
-  id: string;
-  name: string;
-  status: "Watching your list" | "You are watching";
-};
-
-const INITIAL_WATCH_LIST: MockFriend[] = [
-  { id: "kai", name: "Kai", status: "Watching your list" },
-  { id: "mira", name: "Mira", status: "You are watching" },
-];
-
 const ProfileSettings = () => {
-  const [displayName, setDisplayName] = useState(MOCK_PROFILE.displayName);
-  const [currency, setCurrency] = useState("SGD");
-  const [mapStart, setMapStart] = useState("Singapore");
-  const [sharingDefault, setSharingDefault] = useState("Private");
-  const [locationPrivacy, setLocationPrivacy] = useState("Exact locations");
+  const firebaseClient = useMemo(() => getFirebaseClient(), []);
+  const [user, setUser] = useState<User | null>(null);
+  const [displayName, setDisplayName] = useState("");
+  const [currency, setCurrency] = useState<BiteTrailCurrency>("SGD");
+  const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
+  const [following, setFollowing] = useState<BiteTrailFollowing[]>([]);
+  const [hiddenFriendIds, setHiddenFriendIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [watchList, setWatchList] = useState(INITIAL_WATCH_LIST);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
 
-  const saveMockSettings = () => {
-    setSaveMessage(
-      "Saved for this preview only. Firebase and Firestore are not connected yet.",
+  useEffect(() => {
+    if (!firebaseClient) {
+      setIsLoading(false);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(
+      firebaseClient.auth,
+      async (nextUser) => {
+        setUser(nextUser);
+        setSaveMessage(null);
+        setShareMessage(null);
+
+        if (!nextUser) {
+          setDisplayName("");
+          setFollowing([]);
+          setIsLoading(false);
+          return;
+        }
+
+        try {
+          await ensureBiteTrailProfile(firebaseClient.db, nextUser);
+          const [profile, preferences, nextFollowing] = await Promise.all([
+            getBiteTrailProfile(firebaseClient.db, nextUser.uid),
+            getBiteTrailPreferences(firebaseClient.db, nextUser.uid),
+            listFollowing(firebaseClient.db, nextUser.uid),
+          ]);
+          setDisplayName(
+            normalizeBiteTrailDisplayName(
+              nextUser.uid,
+              profile?.displayName || nextUser.displayName,
+            ),
+          );
+          setCurrency(preferences.defaultCurrency);
+          setMapStart(preferences.mapStart);
+          setFollowing(nextFollowing);
+        } catch {
+          setSaveMessage("We could not load your BiteTrail settings.");
+        } finally {
+          setIsLoading(false);
+        }
+      },
     );
-  };
+
+    return unsubscribe;
+  }, [firebaseClient]);
 
   const copyShareLink = async () => {
-    const shareLink =
-      "https://sneakyowl.net/tools/bite-trail/join?code=MOCK-OWL";
+    if (!user) {
+      setShareMessage("Sign in before sharing your BiteTrail list.");
+      return;
+    }
 
     try {
-      await navigator.clipboard.writeText(shareLink);
-      setShareMessage("Mock share link copied.");
+      await navigator.clipboard.writeText(getBiteTrailShareLink(user.uid));
+      setShareMessage("Your BiteTrail friend link was copied.");
     } catch {
-      setShareMessage("Copy is unavailable in this browser preview.");
+      setShareMessage("Copy is unavailable in this browser.");
     }
   };
 
-  const removeFriend = (friendId: string) => {
-    setWatchList((friends) =>
-      friends.filter((friend) => friend.id !== friendId),
+  const saveSettings = async () => {
+    if (!firebaseClient || !user) {
+      setSaveMessage("Sign in to save your profile and BiteTrail preferences.");
+      return;
+    }
+
+    const trimmedDisplayName = displayName.trim();
+    if (!trimmedDisplayName) {
+      setSaveMessage("Display name cannot be empty.");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveMessage(null);
+    try {
+      const safeDisplayName = normalizeBiteTrailDisplayName(
+        user.uid,
+        trimmedDisplayName,
+      );
+      await updateProfile(user, { displayName: safeDisplayName });
+      await Promise.all([
+        saveBiteTrailProfile(firebaseClient.db, user.uid, {
+          displayName: safeDisplayName,
+          photoURL: user.photoURL,
+        }),
+        saveBiteTrailPreferences(firebaseClient.db, user.uid, {
+          defaultCurrency: currency,
+          mapStart,
+        }),
+      ]);
+      setDisplayName(safeDisplayName);
+      setSaveMessage("Profile and BiteTrail preferences saved.");
+    } catch {
+      setSaveMessage("We could not save your settings. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const stopFollowing = async (ownerUid: string) => {
+    if (!firebaseClient || !user) {
+      return;
+    }
+
+    try {
+      await removeFollowing(firebaseClient.db, user.uid, ownerUid);
+      setFollowing((friends) =>
+        friends.filter((friend) => friend.ownerUid !== ownerUid),
+      );
+      setShareMessage("You are no longer watching that BiteTrail list.");
+    } catch {
+      setShareMessage("We could not remove that list. Please try again.");
+    }
+  };
+
+  const visibleFollowing = following.filter(
+    (friend) => !hiddenFriendIds.has(friend.ownerUid),
+  );
+  const isSignedIn = Boolean(user);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[calc(100dvh-200px)] items-center justify-center">
+        <section className="site-surface-card w-full max-w-[620px] rounded-[26px] p-6 text-[color:var(--site-text-muted)]">
+          Checking your sign-in status...
+        </section>
+      </div>
     );
-    setShareMessage("Friend removed in this preview only.");
-  };
+  }
 
-  const hideFriend = (friendName: string) => {
-    setShareMessage(`${friendName} hidden in this preview only.`);
-  };
-
+  if (!user) {
+    return (
+      <div className="flex min-h-[calc(100dvh-200px)] items-center justify-center">
+        <LoginRequiredPanel />
+      </div>
+    );
+  }
   return (
     <div className="grid gap-6">
       <header className="max-w-[780px]">
@@ -101,8 +215,9 @@ const ProfileSettings = () => {
               </label>
               <input
                 id="profile-display-name"
-                className="h-12 w-full rounded-xl border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)] px-4 text-[color:var(--site-text-strong)] outline-none transition focus:border-[color:var(--site-accent-border-strong)] focus:ring-2 focus:ring-[color:var(--site-accent-focus-ring)]"
+                className="h-12 w-full rounded-xl border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)] px-4 text-[color:var(--site-text-strong)] outline-none transition focus:border-[color:var(--site-accent-border-strong)] focus:ring-2 focus:ring-[color:var(--site-accent-focus-ring)] disabled:cursor-not-allowed disabled:opacity-60"
                 value={displayName}
+                disabled={!isSignedIn || isLoading}
                 onChange={(event) => setDisplayName(event.target.value)}
               />
             </div>
@@ -122,14 +237,11 @@ const ProfileSettings = () => {
                 <input
                   id="profile-email"
                   className="h-12 w-full cursor-not-allowed rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] pl-11 pr-4 text-[color:var(--site-text-muted)] opacity-80 outline-none"
-                  value={MOCK_PROFILE.email}
+                  value={user?.email || "Sign in to view your account"}
                   readOnly
                   disabled
                 />
               </div>
-              <p className="mt-2 text-[0.78rem] leading-5 text-[color:var(--site-text-faint)]">
-                This comes from Google sign-in and cannot be changed.
-              </p>
             </div>
           </div>
         </article>
@@ -144,11 +256,9 @@ const ProfileSettings = () => {
             >
               <FaMapLocationDot className="h-5 w-5" aria-hidden="true" />
             </Link>
-            <div>
-              <h2 className="text-[2rem] font-semibold text-[color:var(--site-text-strong)]">
-                Bite Trail preferences
-              </h2>
-            </div>
+            <h2 className="text-[2rem] font-semibold text-[color:var(--site-text-strong)]">
+              BiteTrail preferences
+            </h2>
           </div>
 
           <div className="mt-7 grid gap-6 lg:grid-cols-2 xxl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)]">
@@ -159,17 +269,18 @@ const ProfileSettings = () => {
                   <DropdownField
                     ariaLabel="Default currency"
                     className="w-full"
-                    options={MOCK_CURRENCY_OPTIONS.map(
-                      ({ currency, value }) => ({
-                        label: `${value} — ${currency}`,
+                    options={CURRENCY_OPTIONS.map(
+                      ({ currency: label, value }) => ({
+                        label: `${value} — ${label}`,
                         value,
                       }),
                     )}
                     value={currency}
-                    onChange={setCurrency}
+                    onChange={(value) =>
+                      setCurrency(value as BiteTrailCurrency)
+                    }
                   />
                 </label>
-
                 <label className="grid gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]">
                   Default location for maps
                   <DropdownField
@@ -180,7 +291,9 @@ const ProfileSettings = () => {
                       { label: "Current location", value: "Current location" },
                     ]}
                     value={mapStart}
-                    onChange={setMapStart}
+                    onChange={(value) =>
+                      setMapStart(value as BiteTrailMapStart)
+                    }
                   />
                 </label>
               </div>
@@ -196,23 +309,24 @@ const ProfileSettings = () => {
                       Add me as a friend
                     </h3>
                     <p className="mt-2 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                      Share this QR code or link so a friend can add your list.
+                      Share this link so a signed-in friend can add your list.
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 flex min-h-28 items-center justify-center rounded-xl border border-dashed border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)]">
                   <FaQrcode
                     className="h-16 w-16"
-                    aria-label="Mock BiteTrail share QR code"
+                    aria-label="BiteTrail share link"
                   />
                 </div>
                 <button
-                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text)] transition hover:border-[color:var(--site-accent-border-strong)] hover:text-[color:var(--site-accent-soft)]"
+                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text)] transition hover:border-[color:var(--site-accent-border-strong)] hover:text-[color:var(--site-accent-soft)] disabled:opacity-55"
                   type="button"
+                  disabled={!isSignedIn}
                   onClick={copyShareLink}
                 >
-                  <FaCopy className="h-3.5 w-3.5" aria-hidden="true" />
-                  Copy invite link
+                  <FaCopy className="h-3.5 w-3.5" aria-hidden="true" /> Copy
+                  friend link
                 </button>
               </div>
             </div>
@@ -225,45 +339,46 @@ const ProfileSettings = () => {
                 />
                 <div>
                   <h3 className="text-[1.05rem] font-semibold text-[color:var(--site-text-strong)]">
-                    Friends/Watch lists
+                    Friends / watched lists
                   </h3>
                   <p className="mt-2 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                    Hide a friend&apos;s list temporarily or revoke both access
-                    entirely.
+                    Hide a list locally or stop watching it.
                   </p>
                 </div>
               </div>
               <div className="mt-4 grid gap-3">
-                {watchList.length > 0 ? (
-                  watchList.map((friend) => (
+                {visibleFollowing.length > 0 ? (
+                  visibleFollowing.map((friend) => (
                     <div
                       className="flex items-center justify-between gap-3 rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] p-3"
-                      key={friend.id}
+                      key={friend.ownerUid}
                     >
                       <div className="min-w-0">
                         <p className="truncate text-[0.9rem] font-semibold text-[color:var(--site-text-strong)]">
-                          {friend.name}
+                          {friend.ownerDisplayName}
                         </p>
                         <p className="mt-1 text-[0.72rem] text-[color:var(--site-text-muted)]">
-                          {friend.status}
+                          You are watching
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
                         <button
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-[color:var(--site-bg-soft)] hover:text-[color:var(--site-accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)]"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-[color:var(--site-bg-soft)] hover:text-[color:var(--site-accent-soft)]"
                           type="button"
-                          aria-label={`Hide ${friend.name}`}
-                          title={`Hide ${friend.name}`}
-                          onClick={() => hideFriend(friend.name)}
+                          aria-label={`Hide ${friend.ownerDisplayName}`}
+                          onClick={() =>
+                            setHiddenFriendIds((ids) =>
+                              new Set(ids).add(friend.ownerUid),
+                            )
+                          }
                         >
                           <FaEyeSlash className="h-4 w-4" aria-hidden="true" />
                         </button>
                         <button
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-red-500/10 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)]"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-red-500/10 hover:text-red-300"
                           type="button"
-                          aria-label={`Remove ${friend.name} from friends`}
-                          title={`Remove ${friend.name} from friends`}
-                          onClick={() => removeFriend(friend.id)}
+                          aria-label={`Stop watching ${friend.ownerDisplayName}`}
+                          onClick={() => stopFollowing(friend.ownerUid)}
                         >
                           <FaUserMinus className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -272,7 +387,7 @@ const ProfileSettings = () => {
                   ))
                 ) : (
                   <p className="rounded-xl border border-dashed border-[color:var(--site-border-strong)] p-4 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                    No friends in this preview list.
+                    No watched BiteTrail lists yet.
                   </p>
                 )}
               </div>
@@ -299,14 +414,13 @@ const ProfileSettings = () => {
               </h2>
               <p className="mt-3 text-[0.9rem] leading-7 text-[color:var(--site-text)]">
                 Signing in gives you access to the tools supported by SneakyOwl.
-                Each tool still controls its own data visibility, and sharing
-                remains opt-in where the tool offers it.
+                BiteTrail sharing is opt-in through a UID-based friend link.
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-2 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-accent-soft)] underline-offset-4 hover:underline"
                 href="/privacy"
               >
-                Read the Privacy Policy
+                Read the Privacy Policy{" "}
                 <FaUser className="h-3 w-3" aria-hidden="true" />
               </Link>
             </div>
@@ -319,18 +433,20 @@ const ProfileSettings = () => {
               Save profile settings
             </h2>
             <p className="mt-3 text-[0.9rem] leading-7 text-[color:var(--site-text-muted)]">
-              This preview keeps changes in the page only. Persistence will be
-              added after the profile fields and Firestore rules are finalized.
+              {isSignedIn
+                ? "Changes are saved to your authenticated BiteTrail profile."
+                : "Sign in on BiteTrail to save profile settings."}
             </p>
           </div>
           <div className="mt-5">
             <button
-              className="site-button-primary inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 text-[0.92rem] font-semibold"
+              className="site-button-primary inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 text-[0.92rem] font-semibold disabled:opacity-55"
               type="button"
-              onClick={saveMockSettings}
+              disabled={!isSignedIn || isSaving}
+              onClick={saveSettings}
             >
               <FaCheck className="h-4 w-4" aria-hidden="true" />
-              Save preview
+              {isSaving ? "Saving..." : "Save settings"}
             </button>
             {saveMessage ? (
               <p className="mt-3 text-center text-[0.78rem] leading-5 text-[color:var(--site-accent-soft)]">

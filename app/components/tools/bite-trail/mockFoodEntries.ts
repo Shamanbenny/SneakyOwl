@@ -1,3 +1,5 @@
+import type { BiteTrailCurrency } from "@/lib/bite-trail";
+
 export type BiteTrailOwnerKind = "you" | "friend";
 export type BiteTrailCuisineGenre =
   | "cafe"
@@ -17,7 +19,7 @@ export type BiteTrailCuisineGenre =
 export type BiteTrailFoodEntry = {
   comments: string;
   costPerPerson: number;
-  currency: "SGD";
+  currency: BiteTrailCurrency;
   cuisineGenre: BiteTrailCuisineGenre;
   id: string;
   itemsBought?: string;
@@ -36,7 +38,7 @@ export type BiteTrailPlace = {
   averageCost: number;
   averageRating: number;
   cuisineGenre: BiteTrailCuisineGenre;
-  currency: "SGD";
+  currency: BiteTrailCurrency;
   id: string;
   latitude: number;
   longitude: number;
@@ -45,12 +47,12 @@ export type BiteTrailPlace = {
   visits: BiteTrailFoodEntry[];
 };
 
-export const mockFoodEntries: BiteTrailFoodEntry[] = [
+const rawMockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-maxwell-tian-tian",
     placeName: "Tian Tian Chicken Rice",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.2807,
     longitude: 103.8447,
     neighborhood: "Maxwell",
@@ -66,8 +68,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-maxwell-zhen-zhen",
     placeName: "Zhen Zhen Porridge",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.28095,
     longitude: 103.84435,
     neighborhood: "Maxwell",
@@ -77,7 +79,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Century egg porridge",
     ratingOutOf10: 8,
     visitedAt: "2026-06-02",
-    comments: "Comfort food texture, best when eaten early before the stall gets too crowded.",
+    comments:
+      "Comfort food texture, best when eaten early before the stall gets too crowded.",
   },
   {
     id: "bt-maxwell-fuzhou",
@@ -109,13 +112,14 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Sourdough tart, coffee",
     ratingOutOf10: 8,
     visitedAt: "2026-05-18",
-    comments: "Good dessert follow-up after dinner nearby. The pastry case is the main draw.",
+    comments:
+      "Good dessert follow-up after dinner nearby. The pastry case is the main draw.",
   },
   {
     id: "bt-bugis-albert-kway-chap",
     placeName: "Albert Centre Kway Chap",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.30084,
     longitude: 103.85416,
     neighborhood: "Bugis",
@@ -141,13 +145,14 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Mango sago, sesame paste",
     ratingOutOf10: 8,
     visitedAt: "2026-04-20",
-    comments: "Late-night dessert pin. Best as a shared stop because portions are generous.",
+    comments:
+      "Late-night dessert pin. Best as a shared stop because portions are generous.",
   },
   {
     id: "bt-holland-village-pasta",
     placeName: "Tipo Pasta Bar",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.31113,
     longitude: 103.79589,
     neighborhood: "Holland Village",
@@ -157,7 +162,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Pink sauce pasta, iced tea",
     ratingOutOf10: 9,
     visitedAt: "2026-03-09",
-    comments: "More expensive than hawker pins, but the handmade pasta made it memorable.",
+    comments:
+      "More expensive than hawker pins, but the handmade pasta made it memorable.",
   },
   {
     id: "bt-jewel-ramen",
@@ -173,13 +179,14 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Shoyu soba",
     ratingOutOf10: 8,
     visitedAt: "2026-02-25",
-    comments: "Airport meal that does not feel like a fallback. Good before evening flights.",
+    comments:
+      "Airport meal that does not feel like a fallback. Good before evening flights.",
   },
   {
     id: "bt-maxwell-curry-puff",
     placeName: "Maxwell Curry Puff",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.28062,
     longitude: 103.84452,
     neighborhood: "Maxwell",
@@ -189,7 +196,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Chicken curry puff",
     ratingOutOf10: 7,
     visitedAt: "2026-05-21",
-    comments: "Crisp pastry and a useful snack when the main queue is too long.",
+    comments:
+      "Crisp pastry and a useful snack when the main queue is too long.",
   },
   {
     id: "bt-maxwell-tofu",
@@ -210,8 +218,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-bugis-nasi-lemak",
     placeName: "Bugis Nasi Lemak",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.30073,
     longitude: 103.85438,
     neighborhood: "Bugis",
@@ -237,7 +245,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Pork belly set, rice, banchan",
     ratingOutOf10: 9,
     visitedAt: "2026-04-06",
-    comments: "A louder dinner, but the meat quality and side dishes were worth it.",
+    comments:
+      "A louder dinner, but the meat quality and side dishes were worth it.",
   },
   {
     id: "bt-bugis-matcha-cafe",
@@ -269,13 +278,14 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Crispy chicken burger, fries",
     ratingOutOf10: 8,
     visitedAt: "2026-03-19",
-    comments: "Crunchy and convenient. The fries are better while they are fresh.",
+    comments:
+      "Crunchy and convenient. The fries are better while they are fresh.",
   },
   {
     id: "bt-orchard-burger",
     placeName: "Orchard Smash Burger",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.30491,
     longitude: 103.83184,
     neighborhood: "Orchard",
@@ -290,8 +300,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-orchard-sushi",
     placeName: "Orchard Sushi Counter",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.30526,
     longitude: 103.83214,
     neighborhood: "Orchard",
@@ -338,8 +348,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-chinatown-indian",
     placeName: "Chinatown Banana Leaf",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.28354,
     longitude: 103.84519,
     neighborhood: "Chinatown",
@@ -370,8 +380,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-marina-western",
     placeName: "Marina Western Table",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.29013,
     longitude: 103.85734,
     neighborhood: "Marina Bay",
@@ -381,7 +391,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Steak frites, sparkling water",
     ratingOutOf10: 8,
     visitedAt: "2025-12-22",
-    comments: "A special-occasion entry with a view that carries part of the price.",
+    comments:
+      "A special-occasion entry with a view that carries part of the price.",
   },
   {
     id: "bt-marina-dessert",
@@ -402,8 +413,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-tampines-korean",
     placeName: "Tampines Korean Rice Bowl",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.35393,
     longitude: 103.94414,
     neighborhood: "Tampines",
@@ -450,8 +461,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-jurong-dessert",
     placeName: "Jurong Ice Kacang",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.33506,
     longitude: 103.74242,
     neighborhood: "Jurong East",
@@ -461,13 +472,14 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Ice kacang, chendol",
     ratingOutOf10: 8,
     visitedAt: "2025-11-09",
-    comments: "Cold, sweet, and exactly what was needed after walking around the mall.",
+    comments:
+      "Cold, sweet, and exactly what was needed after walking around the mall.",
   },
   {
     id: "bt-bedok-hawker-one",
     placeName: "Bedok Hawker Laksa",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.32412,
     longitude: 103.93031,
     neighborhood: "Bedok",
@@ -514,8 +526,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-one-north-western",
     placeName: "One-North Pasta Desk",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.29972,
     longitude: 103.78791,
     neighborhood: "one-north",
@@ -557,13 +569,14 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Tom yum, basil chicken, rice",
     ratingOutOf10: 8,
     visitedAt: "2025-09-14",
-    comments: "Good for sharing, though the riverside location makes it busier at night.",
+    comments:
+      "Good for sharing, though the riverside location makes it busier at night.",
   },
   {
     id: "bt-clarke-fast-food",
     placeName: "Clarke Quay Late Bite",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.28982,
     longitude: 103.84684,
     neighborhood: "Clarke Quay",
@@ -594,8 +607,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-bukit-timah-cafe",
     placeName: "Bukit Timah Garden Cafe",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.32934,
     longitude: 103.80235,
     neighborhood: "Bukit Timah",
@@ -610,8 +623,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-botanic-indestructible-one",
     placeName: "Botanic Garden Bento",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.313001,
     longitude: 103.815001,
     neighborhood: "Botanic Gardens",
@@ -658,8 +671,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
   {
     id: "bt-botanic-indestructible-four",
     placeName: "Botanic Garden Tea House",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.3130008,
     longitude: 103.8150013,
     neighborhood: "Botanic Gardens",
@@ -669,7 +682,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Earl Grey, scone",
     ratingOutOf10: 8,
     visitedAt: "2025-07-29",
-    comments: "A calm final stop and a good example of a location with several saved entries.",
+    comments:
+      "A calm final stop and a good example of a location with several saved entries.",
   },
   {
     id: "bt-chinatown-dumplings-priya",
@@ -701,7 +715,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Beef noodles",
     ratingOutOf10: 7,
     visitedAt: "2025-07-11",
-    comments: "Quick noodles with a rich broth and plenty of chili on the side.",
+    comments:
+      "Quick noodles with a rich broth and plenty of chili on the side.",
   },
   {
     id: "bt-kampong-glam-malay-aisha",
@@ -717,7 +732,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Nasi ambeng, iced bandung",
     ratingOutOf10: 9,
     visitedAt: "2025-06-28",
-    comments: "Excellent shared platter for a larger table and a relaxed evening.",
+    comments:
+      "Excellent shared platter for a larger table and a relaxed evening.",
   },
   {
     id: "bt-kampong-glam-cafe-lucas",
@@ -733,7 +749,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Shakshuka, mint tea",
     ratingOutOf10: 8,
     visitedAt: "2025-06-22",
-    comments: "Good courtyard atmosphere and an easy place to linger after dinner.",
+    comments:
+      "Good courtyard atmosphere and an easy place to linger after dinner.",
   },
   {
     id: "bt-orchard-fast-food-chloe",
@@ -749,7 +766,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Chicken burger, fries",
     ratingOutOf10: 6,
     visitedAt: "2025-06-13",
-    comments: "Reliable shopping break when convenience matters more than novelty.",
+    comments:
+      "Reliable shopping break when convenience matters more than novelty.",
   },
   {
     id: "bt-orchard-dessert-ethan",
@@ -765,7 +783,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Mango shaved ice",
     ratingOutOf10: 7,
     visitedAt: "2025-06-09",
-    comments: "Refreshing dessert stop with enough portion for two people to share.",
+    comments:
+      "Refreshing dessert stop with enough portion for two people to share.",
   },
   {
     id: "bt-tiong-bahru-chinese-sofia",
@@ -781,7 +800,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Roast duck rice",
     ratingOutOf10: 8,
     visitedAt: "2025-05-31",
-    comments: "Crisp skin, quick service, and a good lunch option around the estate.",
+    comments:
+      "Crisp skin, quick service, and a good lunch option around the estate.",
   },
   {
     id: "bt-tiong-bahru-cafe-jun",
@@ -845,7 +865,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Salted egg prawns, rice",
     ratingOutOf10: 8,
     visitedAt: "2025-04-26",
-    comments: "A good family-style option when several dishes are being shared.",
+    comments:
+      "A good family-style option when several dishes are being shared.",
   },
   {
     id: "bt-jurong-western-nabil",
@@ -893,14 +914,15 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Hummus platter, grilled halloumi",
     ratingOutOf10: 9,
     visitedAt: "2025-04-06",
-    comments: "Excellent sharing menu and a useful non-Asian option for groups.",
+    comments:
+      "Excellent sharing menu and a useful non-Asian option for groups.",
   },
   {
     id: "bt-shiok-burger-garlic-chicken",
     placeId: "bt-place-shiok-burger-hillion",
     placeName: "Shiok Burger",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.3776,
     longitude: 103.7718,
     neighborhood: "Hillion Mall",
@@ -910,14 +932,15 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Classic Garlic Chicken Burger set",
     ratingOutOf10: 10,
     visitedAt: "2026-07-10",
-    comments: "Crispy chicken and a strong garlic sauce. The set was worth the price.",
+    comments:
+      "Crispy chicken and a strong garlic sauce. The set was worth the price.",
   },
   {
     id: "bt-shiok-burger-shin-mala",
     placeId: "bt-place-shiok-burger-hillion",
     placeName: "Shiok Burger",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.3776,
     longitude: 103.7718,
     neighborhood: "Hillion Mall",
@@ -927,14 +950,15 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Shin Mala Burger",
     ratingOutOf10: 6,
     visitedAt: "2026-07-11",
-    comments: "The mala flavor was interesting, but the spice overwhelmed the burger.",
+    comments:
+      "The mala flavor was interesting, but the spice overwhelmed the burger.",
   },
   {
     id: "bt-wingstop-hillion-benny-1",
     placeId: "bt-place-wingstop-hillion",
     placeName: "Wingstop",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.3779,
     longitude: 103.7721,
     neighborhood: "Hillion Mall",
@@ -950,8 +974,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     id: "bt-wingstop-hillion-benny-2",
     placeId: "bt-place-wingstop-hillion",
     placeName: "Wingstop",
-    ownerName: "Benny",
-    ownerKind: "you",
+    ownerName: "Jordan",
+    ownerKind: "friend",
     latitude: 1.3779,
     longitude: 103.7721,
     neighborhood: "Hillion Mall",
@@ -961,7 +985,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Spicy wings, coleslaw",
     ratingOutOf10: 5,
     visitedAt: "2026-06-26",
-    comments: "Better sauce choice than the first visit, but still an average stop.",
+    comments:
+      "Better sauce choice than the first visit, but still an average stop.",
   },
   {
     id: "bt-wingstop-hillion-kai-1",
@@ -1012,7 +1037,8 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Louisiana rub wings, rice",
     ratingOutOf10: 8,
     visitedAt: "2026-05-12",
-    comments: "The seasoning was balanced and the portion felt fair for the price.",
+    comments:
+      "The seasoning was balanced and the portion felt fair for the price.",
   },
   {
     id: "bt-wingstop-hillion-mira-2",
@@ -1029,9 +1055,20 @@ export const mockFoodEntries: BiteTrailFoodEntry[] = [
     itemsBought: "Honey mustard wings, loaded fries",
     ratingOutOf10: 9,
     visitedAt: "2026-04-28",
-    comments: "The strongest visit in this sample set, especially with the loaded fries.",
+    comments:
+      "The strongest visit in this sample set, especially with the loaded fries.",
   },
 ];
+
+// Mock records are always friend records. They are only appended by the map
+// adapter and must never appear in friends-list/profile state.
+export const mockFoodEntries: BiteTrailFoodEntry[] = rawMockFoodEntries.map(
+  (entry) => ({
+    ...entry,
+    ownerKind: "friend",
+    ownerName: entry.ownerName,
+  }),
+);
 
 const getPlaceId = (entry: BiteTrailFoodEntry) => entry.placeId ?? entry.id;
 
@@ -1046,8 +1083,12 @@ export const mockFoodPlaces: BiteTrailPlace[] = Array.from(
 ).map(([id, visits]) => {
   const firstVisit = visits[0];
   return {
-    averageCost: visits.reduce((total, visit) => total + visit.costPerPerson, 0) / visits.length,
-    averageRating: visits.reduce((total, visit) => total + visit.ratingOutOf10, 0) / visits.length,
+    averageCost:
+      visits.reduce((total, visit) => total + visit.costPerPerson, 0) /
+      visits.length,
+    averageRating:
+      visits.reduce((total, visit) => total + visit.ratingOutOf10, 0) /
+      visits.length,
     cuisineGenre: firstVisit.cuisineGenre,
     currency: firstVisit.currency,
     id,

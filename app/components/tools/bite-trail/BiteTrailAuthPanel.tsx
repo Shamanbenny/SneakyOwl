@@ -3,11 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  browserLocalPersistence,
   type AuthError,
   onAuthStateChanged,
-  setPersistence,
-  signInWithPopup,
   signOut,
   type User,
 } from "firebase/auth";
@@ -19,6 +16,11 @@ import {
 } from "react-icons/fa6";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import {
+  ensureBiteTrailProfile,
+  normalizeBiteTrailDisplayName,
+} from "@/lib/bite-trail";
+import { signInWithGoogle } from "@/lib/firebase-auth";
 import { getFirebaseClient } from "@/lib/firebase";
 
 const getReadableAuthError = (error: unknown) => {
@@ -72,8 +74,13 @@ const BiteTrailAuthPanel = () => {
     setAuthError(null);
 
     try {
-      await setPersistence(firebaseClient.auth, browserLocalPersistence);
-      await signInWithPopup(firebaseClient.auth, firebaseClient.googleProvider);
+      const credential = await signInWithGoogle(
+        firebaseClient.auth,
+        firebaseClient.googleProvider,
+      );
+      if (credential) {
+        await ensureBiteTrailProfile(firebaseClient.db, credential.user);
+      }
     } catch (error) {
       setAuthError(getReadableAuthError(error));
     } finally {
@@ -115,7 +122,9 @@ const BiteTrailAuthPanel = () => {
             {isAuthReady && !user ? "Get started here" : null}
             {isAuthReady && user ? (
               <span>
-                Welcome back, {(user.displayName || "food explorer") + " "}
+                Welcome back,{" "}
+                {normalizeBiteTrailDisplayName(user.uid, user.displayName) +
+                  " "}
                 {user.email ? (
                   <span className="inline-flex align-middle">
                     <InfoTooltip
