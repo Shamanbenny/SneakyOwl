@@ -39,7 +39,7 @@ BiteTrail should reuse the same conceptual split:
 - As a signed-in user, I can click anywhere on the map to place a pin manually.
 - As a signed-in user, I can drag a placed pin to correct its exact location.
 - As a signed-in user, I can store the place name, cost per person, rating out of 10, comments, and optionally what I bought.
-- As a signed-in user, I can edit or delete my own entries.
+- As a signed-in user, I can append visits to an existing place and delete my own visits.
 - As a signed-in user, I can generate a share code/link/QR for my list.
 - As a signed-in user, I can add a friend's shared list to my watch list.
 - As a viewer, I can show my entries and watched friends' entries together on the same map.
@@ -49,14 +49,11 @@ BiteTrail should reuse the same conceptual split:
 
 ## Planned Fields
 
-Entry fields:
+Visit fields:
 
 - `id`
 - `ownerUserId`
-- `placeName`
-- `latitude`
-- `longitude`
-- `cuisineGenre` such as fast food, western, Korean, Japanese, cafe, dessert, hawker, etc.
+- `placeId`
 - `costPerPerson`
 - `currency`
 - `ratingOutOf10` as a whole number
@@ -92,11 +89,8 @@ User/list fields:
 - [x] Add marker clustering with `leaflet.markercluster`.
 - [x] Use realistic OpenStreetMap tiles instead of a black/gray map style.
 - [x] Style map pins as teardrops, with green for own entries and the landing page competition blue for friends.
-- [ ] Decide final backend/storage shape for entries, share codes, watch lists, and revocation. Firebase is still the strongest current direction, but the separate Flask/Vercel backend is deferred for later.
-- [ ] Correct the sample food-entry data before treating it as the model source of truth:
-  - Ratings should be whole numbers out of 10, not decimal scores.
-  - Entries need a cuisine genre such as fast food, western, Korean, Japanese, cafe, dessert, or hawker.
-  - Sample copy should model the actual fields expected in the entry form.
+- [x] Select Firebase Auth plus direct Firestore SDK access as the default backend path; defer Flask/Vercel to privileged workflows.
+- [x] Correct the sample data into grouped places and append-only visits with whole-number ratings, cuisine genres, and visible-average filtering.
 - [ ] Add database schema and access rules.
 - [ ] Build create/edit entry form.
 - [ ] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.

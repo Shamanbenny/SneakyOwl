@@ -76,13 +76,15 @@ Review that configuration before changing deployment targets.
 - [x] Use realistic OpenStreetMap tiles rather than a dark/black map theme.
 - [x] Style BiteTrail markers as compact circles: own entries use green accent fill with black border/dot, friend entries use the landing competition blue, and clusters use the inverted black/accent treatment.
 - [x] Decide the initial frontend auth provider: Firebase Google Authentication.
-- [ ] Confirm the full backend/storage implementation for personal food entries, share codes, watch lists, and revocation. Current direction is Firebase for auth/storage, with the separate Flask/Vercel backend still deferred.
+- [x] Choose Firebase Auth plus direct Firestore SDK access as the default BiteTrail data path, protected by Firestore Security Rules.
+- [ ] Reserve the separate Flask/Vercel backend for future privileged workflows such as moderation, rate-limited operations, or external integrations.
 - [ ] Design a personal food-place entry form with place name, cuisine genre, cost per person, optional items bought, whole-number rating out of 10, and comments.
 - [x] Expand the sample data with repeated owners, multiple cuisine categories, normal clusters, and a deliberately inseparable maximum-zoom cluster.
 - [ ] Reuse RafflesGo's Leaflet creation pattern for click-to-drop pins, draggable markers, GPS-based placement, and optional manual coordinate syncing.
 - [ ] Add friend sharing through QR/link/manual code entry, plus controls to remove watched lists and stop sharing with specific viewers.
 - [ ] Add clustered map pins for close-proximity entries with a cluster detail list on click.
 - [x] Model repeated visits as one shared place with visible-visit averages and individual visit details.
+- [ ] Build a reusable authenticated profile page for BiteTrail and future tools, backed by Firebase Auth and a user-scoped Firestore profile document.
 - [ ] Add a non-destructive "Report store closure" signal that indicates closure likelihood without closing a place for everyone.
 - [ ] Add a refresh control beside the BiteTrail map pins badge for the future one-time data refresh workflow.
 - [ ] Resolve remaining product-scope questions in `app/tools/bite-trail/QUESTIONS.md`.

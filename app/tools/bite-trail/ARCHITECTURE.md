@@ -59,8 +59,8 @@ Exploration map:
   - If zoomed out, optionally zoom toward cluster bounds.
   - Also open a side panel or bottom sheet with the represented entries.
 - Marker click behavior:
-  - Selects one entry.
-  - Opens a detail panel with place name, owner, rating, cost, items bought, comments, and visit date.
+  - Selects one place.
+  - Opens a detail panel with visible-visit averages and the individual visit records.
 
 Preferred detail UI:
 
@@ -105,7 +105,8 @@ Current decision:
 
 - Firebase Google Authentication is already wired into the BiteTrail auth smoke test.
 - The full data backend is still not implemented.
-- The separate Flask/Vercel backend can still be added later, but it is deferred while the UI and Firebase auth foundation are validated.
+- Firestore client SDK access protected by Firestore Security Rules is the default path.
+- The separate Flask/Vercel backend is deferred for privileged workflows only.
 
 Firebase remains the lower-friction first choice for BiteTrail storage:
 
@@ -114,18 +115,17 @@ Firebase remains the lower-friction first choice for BiteTrail storage:
 - Firestore security rules are well suited for owner/private data plus share relationships.
 - Static-export deployment can still talk directly to Firebase from the browser.
 
-Supabase remains a good alternative if relational permissions become complex:
+Supabase was considered but is not the current direction:
 
 - Postgres tables can model users, entries, share tokens, watch relationships, and revocations cleanly.
 - Row Level Security can express owner/viewer access.
 - QR/share-code lookup can be implemented through a server/API route or Supabase RPC.
 
-Decision point:
+Do not introduce Flask as a generic Firestore proxy. Consider it later only for moderation, rate-limited operations, secret-backed integrations, or other trusted server workflows.
 
-- Pick Firebase for faster portfolio integration and easier static hosting.
-- Pick Supabase if searchable relational queries, SQL analytics, or complex access-control joins are expected early.
+## Initial Firestore-Style Data Model (Superseded)
 
-## Firestore-Style Data Model
+The original flat entry model below is retained as historical context only. The active model is documented in `Place And Visit Model` near the end of this file.
 
 ```text
 users/{userId}

@@ -15,14 +15,17 @@
 - Cluster marker color: inverted black/accent teardrop with an accent count circle.
 - Rating format: whole-number rating out of 10.
 - Entry fields should include cuisine genre.
+- Multiple visits belong to one user-managed place ID; each visit keeps its own rating, cost, date, ordered items, comments, and user.
+- Place metadata is immutable and has no tracked initial creator. Users may delete only their own visits; deleting the final valid visit deletes the place metadata.
+- Place averages use only visits visible after watch-list and owner filtering.
+- Firebase client SDK plus Firestore Security Rules is the default data path. Flask/Vercel is deferred for privileged workflows only.
+- The current map loads data once per page refresh; a future refresh control may explicitly reload it.
 - Privacy page exists for OAuth verification support, but no main navigation link is required.
 
 ## Product Scope
 
 1. Should the first version be personal-only first, then add sharing, or should sharing be included in the first usable version?
 2. Should entries support photos of the food/place, or only text fields for now?
-3. Should users be able to attach multiple visits to the same place, or should each pin represent exactly one meal experience?
-4. If a user visits the same restaurant twice, should that become two pins, one pin with multiple logs, or a prompt to update the existing place?
 5. Should the app support search by place name/address, or only click/GPS pin placement at first?
 6. Should we store exact coordinates, or offer a privacy mode that slightly blurs shared locations?
 7. Should watched friends' entries be mixed directly into the map, or shown through toggles per friend?
@@ -43,8 +46,7 @@
 
 1. Is GitHub Pages/static export still the target deployment for SneakyOwl?
 2. If static export remains required, are you comfortable with all auth/database interactions happening through a browser SDK?
-3. Should real BiteTrail entries be stored directly through Firebase client SDK first, or should the later Flask/Vercel backend mediate any writes?
-4. Which BiteTrail workflows, if any, require the deferred Flask/Vercel backend instead of Firebase client SDK?
+3. Which future privileged workflows, if any, require the deferred Flask/Vercel backend instead of Firebase client SDK and Firestore Rules?
 5. Should marker clustering stay on `leaflet.markercluster`, or should it eventually become a custom cluster layer for tighter styling/control?
 6. Should map tiles remain OpenStreetMap default tiles long term, or should the tool use a custom tile provider/style later?
 7. Should `mockFoodEntries.ts` be renamed to `sampleFoodEntries.ts` once the current UI pass settles?
@@ -54,4 +56,5 @@
 - Sample ratings are now whole numbers from 0 to 10.
 - Sample entries now include typed cuisine genres such as fast food, western, Korean, Japanese, Thai, Indian, seafood, cafe, dessert, and hawker.
 - The dataset includes repeated owners, ordinary nearby clusters, and a deliberately inseparable maximum-zoom cluster for validating the cluster-preview behavior.
-- Sample entries represent the planned entry fields: place name, cuisine genre, cost per person, optional items bought, rating, comments, owner/list source, and visit date.
+- Sample visits represent the visit fields: place ID, cost per person, optional items bought, whole-number rating, comments, owner, and visit date.
+- `mockFoodPlaces` derives one map/list place from one or more sample visits. Wingstop at Hillion Mall has six visits from three users for visible-average filtering tests.
