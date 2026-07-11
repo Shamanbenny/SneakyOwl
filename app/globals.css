@@ -1725,41 +1725,46 @@ body *::selection {
 .bite-trail-marker {
   position: relative;
   display: inline-flex;
-  width: 32px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.36));
+  filter: drop-shadow(0 7px 10px rgba(0, 0, 0, 0.34));
 }
 
 .bite-trail-marker::before {
   position: absolute;
-  top: 4px;
-  left: 3px;
-  width: 26px;
-  height: 26px;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
   content: "";
-  transform: rotate(45deg);
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
   border: 2px solid rgba(10, 10, 10, 0.92);
-  border-radius: 50% 50% 8% 50%;
+  border-radius: 999px;
   background-color: var(--site-accent);
 }
 
 .bite-trail-marker__dot {
   position: absolute;
-  top: 11px;
+  top: 50%;
   left: 50%;
   z-index: 1;
-  width: 10px;
-  height: 10px;
-  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%);
   border-radius: 999px;
   background-color: var(--site-bg-strong);
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.12);
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.12);
 }
 
 .bite-trail-marker--friend::before {
   background-color: var(--site-accent-cyan);
+}
+
+.bite-trail-marker--selected::before {
+  background-color: #ef4444;
 }
 
 .bite-trail-cluster {
@@ -1805,6 +1810,14 @@ body *::selection {
   box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.42);
 }
 
+.bite-trail-cluster--selected::before {
+  border-color: #ef4444;
+}
+
+.bite-trail-cluster--selected span {
+  background-color: #ef4444;
+}
+
 .bite-trail-marker-tooltip {
   border: 1px solid var(--site-border-strong);
   border-radius: 999px;
@@ -1817,7 +1830,7 @@ body *::selection {
 }
 
 .bite-trail-marker-tooltip::before {
-  border-top-color: var(--site-bg-chrome);
+  border-bottom-color: var(--site-bg-chrome);
 }
 
 /* Original @media: max-sm:w-[300px] sm:w-[640px] md:w-[768px] lg:w-[1024px] xl:w-[1280px] xxl:w-[1600px] */

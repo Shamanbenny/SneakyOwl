@@ -73,7 +73,7 @@ Current map UI decisions:
 - The "Singapore" recenter button calls `setView(SINGAPORE_CENTER, SINGAPORE_ZOOM)` in `BiteTrailMap.tsx`.
 - Change the default center by editing `SINGAPORE_CENTER`.
 - Change the default zoom by editing `SINGAPORE_ZOOM`.
-- Individual pins are teardrop markers, not regular circles.
+- Individual pins are compact circular markers.
 - Own-entry pins use black border, green accent fill, and black inner dot.
 - Friend-entry pins use the same shape but replace green with `--site-accent-cyan`, matching the landing page competition accent.
 - Cluster pins use the inverted treatment: green accent border, black fill, and green inner count circle.
@@ -174,15 +174,16 @@ Notes:
 - Revoking a code should prevent new watchers from joining.
 - Existing watchers can either remain until explicitly removed or be removed on rotation; this is a product decision.
 - `ratingOutOf10` should be stored as an integer.
-- `cuisineGenre` should be added before real entry creation is implemented.
+- `cuisineGenre` should be stored as a controlled category or validated value before real entry creation is implemented.
 
 ## Sample Data Status
 
-`mockFoodEntries.ts` currently exists only to drive the visual map UI. It needs a cleanup pass before it is used as a schema reference:
+`mockFoodEntries.ts` currently exists to drive the visual map UI and exercise the planned entry shape:
 
 - Rename or document it clearly as sample data if the filename becomes confusing.
-- Convert ratings to whole numbers.
-- Add cuisine genre values such as fast food, western, Korean, Japanese, cafe, dessert, and hawker.
+- Ratings are represented as whole numbers from 0 to 10.
+- Cuisine genre is represented by a typed category set including fast food, western, Korean, Japanese, Thai, Indian, seafood, cafe, dessert, and hawker.
+- The dataset includes repeated visits by the same list owner, normal clusters, and a deliberately inseparable maximum-zoom cluster.
 - Keep the sample entries close to the fields expected in the real create/edit form.
 
 ## Access Rules

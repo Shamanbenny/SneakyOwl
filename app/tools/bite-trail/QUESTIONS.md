@@ -9,7 +9,7 @@
 - Map tiles: OpenStreetMap default tiles.
 - Current map UI data: sample food entries only; not real backend data yet.
 - Current clustering approach: `leaflet.markercluster`, with a plain marker fallback if clustering fails to load.
-- Marker visual direction: teardrop pins.
+- Marker visual direction: compact circular pins, with larger teardrop clusters.
 - Own-entry marker color: site green accent.
 - Friend-entry marker color: `--site-accent-cyan`, matching the landing page competition accent.
 - Cluster marker color: inverted black/accent teardrop with an accent count circle.
@@ -49,8 +49,9 @@
 6. Should map tiles remain OpenStreetMap default tiles long term, or should the tool use a custom tile provider/style later?
 7. Should `mockFoodEntries.ts` be renamed to `sampleFoodEntries.ts` once the current UI pass settles?
 
-## Known Sample Data Fixes
+## Sample Data Status
 
-- Ratings currently need correction to whole numbers.
-- Cuisine genre is missing and should be added before the sample data is used as a reference for form/schema work.
-- Sample entries should represent the eventual entry form fields: place name, cuisine genre, cost per person, optional items bought, whole-number rating out of 10, comments, owner/list source, and visit date.
+- Sample ratings are now whole numbers from 0 to 10.
+- Sample entries now include typed cuisine genres such as fast food, western, Korean, Japanese, Thai, Indian, seafood, cafe, dessert, and hawker.
+- The dataset includes repeated owners, ordinary nearby clusters, and a deliberately inseparable maximum-zoom cluster for validating the cluster-preview behavior.
+- Sample entries represent the planned entry fields: place name, cuisine genre, cost per person, optional items bought, rating, comments, owner/list source, and visit date.
