@@ -1,6 +1,14 @@
 # BiteTrail Plan
 
-BiteTrail is a personal and social food-place map. Users sign in, drop pins for places they have eaten at, record meal details, and optionally view friends' shared lists on the same map.
+BiteTrail is a personal and social food-place map. Users sign in, create shared place records, append their own visits, and optionally view friends' visible visits on the same map.
+
+## Place And Visit Model
+
+A place has one stable user-managed ID containing the store name, user-entered location, coordinates, and cuisine. BiteTrail does not automatically group malls, neighborhoods, similar names, or nearby coordinates.
+
+Each visit is a separate append-only record attached to the place ID. It stores its user, date, rating, cost per person, ordered items, and comments. Users may delete only their own visits; place metadata is immutable. If the last valid visit is deleted, the place and related metadata are deleted.
+
+The map and View entries list render one pin and one row per place. Averages use only visits visible under the current watch-list and filter selections. Rating averages display one decimal place and cost averages display two decimal places. The selected place view shows the summary followed by every visible visit in a fully expanded sub-container.
 
 ## RafflesGo Map Behavior To Reuse
 
@@ -80,6 +88,7 @@ User/list fields:
 - [x] Add Google sign-in smoke-test UI.
 - [x] Add a Leaflet/OpenStreetMap map preview using sample food-entry data.
 - [x] Add selected pin detail panel and cluster list panel.
+- [x] Model repeated visits as one shared place with multiple visit records in the sample data.
 - [x] Add marker clustering with `leaflet.markercluster`.
 - [x] Use realistic OpenStreetMap tiles instead of a black/gray map style.
 - [x] Style map pins as teardrops, with green for own entries and the landing page competition blue for friends.
@@ -96,6 +105,8 @@ User/list fields:
 - [ ] Add friend-list import by code/link.
 - [ ] Add watch-list management.
 - [ ] Add owner-side share revocation or code rotation.
+- [ ] Add a non-destructive "Report store closure" signal and show the resulting likelihood indicator without closing the place for everyone.
+- [ ] Add a refresh control beside the map pins badge for the future one-time data refresh workflow.
 - [ ] Add empty, loading, auth-required, permission-denied, and offline/error states.
 - [ ] Verify mobile map usability, especially GPS permission errors and bottom-sheet detail panels.
 

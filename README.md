@@ -82,5 +82,8 @@ Review that configuration before changing deployment targets.
 - [ ] Reuse RafflesGo's Leaflet creation pattern for click-to-drop pins, draggable markers, GPS-based placement, and optional manual coordinate syncing.
 - [ ] Add friend sharing through QR/link/manual code entry, plus controls to remove watched lists and stop sharing with specific viewers.
 - [ ] Add clustered map pins for close-proximity entries with a cluster detail list on click.
+- [x] Model repeated visits as one shared place with visible-visit averages and individual visit details.
+- [ ] Add a non-destructive "Report store closure" signal that indicates closure likelihood without closing a place for everyone.
+- [ ] Add a refresh control beside the BiteTrail map pins badge for the future one-time data refresh workflow.
 - [ ] Resolve remaining product-scope questions in `app/tools/bite-trail/QUESTIONS.md`.
 - [x] Document the first-pass tools and BiteTrail plan in `app/tools/`.

@@ -227,6 +227,38 @@ The QR code should encode the URL, while the manual input accepts the bare code.
 - Rate-limit or otherwise guard share-code lookups to prevent brute force.
 - Consider location privacy warnings because food entries can reveal routines.
 
+## Place And Visit Model
+
+The long-term storage model separates immutable shared place metadata from user-owned visits:
+
+```text
+places/{placeId}
+  placeName
+  locationLabel
+  latitude
+  longitude
+  cuisineGenre
+  createdAt
+  updatedAt
+
+places/{placeId}/visits/{visitId}
+  userId
+  costPerPerson
+  currency
+  ratingOutOf10
+  itemsBought
+  comments
+  visitedAt
+  createdAt
+  deletedAt
+```
+
+Place IDs are reused when another authorized user appends a visit. The app does not infer identity from mall, neighborhood, name similarity, or coordinate proximity. There is no tracked initial creator and no metadata-edit workflow. Users may delete only visits they created; when no valid visits remain, the place and related metadata are deleted.
+
+The map and list render one item per place. Owner and watch-list filtering happens before aggregation, so averages only include visible visits. Rating averages display one decimal place and cost averages display two decimal places. The selected place panel shows the aggregate summary followed by every visible visit fully expanded with contributor, date, rating, cost, ordered items, and comments.
+
+Closure reports are separate per-user signals with timestamps. They contribute to a future closure-likelihood indicator but never close or delete a place for everyone. The current map loads its data once per page refresh rather than operating as a realtime service; a future refresh button can explicitly reload the current state.
+
 ## Static Export Risk
 
 `next.config.mjs` currently uses static export. Firebase client SDK usage is compatible with that. Next API routes are not available in a static export deployment, so server-required workflows should either use Firebase services directly or require a deployment target change.

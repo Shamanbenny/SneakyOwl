@@ -10,7 +10,7 @@ import {
   signOut,
   type User,
 } from "firebase/auth";
-import { FaArrowRightFromBracket, FaGoogle, FaMapLocationDot } from "react-icons/fa6";
+import { FaArrowRightFromBracket, FaGoogle, FaMapLocationDot, FaUser } from "react-icons/fa6";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 import { getFirebaseClient } from "@/lib/firebase";
@@ -128,6 +128,15 @@ const BiteTrailAuthPanel = () => {
 
       {user ? (
         <div className="flex flex-col gap-4">
+          <button
+            type="button"
+            disabled
+            title="My profile is not available yet"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-soft)] px-4 text-[0.92rem] font-semibold text-[color:var(--site-text)] transition disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <FaUser className="h-4 w-4" />
+            My profile
+          </button>
           <button
             type="button"
             onClick={logout}
