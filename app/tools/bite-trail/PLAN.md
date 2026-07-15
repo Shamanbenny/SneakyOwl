@@ -46,7 +46,7 @@ Flask verifies the token, derives the authenticated UID from it, and never trust
 The friend link should be intentionally simple:
 
 ```text
-/tools/bite-trail/join?uid=<owner-firebase-auth-uid>
+/tools/bite-trail/add?uid=<owner-firebase-auth-uid>
 ```
 
 The Firebase Auth UID is an identifier, not a secret. It must not be treated as an invite password, Firebase ID token, or authorization credential. Never put a Firebase ID token in the URL.

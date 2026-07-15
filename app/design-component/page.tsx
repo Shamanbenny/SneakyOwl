@@ -104,6 +104,16 @@ const colorTokens = [
     token: "--site-accent-soft",
   },
   {
+    label: "Accent Red",
+    swatchClass: styles.swatchColorAccentRed,
+    token: "--site-accent-red",
+  },
+  {
+    label: "Accent Orange",
+    swatchClass: styles.swatchColorAccentOrange,
+    token: "--site-accent-orange",
+  },
+  {
     label: "Accent Teal",
     swatchClass: styles.swatchColorAccentTeal,
     token: "--site-accent-teal",
@@ -711,6 +721,55 @@ export default function DesignComponentPage() {
                 <FaHistory aria-hidden="true" />
               </span>
             </div>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="notifications">
+          <h2 id="notifications" className={styles.sectionTitle}>
+            Notifications
+          </h2>
+          <p className={styles.sectionIntro}>
+            Use the shared notification stack for short-lived process feedback.
+            Success, error, warning, and informational messages each dismiss
+            automatically after five seconds and stack from the bottom upward.
+          </p>
+          <div className={styles.grid}>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Success</h3>
+                <span className={styles.meta}>site-accent</span>
+              </div>
+              <div className="site-notification" data-type="success" role="status">
+                Friend added successfully.
+              </div>
+            </article>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Error</h3>
+                <span className={styles.meta}>site-accent-red</span>
+              </div>
+              <div className="site-notification" data-type="error" role="alert">
+                We could not complete that action.
+              </div>
+            </article>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Warning</h3>
+                <span className={styles.meta}>site-accent-orange</span>
+              </div>
+              <div className="site-notification" data-type="warning" role="status">
+                This action needs your attention.
+              </div>
+            </article>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Info</h3>
+                <span className={styles.meta}>site-bg-elevated</span>
+              </div>
+              <div className="site-notification" data-type="info" role="status">
+                Your settings are already up to date.
+              </div>
+            </article>
           </div>
         </section>
 

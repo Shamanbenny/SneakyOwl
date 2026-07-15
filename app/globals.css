@@ -20,6 +20,8 @@
   --site-accent: #10b981;
   --site-accent-strong: #059669;
   --site-accent-soft: #6ee7b7;
+  --site-accent-red: #d13636;
+  --site-accent-orange: #e69712;
   --site-accent-teal: #0d9488;
   --site-accent-cyan: #0891b2;
   --site-accent-border-soft: rgba(16, 185, 129, 0.36);
@@ -77,6 +79,70 @@ body *::selection {
 .site-accent-banner {
   background-color: var(--site-accent-strong);
   color: var(--site-text-strong);
+}
+
+.site-notification-stack {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10000;
+  display: flex;
+  width: min(24rem, calc(100vw - 2rem));
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
+  pointer-events: none;
+}
+
+.site-notification {
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  color: var(--site-selection-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.45;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+.site-notification[data-type="success"] {
+  border-color: var(--site-accent-strong);
+  background-color: var(--site-accent);
+}
+
+.site-notification[data-type="error"] {
+  border-color: var(--site-accent-red);
+  background-color: var(--site-accent-red);
+  color: var(--site-text-strong);
+}
+
+.site-notification[data-type="warning"] {
+  border-color: var(--site-accent-orange);
+  background-color: var(--site-accent-orange);
+}
+
+.site-notification[data-type="info"] {
+  border-color: var(--site-border-strong);
+  background-color: var(--site-bg-elevated);
+  color: var(--site-text-strong);
+}
+
+.site-notification[data-exiting="true"] {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+@media (max-width: 639px) {
+  .site-notification-stack {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
 }
 
 .group:hover .site-accent-banner,
@@ -1824,9 +1890,57 @@ body *::selection {
 }
 
 .bite-trail-marker-icon,
-.bite-trail-cluster-icon {
+.bite-trail-cluster-icon,
+.bite-trail-user-location-icon {
   background: transparent;
   border: 0;
+}
+
+.bite-trail-user-location {
+  position: relative;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.36));
+}
+
+.bite-trail-user-location::before {
+  display: none;
+}
+
+.bite-trail-user-location svg {
+  width: 24px;
+  height: 32px;
+  fill: var(--site-accent-orange);
+  stroke: var(--site-bg-strong);
+  stroke-width: 36px;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+}
+
+.bite-trail-user-location-legend {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 2px solid var(--site-bg-strong);
+  border-radius: 999px;
+  background-color: var(--site-accent-orange);
+  box-shadow: 0 0 0 2px var(--site-accent-orange);
+}
+
+@keyframes bite-trail-location-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.75);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
 }
 
 .bite-trail-marker {
@@ -1871,7 +1985,7 @@ body *::selection {
 }
 
 .bite-trail-marker--selected::before {
-  background-color: #ef4444;
+  background-color: var(--site-accent-red);
 }
 
 .bite-trail-cluster {
@@ -1918,11 +2032,11 @@ body *::selection {
 }
 
 .bite-trail-cluster--selected::before {
-  border-color: #ef4444;
+  border-color: var(--site-accent-red);
 }
 
 .bite-trail-cluster--selected span {
-  background-color: #ef4444;
+  background-color: var(--site-accent-red);
 }
 
 .bite-trail-range {

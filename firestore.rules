@@ -23,6 +23,18 @@ service cloud.firestore {
       return owns(ownerUid) || (follows(ownerUid) && !blockedBy(ownerUid));
     }
 
+    function reciprocalFollowingExists(viewerUid, ownerUid) {
+      return exists(
+        /databases/$(database)/documents/users/$(viewerUid)/following/$(ownerUid)
+      );
+    }
+
+    function reciprocalFollowingWillExist(viewerUid, ownerUid) {
+      return existsAfter(
+        /databases/$(database)/documents/users/$(viewerUid)/following/$(ownerUid)
+      );
+    }
+
     function hasAllowedDisplayName() {
       return request.resource.data.displayName is string
         && request.resource.data.displayName != ''
@@ -51,7 +63,23 @@ service cloud.firestore {
       }
 
       match /following/{ownerUid} {
-        allow read, create, delete: if owns(uid);
+        allow read: if owns(uid);
+        // A friend-link acceptance writes both users' watch-list documents in
+        // one batch. The non-owner write is allowed only when its reciprocal
+        // relationship is also present after that same batch commits.
+        allow create: if owns(uid)
+          && reciprocalFollowingWillExist(ownerUid, uid);
+        allow create: if signedIn()
+          && request.auth.uid == ownerUid
+          && reciprocalFollowingWillExist(ownerUid, uid);
+        // Paired relationships must be removed together. A legacy one-sided
+        // relationship can still be removed by its owner.
+        allow delete: if owns(uid)
+          && (!reciprocalFollowingExists(ownerUid, uid)
+            || !reciprocalFollowingWillExist(ownerUid, uid));
+        allow delete: if signedIn()
+          && request.auth.uid == ownerUid
+          && !reciprocalFollowingWillExist(ownerUid, uid);
         allow update: if false;
       }
 

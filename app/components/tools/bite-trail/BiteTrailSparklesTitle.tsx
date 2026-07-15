@@ -12,7 +12,7 @@ const BiteTrailSparklesTitle = ({ children }: BiteTrailSparklesTitleProps) => {
   return (
     <header className="relative flex w-full flex-col items-center justify-center py-4">
       <h1 className="relative z-20 text-center text-[3.2rem] font-black leading-none text-[color:var(--site-accent)] drop-shadow-[0_0_18px_var(--site-accent-glow-soft)] sm:text-[5rem] lg:text-[6.4rem]">
-        Bite Trail
+        BiteTrail
       </h1>
       <div className="relative w-full overflow-hidden rounded-[34px] border border-[color:rgba(16,185,129,0.12)] bg-[color:rgba(16,185,129,0.018)] px-3 pb-3 pt-24 sm:px-5 sm:pb-5 sm:pt-32 lg:px-7 lg:pb-7">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.075),transparent_58%)]" />

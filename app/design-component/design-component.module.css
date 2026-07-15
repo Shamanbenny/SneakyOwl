@@ -617,6 +617,14 @@
   background: var(--site-accent-soft);
 }
 
+.swatchColorAccentRed {
+  background: var(--site-accent-red);
+}
+
+.swatchColorAccentOrange {
+  background: var(--site-accent-orange);
+}
+
 .swatchColorAccentTeal {
   background: var(--site-accent-teal);
 }

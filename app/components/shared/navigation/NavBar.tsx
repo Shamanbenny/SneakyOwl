@@ -23,6 +23,7 @@ import { FaBookOpen, FaMapLocationDot, FaUser } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
 import Dock, { type DockEntry } from "@/app/components/shared/navigation/Dock";
 import StaggeredMenu from "@/app/components/shared/navigation/StaggeredMenu";
+import { TOOL_ROUTES } from "@/app/components/tools/toolRegistry";
 
 const LANDING_SECTIONS = [
   "home",
@@ -204,7 +205,10 @@ const NavBar = () => {
         return;
       }
 
-      if (pathname === "/tools/bite-trail") {
+      if (
+        pathname === "/tools/bite-trail" ||
+        pathname.startsWith("/tools/bite-trail/")
+      ) {
         setActiveDockItem("biteTrail");
         return;
       }
@@ -319,7 +323,11 @@ const NavBar = () => {
 
   const currentPageHasSections = pathname === "/";
   const currentPageHasTools =
-    pathname === "/tools" || pathname.startsWith("/tools/");
+    pathname === "/profile" ||
+    pathname.startsWith("/profile/") ||
+    pathname === "/tools" ||
+    pathname.startsWith("/tools/");
+  const hasMultipleTools = TOOL_ROUTES.length > 1;
   const sectionNavItems: SectionNavItem[] = currentPageHasSections
     ? [
         {
@@ -387,14 +395,27 @@ const NavBar = () => {
       label: "Chess",
       onClick: goToChessPage,
     },
-    ...(currentPageHasTools ? [{ type: "divider" as const }] : []),
-    {
-      className: dockItemClass(activeDockItem === "tools"),
-      icon: <FaTools size={19} />,
-      label: "Tools",
-      onClick: goToToolsPage,
-    },
-    ...(currentPageHasTools
+    ...(currentPageHasTools && hasMultipleTools
+      ? [{ type: "divider" as const }]
+      : []),
+    ...(hasMultipleTools
+      ? [
+          {
+            className: dockItemClass(activeDockItem === "tools"),
+            icon: <FaTools size={19} />,
+            label: "Tools",
+            onClick: goToToolsPage,
+          },
+        ]
+      : [
+          {
+            className: dockItemClass(activeDockItem === "biteTrail"),
+            icon: <FaMapLocationDot size={19} />,
+            label: "BiteTrail",
+            onClick: goToBiteTrailPage,
+          },
+        ]),
+    ...(currentPageHasTools && hasMultipleTools
       ? [
           {
             className: dockItemClass(activeDockItem === "biteTrail"),
@@ -404,7 +425,9 @@ const NavBar = () => {
           },
         ]
       : []),
-    ...(currentPageHasTools ? [{ type: "divider" as const }] : []),
+    ...(currentPageHasTools && hasMultipleTools
+      ? [{ type: "divider" as const }]
+      : []),
     {
       className: dockItemClass(activeDockItem === "profile"),
       icon: <FaUser size={18} />,
@@ -446,13 +469,24 @@ const NavBar = () => {
         label: "Chess Page",
         onClick: goToChessPage,
       },
-      {
-        ariaLabel: "Open the tools page",
-        className: mobileMenuItemClass(activeDockItem === "tools"),
-        label: "Tools",
-        onClick: goToToolsPage,
-      },
-      ...(currentPageHasTools
+      ...(hasMultipleTools
+        ? [
+            {
+              ariaLabel: "Open the tools page",
+              className: mobileMenuItemClass(activeDockItem === "tools"),
+              label: "Tools",
+              onClick: goToToolsPage,
+            },
+          ]
+        : [
+            {
+              ariaLabel: "Open the BiteTrail tool",
+              className: mobileMenuItemClass(activeDockItem === "biteTrail"),
+              label: "BiteTrail",
+              onClick: goToBiteTrailPage,
+            },
+          ]),
+      ...(currentPageHasTools && hasMultipleTools
         ? [
             {
               ariaLabel: "Open the BiteTrail tool",

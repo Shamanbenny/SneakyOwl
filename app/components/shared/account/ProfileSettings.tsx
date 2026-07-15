@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { onAuthStateChanged, updateProfile, type User } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+  type User,
+} from "firebase/auth";
+import { QRCodeSVG } from "qrcode.react";
 import {
   FaCheck,
   FaCopy,
@@ -10,6 +16,8 @@ import {
   FaGoogle,
   FaMapLocationDot,
   FaQrcode,
+  FaArrowRightFromBracket,
+  FaRotateLeft,
   FaShieldHalved,
   FaUser,
   FaUserMinus,
@@ -17,6 +25,8 @@ import {
 
 import DropdownField from "@/app/components/shared/ui/DropdownField";
 import LoginRequiredPanel from "@/app/components/shared/account/LoginRequiredPanel";
+import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import {
   ensureBiteTrailProfile,
   getBiteTrailPreferences,
@@ -33,11 +43,7 @@ import {
 } from "@/lib/bite-trail";
 import { getFirebaseClient } from "@/lib/firebase";
 
-const CURRENCY_OPTIONS = [
-  { currency: "Singapore dollar", value: "SGD" },
-  { currency: "US dollar", value: "USD" },
-  { currency: "Malaysian ringgit", value: "MYR" },
-];
+const CURRENCY_OPTIONS = [{ currency: "Singapore dollar", value: "SGD" }];
 
 const ProfileSettings = () => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
@@ -51,8 +57,13 @@ const ProfileSettings = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [savedSettings, setSavedSettings] = useState<{
+    displayName: string;
+    currency: BiteTrailCurrency;
+    mapStart: BiteTrailMapStart;
+  } | null>(null);
+  const { notify } = useNotifications();
 
   useEffect(() => {
     if (!firebaseClient) {
@@ -64,11 +75,11 @@ const ProfileSettings = () => {
       firebaseClient.auth,
       async (nextUser) => {
         setUser(nextUser);
-        setSaveMessage(null);
-        setShareMessage(null);
+        setIsSigningOut(false);
 
         if (!nextUser) {
           setDisplayName("");
+          setSavedSettings(null);
           setFollowing([]);
           setIsLoading(false);
           return;
@@ -81,17 +92,21 @@ const ProfileSettings = () => {
             getBiteTrailPreferences(firebaseClient.db, nextUser.uid),
             listFollowing(firebaseClient.db, nextUser.uid),
           ]);
-          setDisplayName(
-            normalizeBiteTrailDisplayName(
-              nextUser.uid,
-              profile?.displayName || nextUser.displayName,
-            ),
+          const nextDisplayName = normalizeBiteTrailDisplayName(
+            nextUser.uid,
+            profile?.displayName || nextUser.displayName,
           );
+          setDisplayName(nextDisplayName);
           setCurrency(preferences.defaultCurrency);
           setMapStart(preferences.mapStart);
+          setSavedSettings({
+            displayName: nextDisplayName,
+            currency: preferences.defaultCurrency,
+            mapStart: preferences.mapStart,
+          });
           setFollowing(nextFollowing);
         } catch {
-          setSaveMessage("We could not load your BiteTrail settings.");
+          notify("We could not load your BiteTrail settings.", "error");
         } finally {
           setIsLoading(false);
         }
@@ -99,36 +114,38 @@ const ProfileSettings = () => {
     );
 
     return unsubscribe;
-  }, [firebaseClient]);
+  }, [firebaseClient, notify]);
 
   const copyShareLink = async () => {
     if (!user) {
-      setShareMessage("Sign in before sharing your BiteTrail list.");
+      notify("Sign in before sharing your BiteTrail list.", "error");
       return;
     }
 
     try {
       await navigator.clipboard.writeText(getBiteTrailShareLink(user.uid));
-      setShareMessage("Your BiteTrail friend link was copied.");
+      notify("Your BiteTrail friend link was copied.");
     } catch {
-      setShareMessage("Copy is unavailable in this browser.");
+      notify("Copy is unavailable in this browser.", "error");
     }
   };
 
   const saveSettings = async () => {
     if (!firebaseClient || !user) {
-      setSaveMessage("Sign in to save your profile and BiteTrail preferences.");
+      notify(
+        "Sign in to save your profile and BiteTrail preferences.",
+        "error",
+      );
       return;
     }
 
     const trimmedDisplayName = displayName.trim();
     if (!trimmedDisplayName) {
-      setSaveMessage("Display name cannot be empty.");
+      notify("Display name cannot be empty.", "error");
       return;
     }
 
     setIsSaving(true);
-    setSaveMessage(null);
     try {
       const safeDisplayName = normalizeBiteTrailDisplayName(
         user.uid,
@@ -146,11 +163,37 @@ const ProfileSettings = () => {
         }),
       ]);
       setDisplayName(safeDisplayName);
-      setSaveMessage("Profile and BiteTrail preferences saved.");
+      setSavedSettings({ displayName: safeDisplayName, currency, mapStart });
+      notify("Profile and BiteTrail preferences saved.");
     } catch {
-      setSaveMessage("We could not save your settings. Please try again.");
+      notify("We could not save your settings. Please try again.", "error");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const discardChanges = () => {
+    if (!savedSettings) {
+      return;
+    }
+
+    setDisplayName(savedSettings.displayName);
+    setCurrency(savedSettings.currency);
+    setMapStart(savedSettings.mapStart);
+    notify("Unsaved profile changes were discarded.");
+  };
+
+  const logout = async () => {
+    if (!firebaseClient) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    try {
+      await signOut(firebaseClient.auth);
+    } catch {
+      setIsSigningOut(false);
+      notify("We could not sign you out. Please try again.", "error");
     }
   };
 
@@ -164,9 +207,9 @@ const ProfileSettings = () => {
       setFollowing((friends) =>
         friends.filter((friend) => friend.ownerUid !== ownerUid),
       );
-      setShareMessage("You are no longer watching that BiteTrail list.");
+      notify("You are no longer watching that BiteTrail list.");
     } catch {
-      setShareMessage("We could not remove that list. Please try again.");
+      notify("We could not remove that list. Please try again.", "error");
     }
   };
 
@@ -174,6 +217,7 @@ const ProfileSettings = () => {
     (friend) => !hiddenFriendIds.has(friend.ownerUid),
   );
   const isSignedIn = Boolean(user);
+  const shareLink = user ? getBiteTrailShareLink(user.uid) : "";
 
   if (isLoading) {
     return (
@@ -199,7 +243,7 @@ const ProfileSettings = () => {
           Account settings
         </p>
         <h1 className="mt-3 text-[2.8rem] font-semibold leading-[1.05] text-[color:var(--site-text-strong)] sm:text-[4.2rem]">
-          My profile
+          Configuration
         </h1>
       </header>
 
@@ -222,26 +266,40 @@ const ProfileSettings = () => {
               />
             </div>
 
-            <div>
-              <label
-                className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]"
-                htmlFor="profile-email"
+            <div className="lg:flex lg:items-end lg:gap-4">
+              <div className="min-w-0 flex-1">
+                <label
+                  className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]"
+                  htmlFor="profile-email"
+                >
+                  Gmail address
+                </label>
+                <div className="relative">
+                  <FaGoogle
+                    className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--site-text-muted)]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="profile-email"
+                    className="h-12 w-full cursor-not-allowed rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] pl-11 pr-4 text-[color:var(--site-text-muted)] opacity-80 outline-none"
+                    value={user?.email || "Sign in to view your account"}
+                    readOnly
+                    disabled
+                  />
+                </div>
+              </div>
+              <button
+                className="site-button-primary mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-4 text-[0.92rem] font-semibold disabled:pointer-events-none disabled:opacity-55 lg:mt-0 lg:w-auto lg:shrink-0"
+                type="button"
+                onClick={logout}
+                disabled={isSigningOut}
               >
-                Gmail address
-              </label>
-              <div className="relative">
-                <FaGoogle
-                  className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--site-text-muted)]"
+                <FaArrowRightFromBracket
+                  className="h-4 w-4"
                   aria-hidden="true"
                 />
-                <input
-                  id="profile-email"
-                  className="h-12 w-full cursor-not-allowed rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] pl-11 pr-4 text-[color:var(--site-text-muted)] opacity-80 outline-none"
-                  value={user?.email || "Sign in to view your account"}
-                  readOnly
-                  disabled
-                />
-              </div>
+                {isSigningOut ? "Signing out..." : "Sign out"}
+              </button>
             </div>
           </div>
         </article>
@@ -257,7 +315,7 @@ const ProfileSettings = () => {
               <FaMapLocationDot className="h-5 w-5" aria-hidden="true" />
             </Link>
             <h2 className="text-[2rem] font-semibold text-[color:var(--site-text-strong)]">
-              BiteTrail preferences
+              BiteTrail Profile
             </h2>
           </div>
 
@@ -309,15 +367,27 @@ const ProfileSettings = () => {
                       Add me as a friend
                     </h3>
                     <p className="mt-2 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                      Share this link so a signed-in friend can add your list.
+                      Share this link so you and a registered friend can add
+                      each other to watch lists.
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 flex min-h-28 items-center justify-center rounded-xl border border-dashed border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] text-[color:var(--site-text-muted)]">
-                  <FaQrcode
-                    className="h-16 w-16"
-                    aria-label="BiteTrail share link"
-                  />
+                  {shareLink ? (
+                    <QRCodeSVG
+                      aria-label="BiteTrail share link QR code"
+                      bgColor="var(--site-bg-strong)"
+                      fgColor="var(--site-text-strong)"
+                      size={256}
+                      title="BiteTrail share link QR code"
+                      value={shareLink}
+                    />
+                  ) : (
+                    <FaQrcode
+                      className="h-16 w-16"
+                      aria-label="Sign in to generate a BiteTrail share QR code"
+                    />
+                  )}
                 </div>
                 <button
                   className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-3 text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-[color:var(--site-text)] transition hover:border-[color:var(--site-accent-border-strong)] hover:text-[color:var(--site-accent-soft)] disabled:opacity-55"
@@ -342,7 +412,19 @@ const ProfileSettings = () => {
                     Friends / watched lists
                   </h3>
                   <p className="mt-2 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                    Hide a list locally or stop watching it.
+                    Hide a list locally or stop watching it entirely.
+                    <span className="ml-1 inline-flex align-middle">
+                      <InfoTooltip
+                        ariaLabel="How hiding and stopping watching work"
+                        preferredPlacement="top"
+                        panelClassName="max-w-[280px] text-[color:var(--site-text-strong)]"
+                      >
+                        Hiding removes the list from your map only. Stop
+                        watching removes the relationship from both sides, so
+                        you also disappear from that user&apos;s watch list. We
+                        recommend hiding for most situations.
+                      </InfoTooltip>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -393,11 +475,6 @@ const ProfileSettings = () => {
               </div>
             </div>
           </div>
-          {shareMessage ? (
-            <p className="mt-4 text-[0.78rem] leading-5 text-[color:var(--site-accent-soft)]">
-              {shareMessage}
-            </p>
-          ) : null}
         </article>
       </section>
 
@@ -413,8 +490,7 @@ const ProfileSettings = () => {
                 Privacy and tool access
               </h2>
               <p className="mt-3 text-[0.9rem] leading-7 text-[color:var(--site-text)]">
-                Signing in gives you access to the tools supported by SneakyOwl.
-                BiteTrail sharing is opt-in through a UID-based friend link.
+                You had agreed to SneakyOwl&apos;s Privacy Policy, which is applicable to all tools on this site, when you first signed in.
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-2 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-accent-soft)] underline-offset-4 hover:underline"
@@ -448,11 +524,15 @@ const ProfileSettings = () => {
               <FaCheck className="h-4 w-4" aria-hidden="true" />
               {isSaving ? "Saving..." : "Save settings"}
             </button>
-            {saveMessage ? (
-              <p className="mt-3 text-center text-[0.78rem] leading-5 text-[color:var(--site-accent-soft)]">
-                {saveMessage}
-              </p>
-            ) : null}
+            <button
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent-red)] bg-transparent px-4 text-[0.92rem] font-semibold text-[color:var(--site-accent-red)] transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 disabled:pointer-events-none disabled:opacity-55"
+              type="button"
+              disabled={!isSignedIn || isSaving || !savedSettings}
+              onClick={discardChanges}
+            >
+              <FaRotateLeft className="h-4 w-4" aria-hidden="true" />
+              Discard changes
+            </button>
           </div>
         </div>
       </section>

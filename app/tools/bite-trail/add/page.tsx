@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 
-import BiteTrailJoinPanel from "@/app/components/tools/bite-trail/BiteTrailJoinPanel";
+import BiteTrailAddPanel from "@/app/components/tools/bite-trail/BiteTrailAddPanel";
 import NavBar from "@/app/components/shared/navigation/NavBar";
 
-export default function BiteTrailJoinPage() {
+export default function BiteTrailAddPage() {
   return (
     <div className="site-page-shell min-h-screen">
       <NavBar />
@@ -11,11 +11,11 @@ export default function BiteTrailJoinPage() {
         <Suspense
           fallback={
             <div className="site-surface-card rounded-[26px] p-6 text-[color:var(--site-text-muted)]">
-              Loading friend link...
+              Loading BiteTrail add link...
             </div>
           }
         >
-          <BiteTrailJoinPanel />
+          <BiteTrailAddPanel />
         </Suspense>
       </main>
     </div>

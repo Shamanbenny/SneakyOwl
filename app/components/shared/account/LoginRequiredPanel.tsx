@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaGoogle, FaUser } from "react-icons/fa6";
 
+import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import { ensureBiteTrailProfile } from "@/lib/bite-trail";
 import {
   getFirebaseAuthErrorMessage,
@@ -14,7 +15,7 @@ import { getFirebaseClient } from "@/lib/firebase";
 const LoginRequiredPanel = () => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const { notify } = useNotifications();
 
   useEffect(() => {
     if (!firebaseClient) {
@@ -28,18 +29,17 @@ const LoginRequiredPanel = () => {
         }
       })
       .catch((error) => {
-        setMessage(getFirebaseAuthErrorMessage(error));
+        notify(getFirebaseAuthErrorMessage(error), "error");
       });
-  }, [firebaseClient]);
+  }, [firebaseClient, notify]);
 
   const loginWithGoogle = async () => {
     if (!firebaseClient) {
-      setMessage("Firebase sign-in is not configured yet.");
+      notify("Firebase sign-in is not configured yet.", "error");
       return;
     }
 
     setIsSigningIn(true);
-    setMessage(null);
     try {
       const credential = await signInWithGoogle(
         firebaseClient.auth,
@@ -49,7 +49,7 @@ const LoginRequiredPanel = () => {
         await ensureBiteTrailProfile(firebaseClient.db, credential.user);
       }
     } catch (error) {
-      setMessage(getFirebaseAuthErrorMessage(error));
+      notify(getFirebaseAuthErrorMessage(error), "error");
     } finally {
       setIsSigningIn(false);
     }
@@ -87,11 +87,6 @@ const LoginRequiredPanel = () => {
         <FaGoogle className="h-4 w-4" aria-hidden="true" />
         {isSigningIn ? "Opening Google..." : "Login with Google"}
       </button>
-      {message ? (
-        <p className="text-[0.84rem] leading-6 text-[color:var(--site-accent-soft)]">
-          {message}
-        </p>
-      ) : null}
     </section>
   );
 };

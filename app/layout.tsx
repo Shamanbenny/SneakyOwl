@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Ubuntu_Mono } from "next/font/google";
 import FirebaseAuthBootstrap from "@/app/components/shared/auth/FirebaseAuthBootstrap";
+import { NotificationProvider } from "@/app/components/shared/feedback/NotificationProvider";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
@@ -35,8 +36,10 @@ export default function RootLayout({
         <meta name="author" content="SneakyOwl" />
       </head>
       <body className={bodyFont.className}>
-        <FirebaseAuthBootstrap />
-        {children}
+        <NotificationProvider>
+          <FirebaseAuthBootstrap />
+          {children}
+        </NotificationProvider>
       </body>
     </html>
   );

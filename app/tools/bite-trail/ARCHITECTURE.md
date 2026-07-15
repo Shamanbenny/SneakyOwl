@@ -207,7 +207,7 @@ Owners can:
 Share URL shape:
 
 ```text
-/tools/bite-trail/join?code=<random-code>
+/tools/bite-trail/add?uid=<owner-firebase-auth-uid>
 ```
 
 Manual entry:

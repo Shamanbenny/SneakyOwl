@@ -1,7 +1,6 @@
 import type { User } from "firebase/auth";
 import {
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -14,6 +13,12 @@ import {
   writeBatch,
   type Firestore,
 } from "firebase/firestore";
+
+export const BITE_TRAIL_ADD_ERROR_MESSAGES = {
+  ownList: "You cannot add your own BiteTrail list.",
+  profileMissing: "This BiteTrail profile does not exist.",
+  alreadyFollowing: "This friend is already on your watch list.",
+} as const;
 
 export const BITE_TRAIL_CUISINES = [
   "cafe",
@@ -32,7 +37,7 @@ export const BITE_TRAIL_CUISINES = [
 ] as const;
 
 export type BiteTrailCuisineGenre = (typeof BITE_TRAIL_CUISINES)[number];
-export type BiteTrailCurrency = "SGD" | "USD" | "MYR";
+export type BiteTrailCurrency = "SGD";
 export type BiteTrailMapStart = "Singapore" | "Current location";
 
 export type BiteTrailProfile = {
@@ -131,6 +136,12 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+  } else if (existingPreferences.data().defaultCurrency !== "SGD") {
+    await setDoc(
+      preferences,
+      { defaultCurrency: "SGD", updatedAt: serverTimestamp() },
+      { merge: true },
+    );
   }
 };
 
@@ -142,7 +153,11 @@ export const getBiteTrailProfile = async (db: Firestore, uid: string) => {
 export const getBiteTrailPreferences = async (db: Firestore, uid: string) => {
   const snapshot = await getDoc(preferencesRef(db, uid));
   return snapshot.exists()
-    ? { ...DEFAULT_PREFERENCES, ...(snapshot.data() as BiteTrailPreferences) }
+    ? {
+        ...DEFAULT_PREFERENCES,
+        ...(snapshot.data() as BiteTrailPreferences),
+        defaultCurrency: "SGD" as const,
+      }
     : DEFAULT_PREFERENCES;
 };
 
@@ -169,7 +184,7 @@ export const saveBiteTrailPreferences = async (
 ) => {
   await setDoc(
     preferencesRef(db, uid),
-    { ...preferences, updatedAt: serverTimestamp() },
+    { ...preferences, defaultCurrency: "SGD", updatedAt: serverTimestamp() },
     { merge: true },
   );
 };
@@ -180,27 +195,67 @@ export const createFollowing = async (
   ownerUid: string,
 ) => {
   if (!ownerUid || ownerUid === viewer.uid) {
-    throw new Error("You cannot add your own BiteTrail list.");
+    throw new Error(BITE_TRAIL_ADD_ERROR_MESSAGES.ownList);
   }
 
-  const owner = await getBiteTrailProfile(db, ownerUid);
-  if (!owner) {
-    throw new Error("This BiteTrail profile does not exist.");
+  const [viewerProfile, ownerProfile] = await Promise.all([
+    getBiteTrailProfile(db, viewer.uid),
+    getBiteTrailProfile(db, ownerUid),
+  ]);
+  if (!ownerProfile) {
+    throw new Error(BITE_TRAIL_ADD_ERROR_MESSAGES.profileMissing);
   }
 
-  await setDoc(doc(db, "users", viewer.uid, "following", ownerUid), {
+  const viewerDisplayName = normalizeBiteTrailDisplayName(
+    viewer.uid,
+    viewerProfile?.displayName || viewer.displayName,
+  );
+  const ownerDisplayName = normalizeBiteTrailDisplayName(
     ownerUid,
-    ownerDisplayName: owner.displayName || "Food explorer",
+    ownerProfile.displayName,
+  );
+  const viewerFollowingReference = doc(
+    db,
+    "users",
+    viewer.uid,
+    "following",
+    ownerUid,
+  );
+  const viewerAlreadyFollowsOwner = await getDoc(viewerFollowingReference);
+  if (viewerAlreadyFollowsOwner.exists()) {
+    throw new Error(BITE_TRAIL_ADD_ERROR_MESSAGES.alreadyFollowing);
+  }
+
+  const batch = writeBatch(db);
+
+  batch.set(viewerFollowingReference, {
+    ownerUid,
+    ownerDisplayName,
     status: "active",
     createdAt: serverTimestamp(),
   });
+  batch.set(doc(db, "users", ownerUid, "following", viewer.uid), {
+    ownerUid: viewer.uid,
+    ownerDisplayName: viewerDisplayName,
+    status: "active",
+    createdAt: serverTimestamp(),
+  });
+
+  await batch.commit();
 };
 
-export const removeFollowing = (
+export const removeFollowing = async (
   db: Firestore,
   viewerUid: string,
   ownerUid: string,
-) => deleteDoc(doc(db, "users", viewerUid, "following", ownerUid));
+) => {
+  const batch = writeBatch(db);
+
+  batch.delete(doc(db, "users", viewerUid, "following", ownerUid));
+  batch.delete(doc(db, "users", ownerUid, "following", viewerUid));
+
+  await batch.commit();
+};
 
 export const listFollowing = async (db: Firestore, uid: string) => {
   const snapshots = await getDocs(collection(db, "users", uid, "following"));
@@ -300,5 +355,5 @@ export const getBiteTrailShareLink = (uid: string) => {
     typeof window === "undefined"
       ? "https://sneakyowl.net"
       : window.location.origin;
-  return `${origin}/tools/bite-trail/join?uid=${encodeURIComponent(uid)}`;
+  return `${origin}/tools/bite-trail/add?uid=${encodeURIComponent(uid)}`;
 };

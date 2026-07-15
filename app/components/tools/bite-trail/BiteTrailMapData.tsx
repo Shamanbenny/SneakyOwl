@@ -11,10 +11,12 @@ import {
 } from "@/app/components/tools/bite-trail/mockFoodEntries";
 import {
   ensureBiteTrailProfile,
+  getBiteTrailPreferences,
   getBiteTrailProfile,
   listVisiblePlaces,
   normalizeBiteTrailDisplayName,
   type BiteTrailPlaceWithVisits,
+  type BiteTrailMapStart,
 } from "@/lib/bite-trail";
 import { getFirebaseClient } from "@/lib/firebase";
 
@@ -65,6 +67,7 @@ const BiteTrailMapData = () => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [currentUserName, setCurrentUserName] = useState("You");
+  const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
   const [firestorePlaces, setFirestorePlaces] = useState<BiteTrailPlace[]>([]);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
@@ -78,6 +81,7 @@ const BiteTrailMapData = () => {
       setUser(nextUser);
       if (!nextUser) {
         setCurrentUserName("You");
+        setMapStart("Singapore");
         setFirestorePlaces([]);
         setIsAuthReady(true);
         return;
@@ -89,13 +93,19 @@ const BiteTrailMapData = () => {
           getBiteTrailProfile(firebaseClient.db, nextUser.uid),
           listVisiblePlaces(firebaseClient.db, nextUser),
         ]);
+        const preferences = await getBiteTrailPreferences(
+          firebaseClient.db,
+          nextUser.uid,
+        );
         const name = normalizeBiteTrailDisplayName(
           nextUser.uid,
           profile?.displayName || nextUser.displayName,
         );
         setCurrentUserName(name);
+        setMapStart(preferences.mapStart);
         setFirestorePlaces(toMapPlaces(visiblePlaces, nextUser, name));
       } catch {
+        setMapStart("Singapore");
         setFirestorePlaces([]);
       } finally {
         setIsAuthReady(true);
@@ -119,6 +129,7 @@ const BiteTrailMapData = () => {
     <BiteTrailMap
       places={mapPlaces}
       currentUserName={user ? currentUserName : "You"}
+      mapStart={mapStart}
     />
   );
 };

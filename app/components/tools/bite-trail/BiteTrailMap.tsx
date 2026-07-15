@@ -1,7 +1,7 @@
 "use client";
 
 import type * as L from "leaflet";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaBowlFood,
   FaChevronDown,
@@ -23,6 +23,7 @@ import {
   type BiteTrailPlace,
   mockFoodPlaces,
 } from "@/app/components/tools/bite-trail/mockFoodEntries";
+import type { BiteTrailMapStart } from "@/lib/bite-trail";
 
 type ClusterEvent = L.LeafletEvent & {
   layer: L.MarkerCluster;
@@ -30,7 +31,7 @@ type ClusterEvent = L.LeafletEvent & {
 
 const SINGAPORE_CENTER: [number, number] = [1.353, 103.822];
 const SINGAPORE_ZOOM = 12;
-const USER_LOCATION_ZOOM = 16;
+const USER_LOCATION_ZOOM = 14;
 const BITE_TRAIL_CLUSTER_RADIUS = 52;
 
 type BiteTrailFilters = {
@@ -96,6 +97,14 @@ const createEntryIconHtml = (place: BiteTrailPlace, isSelected = false) => `
 const createClusterIconHtml = (count: number, isSelected = false) => `
   <span class="bite-trail-cluster ${isSelected ? "bite-trail-cluster--selected" : ""}">
     <span>${count}</span>
+  </span>
+`;
+
+const createUserLocationIconHtml = () => `
+  <span class="bite-trail-user-location">
+    <svg viewBox="-24 -24 368 560" aria-hidden="true">
+      <path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm40 304l0 128c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-223.1L59.4 304.5c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6l29.7 0c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9 232 480c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-128-16 0z" />
+    </svg>
   </span>
 `;
 
@@ -597,9 +606,11 @@ const FilterPanel = ({
 const BiteTrailMap = ({
   places = mockFoodPlaces,
   currentUserName = CURRENT_USER_NAME,
+  mapStart = "Singapore",
 }: {
   places?: BiteTrailPlace[];
   currentUserName?: string;
+  mapStart?: BiteTrailMapStart;
 }) => {
   const allPlaces = places;
   const ownerOptions = useMemo(
@@ -658,11 +669,25 @@ const BiteTrailMap = ({
   );
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const leafletRef = useRef<{
+    circle: typeof import("leaflet").circle;
+    divIcon: typeof import("leaflet").divIcon;
+    latLng: typeof import("leaflet").latLng;
+    marker: typeof import("leaflet").marker;
+  } | null>(null);
   const markerRefs = useRef<Map<string, L.Marker>>(new Map());
+  const userLocationMarkerRef = useRef<L.Marker | null>(null);
+  const userAccuracyCircleRef = useRef<L.Circle | null>(null);
+  const hasRequestedInitialLocationRef = useRef(false);
   const markerClusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
   const activeTooltipMarkerRef = useRef<L.Marker | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+  } | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [draftFilters, setDraftFilters] =
@@ -780,6 +805,66 @@ const BiteTrailMap = ({
   }, [selectedPlaceId]);
 
   useEffect(() => {
+    const map = mapInstanceRef.current;
+    const leaflet = leafletRef.current;
+    if (!map || !leaflet) {
+      return;
+    }
+
+    const removeLayer = (layer: L.Layer | null) => {
+      if (layer && map.hasLayer(layer)) {
+        layer.removeFrom(map);
+      }
+    };
+
+    removeLayer(userLocationMarkerRef.current);
+    removeLayer(userAccuracyCircleRef.current);
+    userLocationMarkerRef.current = null;
+    userAccuracyCircleRef.current = null;
+
+    if (!userLocation) {
+      return;
+    }
+
+    const location = leaflet.latLng(
+      userLocation.latitude,
+      userLocation.longitude,
+    );
+    userAccuracyCircleRef.current = leaflet.circle(location, {
+      color: "var(--site-accent-orange)",
+      fillColor: "var(--site-accent-orange)",
+      fillOpacity: 0.12,
+      opacity: 0.5,
+      radius: Math.max(userLocation.accuracy, 20),
+      weight: 1,
+    }).addTo(map);
+    userLocationMarkerRef.current = leaflet.marker(location, {
+      alt: "Your current location",
+      icon: leaflet.divIcon({
+        className: "bite-trail-user-location-icon",
+        html: createUserLocationIconHtml(),
+        iconAnchor: [16, 16],
+        iconSize: [32, 32],
+      }),
+      keyboard: false,
+      zIndexOffset: 1000,
+    })
+      .addTo(map)
+      .bindTooltip("You are here", {
+        className: "bite-trail-marker-tooltip",
+        direction: "bottom",
+        offset: [0, 16],
+      });
+
+    return () => {
+      removeLayer(userLocationMarkerRef.current);
+      removeLayer(userAccuracyCircleRef.current);
+      userLocationMarkerRef.current = null;
+      userAccuracyCircleRef.current = null;
+    };
+  }, [isMapLoaded, userLocation]);
+
+  useEffect(() => {
     let isCancelled = false;
     const markerRegistry = markerRefs.current;
 
@@ -790,6 +875,7 @@ const BiteTrailMap = ({
 
       const leafletModule = await import("leaflet");
       const L = leafletModule.default;
+      leafletRef.current = L;
       (globalThis as typeof globalThis & { L?: typeof L }).L = L;
       (window as Window & { L?: typeof L }).L = L;
       try {
@@ -971,6 +1057,7 @@ const BiteTrailMap = ({
 
     return () => {
       isCancelled = true;
+      setIsMapLoaded(false);
       markerRegistry.clear();
       markerClusterGroupRef.current = null;
       activeTooltipMarkerRef.current?.closeTooltip();
@@ -979,6 +1066,9 @@ const BiteTrailMap = ({
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
+      leafletRef.current = null;
+      userLocationMarkerRef.current = null;
+      userAccuracyCircleRef.current = null;
     };
   }, [entries]);
 
@@ -989,7 +1079,7 @@ const BiteTrailMap = ({
     setSelectedPlaceId(null);
   };
 
-  const centerToUser = () => {
+  const requestUserLocation = useCallback((shouldCenterMap: boolean) => {
     if (!navigator.geolocation) {
       setLocationError("Current location is not available in this browser.");
       return;
@@ -1012,7 +1102,14 @@ const BiteTrailMap = ({
           position.coords.longitude,
         ];
 
-        mapInstanceRef.current?.setView(nextCenter, USER_LOCATION_ZOOM);
+        setUserLocation({
+          accuracy: position.coords.accuracy,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        if (shouldCenterMap) {
+          mapInstanceRef.current?.setView(nextCenter, USER_LOCATION_ZOOM);
+        }
         setClusterEntryIds([]);
         setSelectedPlaceId(null);
         setIsLocatingUser(false);
@@ -1039,7 +1136,18 @@ const BiteTrailMap = ({
         timeout: 10000,
       },
     );
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isMapLoaded || hasRequestedInitialLocationRef.current) {
+      return;
+    }
+
+    hasRequestedInitialLocationRef.current = true;
+    requestUserLocation(mapStart === "Current location");
+  }, [isMapLoaded, mapStart, requestUserLocation]);
+
+  const centerToUser = () => requestUserLocation(true);
 
   const focusEntry = (entry: VisibleBiteTrailPlace) => {
     setSelectedPlaceId(entry.id);
@@ -1309,6 +1417,10 @@ const BiteTrailMap = ({
             <span className="inline-flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent-cyan)]" />
               Friends
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="bite-trail-user-location-legend" />
+              You are here
             </span>
             <InfoTooltip
               ariaLabel="Leaflet map attribution"
