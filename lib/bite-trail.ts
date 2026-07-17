@@ -42,6 +42,7 @@ export type BiteTrailMapStart = "Singapore" | "Current location";
 
 export type BiteTrailProfile = {
   displayName: string;
+  hasCompletedTutorial: boolean;
   photoURL: string | null;
   updatedAt?: Timestamp;
 };
@@ -92,6 +93,51 @@ const DEFAULT_PREFERENCES: BiteTrailPreferences = {
 };
 
 export const SNEAKY_OWL_UID = "AXOel5MZ8Yelb5a1bHgFcieT80y2";
+const hiddenListsStorageKey = (uid: string) =>
+  `sneakyowl:bite-trail:hidden-lists:${uid}`;
+
+export const getHiddenBiteTrailOwnerIds = (uid: string) => {
+  if (typeof window === "undefined") {
+    return [] as string[];
+  }
+
+  try {
+    const stored = window.localStorage.getItem(hiddenListsStorageKey(uid));
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((ownerUid): ownerUid is string => typeof ownerUid === "string")
+      : [];
+  } catch {
+    return [] as string[];
+  }
+};
+
+export const setHiddenBiteTrailOwnerIds = (uid: string, ownerIds: string[]) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      hiddenListsStorageKey(uid),
+      JSON.stringify(Array.from(new Set(ownerIds))),
+    );
+  } catch {
+    // Hiding remains available for the current page when storage is blocked.
+  }
+};
+
+export const clearHiddenBiteTrailOwnerIds = (uid: string) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(hiddenListsStorageKey(uid));
+  } catch {
+    // Account deletion should not be blocked if browser storage is unavailable.
+  }
+};
 
 export const normalizeBiteTrailDisplayName = (
   uid: string,
@@ -114,16 +160,37 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
   const displayName = normalizeBiteTrailDisplayName(user.uid, user.displayName);
 
   if (!existing.exists()) {
-    await setDoc(reference, {
-      displayName,
-      photoURL: user.photoURL ?? null,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-  } else if (existing.data().displayName !== displayName) {
+    try {
+      await setDoc(reference, {
+        displayName,
+        hasCompletedTutorial: false,
+        photoURL: user.photoURL ?? null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      // Multiple authenticated surfaces can initialize the same account at
+      // once. If another caller created the profile first, the failed create
+      // is safe to ignore; otherwise preserve the original error.
+      const profileAfterCreate = await getDoc(reference);
+      if (!profileAfterCreate.exists()) {
+        throw error;
+      }
+    }
+  } else if (
+    existing.data().displayName !== displayName ||
+    typeof existing.data().hasCompletedTutorial !== "boolean"
+  ) {
     await setDoc(
       reference,
-      { displayName, updatedAt: serverTimestamp() },
+      {
+        displayName,
+        hasCompletedTutorial:
+          typeof existing.data().hasCompletedTutorial === "boolean"
+            ? existing.data().hasCompletedTutorial
+            : false,
+        updatedAt: serverTimestamp(),
+      },
       { merge: true },
     );
   }
@@ -147,7 +214,13 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
 
 export const getBiteTrailProfile = async (db: Firestore, uid: string) => {
   const snapshot = await getDoc(profileRef(db, uid));
-  return snapshot.exists() ? (snapshot.data() as BiteTrailProfile) : null;
+  return snapshot.exists()
+    ? {
+        ...(snapshot.data() as BiteTrailProfile),
+        hasCompletedTutorial:
+          snapshot.data().hasCompletedTutorial === true,
+      }
+    : null;
 };
 
 export const getBiteTrailPreferences = async (db: Firestore, uid: string) => {

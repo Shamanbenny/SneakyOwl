@@ -20,7 +20,10 @@ import {
   ensureBiteTrailProfile,
   normalizeBiteTrailDisplayName,
 } from "@/lib/bite-trail";
-import { signInWithGoogle } from "@/lib/firebase-auth";
+import {
+  getFirebaseAuthErrorMessage,
+  signInWithGoogle,
+} from "@/lib/firebase-auth";
 import { getFirebaseClient } from "@/lib/firebase";
 
 const getReadableAuthError = (error: unknown) => {
@@ -40,7 +43,7 @@ const getReadableAuthError = (error: unknown) => {
     ].join(" ");
   }
 
-  return error instanceof Error ? error.message : "Google sign-in failed.";
+  return getFirebaseAuthErrorMessage(error, "Google sign-in failed.");
 };
 
 const BiteTrailAuthPanel = () => {
@@ -99,9 +102,7 @@ const BiteTrailAuthPanel = () => {
     try {
       await signOut(firebaseClient.auth);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Sign-out failed.";
-      setAuthError(message);
+      setAuthError(getFirebaseAuthErrorMessage(error, "Sign-out failed."));
     } finally {
       setIsSubmitting(false);
     }

@@ -22,6 +22,7 @@
   --site-accent-soft: #6ee7b7;
   --site-accent-red: #d13636;
   --site-accent-orange: #e69712;
+  --site-accent-purple: #943bcc;
   --site-accent-teal: #0d9488;
   --site-accent-cyan: #0891b2;
   --site-accent-border-soft: rgba(16, 185, 129, 0.36);
@@ -95,6 +96,10 @@ body *::selection {
 }
 
 .site-notification {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   border: 1px solid transparent;
   border-radius: 0.85rem;
   padding: 0.85rem 1rem;
@@ -2026,6 +2031,14 @@ body *::selection {
 
 .bite-trail-marker--friend::before {
   background-color: var(--site-accent-cyan);
+}
+
+.bite-trail-marker--advertisement::before {
+  background-color: var(--site-accent-purple);
+}
+
+.bite-trail-marker--you::before {
+  background-color: var(--site-accent);
 }
 
 .bite-trail-marker--selected::before {

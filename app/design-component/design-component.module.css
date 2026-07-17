@@ -87,6 +87,38 @@
   margin-top: 16px;
 }
 
+.notificationCopyButton {
+  display: inline-flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 0.375rem;
+  color: currentColor;
+  opacity: 0.75;
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.notificationCopyButton:hover,
+.notificationCopyButton:focus-visible {
+  background-color: rgb(255 255 255 / 10%);
+  opacity: 1;
+}
+
+.notificationCopyButton:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.notificationCopyButton svg {
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
 .metricPill {
   display: inline-flex;
   min-height: 40px;

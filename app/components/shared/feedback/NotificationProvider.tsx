@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { FaCheck, FaCopy } from "react-icons/fa6";
 
 export type NotificationType = "success" | "error" | "warning" | "info";
 
@@ -33,6 +34,9 @@ const NotificationContext = createContext<NotificationContextValue | null>(
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [copiedNotificationId, setCopiedNotificationId] = useState<string | null>(
+    null,
+  );
   const nextIdRef = useRef(0);
   const timersRef = useRef<Map<string, number>>(new Map());
 
@@ -75,6 +79,20 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     [dismissNotification],
   );
 
+  const copyErrorMessage = useCallback(async (notification: NotificationItem) => {
+    try {
+      await navigator.clipboard.writeText(notification.message);
+      setCopiedNotificationId(notification.id);
+      window.setTimeout(() => {
+        setCopiedNotificationId((current) =>
+          current === notification.id ? null : current,
+        );
+      }, 1500);
+    } catch {
+      // Clipboard access can be unavailable in insecure or restricted contexts.
+    }
+  }, []);
+
   useEffect(
     () => () => {
       timersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -97,7 +115,26 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             key={notification.id}
             role={notification.type === "error" ? "alert" : "status"}
           >
-            {notification.message}
+            <span className="min-w-0 flex-1">{notification.message}</span>
+            {notification.type === "error" ? (
+              <button
+                aria-label="Copy error message"
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-current opacity-75 transition hover:bg-white/10 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/50"
+                onClick={() => void copyErrorMessage(notification)}
+                title={
+                  copiedNotificationId === notification.id
+                    ? "Error message copied"
+                    : "Copy error message"
+                }
+                type="button"
+              >
+                {copiedNotificationId === notification.id ? (
+                  <FaCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                ) : (
+                  <FaCopy className="h-3.5 w-3.5" aria-hidden="true" />
+                )}
+              </button>
+            ) : null}
           </div>
         ))}
       </div>

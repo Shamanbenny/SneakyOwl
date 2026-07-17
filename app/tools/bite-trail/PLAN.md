@@ -3,9 +3,9 @@
 ## Current state
 
 - Firebase Google Authentication is wired into the frontend.
-- Firestore is not connected yet.
-- Profile, preferences, sharing, and friend controls are currently mock UI state.
-- `sneakyowl-flask` is currently an untouched Flask/Vercel template.
+- Firestore is connected through the Firebase client SDK for profile, preferences, place, visit, and following-list reads/writes.
+- Profile, preferences, and the friend-link flow use Firebase Auth and Firestore; destructive and coordinated workflows use `sneakyowl-flask`.
+- `sneakyowl-flask` provides privileged visit, friend, BiteTrail-data, and account-deletion endpoints.
 - SneakyOwl uses static export, so browser-side Firebase SDK calls remain compatible.
 
 ## Architecture decision
@@ -34,6 +34,7 @@ Flask verifies the token, derives the authenticated UID from it, and never trust
 | Change BiteTrail preferences | Frontend -> Firestore | User-owned document |
 | Delete your visit | Flask backend | Transactionally delete the visit and clean up an orphaned place |
 | Delete all BiteTrail data | Flask backend | Recursive/multi-collection deletion |
+| Delete account | Flask backend | Verify the Gmail address in the Firebase token, delete account data and Firebase Auth user, then sign out the client |
 | Generate a share link | Frontend | Link contains the owner's Firebase Auth UID; no secret invite token |
 | Accept a friend link | Frontend -> Firestore, or Flask for symmetric cleanup | The UID identifies the owner; the signed-in user is still authenticated normally |
 | Remove a friend for both parties | Flask backend | Coordinated deletion/revocation |
@@ -51,13 +52,17 @@ The friend link should be intentionally simple:
 
 The Firebase Auth UID is an identifier, not a secret. It must not be treated as an invite password, Firebase ID token, or authorization credential. Never put a Firebase ID token in the URL.
 
-When a signed-in user opens the link, the frontend can create:
+When a signed-in user opens the link, the frontend creates both sides of the relationship:
 
 ```text
 users/{viewerUid}/following/{ownerUid}
   status: "active"
   createdAt
 ```
+
+The reciprocal document is stored under the owner path as well, so both users'
+watch lists stay synchronized. Account deletion also scans for legacy one-sided
+documents and removes them without requiring a collection-group index.
 
 The Firestore read rule for the owner's list can then require that the current viewer has an active `following/{ownerUid}` document. This means anyone who has the link can follow the owner's list; that is an intentional product tradeoff.
 
@@ -70,7 +75,7 @@ users/{ownerUid}/blockedViewers/{viewerUid}
 
 The read rule should require an active following document and the absence of a block document.
 
-For the UI to show “people watching me” and to remove a relationship symmetrically, retain the Flask endpoint that deletes both relationship/block records. This is coordination rather than secrecy.
+For the UI to show “people watching me” and to remove a relationship symmetrically, Flask deletes both relationship records. This is coordination rather than secrecy.
 
 There is no need for `inviteTokens`, token hashes, expiry, QR-secret rotation, or invite rate limiting in the initial version. A QR code can simply encode the UID-based URL.
 
@@ -91,6 +96,9 @@ bite-trail/
   users/
     {uid}/
       profile
+        displayName
+        photoURL
+        hasCompletedTutorial
       preferences/
         bite-trail
 
@@ -181,6 +189,8 @@ DELETE /v1/bite-trail/friends/{friendUid}
 DELETE /v1/bite-trail/visits/{ownerUid}/{placeId}/{visitId}
 DELETE /v1/bite-trail/data
 
+DELETE /v1/account
+
 POST   /v1/bite-trail/viewers/{viewerUid}/revoke
 ```
 
@@ -210,7 +220,7 @@ Backend requirements:
 2. Add `localhost`, `sneakyowl.net`, and the deployed frontend domain to Authorized Domains.
 3. Create Firestore in production mode.
 4. Deploy explicit Firestore Security Rules.
-5. Deploy indexes only when required by actual query errors.
+5. Deploy indexes only when required by actual query errors; account deletion does not require a collection-group following index.
 6. Configure Firebase Admin credentials only in Vercel/backend environment variables.
 7. Configure Flask CORS for the SneakyOwl origin.
 8. Do not put Firebase Admin credentials or service-account JSON in frontend code.
@@ -234,10 +244,11 @@ Backend environment variables should include the Firebase project ID and Admin S
 1. Add Firestore client initialization beside the existing Firebase Auth initialization.
 2. Define shared TypeScript types and validation for profiles, preferences, places, and visits.
 3. Add Firestore Security Rules and emulator tests for owner/friend access.
-4. Replace mock profile and preference state with direct Firestore/Auth updates.
-5. Implement owner-scoped place and visit creation using a batch/transaction.
-6. Replace sample map data with own and authorized-friend queries.
+4. Keep profile and preference state backed by direct Firestore/Auth updates.
+5. Keep owner-scoped place and visit creation implemented using Firestore writes.
+6. Combine the static global source with own and authorized-friend Firestore queries in the map.
 7. Implement Flask Firebase Admin initialization and token middleware.
-8. Implement UID-link following and symmetric friend removal.
-9. Implement transactional visit deletion and complete BiteTrail deletion.
-10. Add audit logging, idempotency, loading states, and permission-denied handling.
+8. [x] Implement UID-link following and symmetric friend removal.
+9. [x] Implement transactional visit deletion and complete BiteTrail deletion.
+10. [x] Add account deletion with Gmail confirmation, auth removal, sign-out, and retry-safe cleanup.
+11. Add audit logging, idempotency, loading states, and permission-denied handling.

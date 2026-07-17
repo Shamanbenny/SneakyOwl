@@ -835,46 +835,6 @@ const ChessDebugPanel = ({
   );
 };
 
-const logChessEndpointDebug = (
-  selectedBot: ChessBotOption,
-  endpoint: string,
-  requestBody: ChessApiRequestPayload,
-  response: Response,
-  responseBody: ChessApiResponse,
-) => {
-  const debug = responseBody.debug ?? {};
-  const processingTime =
-    responseBody.processing_time ?? debug.processing_time ?? "n/a";
-
-  console.groupCollapsed(
-    `[Chess ${selectedBot.value}] ${response.status} ${response.statusText || "response"}: ${
-      responseBody.move ?? responseBody.error ?? "no move"
-    }`,
-  );
-  console.info("Endpoint", {
-    url: endpoint,
-    route: selectedBot.apiVersion,
-    version: selectedBot.value,
-    status: response.status,
-    ok: response.ok,
-  });
-  console.info("Request", requestBody);
-  console.info("Response", {
-    move: responseBody.move,
-    error: responseBody.error,
-    processing_time: processingTime,
-  });
-  console.info("Debug", debug);
-
-  if (typeof debug.tt_probes === "number" && debug.tt_probes > 0) {
-    console.info("Derived debug", {
-      tt_hit_rate: `${(((debug.tt_hits ?? 0) / debug.tt_probes) * 100).toFixed(2)}%`,
-    });
-  }
-
-  console.groupEnd();
-};
-
 const buildBoardHistoryText = (
   historyEntries: BoardHistoryEntry[],
   startingFen: string,
@@ -1110,7 +1070,6 @@ const ChessContent = () => {
     const isLegalMove = legalMoves.some((move) => move.to === targetSquare);
 
     if (!isLegalMove) {
-      console.log(`Illegal move from ${sourceSquare} to ${targetSquare}`);
       return false; // Reject the move
     }
 
@@ -1193,14 +1152,6 @@ const ChessContent = () => {
       }
       resetContextOnNextMoveRef.current = false;
       setLatestApiResponse(responseBody);
-      logChessEndpointDebug(
-        selectedBot,
-        endpoint,
-        requestBody,
-        response,
-        responseBody,
-      );
-
       if (!response.ok) {
         const errorDetails =
           typeof responseBody?.error === "string"
@@ -1250,8 +1201,7 @@ const ChessContent = () => {
       if (activeBotRequestIdRef.current !== requestId) {
         return;
       }
-      console.error("Error fetching bot move:", error);
-      setTurnMessage("Error fetching bot move");
+      setTurnMessage("We could not fetch the bot move.");
       setPieceDraggable(true);
     }
   };
@@ -1325,7 +1275,6 @@ const ChessContent = () => {
         setHistoryCopyState("idle");
       }, 2000);
     } catch (error) {
-      console.error("Failed to copy board history:", error);
       toast.error("Unable to copy board history.", {
         position: "bottom-right",
         autoClose: 3000,
@@ -1408,9 +1357,9 @@ const ChessContent = () => {
           return;
         }
 
-        const message =
-          error instanceof Error ? error.message : "Unknown metadata error";
-        setMetadataError(message);
+        setMetadataError(
+          "Chess metadata could not be loaded. Please try again later.",
+        );
         setChessVersions([]);
         setChessMetadata(undefined);
         setBotVersion("");

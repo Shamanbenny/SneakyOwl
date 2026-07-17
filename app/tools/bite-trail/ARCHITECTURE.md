@@ -18,9 +18,9 @@ app/components/tools/bite-trail/
   mockFoodEntries.ts
 ```
 
-`BiteTrailMap.tsx` is the current Leaflet/OpenStreetMap map foundation. It uses
-sample data for visual design, but the map component itself is intended to evolve into
-the real BiteTrail map rather than remain a temporary mock component.
+`BiteTrailMap.tsx` is the current Leaflet/OpenStreetMap map foundation. It combines
+Firestore-backed places with the static sample source, while the map component remains
+the real interactive BiteTrail map rather than a temporary mock-only component.
 
 Longer-term component split:
 
@@ -108,8 +108,12 @@ This avoids coupling the app to an unmaintained React wrapper and keeps cluster 
 Current decision:
 
 - Firebase Google Authentication is already wired into the BiteTrail auth smoke test.
-- The full data backend is still not implemented.
+- Firestore persistence is implemented for profiles, preferences, places, visits, and visible followed lists.
 - Firestore client SDK access protected by Firestore Security Rules is the default path.
+- Hide/Show is intentionally local to the viewer: the selected watched-owner
+  IDs are stored in browser local storage and filtered from that viewer's map.
+  It does not mutate the shared relationship or require a profile-settings
+  save. Stop watching remains the relationship-changing operation.
 - The separate Flask/Vercel backend is deferred for privileged workflows only.
 
 Firebase remains the lower-friction first choice for BiteTrail storage:
@@ -182,7 +186,7 @@ Notes:
 
 ## Sample Data Status
 
-`mockFoodEntries.ts` currently exists to drive the visual map UI and exercise the planned entry shape:
+`mockFoodEntries.ts` currently provides the static/global source for entries that should be available without a per-user Firestore query:
 
 - Rename or document it clearly as sample data if the filename becomes confusing.
 - Ratings are represented as whole numbers from 0 to 10.
@@ -261,7 +265,7 @@ Place IDs are reused when another authorized user appends a visit. The app does 
 
 The map and list render one item per place. Owner and watch-list filtering happens before aggregation, so averages only include visible visits. Rating averages display one decimal place and cost averages display two decimal places. The selected place panel shows the aggregate summary followed by every visible visit fully expanded with contributor, date, rating, cost, ordered items, and comments.
 
-Closure reports are separate per-user signals with timestamps. They contribute to a future closure-likelihood indicator but never close or delete a place for everyone. The current map loads its data once per page refresh rather than operating as a realtime service; a future refresh button can explicitly reload the current state.
+Closure reports are separate per-user signals with timestamps. They contribute to a future closure-likelihood indicator but never close or delete a place for everyone. The current map loads its data when authentication is ready and refreshes after successful writes. It is not a realtime listener for changes made elsewhere; a future refresh button can explicitly reload the current state.
 
 ## Static Export Risk
 

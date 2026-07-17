@@ -26,7 +26,6 @@ export default function BlogLikeCount({ slug, className }: BlogLikeCountProps) {
         }
       })
       .catch((error) => {
-        console.error("Failed to fetch blog likes", error);
       })
       .finally(() => {
         if (isActive) {

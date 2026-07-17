@@ -325,10 +325,7 @@ const ChessScoreRateGraph = ({
           setFetchedMetadata(nextMetadata);
         }
       } catch (loadError) {
-        backendErrorMessage =
-          loadError instanceof Error
-            ? loadError.message
-            : "Unknown metadata error";
+        backendErrorMessage = "The primary chess metadata source was unavailable.";
 
         try {
           const fallbackResponse = await fetch(CHANGELOG_FALLBACK_URL);
@@ -348,9 +345,7 @@ const ChessScoreRateGraph = ({
         } catch (fallbackError) {
           if (!cancelled) {
             const fallbackErrorMessage =
-              fallbackError instanceof Error
-                ? fallbackError.message
-                : "Unknown fallback metadata error";
+              "The fallback chess metadata source was unavailable.";
             setError(
               `backend: ${backendErrorMessage}; fallback: ${fallbackErrorMessage}`,
             );

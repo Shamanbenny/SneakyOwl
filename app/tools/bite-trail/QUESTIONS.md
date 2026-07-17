@@ -7,7 +7,7 @@
 - Initial auth provider: Firebase Google Authentication.
 - Map library: Leaflet.
 - Map tiles: OpenStreetMap default tiles.
-- Current map UI data: sample food entries only; not real backend data yet.
+- Current map UI data: Firestore-backed visible places combined with the static sample source.
 - Current clustering approach: `leaflet.markercluster`, with a plain marker fallback if clustering fails to load.
 - Marker visual direction: compact circular pins, with larger teardrop clusters.
 - Own-entry marker color: site green accent.
@@ -18,8 +18,8 @@
 - Multiple visits belong to one user-managed place ID; each visit keeps its own rating, cost, date, ordered items, comments, and user.
 - Place metadata is immutable and has no tracked initial creator. Users may delete only their own visits; deleting the final valid visit deletes the place metadata.
 - Place averages use only visits visible after watch-list and owner filtering.
-- Firebase client SDK plus Firestore Security Rules is the default data path. Flask/Vercel is deferred for privileged workflows only.
-- The current map loads data once per page refresh; a future refresh control may explicitly reload it.
+- Firebase client SDK plus Firestore Security Rules is the default data path. Flask/Vercel handles privileged workflows such as destructive deletion and coordinated friend changes.
+- The current map loads data when the session is ready and refreshes after successful writes. It does not yet subscribe to external Firestore changes; a future refresh control may explicitly reload them.
 - Privacy page exists for OAuth verification support, but no main navigation link is required.
 
 ## Product Scope
@@ -46,7 +46,7 @@
 
 1. Is GitHub Pages/static export still the target deployment for SneakyOwl?
 2. If static export remains required, are you comfortable with all auth/database interactions happening through a browser SDK?
-3. Which future privileged workflows, if any, require the deferred Flask/Vercel backend instead of Firebase client SDK and Firestore Rules?
+3. Which additional privileged workflows, if any, should use the Flask/Vercel backend instead of Firebase client SDK and Firestore Rules?
 5. Should marker clustering stay on `leaflet.markercluster`, or should it eventually become a custom cluster layer for tighter styling/control?
 6. Should map tiles remain OpenStreetMap default tiles long term, or should the tool use a custom tile provider/style later?
 7. Should `mockFoodEntries.ts` be renamed to `sampleFoodEntries.ts` once the current UI pass settles?
@@ -57,4 +57,4 @@
 - Sample entries now include typed cuisine genres such as fast food, western, Korean, Japanese, Thai, Indian, seafood, cafe, dessert, and hawker.
 - The dataset includes repeated owners, ordinary nearby clusters, and a deliberately inseparable maximum-zoom cluster for validating the cluster-preview behavior.
 - Sample visits represent the visit fields: place ID, cost per person, optional items bought, whole-number rating, comments, owner, and visit date.
-- `mockFoodPlaces` derives one map/list place from one or more sample visits. Wingstop at Hillion Mall has six visits from three users for visible-average filtering tests.
+- `mockFoodPlaces` derives one map/list place from one or more static visits. The static source remains available for globally visible entries and UI fallback coverage.

@@ -10,6 +10,22 @@ Each visit is a separate append-only record attached to the place ID. It stores 
 
 The map and View entries list render one pin and one row per place. Averages use only visits visible under the current watch-list and filter selections. Rating averages display one decimal place and cost averages display two decimal places. The selected place view shows the summary followed by every visible visit in a fully expanded sub-container.
 
+Successful new-place and visit writes refresh the visible Firestore data automatically. The map does not yet subscribe to external Firestore changes in realtime.
+
+The shared Profile page provides watch-list controls. Hide/Show is a per-user
+local preference applied immediately to the viewer's map and does not write to
+Firestore or require saving profile settings. Stop watching remains a
+Firestore-backed relationship change and removes the watched list.
+
+Profile also exposes Gmail-confirmed account deletion. The Flask backend removes
+the user's BiteTrail data, preferences, reciprocal and legacy one-sided watch
+records, Firestore profile, and Firebase Auth account before the client signs
+out and returns to `/tools/bite-trail`.
+
+## Session Recovery
+
+When Firebase restores an authenticated user, BiteTrail and the shared Profile page validate the existing Firebase ID token before loading protected data. Session initialization gets three attempts total, with a three-second timeout per attempt; retries force-refresh the token before trying again. If all attempts time out or fail, the local UI treats the session as signed out and clears protected data. No token validation or refresh is attempted when Firebase has no restored user session.
+
 ## RafflesGo Map Behavior Reused
 
 RafflesGo uses Leaflet through React components:
@@ -47,6 +63,8 @@ BiteTrail should reuse the same conceptual split:
 - As a viewer, I can click a pin or cluster to open the relevant list/detail panel.
 - As a list owner, I can revoke or rotate my share code.
 - As a viewer, I can remove a friend from my watch list.
+- As a viewer, I can hide or show a watched friend's list locally without
+  changing the watch relationship.
 
 ## Planned Fields
 
@@ -90,19 +108,22 @@ User/list fields:
 - [x] Add marker clustering with `leaflet.markercluster`.
 - [x] Use realistic OpenStreetMap tiles instead of a black/gray map style.
 - [x] Style map pins as teardrops, with green for own entries and the landing page competition blue for friends.
-- [x] Select Firebase Auth plus direct Firestore SDK access as the default backend path; defer Flask/Vercel to privileged workflows.
+- [x] Select Firebase Auth plus direct Firestore SDK access as the default backend path; use Flask/Vercel for privileged workflows.
 - [x] Correct the sample data into grouped places and append-only visits with whole-number ratings, cuisine genres, and visible-average filtering.
-- [ ] Add database schema and access rules.
+- [x] Add database schema and access rules.
 - [x] Build create/edit entry form.
 - [x] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.
-- [ ] Connect the current map preview to real persisted entries once storage is ready.
-- [ ] Add share code generation and QR rendering.
-- [ ] Add friend-list import by code/link.
-- [ ] Add watch-list management.
+- [x] Connect the map to Firestore-backed entries while retaining the static global source.
+- [x] Add share-link generation and QR rendering.
+- [x] Add friend-list import by link.
+- [x] Add basic watch-list management, including local hide/show and stopping
+  watching from the shared Profile page.
+- [x] Add Gmail-confirmed account deletion and cleanup of reciprocal watch-list
+  records.
 - [ ] Add owner-side share revocation or code rotation.
 - [ ] Add a non-destructive "Report store closure" signal and show the resulting likelihood indicator without closing the place for everyone.
-- [ ] Add a refresh control beside the map pins badge for the future one-time data refresh workflow.
-- [ ] Add empty, loading, auth-required, permission-denied, and offline/error states.
+- [ ] Add a manual refresh control beside the map pins badge for externally changed Firestore data; successful local saves already refresh automatically.
+- [x] Add empty, loading, auth-required, permission-denied, and offline/error states.
 - [ ] Verify mobile map usability, especially GPS permission errors and bottom-sheet detail panels.
 
 ## Name
@@ -121,4 +142,4 @@ The selected product name is **BiteTrail**.
 - Marker colors: own entries use the site green accent; friend entries use `--site-accent-cyan`, matching the landing page competition accent.
 - Rating format: whole-number score out of 10.
 - Required entry taxonomy: add cuisine genre.
-- The current data is sample data for visual design only and should not be treated as final schema correctness.
+- The static source is sample/global fallback data; user-created places and visits are persisted in Firestore.

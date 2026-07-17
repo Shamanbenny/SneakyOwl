@@ -22,9 +22,8 @@ import {
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 import {
   type BiteTrailCuisineGenre,
-  type BiteTrailFoodEntry,
-  type BiteTrailPlace,
-  mockFoodPlaces,
+  type BiteTrailResolvedFoodEntry,
+  type BiteTrailResolvedPlace,
 } from "@/app/components/tools/bite-trail/mockFoodEntries";
 import type { BiteTrailMapStart } from "@/lib/bite-trail";
 
@@ -74,8 +73,6 @@ type BiteTrailFilters = {
   ownerNames: string[];
 };
 
-const CURRENT_USER_NAME = "You";
-
 const CUISINE_OPTIONS = (
   [
     "hawker",
@@ -100,7 +97,7 @@ const CUISINE_OPTIONS = (
 
 const formatCurrency = (
   cost: number,
-  currency: BiteTrailFoodEntry["currency"] = "SGD",
+  currency: BiteTrailResolvedFoodEntry["currency"] = "SGD",
 ) =>
   new Intl.NumberFormat("en-SG", {
     currency,
@@ -111,17 +108,50 @@ const formatCurrency = (
 const formatCuisineLabel = (cuisine: BiteTrailCuisineGenre) =>
   cuisine.replace(/\b\w/g, (character) => character.toUpperCase());
 
-type VisibleBiteTrailPlace = BiteTrailPlace & {
-  averageCost: number;
-  averageRating: number;
-  visibleVisits: BiteTrailFoodEntry[];
+const hasSponsoredVisit = (place: BiteTrailResolvedPlace) =>
+  place.visits.some((visit) => visit.ownerKind === "advertisement");
+
+const getDistanceInKilometres = (
+  first: { latitude: number; longitude: number },
+  second: { latitude: number; longitude: number },
+) => {
+  const earthRadiusInKilometres = 6371;
+  const latitudeDelta = ((second.latitude - first.latitude) * Math.PI) / 180;
+  const longitudeDelta = ((second.longitude - first.longitude) * Math.PI) / 180;
+  const firstLatitude = (first.latitude * Math.PI) / 180;
+  const secondLatitude = (second.latitude * Math.PI) / 180;
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.sin(longitudeDelta / 2) ** 2 *
+      Math.cos(firstLatitude) *
+      Math.cos(secondLatitude);
+
+  return 2 * earthRadiusInKilometres * Math.asin(Math.sqrt(haversine));
 };
 
-const getPlaceOwnerKind = (place: BiteTrailPlace) =>
-  place.visits.some((visit) => visit.ownerKind === "you") ? "you" : "friend";
+type VisibleBiteTrailPlace = BiteTrailResolvedPlace & {
+  averageCost: number;
+  averageRating: number;
+  visibleVisits: BiteTrailResolvedFoodEntry[];
+};
 
-const createEntryIconHtml = (place: BiteTrailPlace, isSelected = false) => `
-  <span class="bite-trail-marker ${getPlaceOwnerKind(place) === "you" ? "bite-trail-marker--own" : "bite-trail-marker--friend"} ${isSelected ? "bite-trail-marker--selected" : ""}">
+type DeleteVisitHandler = (
+  place: VisibleBiteTrailPlace,
+  visit: BiteTrailResolvedFoodEntry,
+) => void | Promise<void>;
+
+const getPlaceOwnerKind = (place: BiteTrailResolvedPlace) =>
+  place.visits.some((visit) => visit.ownerKind === "advertisement")
+    ? "advertisement"
+    : place.visits.some((visit) => visit.ownerKind === "you")
+      ? "you"
+      : "friend";
+
+const createEntryIconHtml = (
+  place: BiteTrailResolvedPlace,
+  isSelected = false,
+) => `
+  <span class="bite-trail-marker bite-trail-marker--${getPlaceOwnerKind(place)} ${isSelected ? "bite-trail-marker--selected" : ""}">
     <span class="bite-trail-marker__dot"></span>
   </span>
 `;
@@ -143,7 +173,6 @@ const createUserLocationIconHtml = () => `
 const createDraftLocationIconHtml = () => `
   <span class="bite-trail-draft-location" aria-hidden="true"></span>
 `;
-
 
 const EntryStat = ({
   icon,
@@ -167,16 +196,21 @@ const EntryStat = ({
 
 const EntryDetailPanel = ({
   place,
-  currentUserName,
   onAddEntry,
+  onDeleteVisit,
 }: {
   place: VisibleBiteTrailPlace;
-  currentUserName: string;
   onAddEntry?: (place: VisibleBiteTrailPlace) => void;
+  onDeleteVisit?: DeleteVisitHandler;
 }) => (
   <div className="flex min-h-full flex-col p-5">
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
+        {hasSponsoredVisit(place) ? (
+          <span className="mb-2 block w-fit rounded-full border border-[color:var(--site-accent-purple)] bg-[color:var(--site-bg-strong)] px-3 py-1 text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--site-accent-purple)]">
+            Sponsored
+          </span>
+        ) : null}
         <h3 className="text-[1.7rem] font-semibold leading-tight text-[color:var(--site-text-strong)]">
           {place.placeName}
         </h3>
@@ -222,51 +256,107 @@ const EntryDetailPanel = ({
         Visits ({place.visibleVisits.length})
       </p>
       <div className="mt-3 grid gap-3">
-        {place.visibleVisits.map((visit) => (
-          <article
-            key={visit.id}
-            className="rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-2">
+        {[...place.visibleVisits]
+          .sort(
+            (firstVisit, secondVisit) =>
+              Number(secondVisit.ownerKind === "advertisement") -
+              Number(firstVisit.ownerKind === "advertisement"),
+          )
+          .map((visit) => (
+            <article
+              key={visit.id}
+              className="rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4"
+            >
+              {visit.ownerKind === "advertisement" ? (
+                <div className="mb-2">
+                  <InfoTooltip
+                    ariaLabel="Sponsored review details"
+                    className="inline-flex"
+                    preferredPlacement="right"
+                    trigger={
+                      <button
+                        type="button"
+                        className="inline-flex items-center rounded-full border border-[color:var(--site-accent-purple)] bg-[color:var(--site-bg-strong)] px-3 py-1 text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--site-accent-purple)] transition-colors hover:text-[color:var(--site-text-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-purple)]"
+                      >
+                        Sponsored
+                      </button>
+                    }
+                  >
+                    <p className="m-0 max-w-[19rem] leading-6">
+                      This business sponsored SneakyOwl&apos;s visit. It had no
+                      influence over the review, which remains honest and
+                      independent.
+                    </p>
+                  </InfoTooltip>
+                </div>
+              ) : null}
               <div>
-                <p className="inline-flex items-center gap-2 font-semibold text-[color:var(--site-accent-soft)]">
-                  {visit.ownerName === currentUserName ? (
-                    <FaUser className="text-[color:var(--site-accent-soft)]" />
+                <div
+                  className={`flex items-start gap-2 font-semibold ${visit.ownerKind === "advertisement" ? "text-[color:var(--site-accent-purple)]" : "text-[color:var(--site-accent-soft)]"}`}
+                >
+                  {visit.ownerKind === "you" ? (
+                    <FaUser className="mt-1 shrink-0 text-[color:var(--site-accent-soft)]" />
                   ) : (
-                    <FaUsers className="text-[color:var(--site-accent-soft)]" />
+                    <FaUsers
+                      className={`mt-1 shrink-0 ${
+                        visit.ownerKind === "advertisement"
+                          ? "text-[color:var(--site-accent-purple)]"
+                          : "text-[color:var(--site-accent-soft)]"
+                      }`}
+                    />
                   )}
-                  {visit.ownerName === currentUserName
-                    ? "Your visit"
-                    : `${visit.ownerName}'s visit`}
-                </p>
-                <p className="mt-1 text-[0.78rem] text-[color:var(--site-text-muted)]">
-                  {visit.visitedAt}
+                  <span className="min-w-0">
+                    {visit.ownerKind === "you"
+                      ? "Your visit"
+                      : `${visit.ownerName}'s visit`}
+                  </span>
+                  {visit.ownerKind === "you" && onDeleteVisit ? (
+                    <InfoTooltip
+                      ariaLabel="Delete your visit"
+                      className="ml-auto shrink-0"
+                      preferredPlacement="left"
+                      trigger={
+                        <button
+                          type="button"
+                          aria-label="Delete your visit"
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[color:var(--site-text-muted)] transition-colors hover:bg-[color:var(--site-bg-strong)] hover:text-[color:var(--site-accent-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-red)]"
+                          onClick={() => void onDeleteVisit(place, visit)}
+                        >
+                          <FaTrashCan className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      }
+                    >
+                      <p className="m-0">Delete your visit</p>
+                    </InfoTooltip>
+                  ) : null}
+                </div>
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[0.78rem] text-[color:var(--site-text-muted)]">
+                  <span>{visit.visitedAt}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>Rating: {visit.ratingOutOf10} / 10</span>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    Cost: {formatCurrency(visit.costPerPerson, visit.currency)}{" "}
+                    / pax
+                  </span>
                 </p>
               </div>
-              <div className="text-right text-[0.82rem] text-[color:var(--site-text)]">
-                <p>Rating: {visit.ratingOutOf10} / 10</p>
-                <p>
-                  Cost: {formatCurrency(visit.costPerPerson, visit.currency)} /
-                  pax
+              {visit.itemsBought ? (
+                <p className="mt-3 leading-6 text-[color:var(--site-text)]">
+                  <span className="font-semibold text-[color:var(--site-accent-soft)]">
+                    Ordered:{" "}
+                  </span>
+                  {visit.itemsBought}
                 </p>
-              </div>
-            </div>
-            {visit.itemsBought ? (
+              ) : null}
               <p className="mt-3 leading-6 text-[color:var(--site-text)]">
                 <span className="font-semibold text-[color:var(--site-accent-soft)]">
-                  Ordered:{" "}
+                  Comments:{" "}
                 </span>
-                {visit.itemsBought}
+                {visit.comments}
               </p>
-            ) : null}
-            <p className="mt-3 leading-6 text-[color:var(--site-text)]">
-              <span className="font-semibold text-[color:var(--site-accent-soft)]">
-                Comments:{" "}
-              </span>
-              {visit.comments}
-            </p>
-          </article>
-        ))}
+            </article>
+          ))}
       </div>
     </div>
   </div>
@@ -311,13 +401,35 @@ const EntryListPanel = ({
             onBlur={() => onHover(null)}
             className="flex items-stretch rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)]"
           >
-            <button type="button" onClick={() => onSelect(entry)} className="min-w-0 flex-1 px-4 py-3 text-left focus-visible:text-[color:var(--site-accent-soft)]">
-              <span className="block text-[1rem] font-semibold text-[color:var(--site-text-strong)]">{entry.placeName}</span>
+            <button
+              type="button"
+              onClick={() => onSelect(entry)}
+              className="min-w-0 flex-1 px-4 py-3 text-left focus-visible:text-[color:var(--site-accent-soft)]"
+            >
+              {hasSponsoredVisit(entry) ? (
+                <span className="block w-fit rounded-full border border-[color:var(--site-accent-purple)] bg-[color:var(--site-bg-strong)] px-2 py-1 text-[0.58rem] font-bold uppercase tracking-[0.12em] text-[color:var(--site-accent-purple)]">
+                  Sponsored
+                </span>
+              ) : null}
+              <span className="mt-1 block text-[1rem] font-semibold text-[color:var(--site-text-strong)]">
+                {entry.placeName}
+              </span>
               <span className="mt-1 block text-[0.82rem] text-[color:var(--site-text-muted)]">
-                <span className="inline-block whitespace-nowrap">{entry.neighborhood}</span>{" · "}
-                <span className="inline-block whitespace-nowrap">{formatCuisineLabel(entry.cuisineGenre)}</span>{" · "}
-                <span className="inline-block whitespace-nowrap">{entry.averageRating.toFixed(1)} / 10</span>{" · "}
-                <span className="inline-block whitespace-nowrap">{formatCurrency(entry.averageCost, entry.currency)}</span>
+                <span className="inline-block whitespace-nowrap">
+                  {entry.neighborhood}
+                </span>
+                {" · "}
+                <span className="inline-block whitespace-nowrap">
+                  {formatCuisineLabel(entry.cuisineGenre)}
+                </span>
+                {" · "}
+                <span className="inline-block whitespace-nowrap">
+                  {entry.averageRating.toFixed(1)} / 10
+                </span>
+                {" · "}
+                <span className="inline-block whitespace-nowrap">
+                  {formatCurrency(entry.averageCost, entry.currency)}
+                </span>
               </span>
             </button>
             {onAddEntry ? (
@@ -332,7 +444,7 @@ const EntryListPanel = ({
                       event.stopPropagation();
                       onAddEntry(entry);
                     }}
-                    className="shrink-0 rounded-tr-[0.75rem] rounded-br-[0.75rem] border-l border-[color:var(--site-border)] px-4 text-xl text-[color:var(--site-accent-soft)] transition-colors hover:bg-[color:var(--site-bg-strong)]"
+                    className="shrink-0 rounded-br-[0.75rem] rounded-tr-[0.75rem] border-l border-[color:var(--site-border)] px-4 text-xl text-[color:var(--site-accent-soft)] transition-colors hover:bg-[color:var(--site-bg-strong)]"
                   >
                     +
                   </button>
@@ -345,7 +457,7 @@ const EntryListPanel = ({
         ))}
       </div>
       {entries.length === 0 ? (
-        <p className="mt-5 leading-7 text-[color:var(--site-text-muted)]">
+        <p className="mt-5 text-center leading-7 text-[color:var(--site-text-muted)]">
           No entries match the current filters.
         </p>
       ) : null}
@@ -363,7 +475,6 @@ const FilterPanel = ({
   ownerOptions,
   costFilterMin,
   costFilterMax,
-  currentUserName,
 }: {
   filters: BiteTrailFilters;
   onChange: (filters: BiteTrailFilters) => void;
@@ -371,7 +482,6 @@ const FilterPanel = ({
   ownerOptions: string[];
   costFilterMin: number;
   costFilterMax: number;
-  currentUserName: string;
 }) => {
   const [isCuisineMenuOpen, setIsCuisineMenuOpen] = useState(false);
   const [isOwnerMenuOpen, setIsOwnerMenuOpen] = useState(false);
@@ -479,9 +589,7 @@ const FilterPanel = ({
                         className="h-4 w-4 accent-[color:var(--site-accent)]"
                       />
                       <span>
-                        {ownerName === currentUserName
-                          ? `${ownerName} (you)`
-                          : ownerName}
+                        {ownerName}
                       </span>
                     </label>
                   );
@@ -675,39 +783,37 @@ const FilterPanel = ({
 };
 
 const BiteTrailMap = ({
-  places = mockFoodPlaces,
-  currentUserName = CURRENT_USER_NAME,
+  places = [],
+  isAuthenticated = false,
   mapStart = "Singapore",
   draftLatitude = "",
   draftLongitude = "",
   onDraftLocationChange,
   onAddEntry,
+  onDeleteVisit,
 }: {
-  places?: BiteTrailPlace[];
-  currentUserName?: string;
+  places?: BiteTrailResolvedPlace[];
+  isAuthenticated?: boolean;
   mapStart?: BiteTrailMapStart;
   draftLatitude?: string;
   draftLongitude?: string;
   onDraftLocationChange?: (latitude: string, longitude: string) => void;
   onAddEntry?: (place: VisibleBiteTrailPlace) => void;
+  onDeleteVisit?: DeleteVisitHandler;
 }) => {
   const allPlaces = places;
   const ownerOptions = useMemo(
-    () => [
-      currentUserName,
-      ...Array.from(
+    () =>
+      Array.from(
         new Set(
           allPlaces.flatMap((place) =>
             place.visits.map((visit) => visit.ownerName),
           ),
         ),
-      )
-        .filter((ownerName) => ownerName !== currentUserName)
-        .sort((firstOwner, secondOwner) =>
-          firstOwner.localeCompare(secondOwner),
-        ),
-    ],
-    [allPlaces, currentUserName],
+      ).sort((firstOwner, secondOwner) =>
+        firstOwner.localeCompare(secondOwner),
+      ),
+    [allPlaces],
   );
   const costFilterMin = useMemo(
     () =>
@@ -812,7 +918,7 @@ const BiteTrailMap = ({
     setSelectedPlaceId(null);
   }, [defaultFilters]);
 
-  const entries = useMemo(
+  const visibleEntries = useMemo(
     () =>
       allPlaces.flatMap((place) => {
         const visibleVisits = place.visits.filter(
@@ -851,6 +957,28 @@ const BiteTrailMap = ({
       }),
     [allPlaces, appliedFilters],
   );
+
+  const entries = useMemo(() => {
+    return [...visibleEntries].sort((firstEntry, secondEntry) => {
+      const sponsoredDifference =
+        Number(hasSponsoredVisit(secondEntry)) -
+        Number(hasSponsoredVisit(firstEntry));
+      if (sponsoredDifference !== 0) {
+        return sponsoredDifference;
+      }
+
+      if (userLocation) {
+        const distanceDifference =
+          getDistanceInKilometres(userLocation, firstEntry) -
+          getDistanceInKilometres(userLocation, secondEntry);
+        if (Math.abs(distanceDifference) > 0.001) {
+          return distanceDifference;
+        }
+      }
+
+      return firstEntry.placeName.localeCompare(secondEntry.placeName);
+    });
+  }, [userLocation, visibleEntries]);
 
   const selectedPlace = useMemo(
     () => entries.find((entry) => entry.id === selectedPlaceId) ?? null,
@@ -934,7 +1062,7 @@ const BiteTrailMap = ({
       userLocation.latitude,
       userLocation.longitude,
     );
-    userAccuracyCircleRef.current = leaflet
+    const accuracyCircle = leaflet
       .circle(location, {
         color: "var(--site-accent-orange)",
         fillColor: "var(--site-accent-orange)",
@@ -944,7 +1072,7 @@ const BiteTrailMap = ({
         weight: 1,
       })
       .addTo(map);
-    userLocationMarkerRef.current = leaflet
+    const locationMarker = leaflet
       .marker(location, {
         alt: "Your current location",
         icon: leaflet.divIcon({
@@ -962,12 +1090,18 @@ const BiteTrailMap = ({
         direction: "bottom",
         offset: [0, 4],
       });
+    userAccuracyCircleRef.current = accuracyCircle;
+    userLocationMarkerRef.current = locationMarker;
 
     return () => {
-      removeLayer(userLocationMarkerRef.current);
-      removeLayer(userAccuracyCircleRef.current);
-      userLocationMarkerRef.current = null;
-      userAccuracyCircleRef.current = null;
+      removeLayer(locationMarker);
+      removeLayer(accuracyCircle);
+      if (userLocationMarkerRef.current === locationMarker) {
+        userLocationMarkerRef.current = null;
+      }
+      if (userAccuracyCircleRef.current === accuracyCircle) {
+        userAccuracyCircleRef.current = null;
+      }
     };
   }, [isMapLoaded, userLocation]);
 
@@ -978,7 +1112,16 @@ const BiteTrailMap = ({
       return;
     }
 
-    const existingMarker = draftLocationMarkerRef.current;
+    let existingMarker = draftLocationMarkerRef.current;
+    if (
+      existingMarker &&
+      (!map.hasLayer(existingMarker) || !existingMarker.getElement())
+    ) {
+      existingMarker = null;
+      draftLocationMarkerRef.current = null;
+      disposeDraftLocationIconRoot();
+    }
+
     if (!draftCoordinates) {
       disposeDraftLocationIconRoot();
       if (existingMarker && map.hasLayer(existingMarker)) {
@@ -1026,7 +1169,9 @@ const BiteTrailMap = ({
       draftLocationMarkerRef.current = marker;
     }
 
-    map.panTo([latitude, longitude], { animate: true, duration: 0.4 });
+    if (mapInstanceRef.current === map) {
+      map.panTo([latitude, longitude], { animate: true, duration: 0.4 });
+    }
   }, [disposeDraftLocationIconRoot, draftCoordinates, isMapLoaded]);
 
   useEffect(() => {
@@ -1122,7 +1267,7 @@ const BiteTrailMap = ({
         markerClusterGroupRef.current = markers as L.MarkerClusterGroup;
       }
 
-      entries.forEach((entry) => {
+      visibleEntries.forEach((entry) => {
         const marker = L.marker([entry.latitude, entry.longitude], {
           icon: L.divIcon({
             className: "bite-trail-marker-icon",
@@ -1235,6 +1380,10 @@ const BiteTrailMap = ({
       activeTooltipMarkerRef.current?.closeTooltip();
       activeTooltipMarkerRef.current = null;
       if (mapInstanceRef.current) {
+        const draftMarker = draftLocationMarkerRef.current;
+        if (draftMarker && mapInstanceRef.current.hasLayer(draftMarker)) {
+          draftMarker.removeFrom(mapInstanceRef.current);
+        }
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
@@ -1244,7 +1393,7 @@ const BiteTrailMap = ({
       disposeDraftLocationIconRoot();
       draftLocationMarkerRef.current = null;
     };
-  }, [disposeDraftLocationIconRoot, entries]);
+  }, [disposeDraftLocationIconRoot, visibleEntries]);
 
   const recenterMap = () => {
     mapInstanceRef.current?.setView(SINGAPORE_CENTER, SINGAPORE_ZOOM);
@@ -1357,11 +1506,15 @@ const BiteTrailMap = ({
     }
 
     if (!marker) {
-      map.flyTo([entry.latitude, entry.longitude], Math.max(map.getZoom(), 16), {
-        animate: true,
-        duration: 1,
-        easeLinearity: 0.25,
-      });
+      map.flyTo(
+        [entry.latitude, entry.longitude],
+        Math.max(map.getZoom(), 16),
+        {
+          animate: true,
+          duration: 1,
+          easeLinearity: 0.25,
+        },
+      );
       return;
     }
 
@@ -1496,7 +1649,6 @@ const BiteTrailMap = ({
             ownerOptions={ownerOptions}
             costFilterMin={costFilterMin}
             costFilterMax={costFilterMax}
-            currentUserName={currentUserName}
           />
         ) : null}
       </section>
@@ -1527,8 +1679,8 @@ const BiteTrailMap = ({
             <div className="bite-trail-scrollbar min-h-0 flex-1 overflow-y-auto">
               <EntryDetailPanel
                 place={selectedPlace}
-                currentUserName={currentUserName}
                 onAddEntry={focusAndAddEntry}
+                onDeleteVisit={onDeleteVisit}
               />
             </div>
           ) : clusterEntries.length > 0 ? (
@@ -1660,14 +1812,31 @@ const BiteTrailMap = ({
               <FaMapPin className="text-[color:var(--site-accent-soft)]" />
               {entries.length} pins
             </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent)]" />
-              Your list
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent-cyan)]" />
-              Friends
-            </span>
+            {isAuthenticated &&
+            allPlaces.some((place) =>
+              place.visits.some((visit) => visit.ownerKind === "you"),
+            ) ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent)]" />
+                Your list
+              </span>
+            ) : null}
+            {allPlaces.some((place) =>
+              place.visits.some((visit) => visit.ownerKind === "friend"),
+            ) ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent-cyan)]" />
+                {isAuthenticated ? "Friends" : "SneakyOwl\'s list"}
+              </span>
+            ) : null}
+            {allPlaces.some((place) =>
+              place.visits.some((visit) => visit.ownerKind === "advertisement"),
+            ) ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--site-accent-purple)]" />
+                Advertisements
+              </span>
+            ) : null}
             <span className="inline-flex items-center gap-2">
               <span className="bite-trail-user-location-legend" />
               You are here

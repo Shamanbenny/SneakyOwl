@@ -9,9 +9,11 @@ import {
   FaArrowUpRightFromSquare,
   FaBookOpen,
   FaCalendarDays,
+  FaCheck,
   FaChevronLeft,
   FaChevronRight,
   FaChevronDown,
+  FaCopy,
   FaGithub,
   FaHeart,
   FaLinkedin,
@@ -217,6 +219,40 @@ const formatDesignDate = (value: string) =>
     month: "short",
     year: "numeric",
   });
+
+const DesignErrorNotification = () => {
+  const [isCopied, setIsCopied] = useState(false);
+  const message = "We could not complete that action.";
+
+  const copyMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setIsCopied(true);
+      window.setTimeout(() => setIsCopied(false), 1500);
+    } catch {
+      // Clipboard access can be unavailable in insecure or restricted contexts.
+    }
+  };
+
+  return (
+    <div className="site-notification" data-type="error" role="alert">
+      <span>{message}</span>
+      <button
+        aria-label="Copy error message"
+        className={styles.notificationCopyButton}
+        onClick={() => void copyMessage()}
+        title={isCopied ? "Error message copied" : "Copy error message"}
+        type="button"
+      >
+        {isCopied ? (
+          <FaCheck aria-hidden="true" />
+        ) : (
+          <FaCopy aria-hidden="true" />
+        )}
+      </button>
+    </div>
+  );
+};
 
 const DesignCalendarInput = () => {
   const initialDate = new Date().toISOString().slice(0, 10);
@@ -843,6 +879,7 @@ export default function DesignComponentPage() {
             Use the shared notification stack for short-lived process feedback.
             Success, error, warning, and informational messages each dismiss
             automatically after five seconds and stack from the bottom upward.
+            Error notifications also include a copy button for safe debugging.
           </p>
           <div className={styles.grid}>
             <article className={styles.surface}>
@@ -859,9 +896,7 @@ export default function DesignComponentPage() {
                 <h3 className={styles.label}>Error</h3>
                 <span className={styles.meta}>site-accent-red</span>
               </div>
-              <div className="site-notification" data-type="error" role="alert">
-                We could not complete that action.
-              </div>
+              <DesignErrorNotification />
             </article>
             <article className={styles.surface}>
               <div className={styles.surfaceHeader}>

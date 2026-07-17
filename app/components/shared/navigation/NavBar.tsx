@@ -33,7 +33,9 @@ const LANDING_SECTIONS = [
   "reviews",
 ] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
-const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
+const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(
+  "[SneakyOwl] Connection",
+)}`;
 const NAV_TOP_LOCK_OFFSET = 24;
 const NAV_HIDE_SCROLL_OFFSET = 96;
 const NAV_HIDE_DISTANCE = 48;

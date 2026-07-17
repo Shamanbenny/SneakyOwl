@@ -19,7 +19,7 @@ const ADD_NOTIFICATION_MESSAGES = {
   signInNotConfigured: "BiteTrail sign-in is not configured yet.",
   signInFailed: "Google sign-in did not complete. Please try again later.",
   addSucceeded: "Friend successfully added to your watch list.",
-  addFailed: "We could not add this list.",
+  addFailed: "We could not add this BiteTrail list. Please try again.",
 } as const;
 
 type AddStatus = "loading-session" | "processing";
@@ -108,11 +108,7 @@ const BiteTrailAddPanel = () => {
           return;
         }
 
-        const message =
-          error instanceof Error
-            ? error.message
-            : ADD_NOTIFICATION_MESSAGES.addFailed;
-        notify(message, "error");
+        notify(ADD_NOTIFICATION_MESSAGES.addFailed, "error");
         router.replace("/tools/bite-trail");
       }
     };

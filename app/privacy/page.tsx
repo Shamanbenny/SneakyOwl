@@ -5,7 +5,10 @@ import NavBar from "@/app/components/shared/navigation/NavBar";
 
 const privacyFont = Poppins({ weight: "400", subsets: ["latin"] });
 
-const contactEmail = "macdonaldbenny1@gmail.com";
+const contactEmail = "lee.jia.quan@u.nus.edu";
+const contactEmailHref = `mailto:${contactEmail}?subject=${encodeURIComponent(
+  "[SneakyOwl] Privacy Concerns",
+)}`;
 
 export const metadata: Metadata = {
   title: "Privacy Policy | SneakyOwl",
@@ -34,28 +37,29 @@ const policySections = [
   {
     title: "Storage and Service Providers",
     body: [
-      "SneakyOwl uses Firebase and Google Cloud services for Google authentication. The current profile and BiteTrail preview interfaces use mock values and are not connected to Firestore persistence yet.",
-      "When persistence is enabled, Firebase or related backend services may store account profile preferences and tool data. These providers process data according to their own security and privacy practices. Access to project data is limited to what is needed to operate and maintain the site.",
+      "SneakyOwl uses Firebase Authentication and Cloud Firestore, services provided by Google, for sign-in, account profiles, preferences, BiteTrail entries, and friend watch-list relationships.",
+      "Google and these related service providers process and store information according to their own security and privacy practices. Access to project data is limited to what is needed to operate and maintain the site.",
     ],
   },
   {
     title: "Sharing",
     body: [
-      "BiteTrail is planned to include sharing features, such as QR codes, list codes, and friend watch lists. Your list is shared only when you choose to create or give someone access to a sharing link or code.",
+      "BiteTrail sharing is optional. You may create or copy a friend link, including its QR code, and give it to someone you choose. A signed-in registered user who accepts the link can be added to the relevant friend watch lists and view the entries made available through that relationship.",
       "We may disclose information if required by law, to protect the site from abuse, or to investigate security issues.",
     ],
   },
   {
     title: "Data Controls",
     body: [
-      "You may stop using Google sign-in at any time. The profile page is intended to provide account and tool-preference controls, while each tool will provide controls for its own data where available.",
-      `To request account or data deletion, or to ask what account data is currently held, email ${contactEmail}.`,
+      "You may stop using Google sign-in at any time. From Profile, you may permanently delete your account by typing your Gmail address to confirm. This deletes your Firebase Authentication account, Firestore profile, preferences, BiteTrail entries, and friend watch-list relationships, then signs you out.",
+      `To ask what account data is currently held, email ${contactEmail}.`,
     ],
   },
   {
     title: "Location Data",
     body: [
       "BiteTrail may let you place map pins at your current location or another location you choose. Location data is used to save and display your food-place entries when persistence is enabled.",
+      "SneakyOwl does not keep a profile of your whereabouts or a history of your locations. Your current location is used and retained as part of a BiteTrail entry only when you choose to use it to add that entry; SneakyOwl does not otherwise store your location history.",
       "Do not save sensitive locations or private information in comments if you do not want them visible to people you share your list with.",
     ],
   },
@@ -89,12 +93,12 @@ export default function PrivacyPage() {
           <h1 className="text-[2.2rem] font-semibold leading-tight text-[color:var(--site-text-strong)] sm:text-[3rem]">
             Privacy Policy
           </h1>
-          <p className="mt-5 max-w-[72ch] text-[1rem] leading-8 text-[color:var(--site-text)]">
+          <p className="mt-5 text-[1rem] leading-8 text-[color:var(--site-text)]">
             This policy explains how SneakyOwl and the BiteTrail tool collect,
             use, store, and share information.
           </p>
           <p className="mt-4 text-[0.88rem] text-[color:var(--site-text-muted)]">
-            Effective date: July 10, 2026
+            Effective date: July 18, 2026
           </p>
         </header>
 
@@ -121,9 +125,9 @@ export default function PrivacyPage() {
             Contact
           </h2>
           <p className="mt-3">
-            For privacy questions or deletion requests, email{" "}
+            For privacy concerns, please feel free to email{" "}
             <a
-              href={`mailto:${contactEmail}`}
+              href={contactEmailHref}
               className="text-[color:var(--site-accent-soft)] underline-offset-4 hover:underline"
             >
               {contactEmail}

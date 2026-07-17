@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   onAuthStateChanged,
   signOut,
@@ -14,11 +15,13 @@ import {
   FaCopy,
   FaEyeSlash,
   FaGoogle,
+  FaEye,
   FaMapLocationDot,
   FaQrcode,
   FaArrowRightFromBracket,
   FaRotateLeft,
   FaShieldHalved,
+  FaTrashCan,
   FaUser,
   FaUserMinus,
 } from "react-icons/fa6";
@@ -29,9 +32,11 @@ import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import {
   ensureBiteTrailProfile,
+  clearHiddenBiteTrailOwnerIds,
   getBiteTrailPreferences,
   getBiteTrailProfile,
   getBiteTrailShareLink,
+  getHiddenBiteTrailOwnerIds,
   listFollowing,
   normalizeBiteTrailDisplayName,
   removeFollowing,
@@ -40,12 +45,19 @@ import {
   type BiteTrailCurrency,
   type BiteTrailFollowing,
   type BiteTrailMapStart,
+  setHiddenBiteTrailOwnerIds,
 } from "@/lib/bite-trail";
+import {
+  revalidateFirebaseSession,
+  withFirebaseSessionRetries,
+} from "@/lib/firebase-auth";
+import { deleteSneakyOwlAccount } from "@/lib/bite-trail-api";
 import { getFirebaseClient } from "@/lib/firebase";
 
 const CURRENCY_OPTIONS = [{ currency: "Singapore dollar", value: "SGD" }];
 
 const ProfileSettings = () => {
+  const router = useRouter();
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState("");
@@ -57,7 +69,9 @@ const ProfileSettings = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [savedSettings, setSavedSettings] = useState<{
     displayName: string;
     currency: BiteTrailCurrency;
@@ -76,36 +90,52 @@ const ProfileSettings = () => {
       async (nextUser) => {
         setUser(nextUser);
         setIsSigningOut(false);
+        setIsDeletingAccount(false);
+        setDeleteConfirmation("");
 
         if (!nextUser) {
           setDisplayName("");
           setSavedSettings(null);
           setFollowing([]);
+          setHiddenFriendIds(new Set());
+          setDeleteConfirmation("");
           setIsLoading(false);
           return;
         }
 
         try {
-          await ensureBiteTrailProfile(firebaseClient.db, nextUser);
-          const [profile, preferences, nextFollowing] = await Promise.all([
-            getBiteTrailProfile(firebaseClient.db, nextUser.uid),
-            getBiteTrailPreferences(firebaseClient.db, nextUser.uid),
-            listFollowing(firebaseClient.db, nextUser.uid),
-          ]);
-          const nextDisplayName = normalizeBiteTrailDisplayName(
-            nextUser.uid,
-            profile?.displayName || nextUser.displayName,
-          );
-          setDisplayName(nextDisplayName);
-          setCurrency(preferences.defaultCurrency);
-          setMapStart(preferences.mapStart);
-          setSavedSettings({
-            displayName: nextDisplayName,
-            currency: preferences.defaultCurrency,
-            mapStart: preferences.mapStart,
+          await withFirebaseSessionRetries(nextUser, async () => {
+            await revalidateFirebaseSession(nextUser);
+            await ensureBiteTrailProfile(firebaseClient.db, nextUser);
+            const [profile, preferences, nextFollowing] = await Promise.all([
+              getBiteTrailProfile(firebaseClient.db, nextUser.uid),
+              getBiteTrailPreferences(firebaseClient.db, nextUser.uid),
+              listFollowing(firebaseClient.db, nextUser.uid),
+            ]);
+            const nextDisplayName = normalizeBiteTrailDisplayName(
+              nextUser.uid,
+              profile?.displayName || nextUser.displayName,
+            );
+            setDisplayName(nextDisplayName);
+            setCurrency(preferences.defaultCurrency);
+            setMapStart(preferences.mapStart);
+            setSavedSettings({
+              displayName: nextDisplayName,
+              currency: preferences.defaultCurrency,
+              mapStart: preferences.mapStart,
+            });
+            setFollowing(nextFollowing);
+            setHiddenFriendIds(
+              new Set(getHiddenBiteTrailOwnerIds(nextUser.uid)),
+            );
           });
-          setFollowing(nextFollowing);
         } catch {
+          setUser(null);
+          setDisplayName("");
+          setSavedSettings(null);
+          setFollowing([]);
+          setHiddenFriendIds(new Set());
+          setDeleteConfirmation("");
           notify("We could not load your BiteTrail settings.", "error");
         } finally {
           setIsLoading(false);
@@ -183,6 +213,35 @@ const ProfileSettings = () => {
     notify("Unsaved profile changes were discarded.");
   };
 
+  const deleteAccount = async () => {
+    if (!user || !firebaseClient || !user.email) {
+      return;
+    }
+
+    if (deleteConfirmation.trim().toLowerCase() !== user.email.toLowerCase()) {
+      notify("Type your exact Gmail address to confirm account deletion.", "error");
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      await deleteSneakyOwlAccount(user, user.email);
+      clearHiddenBiteTrailOwnerIds(user.uid);
+      await signOut(firebaseClient.auth);
+      notify("Your account and saved data have been deleted.");
+      router.replace("/tools/bite-trail");
+    } catch (error) {
+      notify(
+        error instanceof Error
+          ? error.message
+          : "We could not delete your account. Please try again.",
+        "error",
+      );
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
   const logout = async () => {
     if (!firebaseClient) {
       return;
@@ -207,15 +266,39 @@ const ProfileSettings = () => {
       setFollowing((friends) =>
         friends.filter((friend) => friend.ownerUid !== ownerUid),
       );
+      const nextHiddenIds = new Set(hiddenFriendIds);
+      nextHiddenIds.delete(ownerUid);
+      setHiddenFriendIds(nextHiddenIds);
+      setHiddenBiteTrailOwnerIds(user.uid, Array.from(nextHiddenIds));
       notify("You are no longer watching that BiteTrail list.");
     } catch {
       notify("We could not remove that list. Please try again.", "error");
     }
   };
 
-  const visibleFollowing = following.filter(
-    (friend) => !hiddenFriendIds.has(friend.ownerUid),
-  );
+  const toggleHiddenList = (friend: BiteTrailFollowing) => {
+    if (!user) {
+      return;
+    }
+
+    const isHidden = hiddenFriendIds.has(friend.ownerUid);
+    const nextIds = new Set(hiddenFriendIds);
+
+    if (isHidden) {
+      nextIds.delete(friend.ownerUid);
+    } else {
+      nextIds.add(friend.ownerUid);
+    }
+
+    setHiddenFriendIds(nextIds);
+    setHiddenBiteTrailOwnerIds(user.uid, Array.from(nextIds));
+    notify(
+      isHidden
+        ? `${friend.ownerDisplayName}'s list is no longer hidden`
+        : `${friend.ownerDisplayName}'s list is now hidden`,
+    );
+  };
+
   const isSignedIn = Boolean(user);
   const shareLink = user ? getBiteTrailShareLink(user.uid) : "";
 
@@ -289,7 +372,7 @@ const ProfileSettings = () => {
                 </div>
               </div>
               <button
-                className="site-button-primary mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-4 text-[0.92rem] font-semibold disabled:pointer-events-none disabled:opacity-55 lg:mt-0 lg:w-auto lg:shrink-0"
+                className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent)] bg-transparent px-4 text-[0.92rem] font-semibold text-[color:var(--site-accent)] transition hover:border-[color:var(--site-accent-soft)] hover:text-[color:var(--site-accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent)]/50 disabled:pointer-events-none disabled:opacity-55 lg:mt-0 lg:w-auto lg:shrink-0"
                 type="button"
                 onClick={logout}
                 disabled={isSigningOut}
@@ -429,10 +512,13 @@ const ProfileSettings = () => {
                 </div>
               </div>
               <div className="mt-4 grid gap-3">
-                {visibleFollowing.length > 0 ? (
-                  visibleFollowing.map((friend) => (
+                {following.length > 0 ? (
+                  following.map((friend) => {
+                    const isHidden = hiddenFriendIds.has(friend.ownerUid);
+
+                    return (
                     <div
-                      className="flex items-center justify-between gap-3 rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] p-3"
+                      className={`flex items-center justify-between gap-3 rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] p-3 ${isHidden ? "opacity-70" : ""}`}
                       key={friend.ownerUid}
                     >
                       <div className="min-w-0">
@@ -440,33 +526,52 @@ const ProfileSettings = () => {
                           {friend.ownerDisplayName}
                         </p>
                         <p className="mt-1 text-[0.72rem] text-[color:var(--site-text-muted)]">
-                          You are watching
+                          {isHidden ? "List hidden" : "You are watching"}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
-                        <button
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-[color:var(--site-bg-soft)] hover:text-[color:var(--site-accent-soft)]"
-                          type="button"
-                          aria-label={`Hide ${friend.ownerDisplayName}`}
-                          onClick={() =>
-                            setHiddenFriendIds((ids) =>
-                              new Set(ids).add(friend.ownerUid),
-                            )
+                        <InfoTooltip
+                          ariaLabel={isHidden ? "Show list" : "Hide list"}
+                          preferredPlacement="top"
+                          panelClassName="text-[color:var(--site-text-strong)]"
+                          trigger={
+                            <button
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-[color:var(--site-bg-soft)] hover:text-[color:var(--site-accent-soft)]"
+                              type="button"
+                              aria-label={isHidden ? "Show list" : "Hide list"}
+                              onClick={() => toggleHiddenList(friend)}
+                            >
+                              {isHidden ? (
+                                <FaEye className="h-4 w-4" aria-hidden="true" />
+                              ) : (
+                                <FaEyeSlash className="h-4 w-4" aria-hidden="true" />
+                              )}
+                            </button>
                           }
                         >
-                          <FaEyeSlash className="h-4 w-4" aria-hidden="true" />
-                        </button>
-                        <button
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-red-500/10 hover:text-red-300"
-                          type="button"
-                          aria-label={`Stop watching ${friend.ownerDisplayName}`}
-                          onClick={() => stopFollowing(friend.ownerUid)}
+                          {isHidden ? "Show list" : "Hide list"}
+                        </InfoTooltip>
+                        <InfoTooltip
+                          ariaLabel="Stop watching"
+                          preferredPlacement="top"
+                          panelClassName="text-[color:var(--site-text-strong)]"
+                          trigger={
+                            <button
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-red-500/10 hover:text-red-300"
+                              type="button"
+                              aria-label="Stop watching"
+                              onClick={() => stopFollowing(friend.ownerUid)}
+                            >
+                              <FaUserMinus className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                          }
                         >
-                          <FaUserMinus className="h-4 w-4" aria-hidden="true" />
-                        </button>
+                          Stop watching
+                        </InfoTooltip>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <p className="rounded-xl border border-dashed border-[color:var(--site-border-strong)] p-4 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
                     No watched BiteTrail lists yet.
@@ -490,7 +595,8 @@ const ProfileSettings = () => {
                 Privacy and tool access
               </h2>
               <p className="mt-3 text-[0.9rem] leading-7 text-[color:var(--site-text)]">
-                You had agreed to SneakyOwl&apos;s Privacy Policy, which is applicable to all tools on this site, when you first signed in.
+                You had agreed to SneakyOwl&apos;s Privacy Policy, which is
+                applicable to all tools on this site, when you first signed in.
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-2 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-accent-soft)] underline-offset-4 hover:underline"
@@ -532,6 +638,53 @@ const ProfileSettings = () => {
             >
               <FaRotateLeft className="h-4 w-4" aria-hidden="true" />
               Discard changes
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[20px] border border-[color:var(--site-accent-red)] bg-[color:var(--site-bg-soft)] p-5 sm:p-6">
+        <div className="flex items-start gap-3">
+          <FaTrashCan
+            className="mt-1 h-5 w-5 shrink-0 text-[color:var(--site-accent-red)]"
+            aria-hidden="true"
+          />
+          <div className="w-full">
+            <h2 className="text-[1.15rem] font-semibold text-[color:var(--site-text-strong)]">
+              Delete account
+            </h2>
+            <p className="mt-3 text-[0.9rem] leading-7 text-[color:var(--site-text-muted)]">
+              This permanently deletes your personal tools data, preferences,
+              and SneakyOwl account. This cannot be
+              undone.
+            </p>
+            <label
+              className="mt-5 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]"
+              htmlFor="delete-account-confirmation"
+            >
+              Type &quot;{user.email}&quot; to confirm
+            </label>
+            <input
+              id="delete-account-confirmation"
+              className="mt-2 h-12 w-full rounded-xl border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-strong)] px-4 text-[color:var(--site-text-strong)] outline-none transition focus:border-[color:var(--site-accent-red)] focus:ring-2 focus:ring-red-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+              value={deleteConfirmation}
+              disabled={!isSignedIn || isDeletingAccount}
+              placeholder={user.email || undefined}
+              onChange={(event) => setDeleteConfirmation(event.target.value)}
+            />
+            <button
+              className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent-red)] bg-transparent px-4 text-[0.92rem] font-semibold text-[color:var(--site-accent-red)] transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 disabled:cursor-not-allowed disabled:opacity-55"
+              type="button"
+              disabled={
+                !isSignedIn ||
+                !user.email ||
+                isDeletingAccount ||
+                deleteConfirmation.trim().toLowerCase() !== user.email.toLowerCase()
+              }
+              onClick={deleteAccount}
+            >
+              <FaTrashCan className="h-4 w-4" aria-hidden="true" />
+              {isDeletingAccount ? "Deleting account..." : "Confirm delete"}
             </button>
           </div>
         </div>

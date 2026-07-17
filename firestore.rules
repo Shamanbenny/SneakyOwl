@@ -42,19 +42,26 @@ service cloud.firestore {
           || request.auth.uid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2');
     }
 
+    function hasValidTutorialStatus() {
+      return request.resource.data.hasCompletedTutorial is bool;
+    }
+
     match /users/{uid} {
-      // Profiles contain only a public display name and photo URL. Preferences
-      // remain in a separate owner-only document.
+      // Profiles contain a public display name, photo URL, and private
+      // tutorial-completion state. Preferences remain in a separate owner-only
+      // document.
       allow read: if signedIn();
       allow create: if owns(uid)
         && hasAllowedDisplayName()
+        && hasValidTutorialStatus()
         && request.resource.data.keys().hasOnly([
-          'displayName', 'photoURL', 'createdAt', 'updatedAt'
+          'displayName', 'hasCompletedTutorial', 'photoURL', 'createdAt', 'updatedAt'
         ]);
       allow update: if owns(uid)
         && hasAllowedDisplayName()
+        && hasValidTutorialStatus()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'displayName', 'photoURL', 'updatedAt'
+          'displayName', 'hasCompletedTutorial', 'photoURL', 'updatedAt'
         ]);
       allow delete: if false;
 
