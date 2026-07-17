@@ -99,6 +99,10 @@ The Firebase CLI uses [firebase.json](./firebase.json) to locate
 - [x] Build a reusable authenticated profile page for BiteTrail and future tools, backed by Firebase Auth and a user-scoped Firestore profile document.
 - [x] Add Gmail-confirmed account deletion that removes account data, deletes the Firebase Auth user, signs out, and returns to BiteTrail.
 - [ ] Add a non-destructive "Report store closure" signal that indicates closure likelihood without closing a place for everyone.
-- [ ] Add a manual refresh control beside the BiteTrail map pins badge for externally changed Firestore data; successful local saves already refresh the map automatically.
+- [ ] Add staged BiteTrail loading states so the map, filters, and View entries panel render before long async backend calls finish; show a spinner in the View entries panel while its data is pending.
+- [ ] Define and enforce the exact required and optional value validation rules for the new-entry form.
+- [ ] Lock the new-entry form while submitting; after a successful response, close the form and reset its values, and after a failed response, reopen the form for correction or retry.
+- [ ] Add a GitHub Action that fetches SneakyOwl visits into a separate branch as static JSON every day, then use that file for unregistered users on page load instead of querying Firestore.
+- [ ] Update BiteTrail's responsive design across the map, filters, View entries panel, and new-entry form.
 - [ ] Resolve remaining product-scope questions in `app/tools/bite-trail/QUESTIONS.md`.
 - [x] Document the first-pass tools and BiteTrail plan in `app/tools/`.
