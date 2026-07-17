@@ -1,6 +1,7 @@
 "use client";
 
 import type * as L from "leaflet";
+import { createRoot, type Root } from "react-dom/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaBowlFood,
@@ -10,7 +11,9 @@ import {
   FaLocationCrosshairs,
   FaList,
   FaMapPin,
+  FaPlus,
   FaStar,
+  FaTrashCan,
   FaUtensils,
   FaUser,
   FaUsers,
@@ -33,6 +36,35 @@ const SINGAPORE_CENTER: [number, number] = [1.353, 103.822];
 const SINGAPORE_ZOOM = 12;
 const USER_LOCATION_ZOOM = 14;
 const BITE_TRAIL_CLUSTER_RADIUS = 52;
+
+const getValidCoordinatePair = (
+  latitude: string,
+  longitude: string,
+): [number, number] | null => {
+  if (!latitude.trim() || !longitude.trim()) {
+    return null;
+  }
+
+  const parsedLatitude = Number(latitude);
+  const parsedLongitude = Number(longitude);
+  if (
+    !Number.isFinite(parsedLatitude) ||
+    !Number.isFinite(parsedLongitude) ||
+    parsedLatitude < -90 ||
+    parsedLatitude > 90 ||
+    parsedLongitude < -180 ||
+    parsedLongitude > 180
+  ) {
+    return null;
+  }
+
+  return [parsedLatitude, parsedLongitude];
+};
+
+const formatCoordinates = (latitude: number, longitude: number) => [
+  latitude.toFixed(6),
+  longitude.toFixed(6),
+];
 
 type BiteTrailFilters = {
   cuisineGenres: BiteTrailCuisineGenre[];
@@ -108,6 +140,11 @@ const createUserLocationIconHtml = () => `
   </span>
 `;
 
+const createDraftLocationIconHtml = () => `
+  <span class="bite-trail-draft-location" aria-hidden="true"></span>
+`;
+
+
 const EntryStat = ({
   icon,
   label,
@@ -131,9 +168,11 @@ const EntryStat = ({
 const EntryDetailPanel = ({
   place,
   currentUserName,
+  onAddEntry,
 }: {
   place: VisibleBiteTrailPlace;
   currentUserName: string;
+  onAddEntry?: (place: VisibleBiteTrailPlace) => void;
 }) => (
   <div className="flex min-h-full flex-col p-5">
     <div className="mb-5 flex items-start justify-between gap-4">
@@ -169,6 +208,16 @@ const EntryDetailPanel = ({
     </div>
 
     <div className="mt-5">
+      {onAddEntry ? (
+        <button
+          type="button"
+          className="site-button-primary mb-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 font-semibold"
+          onClick={() => onAddEntry(place)}
+        >
+          <FaPlus className="h-4 w-4" aria-hidden="true" />
+          Add new entry
+        </button>
+      ) : null}
       <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]">
         Visits ({place.visibleVisits.length})
       </p>
@@ -229,12 +278,14 @@ const EntryListPanel = ({
   heading,
   onSelect,
   onHover,
+  onAddEntry,
 }: {
   entries: VisibleBiteTrailPlace[];
   eyebrow?: string;
   heading?: string;
   onSelect: (entry: VisibleBiteTrailPlace) => void;
   onHover: (entry: VisibleBiteTrailPlace | null) => void;
+  onAddEntry?: (place: VisibleBiteTrailPlace) => void;
 }) => (
   <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-5">
     {eyebrow ? (
@@ -248,29 +299,49 @@ const EntryListPanel = ({
       </h3>
     ) : null}
     <div
-      className={`${heading ? "mt-5" : "mt-0"} min-h-0 flex-1 overflow-y-auto pr-3 [scrollbar-gutter:stable]`}
+      className={`${heading ? "mt-5" : "mt-0"} bite-trail-scrollbar min-h-0 flex-1 overflow-y-auto pr-3 [scrollbar-gutter:stable]`}
     >
       <div className="grid gap-3">
         {entries.map((entry) => (
-          <button
+          <div
             key={entry.id}
-            type="button"
-            onClick={() => onSelect(entry)}
             onMouseEnter={() => onHover(entry)}
             onMouseLeave={() => onHover(null)}
             onFocus={() => onHover(entry)}
             onBlur={() => onHover(null)}
-            className="rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] px-4 py-3 text-left transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)] hover:text-[color:var(--site-accent-soft)] focus-visible:border-[color:var(--site-accent-border-soft-hover)] focus-visible:text-[color:var(--site-accent-soft)]"
+            className="flex items-stretch rounded-[0.75rem] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)]"
           >
-            <span className="block text-[1rem] font-semibold text-[color:var(--site-text-strong)]">
-              {entry.placeName}
-            </span>
-            <span className="mt-1 block text-[0.82rem] text-[color:var(--site-text-muted)]">
-              {entry.neighborhood} · {formatCuisineLabel(entry.cuisineGenre)} ·{" "}
-              {entry.averageRating.toFixed(1)} / 10 ·{" "}
-              {formatCurrency(entry.averageCost, entry.currency)}
-            </span>
-          </button>
+            <button type="button" onClick={() => onSelect(entry)} className="min-w-0 flex-1 px-4 py-3 text-left focus-visible:text-[color:var(--site-accent-soft)]">
+              <span className="block text-[1rem] font-semibold text-[color:var(--site-text-strong)]">{entry.placeName}</span>
+              <span className="mt-1 block text-[0.82rem] text-[color:var(--site-text-muted)]">
+                <span className="inline-block whitespace-nowrap">{entry.neighborhood}</span>{" · "}
+                <span className="inline-block whitespace-nowrap">{formatCuisineLabel(entry.cuisineGenre)}</span>{" · "}
+                <span className="inline-block whitespace-nowrap">{entry.averageRating.toFixed(1)} / 10</span>{" · "}
+                <span className="inline-block whitespace-nowrap">{formatCurrency(entry.averageCost, entry.currency)}</span>
+              </span>
+            </button>
+            {onAddEntry ? (
+              <InfoTooltip
+                ariaLabel="Add new entry to existing location"
+                preferredPlacement="left"
+                trigger={
+                  <button
+                    type="button"
+                    aria-label={`Add new entry for ${entry.placeName}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onAddEntry(entry);
+                    }}
+                    className="shrink-0 rounded-tr-[0.75rem] rounded-br-[0.75rem] border-l border-[color:var(--site-border)] px-4 text-xl text-[color:var(--site-accent-soft)] transition-colors hover:bg-[color:var(--site-bg-strong)]"
+                  >
+                    +
+                  </button>
+                }
+              >
+                <p className="m-0">Add new entry to existing location</p>
+              </InfoTooltip>
+            ) : null}
+          </div>
         ))}
       </div>
       {entries.length === 0 ? (
@@ -607,10 +678,18 @@ const BiteTrailMap = ({
   places = mockFoodPlaces,
   currentUserName = CURRENT_USER_NAME,
   mapStart = "Singapore",
+  draftLatitude = "",
+  draftLongitude = "",
+  onDraftLocationChange,
+  onAddEntry,
 }: {
   places?: BiteTrailPlace[];
   currentUserName?: string;
   mapStart?: BiteTrailMapStart;
+  draftLatitude?: string;
+  draftLongitude?: string;
+  onDraftLocationChange?: (latitude: string, longitude: string) => void;
+  onAddEntry?: (place: VisibleBiteTrailPlace) => void;
 }) => {
   const allPlaces = places;
   const ownerOptions = useMemo(
@@ -678,11 +757,14 @@ const BiteTrailMap = ({
   const markerRefs = useRef<Map<string, L.Marker>>(new Map());
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
   const userAccuracyCircleRef = useRef<L.Circle | null>(null);
+  const draftLocationMarkerRef = useRef<L.Marker | null>(null);
+  const draftLocationIconRootRef = useRef<Root | null>(null);
   const hasRequestedInitialLocationRef = useRef(false);
   const markerClusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
   const activeTooltipMarkerRef = useRef<L.Marker | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
+  const [isLocationPicking, setIsLocationPicking] = useState(false);
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -700,7 +782,29 @@ const BiteTrailMap = ({
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [clusterEntryIds, setClusterEntryIds] = useState<string[]>([]);
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
+  const isLocationPickingRef = useRef(isLocationPicking);
+  const onDraftLocationChangeRef = useRef(onDraftLocationChange);
   selectedPlaceIdRef.current = selectedPlaceId;
+  isLocationPickingRef.current = isLocationPicking;
+  onDraftLocationChangeRef.current = onDraftLocationChange;
+  const draftCoordinates = useMemo(
+    () => getValidCoordinatePair(draftLatitude, draftLongitude),
+    [draftLatitude, draftLongitude],
+  );
+
+  useEffect(() => {
+    if (!draftCoordinates) {
+      setIsLocationPicking(false);
+    }
+  }, [draftCoordinates]);
+
+  const disposeDraftLocationIconRoot = useCallback(() => {
+    const iconRoot = draftLocationIconRootRef.current;
+    draftLocationIconRootRef.current = null;
+    if (iconRoot) {
+      window.setTimeout(() => iconRoot.unmount(), 0);
+    }
+  }, []);
 
   useEffect(() => {
     setDraftFilters(defaultFilters);
@@ -830,30 +934,33 @@ const BiteTrailMap = ({
       userLocation.latitude,
       userLocation.longitude,
     );
-    userAccuracyCircleRef.current = leaflet.circle(location, {
-      color: "var(--site-accent-orange)",
-      fillColor: "var(--site-accent-orange)",
-      fillOpacity: 0.12,
-      opacity: 0.5,
-      radius: Math.max(userLocation.accuracy, 20),
-      weight: 1,
-    }).addTo(map);
-    userLocationMarkerRef.current = leaflet.marker(location, {
-      alt: "Your current location",
-      icon: leaflet.divIcon({
-        className: "bite-trail-user-location-icon",
-        html: createUserLocationIconHtml(),
-        iconAnchor: [16, 16],
-        iconSize: [32, 32],
-      }),
-      keyboard: false,
-      zIndexOffset: 1000,
-    })
+    userAccuracyCircleRef.current = leaflet
+      .circle(location, {
+        color: "var(--site-accent-orange)",
+        fillColor: "var(--site-accent-orange)",
+        fillOpacity: 0.12,
+        opacity: 0.5,
+        radius: Math.max(userLocation.accuracy, 20),
+        weight: 1,
+      })
+      .addTo(map);
+    userLocationMarkerRef.current = leaflet
+      .marker(location, {
+        alt: "Your current location",
+        icon: leaflet.divIcon({
+          className: "bite-trail-user-location-icon",
+          html: createUserLocationIconHtml(),
+          iconAnchor: [16, 32],
+          iconSize: [32, 32],
+        }),
+        keyboard: false,
+        zIndexOffset: 1000,
+      })
       .addTo(map)
       .bindTooltip("You are here", {
         className: "bite-trail-marker-tooltip",
         direction: "bottom",
-        offset: [0, 16],
+        offset: [0, 4],
       });
 
     return () => {
@@ -863,6 +970,64 @@ const BiteTrailMap = ({
       userAccuracyCircleRef.current = null;
     };
   }, [isMapLoaded, userLocation]);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const leaflet = leafletRef.current;
+    if (!map || !leaflet) {
+      return;
+    }
+
+    const existingMarker = draftLocationMarkerRef.current;
+    if (!draftCoordinates) {
+      disposeDraftLocationIconRoot();
+      if (existingMarker && map.hasLayer(existingMarker)) {
+        existingMarker.removeFrom(map);
+      }
+      draftLocationMarkerRef.current = null;
+      return;
+    }
+
+    const [latitude, longitude] = draftCoordinates;
+    if (existingMarker) {
+      existingMarker.setLatLng([latitude, longitude]);
+    } else {
+      const marker = leaflet.marker([latitude, longitude], {
+        alt: "New BiteTrail place location",
+        draggable: true,
+        icon: leaflet.divIcon({
+          className: "bite-trail-marker-icon",
+          html: createDraftLocationIconHtml(),
+          iconAnchor: [14, 32],
+          iconSize: [24, 24],
+        }),
+        title: "New place location",
+        zIndexOffset: 999999,
+      });
+      marker.on("dragend", () => {
+        const { lat, lng } = marker.getLatLng();
+        const [nextLatitude, nextLongitude] = formatCoordinates(lat, lng);
+        setIsLocationPicking(true);
+        onDraftLocationChangeRef.current?.(nextLatitude, nextLongitude);
+      });
+      marker.addTo(map).bindTooltip("Drag to refine this new place", {
+        className: "bite-trail-marker-tooltip",
+        direction: "bottom",
+        offset: [0, 4],
+      });
+      const iconHost = marker
+        .getElement()
+        ?.querySelector(".bite-trail-draft-location");
+      if (iconHost) {
+        const iconRoot = createRoot(iconHost);
+        iconRoot.render(<FaMapPin />);
+        draftLocationIconRootRef.current = iconRoot;
+      }
+      draftLocationMarkerRef.current = marker;
+    }
+
+    map.panTo([latitude, longitude], { animate: true, duration: 0.4 });
+  }, [disposeDraftLocationIconRoot, draftCoordinates, isMapLoaded]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -899,7 +1064,14 @@ const BiteTrailMap = ({
         zoomControl: false,
       }).setView(SINGAPORE_CENTER, SINGAPORE_ZOOM);
 
-      map.on("click", () => {
+      map.on("click", (event: L.LeafletMouseEvent) => {
+        if (isLocationPickingRef.current) {
+          const [latitude, longitude] = formatCoordinates(
+            event.latlng.lat,
+            event.latlng.lng,
+          );
+          onDraftLocationChangeRef.current?.(latitude, longitude);
+        }
         markerRefs.current.forEach((marker) => marker.closeTooltip());
         activeTooltipMarkerRef.current?.closeTooltip();
         activeTooltipMarkerRef.current = null;
@@ -1069,8 +1241,10 @@ const BiteTrailMap = ({
       leafletRef.current = null;
       userLocationMarkerRef.current = null;
       userAccuracyCircleRef.current = null;
+      disposeDraftLocationIconRoot();
+      draftLocationMarkerRef.current = null;
     };
-  }, [entries]);
+  }, [disposeDraftLocationIconRoot, entries]);
 
   const recenterMap = () => {
     mapInstanceRef.current?.setView(SINGAPORE_CENTER, SINGAPORE_ZOOM);
@@ -1079,64 +1253,71 @@ const BiteTrailMap = ({
     setSelectedPlaceId(null);
   };
 
-  const requestUserLocation = useCallback((shouldCenterMap: boolean) => {
-    if (!navigator.geolocation) {
-      setLocationError("Current location is not available in this browser.");
-      return;
-    }
+  const requestUserLocation = useCallback(
+    (
+      shouldCenterMap: boolean,
+      onLocated?: (latitude: number, longitude: number) => void,
+    ) => {
+      if (!navigator.geolocation) {
+        setLocationError("Current location is not available in this browser.");
+        return;
+      }
 
-    if (!window.isSecureContext) {
-      setLocationError(
-        "Location requires HTTPS on a phone. Open the secure site or use an HTTPS local development URL.",
+      if (!window.isSecureContext) {
+        setLocationError(
+          "Location requires HTTPS on a phone. Open the secure site or use an HTTPS local development URL.",
+        );
+        return;
+      }
+
+      setIsLocatingUser(true);
+      setLocationError(null);
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const nextCenter: [number, number] = [
+            position.coords.latitude,
+            position.coords.longitude,
+          ];
+
+          setUserLocation({
+            accuracy: position.coords.accuracy,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          if (shouldCenterMap) {
+            mapInstanceRef.current?.setView(nextCenter, USER_LOCATION_ZOOM);
+          }
+          onLocated?.(position.coords.latitude, position.coords.longitude);
+          setClusterEntryIds([]);
+          setSelectedPlaceId(null);
+          setIsLocatingUser(false);
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            setLocationError(
+              "Location permission was denied. Allow location access for this site in your browser settings, then try again.",
+            );
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            setLocationError(
+              "Your device could not determine its location. Check that phone location services are enabled.",
+            );
+          } else {
+            setLocationError(
+              "The location request timed out. Try again where your phone has a clearer GPS signal.",
+            );
+          }
+          setIsLocatingUser(false);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 30000,
+          timeout: 10000,
+        },
       );
-      return;
-    }
-
-    setIsLocatingUser(true);
-    setLocationError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextCenter: [number, number] = [
-          position.coords.latitude,
-          position.coords.longitude,
-        ];
-
-        setUserLocation({
-          accuracy: position.coords.accuracy,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        if (shouldCenterMap) {
-          mapInstanceRef.current?.setView(nextCenter, USER_LOCATION_ZOOM);
-        }
-        setClusterEntryIds([]);
-        setSelectedPlaceId(null);
-        setIsLocatingUser(false);
-      },
-      (error) => {
-        if (error.code === error.PERMISSION_DENIED) {
-          setLocationError(
-            "Location permission was denied. Allow location access for this site in your browser settings, then try again.",
-          );
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          setLocationError(
-            "Your device could not determine its location. Check that phone location services are enabled.",
-          );
-        } else {
-          setLocationError(
-            "The location request timed out. Try again where your phone has a clearer GPS signal.",
-          );
-        }
-        setIsLocatingUser(false);
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 10000,
-      },
-    );
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!isMapLoaded || hasRequestedInitialLocationRef.current) {
@@ -1149,13 +1330,38 @@ const BiteTrailMap = ({
 
   const centerToUser = () => requestUserLocation(true);
 
+  const startLocationPicker = () => {
+    setIsLocationPicking(true);
+    requestUserLocation(true, (latitude, longitude) => {
+      const [nextLatitude, nextLongitude] = formatCoordinates(
+        latitude,
+        longitude,
+      );
+      onDraftLocationChange?.(nextLatitude, nextLongitude);
+    });
+  };
+
+  const clearDraftLocation = () => {
+    setIsLocationPicking(false);
+    onDraftLocationChange?.("", "");
+  };
+
   const focusEntry = (entry: VisibleBiteTrailPlace) => {
     setSelectedPlaceId(entry.id);
     setClusterEntryIds([]);
 
     const map = mapInstanceRef.current;
     const marker = markerRefs.current.get(entry.id);
-    if (!map || !marker) {
+    if (!map) {
+      return;
+    }
+
+    if (!marker) {
+      map.flyTo([entry.latitude, entry.longitude], Math.max(map.getZoom(), 16), {
+        animate: true,
+        duration: 1,
+        easeLinearity: 0.25,
+      });
       return;
     }
 
@@ -1173,7 +1379,7 @@ const BiteTrailMap = ({
         ? (visibleParent as L.MarkerCluster)
         : null;
     const siblingMarkers = parentCluster?.getAllChildMarkers() ?? [marker];
-    let targetZoom = currentZoom;
+    let targetZoom = Math.max(currentZoom, 16);
 
     if (parentCluster && siblingMarkers.length > 1) {
       const lastZoom = Number.isFinite(maxZoom) ? maxZoom : currentZoom + 8;
@@ -1198,11 +1404,19 @@ const BiteTrailMap = ({
       }
     }
 
+    targetZoom = Math.max(targetZoom, 16);
+
     map.flyTo(entryCenter, targetZoom, {
       animate: true,
       duration: 1,
       easeLinearity: 0.25,
     });
+  };
+
+  const focusAndAddEntry = (entry: VisibleBiteTrailPlace) => {
+    setExpandedPanel("entries");
+    focusEntry(entry);
+    onAddEntry?.(entry);
   };
 
   const applyFilters = () => {
@@ -1310,10 +1524,11 @@ const BiteTrailMap = ({
         </button>
         {expandedPanel === "entries" ? (
           selectedPlace ? (
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="bite-trail-scrollbar min-h-0 flex-1 overflow-y-auto">
               <EntryDetailPanel
                 place={selectedPlace}
                 currentUserName={currentUserName}
+                onAddEntry={focusAndAddEntry}
               />
             </div>
           ) : clusterEntries.length > 0 ? (
@@ -1323,12 +1538,14 @@ const BiteTrailMap = ({
               heading={`${clusterEntries.length} nearby places`}
               onSelect={focusEntry}
               onHover={previewEntryHover}
+              onAddEntry={focusAndAddEntry}
             />
           ) : (
             <EntryListPanel
               entries={entries}
               onSelect={focusEntry}
               onHover={previewEntryHover}
+              onAddEntry={focusAndAddEntry}
             />
           )
         ) : null}
@@ -1351,6 +1568,39 @@ const BiteTrailMap = ({
                 {locationError}
               </p>
             ) : null}
+            <InfoTooltip
+              ariaLabel={
+                draftCoordinates ? "Clear new pin" : "Add a new place location"
+              }
+              preferredPlacement="left"
+              trigger={
+                <button
+                  type="button"
+                  onClick={
+                    draftCoordinates ? clearDraftLocation : startLocationPicker
+                  }
+                  disabled={!isMapLoaded || isLocatingUser}
+                  aria-label={
+                    draftCoordinates
+                      ? "Clear new pin"
+                      : "Drop a new place pin at my current location"
+                  }
+                  className={`pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border bg-[color:var(--site-bg-chrome)] shadow-[0_14px_30px_rgba(0,0,0,0.34)] transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)] hover:text-[color:var(--site-accent-soft)] focus-visible:border-[color:var(--site-accent-border-soft-hover)] focus-visible:text-[color:var(--site-accent-soft)] disabled:pointer-events-none disabled:opacity-55 ${draftCoordinates ? "border-[color:var(--site-accent-red)] text-[color:var(--site-accent-red)]" : "border-[color:var(--site-border-strong)] text-[color:var(--site-text-strong)]"}`}
+                >
+                  {draftCoordinates ? (
+                    <FaTrashCan className="h-4 w-4" />
+                  ) : (
+                    <FaPlus className="h-4 w-4" />
+                  )}
+                </button>
+              }
+            >
+              <p className="m-0">
+                {draftCoordinates
+                  ? "Clear new pin"
+                  : "Add a place at my location"}
+              </p>
+            </InfoTooltip>
             <InfoTooltip
               ariaLabel="Center to me"
               preferredPlacement="left"

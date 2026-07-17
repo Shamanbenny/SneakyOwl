@@ -1,7 +1,6 @@
 import BiteTrailAuthPanel from "@/app/components/tools/bite-trail/BiteTrailAuthPanel";
-import BiteTrailDataPanel from "@/app/components/tools/bite-trail/BiteTrailDataPanel";
-import BiteTrailMapData from "@/app/components/tools/bite-trail/BiteTrailMapData";
 import BiteTrailSparklesTitle from "@/app/components/tools/bite-trail/BiteTrailSparklesTitle";
+import BiteTrailWorkspace from "@/app/components/tools/bite-trail/BiteTrailWorkspace";
 import NavBar from "@/app/components/shared/navigation/NavBar";
 
 export default function BiteTrailPage() {
@@ -34,10 +33,7 @@ export default function BiteTrailPage() {
             <BiteTrailAuthPanel />
           </section>
           <div className="mt-6">
-            <BiteTrailMapData />
-          </div>
-          <div className="mt-6">
-            <BiteTrailDataPanel />
+            <BiteTrailWorkspace />
           </div>
         </BiteTrailSparklesTitle>
       </main>

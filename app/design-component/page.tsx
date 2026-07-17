@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { FaHistory } from "react-icons/fa";
 import {
   FaArrowLeft,
   FaArrowUp,
   FaArrowUpRightFromSquare,
   FaBookOpen,
+  FaCalendarDays,
+  FaChevronLeft,
+  FaChevronRight,
   FaChevronDown,
   FaGithub,
   FaHeart,
@@ -207,6 +211,100 @@ const specs = [
   ],
 ];
 
+const formatDesignDate = (value: string) =>
+  new Date(`${value}T00:00:00`).toLocaleDateString("en-SG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+const DesignCalendarInput = () => {
+  const initialDate = new Date().toISOString().slice(0, 10);
+  const [value, setValue] = useState(initialDate);
+  const [isOpen, setIsOpen] = useState(false);
+  const [month, setMonth] = useState(() => new Date());
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+  const daysInMonth = new Date(
+    month.getFullYear(),
+    month.getMonth() + 1,
+    0,
+  ).getDate();
+
+  return (
+    <div className={styles.calendarField}>
+      <label className={styles.inputLabel} htmlFor="design-calendar-input">
+        Visited on
+      </label>
+      <button
+        id="design-calendar-input"
+        className={styles.calendarTrigger}
+        type="button"
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        onClick={() => {
+          setMonth(new Date(`${value}T00:00:00`));
+          setIsOpen((open) => !open);
+        }}
+      >
+        <span>{formatDesignDate(value)}</span>
+        <FaCalendarDays aria-hidden="true" />
+      </button>
+      {isOpen ? (
+        <div className={styles.calendarPopover} role="dialog" aria-label="Choose visit date">
+          <div className={styles.calendarHeader}>
+            <button
+              type="button"
+              aria-label="Previous month"
+              onClick={() => setMonth((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
+            >
+              <FaChevronLeft aria-hidden="true" />
+            </button>
+            <span>
+              {month.toLocaleDateString("en-SG", { month: "long", year: "numeric" })}
+            </span>
+            <button
+              type="button"
+              aria-label="Next month"
+              onClick={() => setMonth((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))}
+            >
+              <FaChevronRight aria-hidden="true" />
+            </button>
+          </div>
+          <div className={styles.calendarWeekdays} aria-hidden="true">
+            {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
+              <span key={`${day}-${index}`}>{day}</span>
+            ))}
+          </div>
+          <div className={styles.calendarGrid}>
+            {Array.from({ length: firstDay }, (_, index) => (
+              <span key={`empty-${index}`} />
+            ))}
+            {Array.from({ length: daysInMonth }, (_, index) => {
+              const day = index + 1;
+              const dateValue = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const isSelected = value === dateValue;
+              return (
+                <button
+                  key={dateValue}
+                  className={`${styles.calendarDay} ${isSelected ? styles.calendarDaySelected : ""}`}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => {
+                    setValue(dateValue);
+                    setIsOpen(false);
+                  }}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
 export default function DesignComponentPage() {
   return (
     <main className={styles.page}>
@@ -380,6 +478,18 @@ export default function DesignComponentPage() {
               </div>
             </article>
           </div>
+          <div className={styles.grid}>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Calendar Input</h3>
+                <span className={styles.meta}>Interactive</span>
+              </div>
+              <p className={styles.sectionIntro}>
+                Click the field to preview the styled calendar view.
+              </p>
+              <DesignCalendarInput />
+            </article>
+          </div>
         </section>
 
         <section className={styles.section} aria-labelledby="dropdown-fields">
@@ -530,8 +640,9 @@ export default function DesignComponentPage() {
                   Like post
                 </button>
                 <button
-                  className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonPrimaryHover}`}
+                  className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonPrimaryHover}  ${styles.buttonDisabled}`}
                   type="button"
+                  disabled
                 >
                   <FaHeart aria-hidden="true" />
                   Liked

@@ -10,7 +10,7 @@ Each visit is a separate append-only record attached to the place ID. It stores 
 
 The map and View entries list render one pin and one row per place. Averages use only visits visible under the current watch-list and filter selections. Rating averages display one decimal place and cost averages display two decimal places. The selected place view shows the summary followed by every visible visit in a fully expanded sub-container.
 
-## RafflesGo Map Behavior To Reuse
+## RafflesGo Map Behavior Reused
 
 RafflesGo uses Leaflet through React components:
 
@@ -18,13 +18,13 @@ RafflesGo uses Leaflet through React components:
 - `rafflesgo-group-11/frontend/src/pages/ReportSighting.tsx` embeds that picker inside each sighting form.
 - `rafflesgo-group-11/frontend/src/pages/WalkDetails.tsx` renders saved sightings as read-only markers with `Popup` panels.
 
-Important mechanics:
+Implemented mechanics:
 
 - Map tiles use OpenStreetMap through Leaflet's `TileLayer`.
-- A map click calls `useMapEvents({ click })`, stores `[lat, lng]`, and passes fixed-precision strings back to the parent form.
-- The marker is draggable; `dragend` reads `marker.getLatLng()` and updates the parent state.
-- "Use My Current GPS" calls `navigator.geolocation.getCurrentPosition`, drops the marker at the current location, and pans/zooms there.
-- Manual latitude/longitude fields can push coordinates back into the map through `externalLat` and `externalLng`.
+- BiteTrail's `+` button above "Center to me" requests GPS, centers the map, and drops a draggable new-place pin.
+- The new-place pin and latitude/longitude inputs share one state source: map clicks in picker mode and marker `dragend` write fixed-precision coordinates, while valid typed coordinates move the pin.
+- "Center to me" remains a browsing control and does not overwrite the new-place form coordinates.
+- GPS uses `navigator.geolocation.getCurrentPosition` with high accuracy and a 10-second timeout.
 - Saved records are rendered as `<Marker><Popup>...</Popup></Marker>` in the read-only map.
 
 BiteTrail should reuse the same conceptual split:
@@ -93,7 +93,7 @@ User/list fields:
 - [x] Correct the sample data into grouped places and append-only visits with whole-number ratings, cuisine genres, and visible-average filtering.
 - [ ] Add database schema and access rules.
 - [ ] Build create/edit entry form.
-- [ ] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.
+- [x] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.
 - [ ] Connect the current map preview to real persisted entries once storage is ready.
 - [ ] Add share code generation and QR rendering.
 - [ ] Add friend-list import by code/link.

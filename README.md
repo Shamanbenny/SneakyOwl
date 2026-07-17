@@ -92,7 +92,7 @@ The Firebase CLI uses [firebase.json](./firebase.json) to locate
 - [ ] Reserve the separate Flask/Vercel backend for future privileged workflows such as moderation, rate-limited operations, or external integrations.
 - [ ] Design a personal food-place entry form with place name, cuisine genre, cost per person, optional items bought, whole-number rating out of 10, and comments.
 - [x] Expand the sample data with repeated owners, multiple cuisine categories, normal clusters, and a deliberately inseparable maximum-zoom cluster.
-- [ ] Reuse RafflesGo's Leaflet creation pattern for click-to-drop pins, draggable markers, GPS-based placement, and optional manual coordinate syncing.
+- [x] Reuse RafflesGo's Leaflet creation pattern for click-to-drop pins, draggable markers, GPS-based placement, and manual coordinate syncing.
 - [ ] Add friend sharing through QR/link/manual code entry, plus controls to remove watched lists and stop sharing with specific viewers.
 - [ ] Add clustered map pins for close-proximity entries with a cluster detail list on click.
 - [x] Model repeated visits as one shared place with visible-visit averages and individual visit details.

@@ -39,6 +39,8 @@ const toMapPlaces = (
     longitude: place.longitude,
     neighborhood: place.locationLabel,
     placeName: place.name,
+    ownerUid: place.ownerUid,
+    sourcePlaceId: place.id,
     visits: place.visits.map(
       (visit): BiteTrailFoodEntry => ({
         comments: visit.comments,
@@ -63,13 +65,27 @@ const toMapPlaces = (
     ),
   }));
 
-const BiteTrailMapData = () => {
+const BiteTrailMapData = ({
+  latitude,
+  longitude,
+  onLocationChange,
+  onAddEntry,
+}: {
+  latitude: string;
+  longitude: string;
+  onLocationChange: (latitude: string, longitude: string) => void;
+  onAddEntry: (place: BiteTrailPlace) => void;
+}) => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [currentUserName, setCurrentUserName] = useState("You");
   const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
   const [firestorePlaces, setFirestorePlaces] = useState<BiteTrailPlace[]>([]);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const mapPlaces = useMemo(
+    () => [...firestorePlaces, ...mockFoodPlaces],
+    [firestorePlaces],
+  );
 
   useEffect(() => {
     if (!firebaseClient) {
@@ -121,15 +137,15 @@ const BiteTrailMapData = () => {
     );
   }
 
-  // This is deliberately the only mock-data injection point. Mock records are
-  // map-only development fixtures and never enter friends/profile state.
-  const mapPlaces = [...firestorePlaces, ...mockFoodPlaces];
-
   return (
     <BiteTrailMap
       places={mapPlaces}
       currentUserName={user ? currentUserName : "You"}
       mapStart={mapStart}
+      draftLatitude={latitude}
+      draftLongitude={longitude}
+      onDraftLocationChange={onLocationChange}
+      onAddEntry={onAddEntry}
     />
   );
 };

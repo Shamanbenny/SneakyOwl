@@ -45,6 +45,8 @@ export type BiteTrailPlace = {
   neighborhood: string;
   placeName: string;
   visits: BiteTrailFoodEntry[];
+  ownerUid?: string;
+  sourcePlaceId?: string;
 };
 
 const rawMockFoodEntries: BiteTrailFoodEntry[] = [

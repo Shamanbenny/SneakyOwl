@@ -169,6 +169,119 @@
     0 0 0 4px var(--site-accent-focus-ring);
 }
 
+.calendarField {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.calendarTrigger {
+  display: flex;
+  min-height: 46px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--site-border);
+  border-radius: 0.75rem;
+  background: var(--site-bg-soft);
+  color: var(--site-text-strong);
+  padding: 0 14px;
+  text-align: left;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.calendarTrigger:hover,
+.calendarTrigger:focus-visible {
+  border-color: var(--site-accent-border-soft-hover);
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--site-bg),
+    0 0 0 4px var(--site-accent-focus-ring);
+}
+
+.calendarTrigger svg {
+  color: var(--site-text-muted);
+}
+
+.calendarPopover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 2px);
+  z-index: 3;
+  margin-top: 8px;
+  border: 1px solid var(--site-border);
+  border-radius: 0.75rem;
+  background: var(--site-bg-chrome);
+  padding: 12px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.32);
+}
+
+.calendarHeader,
+.calendarWeekdays,
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.calendarHeader {
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--site-text-strong);
+  text-align: center;
+}
+
+.calendarHeader button {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--site-text-muted);
+}
+
+.calendarHeader button:hover,
+.calendarHeader button:focus-visible {
+  background: var(--site-bg-soft);
+  color: var(--site-accent-soft);
+  outline: none;
+}
+
+.calendarWeekdays {
+  margin-bottom: 4px;
+  color: var(--site-text-faint);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.calendarDay {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--site-text);
+  font-size: 0.78rem;
+}
+
+.calendarDay:hover,
+.calendarDay:focus-visible {
+  background: var(--site-bg-soft);
+  color: var(--site-text-strong);
+  outline: none;
+}
+
+.calendarDaySelected {
+  background: var(--site-accent-strong);
+  color: var(--site-text-strong);
+}
+
 .dropdownField {
   display: grid;
   gap: 8px;
@@ -281,6 +394,10 @@
   box-shadow:
     0 0 0 2px var(--site-bg),
     0 0 0 4px var(--site-accent-focus-ring);
+}
+
+.buttonDisabled {
+  cursor: not-allowed;
 }
 
 .buttonSecondary {
