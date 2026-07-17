@@ -22,10 +22,11 @@ Implemented mechanics:
 
 - Map tiles use OpenStreetMap through Leaflet's `TileLayer`.
 - BiteTrail's `+` button above "Center to me" requests GPS, centers the map, and drops a draggable new-place pin.
-- The new-place pin and latitude/longitude inputs share one state source: map clicks in picker mode and marker `dragend` write fixed-precision coordinates, while valid typed coordinates move the pin.
+- The new-place pin and latitude/longitude inputs share one state source: map clicks while the location picker is active and marker `dragend` write fixed-precision coordinates, while valid typed coordinates move the pin.
 - "Center to me" remains a browsing control and does not overwrite the new-place form coordinates.
 - GPS uses `navigator.geolocation.getCurrentPosition` with high accuracy and a 10-second timeout.
-- Saved records are rendered as `<Marker><Popup>...</Popup></Marker>` in the read-only map.
+- The add-location control changes to a red trash icon with a "Clear new pin" tooltip while a draft pin exists.
+- Saved records remain read-only Leaflet markers; selecting a marker or cluster opens the BiteTrail detail/list panel.
 
 BiteTrail should reuse the same conceptual split:
 
@@ -36,7 +37,7 @@ BiteTrail should reuse the same conceptual split:
 ## Core User Stories
 
 - As a signed-in user, I can add a food-place pin from my current GPS location.
-- As a signed-in user, I can click anywhere on the map to place a pin manually.
+- As a signed-in user, I can click the map while location picking is active to place a pin manually.
 - As a signed-in user, I can drag a placed pin to correct its exact location.
 - As a signed-in user, I can store the place name, cost per person, rating out of 10, comments, and optionally what I bought.
 - As a signed-in user, I can append visits to an existing place and delete my own visits.
@@ -92,7 +93,7 @@ User/list fields:
 - [x] Select Firebase Auth plus direct Firestore SDK access as the default backend path; defer Flask/Vercel to privileged workflows.
 - [x] Correct the sample data into grouped places and append-only visits with whole-number ratings, cuisine genres, and visible-average filtering.
 - [ ] Add database schema and access rules.
-- [ ] Build create/edit entry form.
+- [x] Build create/edit entry form.
 - [x] Build map picker based on RafflesGo's click/drag/GPS/manual-coordinate flow.
 - [ ] Connect the current map preview to real persisted entries once storage is ready.
 - [ ] Add share code generation and QR rendering.

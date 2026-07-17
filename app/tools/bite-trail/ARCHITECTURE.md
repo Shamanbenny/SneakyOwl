@@ -10,8 +10,11 @@ Current implementation:
 app/tools/bite-trail/page.tsx
 app/components/tools/bite-trail/
   BiteTrailAuthPanel.tsx
+  BiteTrailDataPanel.tsx
   BiteTrailMap.tsx
+  BiteTrailMapData.tsx
   BiteTrailSparklesTitle.tsx
+  BiteTrailWorkspace.tsx
   mockFoodEntries.ts
 ```
 
@@ -43,10 +46,11 @@ Because Next.js App Router can render on the server, Leaflet components should b
 Creation/editing map:
 
 - Starts centered on Singapore or the user's browser geolocation if permission is granted.
-- Click on map sets a pin.
-- Draggable marker updates the selected latitude/longitude.
-- "Use current location" uses `navigator.geolocation.getCurrentPosition`.
-- Manual coordinate inputs remain optional, but should still sync back to the marker if present.
+- The `+` control above "Center to me" uses `navigator.geolocation.getCurrentPosition`, centers the map, and creates a draggable draft pin.
+- Map clicks set a pin only while location picking is active; dragging the draft marker updates the shared latitude/longitude values.
+- The same control becomes a red delete button with a "Clear new pin" tooltip while a draft pin exists.
+- "Center to me" only updates the read-only current-location display and map view.
+- Manual coordinate inputs sync back to the draft marker when both values are valid.
 
 Exploration map:
 
