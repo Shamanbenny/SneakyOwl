@@ -8,6 +8,8 @@ A place has one stable user-managed ID containing the store name, user-entered l
 
 Each visit is a separate append-only record attached to the place ID. It stores its user, date, rating, cost per person, ordered items, and comments. Users may delete only their own visits; place metadata is immutable. If the last valid visit is deleted, the place and related metadata are deleted.
 
+Shared account identity remains at `users/{uid}`. BiteTrail stores preferences and tutorial state at `tools/bite-trail/users/{uid}`, paired watch relationships at `tools/bite-trail/followings/{uid}/relationships/{friendUid}`, and global places at `tools/bite-trail/places/{placeId}/visits/{visitId}`. The browser writes simple configuration and new visits directly; Flask returns authorised live visits, coordinates relationships and deletion, and propagates display-name changes.
+
 The map and View entries list render one pin and one row per place. Averages use only visits visible under the current watch-list and filter selections. Rating averages display one decimal place and cost averages display two decimal places. The selected place view shows the summary followed by every visible visit in a fully expanded sub-container.
 
 Successful new-place and visit writes refresh the visible Firestore data automatically. The map does not yet subscribe to external Firestore changes in realtime.
@@ -18,9 +20,9 @@ Firestore or require saving profile settings. Stop watching remains a
 Firestore-backed relationship change and removes the watched list.
 
 Profile also exposes Gmail-confirmed account deletion. The Flask backend removes
-the user's BiteTrail data, preferences, reciprocal and legacy one-sided watch
-records, Firestore profile, and Firebase Auth account before the client signs
-out and returns to `/tools/bite-trail`.
+the user's BiteTrail configuration, visits, reciprocal watch records, shared
+Firestore profile, and Firebase Auth account before the client signs out and
+returns to `/tools/bite-trail`.
 
 ## Session Recovery
 
@@ -66,13 +68,13 @@ BiteTrail should reuse the same conceptual split:
 - As a viewer, I can hide or show a watched friend's list locally without
   changing the watch relationship.
 
-## Planned Fields
+## Current Stored Fields
 
 Visit fields:
 
 - `id`
-- `ownerUserId`
-- `placeId`
+- `ownerUid`
+- `ownerDisplayName`
 - `costPerPerson`
 - `currency`
 - `ratingOutOf10` as a whole number
@@ -80,20 +82,14 @@ Visit fields:
 - `comments`
 - `visitedAt`
 - `createdAt`
-- `updatedAt`
-- `visibility` initially private to owner, visible through share relationships
-- `source` own entry or watched friend's entry in the client view model
 
 User/list fields:
 
-- `userId`
-- `displayName`
-- `photoURL`
-- `shareCodeHash`
-- `shareCodeCreatedAt`
-- `shareCodeRevokedAt` optional
-- `watchingUserIds` or a separate watch relationship table/collection
-- `blockedViewerIds` or revoked share relationships, depending on backend choice
+- `users/{uid}`: shared `displayName` and `photoURL`
+- `tools/bite-trail/users/{uid}`: `defaultCurrency`, `mapStart`, `hasCompletedTutorial`
+- `tools/bite-trail/followings/{uid}/relationships/{friendUid}`: `friendUid`, `friendDisplayName`, `createdAt`
+
+Revocation temporarily removes both relationship documents; a later friend-link acceptance can restore the relationship.
 
 ## Implementation Todo
 

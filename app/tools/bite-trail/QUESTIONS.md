@@ -18,7 +18,7 @@
 - Multiple visits belong to one user-managed place ID; each visit keeps its own rating, cost, date, ordered items, comments, and user.
 - Place metadata is immutable and has no tracked initial creator. Users may delete only their own visits; deleting the final valid visit deletes the place metadata.
 - Place averages use only visits visible after watch-list and owner filtering.
-- Firebase client SDK plus Firestore Security Rules is the default data path. Flask/Vercel handles privileged workflows such as destructive deletion and coordinated friend changes.
+- Firebase client SDK plus Firestore Security Rules handles simple owner-scoped configuration and append-only visit writes. Flask/Vercel handles authorised live-visit retrieval, display-name fan-out, destructive deletion, and coordinated friend changes.
 - The current map loads data when the session is ready and refreshes after successful writes. It does not yet subscribe to external Firestore changes; a future refresh control may explicitly reload them.
 - Privacy page exists for OAuth verification support, but no main navigation link is required.
 

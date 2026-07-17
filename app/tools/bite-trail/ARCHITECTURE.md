@@ -108,13 +108,13 @@ This avoids coupling the app to an unmaintained React wrapper and keeps cluster 
 Current decision:
 
 - Firebase Google Authentication is already wired into the BiteTrail auth smoke test.
-- Firestore persistence is implemented for profiles, preferences, places, visits, and visible followed lists.
-- Firestore client SDK access protected by Firestore Security Rules is the default path.
+- Firestore persistence is implemented for shared profiles, BiteTrail preferences, global places, visits, and reciprocal relationships.
+- The client SDK handles simple owner-scoped configuration and append-only visit writes; Flask handles coordinated relationships, authorised live-place retrieval, destructive cleanup, and display-name fan-out.
 - Hide/Show is intentionally local to the viewer: the selected watched-owner
   IDs are stored in browser local storage and filtered from that viewer's map.
   It does not mutate the shared relationship or require a profile-settings
   save. Stop watching remains the relationship-changing operation.
-- The separate Flask/Vercel backend is deferred for privileged workflows only.
+- The separate Flask/Vercel backend is used for cross-owner or multi-step workflows, while preserving direct Firestore access where the operation is simple and safely owner-scoped.
 
 Firebase remains the lower-friction first choice for BiteTrail storage:
 
@@ -129,7 +129,7 @@ Supabase was considered but is not the current direction:
 - Row Level Security can express owner/viewer access.
 - QR/share-code lookup can be implemented through a server/API route or Supabase RPC.
 
-Do not introduce Flask as a generic Firestore proxy. Consider it later only for moderation, rate-limited operations, secret-backed integrations, or other trusted server workflows.
+Do not introduce Flask as a proxy for simple owner-scoped Firestore operations. Use it when an operation must coordinate multiple documents, resolve cross-owner visibility, or maintain denormalized account data.
 
 ## Initial Firestore-Style Data Model (Superseded)
 
@@ -240,8 +240,17 @@ The QR code should encode the URL, while the manual input accepts the bare code.
 The long-term storage model separates immutable shared place metadata from user-owned visits:
 
 ```text
-places/{placeId}
-  placeName
+tools/bite-trail/users/{uid}
+  defaultCurrency
+  mapStart
+  hasCompletedTutorial
+
+tools/bite-trail/followings/{uid}/relationships/{friendUid}
+  friendUid
+  friendDisplayName
+
+tools/bite-trail/places/{placeId}
+  name
   locationLabel
   latitude
   longitude
@@ -249,8 +258,9 @@ places/{placeId}
   createdAt
   updatedAt
 
-places/{placeId}/visits/{visitId}
-  userId
+tools/bite-trail/places/{placeId}/visits/{visitId}
+  ownerUid
+  ownerDisplayName
   costPerPerson
   currency
   ratingOutOf10
@@ -258,10 +268,11 @@ places/{placeId}/visits/{visitId}
   comments
   visitedAt
   createdAt
-  deletedAt
 ```
 
-Place IDs are reused when another authorized user appends a visit. The app does not infer identity from mall, neighborhood, name similarity, or coordinate proximity. There is no tracked initial creator and no metadata-edit workflow. Users may delete only visits they created; when no valid visits remain, the place and related metadata are deleted.
+Shared account identity remains at `users/{uid}` (`displayName`, `photoURL`). BiteTrail preferences and tutorial completion are tool-specific data under `tools/bite-trail/users/{uid}`. Place IDs are reused when another authorized user appends a visit. The app does not infer identity from mall, neighborhood, name similarity, or coordinate proximity. There is no tracked initial creator and no metadata-edit workflow. Users may delete only visits they created; when no valid visits remain, the place and related metadata are deleted.
+
+The browser writes only simple owner-scoped configuration and new visit records. Flask coordinates reciprocal follow changes, returns the authenticated viewer's live authorised visits grouped by global place, deletes visits/account data, and fans display-name changes out to matching visits and relationship documents before reporting success. The static SneakyOwl source remains frontend-only; it replaces its placeholder visits only when the viewer follows the configured SneakyOwl UID.
 
 The map and list render one item per place. Owner and watch-list filtering happens before aggregation, so averages only include visible visits. Rating averages display one decimal place and cost averages display two decimal places. The selected place panel shows the aggregate summary followed by every visible visit fully expanded with contributor, date, rating, cost, ordered items, and comments.
 

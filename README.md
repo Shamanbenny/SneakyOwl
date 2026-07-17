@@ -72,11 +72,11 @@ From the root repo directory, deploy the Firestore Security Rules with:
 
 ```bash
 npm install -g firebase-tools
-firebase deploy --only firestore:rules --project sneakyowl-firebase
+firebase deploy --only firestore:rules,firestore:indexes --project sneakyowl-firebase
 ```
 
 The Firebase CLI uses [firebase.json](./firebase.json) to locate
-[firestore.rules](./firestore.rules).
+[firestore.rules](./firestore.rules) and [firestore.indexes.json](./firestore.indexes.json).
 
 ## To-do
 
@@ -88,8 +88,8 @@ The Firebase CLI uses [firebase.json](./firebase.json) to locate
 - [x] Use realistic OpenStreetMap tiles rather than a dark/black map theme.
 - [x] Style BiteTrail markers as compact circles: own entries use green accent fill with black border/dot, friend entries use the landing competition blue, and clusters use the inverted black/accent treatment.
 - [x] Decide the initial frontend auth provider: Firebase Google Authentication.
-- [x] Choose Firebase Auth plus direct Firestore SDK access as the default BiteTrail data path, protected by Firestore Security Rules.
-- [x] Use the separate Flask/Vercel backend for privileged workflows such as visit deletion, friend coordination, BiteTrail cleanup, and account deletion.
+- [x] Use Firebase Auth plus direct Firestore SDK access for simple owner-scoped BiteTrail configuration and append-only visit writes, protected by Firestore Security Rules.
+- [x] Use the separate Flask/Vercel backend for authorised live-visit retrieval and coordinated workflows such as display-name propagation, visit deletion, friend coordination, BiteTrail cleanup, and account deletion.
 - [x] Design and implement a personal food-place entry form with place name, cuisine genre, cost per person, optional items bought, whole-number rating out of 10, and comments.
 - [x] Expand the sample data with repeated owners, multiple cuisine categories, normal clusters, and a deliberately inseparable maximum-zoom cluster.
 - [x] Reuse RafflesGo's Leaflet creation pattern for click-to-drop pins, draggable markers, GPS-based placement, and manual coordinate syncing.

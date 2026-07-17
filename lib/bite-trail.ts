@@ -4,9 +4,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  limit,
-  orderBy,
-  query,
   serverTimestamp,
   setDoc,
   Timestamp,
@@ -42,13 +39,13 @@ export type BiteTrailMapStart = "Singapore" | "Current location";
 
 export type BiteTrailProfile = {
   displayName: string;
-  hasCompletedTutorial: boolean;
   photoURL: string | null;
   updatedAt?: Timestamp;
 };
 
 export type BiteTrailPreferences = {
   defaultCurrency: BiteTrailCurrency;
+  hasCompletedTutorial: boolean;
   mapStart: BiteTrailMapStart;
 };
 
@@ -75,6 +72,7 @@ export type BiteTrailVisit = {
   createdAt?: Timestamp;
   currency: BiteTrailCurrency;
   itemsBought: string;
+  ownerDisplayName: string;
   ownerUid: string;
   ratingOutOf10: number;
   visitedAt: string;
@@ -82,13 +80,12 @@ export type BiteTrailVisit = {
 
 export type BiteTrailPlaceWithVisits = BiteTrailPlace & {
   id: string;
-  ownerDisplayName: string;
-  ownerUid: string;
   visits: Array<BiteTrailVisit & { id: string }>;
 };
 
 const DEFAULT_PREFERENCES: BiteTrailPreferences = {
   defaultCurrency: "SGD",
+  hasCompletedTutorial: false,
   mapStart: "Singapore",
 };
 
@@ -152,7 +149,10 @@ export const normalizeBiteTrailDisplayName = (
 const profileRef = (db: Firestore, uid: string) => doc(db, "users", uid);
 
 const preferencesRef = (db: Firestore, uid: string) =>
-  doc(db, "users", uid, "preferences", "bite-trail");
+  doc(db, "tools", "bite-trail", "users", uid);
+
+const placeRef = (db: Firestore, placeId: string) =>
+  doc(db, "tools", "bite-trail", "places", placeId);
 
 export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
   const reference = profileRef(db, user.uid);
@@ -163,7 +163,6 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
     try {
       await setDoc(reference, {
         displayName,
-        hasCompletedTutorial: false,
         photoURL: user.photoURL ?? null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -177,22 +176,6 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
         throw error;
       }
     }
-  } else if (
-    existing.data().displayName !== displayName ||
-    typeof existing.data().hasCompletedTutorial !== "boolean"
-  ) {
-    await setDoc(
-      reference,
-      {
-        displayName,
-        hasCompletedTutorial:
-          typeof existing.data().hasCompletedTutorial === "boolean"
-            ? existing.data().hasCompletedTutorial
-            : false,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
   }
 
   const preferences = preferencesRef(db, user.uid);
@@ -200,13 +183,22 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
   if (!existingPreferences.exists()) {
     await setDoc(preferences, {
       ...DEFAULT_PREFERENCES,
+      hasCompletedTutorial: existing.data()?.hasCompletedTutorial === true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-  } else if (existingPreferences.data().defaultCurrency !== "SGD") {
+  } else if (
+    existingPreferences.data().defaultCurrency !== "SGD" ||
+    typeof existingPreferences.data().hasCompletedTutorial !== "boolean"
+  ) {
     await setDoc(
       preferences,
-      { defaultCurrency: "SGD", updatedAt: serverTimestamp() },
+      {
+        defaultCurrency: "SGD",
+        hasCompletedTutorial:
+          existingPreferences.data().hasCompletedTutorial === true,
+        updatedAt: serverTimestamp(),
+      },
       { merge: true },
     );
   }
@@ -215,11 +207,7 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
 export const getBiteTrailProfile = async (db: Firestore, uid: string) => {
   const snapshot = await getDoc(profileRef(db, uid));
   return snapshot.exists()
-    ? {
-        ...(snapshot.data() as BiteTrailProfile),
-        hasCompletedTutorial:
-          snapshot.data().hasCompletedTutorial === true,
-      }
+    ? (snapshot.data() as BiteTrailProfile)
     : null;
 };
 
@@ -234,26 +222,10 @@ export const getBiteTrailPreferences = async (db: Firestore, uid: string) => {
     : DEFAULT_PREFERENCES;
 };
 
-export const saveBiteTrailProfile = async (
-  db: Firestore,
-  uid: string,
-  profile: Pick<BiteTrailProfile, "displayName" | "photoURL">,
-) => {
-  await setDoc(
-    profileRef(db, uid),
-    {
-      ...profile,
-      displayName: normalizeBiteTrailDisplayName(uid, profile.displayName),
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true },
-  );
-};
-
 export const saveBiteTrailPreferences = async (
   db: Firestore,
   uid: string,
-  preferences: BiteTrailPreferences,
+  preferences: Pick<BiteTrailPreferences, "defaultCurrency" | "mapStart">,
 ) => {
   await setDoc(
     preferencesRef(db, uid),
@@ -262,91 +234,35 @@ export const saveBiteTrailPreferences = async (
   );
 };
 
-export const createFollowing = async (
-  db: Firestore,
-  viewer: User,
-  ownerUid: string,
-) => {
-  if (!ownerUid || ownerUid === viewer.uid) {
-    throw new Error(BITE_TRAIL_ADD_ERROR_MESSAGES.ownList);
-  }
-
-  const [viewerProfile, ownerProfile] = await Promise.all([
-    getBiteTrailProfile(db, viewer.uid),
-    getBiteTrailProfile(db, ownerUid),
-  ]);
-  if (!ownerProfile) {
-    throw new Error(BITE_TRAIL_ADD_ERROR_MESSAGES.profileMissing);
-  }
-
-  const viewerDisplayName = normalizeBiteTrailDisplayName(
-    viewer.uid,
-    viewerProfile?.displayName || viewer.displayName,
-  );
-  const ownerDisplayName = normalizeBiteTrailDisplayName(
-    ownerUid,
-    ownerProfile.displayName,
-  );
-  const viewerFollowingReference = doc(
-    db,
-    "users",
-    viewer.uid,
-    "following",
-    ownerUid,
-  );
-  const viewerAlreadyFollowsOwner = await getDoc(viewerFollowingReference);
-  if (viewerAlreadyFollowsOwner.exists()) {
-    throw new Error(BITE_TRAIL_ADD_ERROR_MESSAGES.alreadyFollowing);
-  }
-
-  const batch = writeBatch(db);
-
-  batch.set(viewerFollowingReference, {
-    ownerUid,
-    ownerDisplayName,
-    status: "active",
-    createdAt: serverTimestamp(),
-  });
-  batch.set(doc(db, "users", ownerUid, "following", viewer.uid), {
-    ownerUid: viewer.uid,
-    ownerDisplayName: viewerDisplayName,
-    status: "active",
-    createdAt: serverTimestamp(),
-  });
-
-  await batch.commit();
-};
-
-export const removeFollowing = async (
-  db: Firestore,
-  viewerUid: string,
-  ownerUid: string,
-) => {
-  const batch = writeBatch(db);
-
-  batch.delete(doc(db, "users", viewerUid, "following", ownerUid));
-  batch.delete(doc(db, "users", ownerUid, "following", viewerUid));
-
-  await batch.commit();
-};
-
 export const listFollowing = async (db: Firestore, uid: string) => {
-  const snapshots = await getDocs(collection(db, "users", uid, "following"));
-  return snapshots.docs.map(
-    (snapshot) => snapshot.data() as BiteTrailFollowing,
+  const snapshots = await getDocs(
+    collection(db, "tools", "bite-trail", "followings", uid, "relationships"),
   );
+  return snapshots.docs.map((snapshot) => {
+    const data = snapshot.data() as {
+      createdAt?: Timestamp;
+      friendDisplayName: string;
+      friendUid: string;
+    };
+    return {
+      ownerUid: data.friendUid,
+      ownerDisplayName: data.friendDisplayName,
+      status: "active",
+      createdAt: data.createdAt,
+    } satisfies BiteTrailFollowing;
+  });
 };
 
 export const createPlaceWithVisit = async (
   db: Firestore,
-  uid: string,
+  user: User,
   placeId: string,
   visitId: string,
   place: Omit<BiteTrailPlace, "createdAt" | "updatedAt">,
-  visit: Omit<BiteTrailVisit, "createdAt" | "ownerUid">,
+  visit: Omit<BiteTrailVisit, "createdAt" | "ownerUid" | "ownerDisplayName">,
 ) => {
   const batch = writeBatch(db);
-  const placeReference = doc(db, "users", uid, "places", placeId);
+  const placeReference = placeRef(db, placeId);
   const visitReference = doc(placeReference, "visits", visitId);
 
   batch.set(placeReference, {
@@ -356,7 +272,8 @@ export const createPlaceWithVisit = async (
   });
   batch.set(visitReference, {
     ...visit,
-    ownerUid: uid,
+    ownerUid: user.uid,
+    ownerDisplayName: normalizeBiteTrailDisplayName(user.uid, user.displayName),
     createdAt: serverTimestamp(),
   });
   await batch.commit();
@@ -364,63 +281,17 @@ export const createPlaceWithVisit = async (
 
 export const appendVisit = async (
   db: Firestore,
-  uid: string,
+  user: User,
   placeId: string,
   visitId: string,
-  visit: Omit<BiteTrailVisit, "createdAt" | "ownerUid">,
+  visit: Omit<BiteTrailVisit, "createdAt" | "ownerUid" | "ownerDisplayName">,
 ) => {
-  await setDoc(doc(db, "users", uid, "places", placeId, "visits", visitId), {
+  await setDoc(doc(placeRef(db, placeId), "visits", visitId), {
     ...visit,
-    ownerUid: uid,
+    ownerUid: user.uid,
+    ownerDisplayName: normalizeBiteTrailDisplayName(user.uid, user.displayName),
     createdAt: serverTimestamp(),
   });
-};
-
-const listPlacesForOwner = async (
-  db: Firestore,
-  ownerUid: string,
-  ownerDisplayName: string,
-) => {
-  const places = await getDocs(collection(db, "users", ownerUid, "places"));
-  return Promise.all(
-    places.docs.map(async (placeSnapshot) => {
-      const visits = await getDocs(
-        query(
-          collection(placeSnapshot.ref, "visits"),
-          orderBy("visitedAt", "desc"),
-          limit(100),
-        ),
-      );
-      return {
-        ...(placeSnapshot.data() as BiteTrailPlace),
-        id: placeSnapshot.id,
-        ownerDisplayName,
-        ownerUid,
-        visits: visits.docs.map((visitSnapshot) => ({
-          ...(visitSnapshot.data() as BiteTrailVisit),
-          id: visitSnapshot.id,
-        })),
-      } satisfies BiteTrailPlaceWithVisits;
-    }),
-  );
-};
-
-export const listVisiblePlaces = async (db: Firestore, user: User) => {
-  const [profile, following] = await Promise.all([
-    getBiteTrailProfile(db, user.uid),
-    listFollowing(db, user.uid),
-  ]);
-  const ownName = normalizeBiteTrailDisplayName(
-    user.uid,
-    profile?.displayName || user.displayName,
-  );
-  const ownerLists = [
-    listPlacesForOwner(db, user.uid, ownName),
-    ...following.map((friend) =>
-      listPlacesForOwner(db, friend.ownerUid, friend.ownerDisplayName),
-    ),
-  ];
-  return (await Promise.all(ownerLists)).flat();
 };
 
 export const getBiteTrailShareLink = (uid: string) => {

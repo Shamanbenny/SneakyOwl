@@ -8,9 +8,9 @@ import { FaGoogle, FaMapLocationDot, FaSpinner } from "react-icons/fa6";
 import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import {
   BITE_TRAIL_ADD_ERROR_MESSAGES,
-  createFollowing,
   ensureBiteTrailProfile,
 } from "@/lib/bite-trail";
+import { createBiteTrailFollowing } from "@/lib/bite-trail-api";
 import { signInWithGoogle } from "@/lib/firebase-auth";
 import { getFirebaseClient } from "@/lib/firebase";
 
@@ -96,7 +96,7 @@ const BiteTrailAddPanel = () => {
       try {
         setAddStatus("processing");
         await ensureBiteTrailProfile(firebaseClient.db, user);
-        await createFollowing(firebaseClient.db, user, ownerUid);
+        await createBiteTrailFollowing(user, ownerUid);
         if (isCancelled) {
           return;
         }

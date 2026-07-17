@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   onAuthStateChanged,
   signOut,
-  updateProfile,
   type User,
 } from "firebase/auth";
 import { QRCodeSVG } from "qrcode.react";
@@ -39,9 +38,7 @@ import {
   getHiddenBiteTrailOwnerIds,
   listFollowing,
   normalizeBiteTrailDisplayName,
-  removeFollowing,
   saveBiteTrailPreferences,
-  saveBiteTrailProfile,
   type BiteTrailCurrency,
   type BiteTrailFollowing,
   type BiteTrailMapStart,
@@ -51,7 +48,11 @@ import {
   revalidateFirebaseSession,
   withFirebaseSessionRetries,
 } from "@/lib/firebase-auth";
-import { deleteSneakyOwlAccount } from "@/lib/bite-trail-api";
+import {
+  deleteSneakyOwlAccount,
+  removeBiteTrailFollowing,
+  updateSneakyOwlDisplayName,
+} from "@/lib/bite-trail-api";
 import { getFirebaseClient } from "@/lib/firebase";
 
 const CURRENCY_OPTIONS = [{ currency: "Singapore dollar", value: "SGD" }];
@@ -176,27 +177,34 @@ const ProfileSettings = () => {
     }
 
     setIsSaving(true);
+    let displayNameSaved = false;
     try {
       const safeDisplayName = normalizeBiteTrailDisplayName(
         user.uid,
         trimmedDisplayName,
       );
-      await updateProfile(user, { displayName: safeDisplayName });
-      await Promise.all([
-        saveBiteTrailProfile(firebaseClient.db, user.uid, {
-          displayName: safeDisplayName,
-          photoURL: user.photoURL,
-        }),
-        saveBiteTrailPreferences(firebaseClient.db, user.uid, {
-          defaultCurrency: currency,
-          mapStart,
-        }),
-      ]);
+      if (safeDisplayName !== savedSettings?.displayName) {
+        await updateSneakyOwlDisplayName(user, safeDisplayName);
+        await user.reload();
+        displayNameSaved = true;
+        setSavedSettings((current) =>
+          current ? { ...current, displayName: safeDisplayName } : current,
+        );
+      }
+      await saveBiteTrailPreferences(firebaseClient.db, user.uid, {
+        defaultCurrency: currency,
+        mapStart,
+      });
       setDisplayName(safeDisplayName);
       setSavedSettings({ displayName: safeDisplayName, currency, mapStart });
       notify("Profile and BiteTrail preferences saved.");
     } catch {
-      notify("We could not save your settings. Please try again.", "error");
+      notify(
+        displayNameSaved
+          ? "Your display name was saved, but BiteTrail preferences could not be saved. Please try again."
+          : "We could not save your settings. Please try again.",
+        "error",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -262,7 +270,7 @@ const ProfileSettings = () => {
     }
 
     try {
-      await removeFollowing(firebaseClient.db, user.uid, ownerUid);
+      await removeBiteTrailFollowing(user, ownerUid);
       setFollowing((friends) =>
         friends.filter((friend) => friend.ownerUid !== ownerUid),
       );

@@ -208,12 +208,11 @@ const BiteTrailDataPanel = ({
         visitedAt: form.visitedAt,
       };
       if (
-        activePlace?.sourcePlaceId &&
-        activePlace.visits.some((entry) => entry.ownerKind === "you")
+        activePlace?.sourcePlaceId
       ) {
         await appendVisit(
           firebaseClient.db,
-          user.uid,
+          user,
           activePlace.sourcePlaceId,
           crypto.randomUUID(),
           visit,
@@ -221,7 +220,7 @@ const BiteTrailDataPanel = ({
       } else {
         await createPlaceWithVisit(
           firebaseClient.db,
-          user.uid,
+          user,
           crypto.randomUUID(),
           crypto.randomUUID(),
           {

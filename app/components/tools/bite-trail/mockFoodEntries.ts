@@ -19,6 +19,7 @@ export type BiteTrailFoodEntry = {
   neighborhood: string;
   ownerKind: BiteTrailOwnerKind;
   ownerName: string;
+  ownerUid?: string;
   placeName: string;
   placeId?: string;
   ratingOutOf10: number;

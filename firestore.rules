@@ -10,31 +10,6 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    function follows(ownerUid) {
-      return signedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid)/following/$(ownerUid));
-    }
-
-    function blockedBy(ownerUid) {
-      return exists(/databases/$(database)/documents/users/$(ownerUid)/blockedViewers/$(request.auth.uid));
-    }
-
-    function mayReadOwnerData(ownerUid) {
-      return owns(ownerUid) || (follows(ownerUid) && !blockedBy(ownerUid));
-    }
-
-    function reciprocalFollowingExists(viewerUid, ownerUid) {
-      return exists(
-        /databases/$(database)/documents/users/$(viewerUid)/following/$(ownerUid)
-      );
-    }
-
-    function reciprocalFollowingWillExist(viewerUid, ownerUid) {
-      return existsAfter(
-        /databases/$(database)/documents/users/$(viewerUid)/following/$(ownerUid)
-      );
-    }
-
     function hasAllowedDisplayName() {
       return request.resource.data.displayName is string
         && request.resource.data.displayName != ''
@@ -42,80 +17,70 @@ service cloud.firestore {
           || request.auth.uid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2');
     }
 
-    function hasValidTutorialStatus() {
-      return request.resource.data.hasCompletedTutorial is bool;
-    }
-
+    // Shared account profile. BiteTrail preferences and tutorial state are
+    // intentionally not stored here.
     match /users/{uid} {
-      // Profiles contain a public display name, photo URL, and private
-      // tutorial-completion state. Preferences remain in a separate owner-only
-      // document.
       allow read: if signedIn();
       allow create: if owns(uid)
         && hasAllowedDisplayName()
-        && hasValidTutorialStatus()
         && request.resource.data.keys().hasOnly([
-          'displayName', 'hasCompletedTutorial', 'photoURL', 'createdAt', 'updatedAt'
+          'displayName', 'photoURL', 'createdAt', 'updatedAt'
         ]);
       allow update: if owns(uid)
         && hasAllowedDisplayName()
-        && hasValidTutorialStatus()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'displayName', 'hasCompletedTutorial', 'photoURL', 'updatedAt'
+          'displayName', 'photoURL', 'updatedAt'
         ]);
       allow delete: if false;
+    }
 
-      match /preferences/bite-trail {
-        allow read, write: if owns(uid);
-      }
+    // A single Firestore document scopes all BiteTrail collections:
+    // tools/bite-trail/{users,followings,places}/...
+    match /tools/bite-trail/users/{uid} {
+      allow read: if owns(uid);
+      allow create: if owns(uid)
+        && request.resource.data.hasCompletedTutorial is bool
+        && request.resource.data.keys().hasOnly([
+          'defaultCurrency', 'mapStart', 'hasCompletedTutorial', 'createdAt', 'updatedAt'
+        ]);
+      allow update: if owns(uid)
+        && request.resource.data.hasCompletedTutorial is bool
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'defaultCurrency', 'mapStart', 'hasCompletedTutorial', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
 
-      match /following/{ownerUid} {
-        allow read: if owns(uid);
-        // A friend-link acceptance writes both users' watch-list documents in
-        // one batch. The non-owner write is allowed only when its reciprocal
-        // relationship is also present after that same batch commits.
-        allow create: if owns(uid)
-          && reciprocalFollowingWillExist(ownerUid, uid);
+    // Reciprocal relationship changes are coordinated by Flask. The client
+    // needs only its own watch-list documents for Profile UI state.
+    match /tools/bite-trail/followings/{uid}/relationships/{friendUid} {
+      allow read: if owns(uid);
+      allow write: if false;
+    }
+
+    // Place metadata is global and immutable after creation. Cross-owner
+    // place/visit reads are deliberately served by Flask, where relationship
+    // filtering and parent-place assembly can be performed safely.
+    match /tools/bite-trail/places/{placeId} {
+      allow read: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'name', 'locationLabel', 'latitude', 'longitude', 'cuisineGenre',
+          'createdAt', 'updatedAt'
+        ]);
+      allow update, delete: if false;
+
+      match /visits/{visitId} {
+        allow read: if false;
         allow create: if signedIn()
-          && request.auth.uid == ownerUid
-          && reciprocalFollowingWillExist(ownerUid, uid);
-        // Paired relationships must be removed together. A legacy one-sided
-        // relationship can still be removed by its owner.
-        allow delete: if owns(uid)
-          && (!reciprocalFollowingExists(ownerUid, uid)
-            || !reciprocalFollowingWillExist(ownerUid, uid));
-        allow delete: if signedIn()
-          && request.auth.uid == ownerUid
-          && !reciprocalFollowingWillExist(ownerUid, uid);
-        allow update: if false;
-      }
-
-      match /blockedViewers/{viewerUid} {
-        allow read, create, delete: if owns(uid);
-        allow update: if false;
-      }
-
-      match /places/{placeId} {
-        allow read: if mayReadOwnerData(uid);
-        allow create: if owns(uid)
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerDisplayName
+            == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.displayName
           && request.resource.data.keys().hasOnly([
-            'name', 'locationLabel', 'latitude', 'longitude', 'cuisineGenre',
-            'createdAt', 'updatedAt'
+            'ownerUid', 'ownerDisplayName', 'ratingOutOf10', 'costPerPerson',
+            'currency', 'itemsBought', 'comments', 'visitedAt', 'createdAt'
           ]);
-        // Place metadata and deletion are backend-controlled after creation.
         allow update, delete: if false;
-
-        match /visits/{visitId} {
-          allow read: if mayReadOwnerData(uid);
-          allow create: if owns(uid)
-            && request.resource.data.ownerUid == request.auth.uid
-            && request.resource.data.keys().hasOnly([
-              'ownerUid', 'ratingOutOf10', 'costPerPerson', 'currency',
-              'itemsBought', 'comments', 'visitedAt', 'createdAt'
-            ]);
-          // Visits are append-only in the client. Flask performs deletion.
-          allow update, delete: if false;
-        }
       }
     }
 

@@ -16,13 +16,16 @@ import {
   getHiddenBiteTrailOwnerIds,
   getBiteTrailPreferences,
   getBiteTrailProfile,
-  listVisiblePlaces,
+  listFollowing,
   normalizeBiteTrailDisplayName,
   SNEAKY_OWL_UID,
   type BiteTrailPlaceWithVisits,
   type BiteTrailMapStart,
 } from "@/lib/bite-trail";
-import { deleteBiteTrailVisit } from "@/lib/bite-trail-api";
+import {
+  deleteBiteTrailVisit,
+  getVisibleBiteTrailPlaces,
+} from "@/lib/bite-trail-api";
 import {
   revalidateFirebaseSession,
   withFirebaseSessionRetries,
@@ -40,7 +43,7 @@ const resolveMapOwnerKinds = (
       ownerKind:
         visit.ownerKind === "advertisement"
           ? "advertisement"
-          : viewerUid && place.ownerUid === viewerUid
+        : viewerUid && visit.ownerUid === viewerUid
             ? "you"
             : "friend",
     })),
@@ -80,8 +83,6 @@ const mergeMapPlaces = (places: BiteTrailPlace[]) => {
 
 const toMapPlaces = (
   places: BiteTrailPlaceWithVisits[],
-  user: User,
-  currentUserName: string,
 ): BiteTrailPlace[] =>
   places.map((place) => ({
     averageCost:
@@ -92,12 +93,11 @@ const toMapPlaces = (
       (place.visits.length || 1),
     cuisineGenre: place.cuisineGenre,
     currency: place.visits[0]?.currency ?? "SGD",
-    id: `${place.ownerUid}:${place.id}`,
+    id: place.id,
     latitude: place.latitude,
     longitude: place.longitude,
     neighborhood: place.locationLabel,
     placeName: place.name,
-    ownerUid: place.ownerUid,
     sourcePlaceId: place.id,
     visits: place.visits.map(
       (visit): BiteTrailFoodEntry => ({
@@ -105,17 +105,15 @@ const toMapPlaces = (
         costPerPerson: visit.costPerPerson,
         currency: visit.currency,
         cuisineGenre: place.cuisineGenre,
-        id: `${place.ownerUid}:${visit.id}`,
+        id: visit.id,
         itemsBought: visit.itemsBought,
         latitude: place.latitude,
         longitude: place.longitude,
         neighborhood: place.locationLabel,
         ownerKind: "",
-        ownerName:
-          place.ownerUid === user.uid
-            ? currentUserName
-            : place.ownerDisplayName,
-        placeId: `${place.ownerUid}:${place.id}`,
+        ownerName: visit.ownerDisplayName,
+        ownerUid: visit.ownerUid,
+        placeId: place.id,
         placeName: place.name,
         ratingOutOf10: visit.ratingOutOf10,
         visitedAt: visit.visitedAt,
@@ -123,15 +121,15 @@ const toMapPlaces = (
     ),
   }));
 
-const getMockPlacesForViewer = (viewerUid: string | null) => {
-  if (viewerUid !== SNEAKY_OWL_UID) {
+const getMockPlacesForViewer = (isFollowingSneakyOwl: boolean) => {
+  if (!isFollowingSneakyOwl) {
     return mockFoodPlaces;
   }
 
   return mockFoodPlaces
     .map((place) => ({
       ...place,
-      visits: place.visits.filter((visit) => visit.ownerKind === "advertisement"),
+      visits: place.visits.filter((visit) => visit.ownerKind !== ""),
     }))
     .filter((place) => place.visits.length > 0);
 };
@@ -152,6 +150,7 @@ const BiteTrailMapData = ({
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [currentUserName, setCurrentUserName] = useState("You");
+  const [isFollowingSneakyOwl, setIsFollowingSneakyOwl] = useState(false);
   const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
   const [firestorePlaces, setFirestorePlaces] = useState<BiteTrailPlace[]>([]);
   const [isAuthReady, setIsAuthReady] = useState(false);
@@ -161,11 +160,11 @@ const BiteTrailMapData = ({
       resolveMapOwnerKinds(
         mergeMapPlaces([
           ...firestorePlaces,
-          ...getMockPlacesForViewer(user?.uid ?? null),
+          ...getMockPlacesForViewer(isFollowingSneakyOwl),
         ]),
         user?.uid ?? null,
       ),
-    [firestorePlaces, user],
+    [firestorePlaces, isFollowingSneakyOwl, user],
   );
 
   useEffect(() => {
@@ -180,6 +179,7 @@ const BiteTrailMapData = ({
         setCurrentUserName("You");
         setMapStart("Singapore");
         setFirestorePlaces([]);
+        setIsFollowingSneakyOwl(false);
         setIsAuthReady(true);
         return;
       }
@@ -188,9 +188,10 @@ const BiteTrailMapData = ({
         await withFirebaseSessionRetries(nextUser, async () => {
           await revalidateFirebaseSession(nextUser);
           await ensureBiteTrailProfile(firebaseClient.db, nextUser);
-          const [profile, visiblePlaces] = await Promise.all([
+          const [profile, following, visiblePlaces] = await Promise.all([
             getBiteTrailProfile(firebaseClient.db, nextUser.uid),
-            listVisiblePlaces(firebaseClient.db, nextUser),
+            listFollowing(firebaseClient.db, nextUser.uid),
+            getVisibleBiteTrailPlaces(nextUser),
           ]);
           const preferences = await getBiteTrailPreferences(
             firebaseClient.db,
@@ -201,17 +202,25 @@ const BiteTrailMapData = ({
             profile?.displayName || nextUser.displayName,
           );
           setCurrentUserName(name);
+          setIsFollowingSneakyOwl(
+            following.some((friend) => friend.ownerUid === SNEAKY_OWL_UID),
+          );
           setMapStart(preferences.mapStart);
           const hiddenOwnerIds = new Set(
             getHiddenBiteTrailOwnerIds(nextUser.uid),
           );
           setFirestorePlaces(
-            toMapPlaces(visiblePlaces, nextUser, name).filter(
-              (place) =>
-                place.ownerUid === nextUser.uid ||
-                !place.ownerUid ||
-                !hiddenOwnerIds.has(place.ownerUid),
-            ),
+            toMapPlaces(visiblePlaces)
+              .map((place) => ({
+                ...place,
+                visits: place.visits.filter(
+                  (visit) =>
+                    visit.ownerUid === nextUser.uid ||
+                    !visit.ownerUid ||
+                    !hiddenOwnerIds.has(visit.ownerUid),
+                ),
+              }))
+              .filter((place) => place.visits.length > 0),
           );
         });
       } catch {
@@ -219,6 +228,7 @@ const BiteTrailMapData = ({
         setCurrentUserName("You");
         setMapStart("Singapore");
         setFirestorePlaces([]);
+        setIsFollowingSneakyOwl(false);
       } finally {
         setIsAuthReady(true);
       }
@@ -243,7 +253,7 @@ const BiteTrailMapData = ({
       onAddEntry={onAddEntry}
       isAuthenticated={Boolean(user)}
       onDeleteVisit={async (place, visit) => {
-        if (!user || place.ownerUid !== user.uid || !place.sourcePlaceId) {
+        if (!user || visit.ownerUid !== user.uid || !place.sourcePlaceId) {
           return;
         }
 
@@ -256,7 +266,6 @@ const BiteTrailMapData = ({
           setFirestorePlaces((currentPlaces) =>
             currentPlaces
               .map((currentPlace) =>
-                currentPlace.ownerUid === user.uid &&
                 currentPlace.sourcePlaceId === place.sourcePlaceId
                   ? {
                       ...currentPlace,

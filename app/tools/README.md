@@ -52,4 +52,4 @@ Important distinction:
 
 ## Shared Profile Direction
 
-Profile is a reusable authenticated account surface for BiteTrail and future tools. It owns shared user preferences and tool-independent account information rather than becoming a BiteTrail-specific settings page. Firebase Auth remains the identity source; Firestore stores the user profile document and tool preferences under the authenticated user ID. Profiles also include a `hasCompletedTutorial` flag, which starts as `false` when an account is registered.
+Profile is a reusable authenticated account surface for BiteTrail and future tools. It owns shared user preferences and tool-independent account information rather than becoming a BiteTrail-specific settings page. Firebase Auth remains the identity source; Firestore stores the shared user profile document, while BiteTrail stores its own preferences and `hasCompletedTutorial` state under `tools/bite-trail/users/{uid}`.
