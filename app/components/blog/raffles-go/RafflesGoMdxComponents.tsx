@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { FaBan, FaCircleCheck, FaShieldHalved } from "react-icons/fa6";
+import {
+  FaBan,
+  FaCircleCheck,
+  FaArrowUpRightFromSquare,
+  FaQuoteLeft,
+  FaQuoteRight,
+  FaShieldHalved,
+} from "react-icons/fa6";
 
 import BlogCollapsibleCard from "@/app/components/blog/BlogCollapsibleCard";
 
@@ -187,6 +194,80 @@ export const RafflesGoRoleBadgeDemo = () => (
       <FaBan style={{ width: "0.95rem", height: "0.95rem" }} />
       Deactivated
     </span>
+  </div>
+);
+
+export const RafflesGoTestimonial = () => (
+  <div
+    style={{
+      margin: "1.5rem 0",
+      padding: "1.4rem 1.35rem",
+      borderLeft: "3px solid var(--site-accent-border-strong)",
+      borderRadius: "0 16px 16px 0",
+      background: "var(--site-bg-soft)",
+    }}
+  >
+    <div style={{ display: "grid", gap: "1rem", padding: "0 1.1rem" }}>
+      <p style={{ margin: 0 }}>
+        <FaQuoteLeft
+          aria-hidden="true"
+          style={{
+            display: "inline-block",
+            width: "0.8rem",
+            height: "0.8rem",
+            marginRight: "0.35rem",
+            transform: "translateY(-0.02rem)",
+            color: "var(--site-text-muted)",
+          }}
+        />
+        What began as a project assignment for NUS CS3213 evolved into a solution with genuine potential for real-world deployment. The group demonstrated a strong commitment to understanding and addressing the pain points faced by both volunteers and organizers within the Raffles&apos; Banded Langur Working Group (RBLWG) Citizen Science Programme.
+      </p>
+      <p style={{ margin: 0 }}>
+        Throughout the project, the group successfully fulfilled the key requirements and expectations that I briefly communicated at the start of the project. Additionally, suggestions raised during the demonstration sessions were implemented promptly, reflecting their technical competence and dedication to delivering a high-quality solution.
+      </p>
+      <p style={{ margin: 0 }}>
+        Under the leadership of <strong>Lee Jia Quan</strong>, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users.
+      </p>
+      <p style={{ margin: 0 }}>
+        I am pleased to commend the team&apos;s professionalism, adaptability, and collaborative spirit. Their efforts exemplify the qualities of an effective software development team and showcase the practical impact that student-led projects can achieve when guided by a clear understanding of user needs.
+        <FaQuoteRight
+          aria-hidden="true"
+          style={{
+            display: "inline-block",
+            width: "0.8rem",
+            height: "0.8rem",
+            marginLeft: "0.35rem",
+            transform: "translateY(-0.02rem)",
+            color: "var(--site-text-muted)",
+          }}
+        />
+      </p>
+      <p
+        style={{
+          margin: "0.1rem 0 0",
+          fontSize: "0.95rem",
+          fontWeight: 700,
+          color: "var(--site-accent)",
+        }}
+      >
+        Dr. Andie, 14 June 2026
+        <span
+          aria-hidden="true"
+          className="mx-2 inline-block text-[0.7rem] text-[color:var(--site-text-faint)]"
+        >
+          •
+        </span>
+        <a
+          href="/blog/raffles-go/Testimonial%20Letter%20for%20RafflesGo.pdf"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 text-[color:var(--site-accent)] transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
+        >
+          View Testimonial PDF
+          <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
+        </a>
+      </p>
+    </div>
   </div>
 );
 

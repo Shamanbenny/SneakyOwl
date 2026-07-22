@@ -1,12 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactElement, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import { flushSync } from "react-dom";
 import {
   FaArrowUpRightFromSquare,
   FaCode,
-  FaQuoteLeft,
-  FaQuoteRight,
   FaReact,
 } from "react-icons/fa6";
 import {
@@ -52,8 +57,8 @@ type ProjectItem = FlowingMenuItemData & {
   previewImage: string;
   projectType: string;
   tags: TechTag[];
-  testimonial?: string[];
-  testimonialAttribution?: string;
+  testimonialPdfUrl?: string;
+  testimonialThumbnail?: string;
 } & ProjectLinks;
 
 const FLOWING_MENU_VISIBLE_TAGS = {
@@ -303,13 +308,8 @@ const PROJECTS: ProjectItem[] = [
         priority: 4,
       },
     ],
-    testimonial: [
-      "What began as a project assignment for NUS CS3213 evolved into a solution with genuine potential for real-world deployment. The group demonstrated a strong commitment to understanding and addressing the pain points faced by both volunteers and organizers within the Raffles' Banded Langur Working Group (RBLWG) Citizen Science Programme.",
-      "Throughout the project, the group successfully fulfilled the key requirements and expectations that I briefly communicated at the start of the project. Additionally, suggestions raised during the demonstration sessions were implemented promptly, reflecting their technical competence and dedication to delivering a high-quality solution.",
-      "Under the leadership of Lee Jia Quan, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users.",
-      "I am pleased to commend the team's professionalism, adaptability, and collaborative spirit. Their efforts exemplify the qualities of an effective software development team and showcase the practical impact that student-led projects can achieve when guided by a clear understanding of user needs.",
-    ],
-    testimonialAttribution: "Dr. Andie, 14 June 2026",
+    testimonialPdfUrl: "/blog/raffles-go/Testimonial%20Letter%20for%20RafflesGo.pdf",
+    testimonialThumbnail: "/landing/Testimonial%20Thumbnail%20for%20RafflesGo.png",
     text: "Raffles Go",
   },
   {
@@ -467,37 +467,67 @@ const PROJECTS: ProjectItem[] = [
 
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
 
-const renderTestimonialTooltip = (
-  testimonial: string[],
-  attribution?: string,
-) => (
-  <div className="rounded-[14px] bg-[color:rgba(255,255,255,0.02)] px-4 py-3 text-[0.8rem] leading-6 text-[color:var(--site-text)]">
-    <div className="space-y-4">
-      {testimonial.map((paragraph, index) => (
-        <p key={`${paragraph.slice(0, 32)}-${index}`} className="m-0">
-          {index === 0 ? (
-            <FaQuoteLeft
-              aria-hidden="true"
-              className="mr-1 inline-block h-[0.8rem] w-[0.8rem] -translate-y-[0.02rem] text-[color:var(--site-text-muted)]"
-            />
-          ) : null}
-          {paragraph}
-          {index === testimonial.length - 1 ? (
-            <FaQuoteRight
-              aria-hidden="true"
-              className="ml-1 inline-block h-[0.8rem] w-[0.8rem] -translate-y-[0.02rem] text-[color:var(--site-text-muted)]"
-            />
-          ) : null}
-        </p>
-      ))}
-      {attribution ? (
-        <p className="m-0 text-[0.76rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--site-accent)]">
-          {attribution}
-        </p>
-      ) : null}
-    </div>
-  </div>
-);
+const TestimonialLink = ({
+  pdfUrl,
+  thumbnail,
+}: {
+  pdfUrl: string;
+  thumbnail: string;
+}) => {
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const suppressPreviewRef = useRef(false);
+
+  return (
+    <span
+      className="relative inline-flex"
+      onMouseEnter={() => {
+        if (!suppressPreviewRef.current) {
+          setIsPreviewVisible(true);
+        }
+      }}
+      onMouseLeave={() => {
+        suppressPreviewRef.current = false;
+        setIsPreviewVisible(false);
+      }}
+    >
+    <a
+      href={pdfUrl}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(event) => {
+        event.preventDefault();
+        suppressPreviewRef.current = true;
+        event.currentTarget.blur();
+        flushSync(() => setIsPreviewVisible(false));
+        window.open(pdfUrl, "_blank", "noopener,noreferrer");
+      }}
+      onFocus={() => {
+        if (!suppressPreviewRef.current) {
+          setIsPreviewVisible(true);
+        }
+      }}
+      onBlur={() => setIsPreviewVisible(false)}
+      className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
+    >
+      View Testimonial PDF
+      <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
+    </a>
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute bottom-[calc(100%+0.75rem)] left-1/2 z-20 w-[min(260px,calc(100vw-2rem))] -translate-x-1/2 rounded-[14px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 shadow-[0_18px_45px_rgba(0,0,0,0.3)] transition-opacity duration-150 ${isPreviewVisible ? "opacity-100" : "opacity-0"}`}
+    >
+      <Image
+        src={thumbnail}
+        alt=""
+        width={784}
+        height={869}
+        sizes="260px"
+        className="h-auto w-full rounded-[9px]"
+      />
+    </span>
+    </span>
+  );
+};
 
 const ProjectPreviewCard = ({
   project,
@@ -538,7 +568,7 @@ const ProjectPreviewCard = ({
         </div>
       </div>
       <footer
-        className="mt-3 flex flex-1 flex-col rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5"
+        className="relative mt-3 flex flex-1 flex-col rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5"
       >
         <div className="flex flex-1 flex-col">
           <div className="mb-4 flex flex-wrap gap-2">
@@ -578,7 +608,7 @@ const ProjectPreviewCard = ({
               </a>
             </div>
           ))}
-          {project.testimonial ? (
+          {project.testimonialPdfUrl && project.testimonialThumbnail ? (
             <>
               {ctas.length > 0 ? (
                 <span
@@ -588,24 +618,10 @@ const ProjectPreviewCard = ({
                   •
                 </span>
               ) : null}
-              <InfoTooltip
-                ariaLabel={`${project.text} testimonial`}
-                panelClassName="max-w-[min(420px,calc(100vw-24px))] rounded-[18px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 text-[color:var(--site-text-muted)] shadow-[0_18px_45px_rgba(0,0,0,0.3)]"
-                preferredPlacement="top"
-                trigger={
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
-                  >
-                    Hover for Testimonial
-                  </button>
-                }
-              >
-                {renderTestimonialTooltip(
-                  project.testimonial,
-                  project.testimonialAttribution,
-                )}
-              </InfoTooltip>
+              <TestimonialLink
+                pdfUrl={project.testimonialPdfUrl}
+                thumbnail={project.testimonialThumbnail}
+              />
             </>
           ) : null}
         </div>
@@ -638,7 +654,7 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
         </div>
       }
     >
-      <div className="rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5">
+      <div className="relative rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap gap-2">
           {project.tags.map((tag) => (
             <span
@@ -675,7 +691,7 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
               </a>
             </div>
           ))}
-          {project.testimonial ? (
+          {project.testimonialPdfUrl && project.testimonialThumbnail ? (
             <>
               {ctas.length > 0 ? (
                 <span
@@ -685,24 +701,10 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
                   •
                 </span>
               ) : null}
-              <InfoTooltip
-                ariaLabel={`${project.text} testimonial`}
-                panelClassName="max-w-[min(420px,calc(100vw-24px))] rounded-[18px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 text-[color:var(--site-text-muted)] shadow-[0_18px_45px_rgba(0,0,0,0.3)]"
-                preferredPlacement="top"
-                trigger={
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
-                  >
-                    Hover for Testimonial
-                  </button>
-                }
-              >
-                {renderTestimonialTooltip(
-                  project.testimonial,
-                  project.testimonialAttribution,
-                )}
-              </InfoTooltip>
+              <TestimonialLink
+                pdfUrl={project.testimonialPdfUrl}
+                thumbnail={project.testimonialThumbnail}
+              />
             </>
           ) : null}
         </div>
