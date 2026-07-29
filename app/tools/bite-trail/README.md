@@ -137,7 +137,8 @@ Revocation temporarily removes both relationship documents; a later friend-link 
 - [x] Add Gmail-confirmed account deletion and cleanup of reciprocal watch-list
       records.
 - [ ] Add owner-side share revocation or code rotation.
-- [ ] Add a non-destructive "Report store closure" signal and show the resulting likelihood indicator without closing the place for everyone.
+- [ ] Add a Google Maps redirect button for each entry, using its latitude and longitude values.
+- [ ] Add a "Report closure" button that incrementally counts closure reports for each location without closing the place for everyone.
 - [ ] Add a manual refresh control beside the map pins badge for externally changed Firestore data; successful local saves and deletes already update local map state without a second fetch.
 - [x] Add empty, loading, auth-required, permission-denied, and offline/error states.
 - [ ] Verify mobile map usability, especially GPS permission errors and bottom-sheet detail panels.

@@ -22,9 +22,9 @@ export default function BiteTrailPage() {
                   starts here.
                 </h2>
                 <p className="mt-5 text-[1rem] leading-8 text-[color:var(--site-text)]">
-                  Insert general description about Bite Trail here. This should
-                  not only work when the user is logged in, but should also make
-                  sense when the user is not logged in.
+                  BiteTrail helps you keep track of the places you have eaten,
+                  the meals worth remembering, and the food trails shared by
+                  people you follow!
                 </p>
               </div>
             </div>

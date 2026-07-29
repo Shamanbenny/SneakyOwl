@@ -565,9 +565,9 @@ const ProfileSettings = () => {
                     Friends / watched lists
                   </h3>
                   <p className="mt-2 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                    Hide a list locally or stop watching it entirely. SneakyOwl
-                    visibility is saved to your BiteTrail profile so it also
-                    applies when you are not directly watching SneakyOwl.
+                    Hide a list locally or stop watching it entirely.
+                    Visibility for SneakyOwl is available for everyone 
+                    to show/hide regardless of whether you are watching them.
                     <span className="ml-1 inline-flex align-middle">
                       <InfoTooltip
                         ariaLabel="How hiding and stopping watching work"

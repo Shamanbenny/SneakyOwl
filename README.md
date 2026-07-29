@@ -98,7 +98,8 @@ The Firebase CLI uses [firebase.json](./firebase.json) to locate
 - [x] Model repeated visits as one shared place with visible-visit averages and individual visit details.
 - [x] Build a reusable authenticated profile page for BiteTrail and future tools, backed by Firebase Auth and a user-scoped Firestore profile document.
 - [x] Add Gmail-confirmed account deletion that removes account data, deletes the Firebase Auth user, signs out, and returns to BiteTrail.
-- [ ] Add a non-destructive "Report store closure" signal that indicates closure likelihood without closing a place for everyone.
+- [ ] Add a Google Maps redirect button for each BiteTrail entry, using its latitude and longitude values.
+- [ ] Add a "Report closure" button that incrementally counts closure reports for each BiteTrail location without closing the place for everyone.
 - [ ] Add staged BiteTrail loading states so the map, filters, and View entries panel render before long async backend calls finish; show a spinner in the View entries panel while its data is pending.
 - [x] Define and enforce the new-entry form rules: place name, location label, coordinates, cuisine, visit date, rating, and cost are required; only ordered items and comments are optional.
 - [ ] Lock the new-entry form while submitting; after a successful response, close the form and reset its values, and after a failed response, reopen the form for correction or retry.
