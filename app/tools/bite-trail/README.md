@@ -12,6 +12,15 @@ Shared account identity remains at `users/{uid}`. BiteTrail stores preferences a
 
 The map and View entries list render one pin and one row per place. Averages use only visits visible under the current watch-list and filter selections. Rating averages display one decimal place and cost averages display two decimal places. The selected place view shows the summary followed by every visible visit in a fully expanded sub-container.
 
+The owner’s public visits are published once per day as `bite-trail.json` on the
+repository `output` branch. BiteTrail loads that static snapshot first so
+signed-out visitors do not need a database request. After Firebase restores a
+signed-in user, the browser asynchronously requests the authorised live feed
+and merges it by visit ID; the shared notification stack reports both stages.
+The snapshot workflow requires the `SNEAKYOWL_API_BASE_URL`,
+`FIREBASE_WEB_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT_JSON` GitHub Actions
+secrets.
+
 Successful new-place and visit writes refresh the visible Firestore data automatically. The map does not yet subscribe to external Firestore changes in realtime.
 
 The shared Profile page provides watch-list controls. Hide/Show is a per-user
@@ -113,9 +122,9 @@ Revocation temporarily removes both relationship documents; a later friend-link 
 - [x] Add share-link generation and QR rendering.
 - [x] Add friend-list import by link.
 - [x] Add basic watch-list management, including local hide/show and stopping
-  watching from the shared Profile page.
+      watching from the shared Profile page.
 - [x] Add Gmail-confirmed account deletion and cleanup of reciprocal watch-list
-  records.
+      records.
 - [ ] Add owner-side share revocation or code rotation.
 - [ ] Add a non-destructive "Report store closure" signal and show the resulting likelihood indicator without closing the place for everyone.
 - [ ] Add a manual refresh control beside the map pins badge for externally changed Firestore data; successful local saves already refresh automatically.

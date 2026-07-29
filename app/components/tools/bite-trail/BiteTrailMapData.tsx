@@ -43,7 +43,7 @@ const resolveMapOwnerKinds = (
       ownerKind:
         visit.ownerKind === "advertisement"
           ? "advertisement"
-        : viewerUid && visit.ownerUid === viewerUid
+          : viewerUid && visit.ownerUid === viewerUid
             ? "you"
             : "friend",
     })),
@@ -58,16 +58,20 @@ const mergeMapPlaces = (places: BiteTrailPlace[]) => {
     if (!existingPlace) {
       mergedPlaces.set(placeKey, {
         ...place,
-        visits: Array.from(new Set(place.visits)),
+        visits: [...place.visits],
       });
       return;
     }
 
-    const visits = Array.from(
-      new Set([...existingPlace.visits, ...place.visits]),
+    const visitsById = new Map(
+      [...existingPlace.visits, ...place.visits].map((visit) => [
+        visit.id,
+        visit,
+      ]),
     );
+    const visits = Array.from(visitsById.values());
     mergedPlaces.set(placeKey, {
-      ...existingPlace,
+      ...place,
       visits,
       averageCost:
         visits.reduce((total, visit) => total + visit.costPerPerson, 0) /
@@ -81,9 +85,11 @@ const mergeMapPlaces = (places: BiteTrailPlace[]) => {
   return Array.from(mergedPlaces.values());
 };
 
-const toMapPlaces = (
-  places: BiteTrailPlaceWithVisits[],
-): BiteTrailPlace[] =>
+const BITE_TRAIL_SNAPSHOT_URL =
+  process.env.NEXT_PUBLIC_BITE_TRAIL_SNAPSHOT_URL ||
+  "https://raw.githubusercontent.com/Shamanbenny/SneakyOwl/output/bite-trail.json";
+
+const toMapPlaces = (places: BiteTrailPlaceWithVisits[]): BiteTrailPlace[] =>
   places.map((place) => ({
     averageCost:
       place.visits.reduce((total, visit) => total + visit.costPerPerson, 0) /
@@ -152,24 +158,70 @@ const BiteTrailMapData = ({
   const [currentUserName, setCurrentUserName] = useState("You");
   const [isFollowingSneakyOwl, setIsFollowingSneakyOwl] = useState(false);
   const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
+  const [staticPlaces, setStaticPlaces] = useState<BiteTrailPlace[]>([]);
   const [firestorePlaces, setFirestorePlaces] = useState<BiteTrailPlace[]>([]);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isStaticReady, setIsStaticReady] = useState(false);
   const { notify } = useNotifications();
+  const visibleStaticPlaces = useMemo(() => {
+    if (!user) return staticPlaces;
+
+    const hiddenOwnerIds = new Set(getHiddenBiteTrailOwnerIds(user.uid));
+    return staticPlaces
+      .map((place) => ({
+        ...place,
+        visits: place.visits.filter(
+          (visit) =>
+            visit.ownerUid === user.uid ||
+            !visit.ownerUid ||
+            !hiddenOwnerIds.has(visit.ownerUid),
+        ),
+      }))
+      .filter((place) => place.visits.length > 0);
+  }, [staticPlaces, user]);
   const mapPlaces = useMemo<BiteTrailResolvedPlace[]>(
     () =>
       resolveMapOwnerKinds(
         mergeMapPlaces([
+          ...visibleStaticPlaces,
           ...firestorePlaces,
           ...getMockPlacesForViewer(isFollowingSneakyOwl),
         ]),
         user?.uid ?? null,
       ),
-    [firestorePlaces, isFollowingSneakyOwl, user],
+    [firestorePlaces, isFollowingSneakyOwl, user, visibleStaticPlaces],
   );
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadStaticSnapshot = async () => {
+      try {
+        const response = await fetch(BITE_TRAIL_SNAPSHOT_URL, {
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("Snapshot unavailable");
+
+        const payload = (await response.json()) as {
+          places?: BiteTrailPlaceWithVisits[];
+        };
+        if (!Array.isArray(payload.places)) throw new Error("Invalid snapshot");
+
+        if (!cancelled) setStaticPlaces(toMapPlaces(payload.places));
+      } catch {
+        if (!cancelled) setStaticPlaces([]);
+      } finally {
+        if (!cancelled) setIsStaticReady(true);
+      }
+    };
+
+    void loadStaticSnapshot();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!firebaseClient) {
-      setIsAuthReady(true);
       return;
     }
 
@@ -180,10 +232,10 @@ const BiteTrailMapData = ({
         setMapStart("Singapore");
         setFirestorePlaces([]);
         setIsFollowingSneakyOwl(false);
-        setIsAuthReady(true);
         return;
       }
 
+      notify("We’re fetching your latest BiteTrail data.", "info");
       try {
         await withFirebaseSessionRetries(nextUser, async () => {
           await revalidateFirebaseSession(nextUser);
@@ -222,6 +274,7 @@ const BiteTrailMapData = ({
               }))
               .filter((place) => place.visits.length > 0),
           );
+          notify("Your BiteTrail data has been updated on the map.");
         });
       } catch {
         setUser(null);
@@ -229,13 +282,11 @@ const BiteTrailMapData = ({
         setMapStart("Singapore");
         setFirestorePlaces([]);
         setIsFollowingSneakyOwl(false);
-      } finally {
-        setIsAuthReady(true);
       }
     });
-  }, [firebaseClient, refreshKey]);
+  }, [firebaseClient, notify, refreshKey]);
 
-  if (!isAuthReady) {
+  if (!isStaticReady) {
     return (
       <section className="site-surface-card flex h-[420px] items-center justify-center rounded-[26px] text-[0.84rem] text-[color:var(--site-text-muted)] sm:h-[500px] xl:h-[620px]">
         Loading BiteTrail entries...
