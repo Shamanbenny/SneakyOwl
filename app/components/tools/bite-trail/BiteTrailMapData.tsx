@@ -245,57 +245,78 @@ const BiteTrailMapData = ({
         return;
       }
 
+      setCurrentUserName(
+        normalizeBiteTrailDisplayName(nextUser.uid, nextUser.displayName),
+      );
       notify("We’re fetching your latest BiteTrail data.", "info");
       try {
-        await withFirebaseSessionRetries(nextUser, async () => {
-          await revalidateFirebaseSession(nextUser);
-          await ensureBiteTrailProfile(firebaseClient.db, nextUser);
-          const [profile, following, visiblePlaces] = await Promise.all([
-            getBiteTrailProfile(firebaseClient.db, nextUser.uid),
-            listFollowing(firebaseClient.db, nextUser.uid),
-            getVisibleBiteTrailPlaces(nextUser),
-          ]);
-          const preferences = await getBiteTrailPreferences(
-            firebaseClient.db,
-            nextUser.uid,
-          );
-          const name = normalizeBiteTrailDisplayName(
-            nextUser.uid,
-            profile?.displayName || nextUser.displayName,
-          );
-          setCurrentUserName(name);
-          setIsFollowingSneakyOwl(
-            following.some((friend) => friend.ownerUid === SNEAKY_OWL_UID),
-          );
-          setShowSneakyOwl(preferences.showSneakyOwl);
-          setMapStart(preferences.mapStart);
-          const hiddenOwnerIds = new Set(
-            getHiddenBiteTrailOwnerIds(nextUser.uid),
-          );
-          setFirestorePlaces(
-            toMapPlaces(visiblePlaces)
-              .map((place) => ({
-                ...place,
-                visits: place.visits.filter(
-                  (visit) =>
-                    visit.ownerUid === nextUser.uid ||
-                    !visit.ownerUid ||
-                    (!hiddenOwnerIds.has(visit.ownerUid) &&
-                      (visit.ownerUid !== SNEAKY_OWL_UID ||
-                        preferences.showSneakyOwl)),
-                ),
-              }))
-              .filter((place) => place.visits.length > 0),
-          );
-          notify("Your BiteTrail data has been updated on the map.");
-        });
+        await withFirebaseSessionRetries(nextUser, () =>
+          revalidateFirebaseSession(nextUser),
+        );
       } catch {
+        // Only an invalid Firebase session should transition the map to the
+        // signed-out state. Data-source failures must not erase auth state.
         setUser(null);
         setCurrentUserName("You");
         setMapStart("Singapore");
         setFirestorePlaces([]);
         setIsFollowingSneakyOwl(false);
         setShowSneakyOwl(true);
+        return;
+      }
+
+      try {
+        await ensureBiteTrailProfile(firebaseClient.db, nextUser);
+        const [profile, following, visiblePlaces] = await Promise.all([
+          getBiteTrailProfile(firebaseClient.db, nextUser.uid),
+          listFollowing(firebaseClient.db, nextUser.uid),
+          getVisibleBiteTrailPlaces(nextUser),
+        ]);
+        const preferences = await getBiteTrailPreferences(
+          firebaseClient.db,
+          nextUser.uid,
+        );
+        const name = normalizeBiteTrailDisplayName(
+          nextUser.uid,
+          profile?.displayName || nextUser.displayName,
+        );
+        setCurrentUserName(name);
+        setIsFollowingSneakyOwl(
+          following.some((friend) => friend.ownerUid === SNEAKY_OWL_UID),
+        );
+        setShowSneakyOwl(preferences.showSneakyOwl);
+        setMapStart(preferences.mapStart);
+        const hiddenOwnerIds = new Set(
+          getHiddenBiteTrailOwnerIds(nextUser.uid),
+        );
+        setFirestorePlaces(
+          toMapPlaces(visiblePlaces)
+            .map((place) => ({
+              ...place,
+              visits: place.visits.filter(
+                (visit) =>
+                  visit.ownerUid === nextUser.uid ||
+                  !visit.ownerUid ||
+                  (!hiddenOwnerIds.has(visit.ownerUid) &&
+                    (visit.ownerUid !== SNEAKY_OWL_UID ||
+                      preferences.showSneakyOwl)),
+              ),
+            }))
+            .filter((place) => place.visits.length > 0),
+        );
+        notify("Your BiteTrail data has been updated on the map.");
+      } catch (error) {
+        // Keep the authenticated user so labels and add controls remain
+        // correct while the unavailable data source is reported.
+        setFirestorePlaces([]);
+        setIsFollowingSneakyOwl(false);
+        setShowSneakyOwl(true);
+        notify(
+          error instanceof Error
+            ? error.message
+            : "We could not load your latest BiteTrail data.",
+          "error",
+        );
       }
     });
   }, [firebaseClient, notify]);
