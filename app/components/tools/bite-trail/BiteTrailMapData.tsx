@@ -169,7 +169,6 @@ const BiteTrailMapData = ({
   const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
   const [staticPlaces, setStaticPlaces] = useState<BiteTrailPlace[]>([]);
   const [firestorePlaces, setFirestorePlaces] = useState<BiteTrailPlace[]>([]);
-  const [isStaticReady, setIsStaticReady] = useState(false);
   const { notify } = useNotifications();
   const visibleStaticPlaces = useMemo(() => {
     if (!user) return staticPlaces;
@@ -218,8 +217,6 @@ const BiteTrailMapData = ({
         if (!cancelled) setStaticPlaces(toMapPlaces(payload.places));
       } catch {
         if (!cancelled) setStaticPlaces([]);
-      } finally {
-        if (!cancelled) setIsStaticReady(true);
       }
     };
 
@@ -372,14 +369,6 @@ const BiteTrailMapData = ({
       });
     });
   }, [currentUserName, savedEntry, user]);
-
-  if (!isStaticReady) {
-    return (
-      <section className="site-surface-card flex h-[420px] items-center justify-center rounded-[26px] text-[0.84rem] text-[color:var(--site-text-muted)] sm:h-[500px] xl:h-[620px]">
-        Loading BiteTrail entries...
-      </section>
-    );
-  }
 
   return (
     <BiteTrailMap

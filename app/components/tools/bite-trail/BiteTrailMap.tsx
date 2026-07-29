@@ -12,6 +12,7 @@ import {
   FaList,
   FaMapPin,
   FaPlus,
+  FaSpinner,
   FaStar,
   FaTrashCan,
   FaUtensils,
@@ -1751,7 +1752,7 @@ const BiteTrailMap = ({
           />
         </button>
         {expandedPanel === "entries" ? (
-          selectedPlace ? (
+          isMapLoaded && selectedPlace ? (
             <div className="bite-trail-scrollbar min-h-0 flex-1 overflow-y-auto">
               <EntryDetailPanel
                 place={selectedPlace}
@@ -1759,7 +1760,7 @@ const BiteTrailMap = ({
                 onDeleteVisit={onDeleteVisit ? requestDeleteVisit : undefined}
               />
             </div>
-          ) : clusterEntries.length > 0 ? (
+          ) : isMapLoaded && clusterEntries.length > 0 ? (
             <EntryListPanel
               entries={clusterEntries}
               eyebrow="Cluster preview"
@@ -1770,7 +1771,7 @@ const BiteTrailMap = ({
             />
           ) : (
             <EntryListPanel
-              entries={entries}
+              entries={isMapLoaded ? entries : []}
               onSelect={focusEntry}
               onHover={previewEntryHover}
               onAddEntry={focusAndAddEntry}
@@ -1782,9 +1783,9 @@ const BiteTrailMap = ({
   );
 
   return (
-    <section className="grid gap-6 xl:h-[700px] xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)]">
+    <section className="grid gap-6 xl:h-[700px] xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)] xxl:h-[700px]">
       <div className="site-surface-card overflow-hidden rounded-[26px] p-3 sm:p-4">
-        <div className="bite-trail-map-frame relative h-[420px] overflow-hidden rounded-[18px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] sm:h-[500px] xl:h-[620px]">
+        <div className="bite-trail-map-frame relative h-[420px] overflow-hidden rounded-[18px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] sm:h-[500px] xl:h-[620px] xxl:h-[620px]">
           <div
             ref={mapContainerRef}
             className="h-full w-full"
@@ -1796,43 +1797,47 @@ const BiteTrailMap = ({
                 {locationError}
               </p>
             ) : null}
-            <InfoTooltip
-              ariaLabel={
-                draftCoordinates ? "Clear new pin" : "Add a new place location"
-              }
-              preferredPlacement="left"
-              trigger={
-                <button
-                  type="button"
-                  onClick={
-                    draftCoordinates
-                      ? (onRequestClearDraft ?? clearDraftLocation)
-                      : hasActiveEntry
-                        ? (onRequestStartNewLocation ?? startLocationPicker)
-                        : startLocationPicker
-                  }
-                  disabled={!isMapLoaded || isLocatingUser}
-                  aria-label={
-                    draftCoordinates
-                      ? "Clear new pin"
-                      : "Drop a new place pin at my current location"
-                  }
-                  className={`pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border bg-[color:var(--site-bg-chrome)] shadow-[0_14px_30px_rgba(0,0,0,0.34)] transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)] hover:text-[color:var(--site-accent-soft)] focus-visible:border-[color:var(--site-accent-border-soft-hover)] focus-visible:text-[color:var(--site-accent-soft)] disabled:pointer-events-none disabled:opacity-55 ${draftCoordinates ? "border-[color:var(--site-accent-red)] text-[color:var(--site-accent-red)]" : "border-[color:var(--site-border-strong)] text-[color:var(--site-text-strong)]"}`}
-                >
-                  {draftCoordinates ? (
-                    <FaTrashCan className="h-4 w-4" />
-                  ) : (
-                    <FaPlus className="h-4 w-4" />
-                  )}
-                </button>
-              }
-            >
-              <p className="m-0">
-                {draftCoordinates
-                  ? "Clear new pin"
-                  : "Add a place at my location"}
-              </p>
-            </InfoTooltip>
+            {isAuthenticated ? (
+              <InfoTooltip
+                ariaLabel={
+                  draftCoordinates
+                    ? "Clear new pin"
+                    : "Add a new place location"
+                }
+                preferredPlacement="left"
+                trigger={
+                  <button
+                    type="button"
+                    onClick={
+                      draftCoordinates
+                        ? (onRequestClearDraft ?? clearDraftLocation)
+                        : hasActiveEntry
+                          ? (onRequestStartNewLocation ?? startLocationPicker)
+                          : startLocationPicker
+                    }
+                    disabled={!isMapLoaded || isLocatingUser}
+                    aria-label={
+                      draftCoordinates
+                        ? "Clear new pin"
+                        : "Drop a new place pin at my current location"
+                    }
+                    className={`pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border bg-[color:var(--site-bg-chrome)] shadow-[0_14px_30px_rgba(0,0,0,0.34)] transition duration-150 hover:border-[color:var(--site-accent-border-soft-hover)] hover:text-[color:var(--site-accent-soft)] focus-visible:border-[color:var(--site-accent-border-soft-hover)] focus-visible:text-[color:var(--site-accent-soft)] disabled:pointer-events-none disabled:opacity-55 ${draftCoordinates ? "border-[color:var(--site-accent-red)] text-[color:var(--site-accent-red)]" : "border-[color:var(--site-border-strong)] text-[color:var(--site-text-strong)]"}`}
+                  >
+                    {draftCoordinates ? (
+                      <FaTrashCan className="h-4 w-4" />
+                    ) : (
+                      <FaPlus className="h-4 w-4" />
+                    )}
+                  </button>
+                }
+              >
+                <p className="m-0">
+                  {draftCoordinates
+                    ? "Clear new pin"
+                    : "Add a place at my location"}
+                </p>
+              </InfoTooltip>
+            ) : null}
             <InfoTooltip
               ariaLabel="Center to me"
               preferredPlacement="left"
@@ -1856,8 +1861,16 @@ const BiteTrailMap = ({
             </InfoTooltip>
           </div>
           {!isMapLoaded ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-[color:var(--site-bg-soft)] text-[0.82rem] text-[color:var(--site-text-muted)]">
-              Loading BiteTrail map...
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[color:var(--site-bg-soft)] text-[0.82rem] text-[color:var(--site-text-muted)]"
+              role="status"
+              aria-live="polite"
+            >
+              <FaSpinner
+                className="h-5 w-5 animate-spin text-[color:var(--site-accent-soft)]"
+                aria-hidden="true"
+              />
+              <span>Loading BiteTrail map...</span>
             </div>
           ) : null}
           {mapError ? (
