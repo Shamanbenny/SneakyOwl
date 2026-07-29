@@ -41,7 +41,8 @@ Current implementation status:
 - The map renders one pin per place, aggregates only visible visits for filtering, supports marker clustering, and shows fully expanded visit records in the selected-place panel.
 - Successful new-place and visit saves refresh the visible Firestore data automatically; external changes are not yet streamed in realtime.
 - The shared Profile page supports local per-user Hide/Show controls for
-  watched lists; Stop watching remains a Firestore-backed relationship change.
+  ordinary watched lists and a Firestore-backed `showSneakyOwl` preference for
+  SneakyOwl; Stop watching remains a Firestore-backed relationship change.
 - Shared error notifications include a copy-to-clipboard control for debugging;
   user-facing auth and backend errors are sanitized before display.
 

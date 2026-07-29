@@ -110,10 +110,12 @@ Current decision:
 - Firebase Google Authentication is already wired into the BiteTrail auth smoke test.
 - Firestore persistence is implemented for shared profiles, BiteTrail preferences, global places, visits, and reciprocal relationships.
 - The client SDK handles simple owner-scoped configuration and append-only visit writes; Flask handles coordinated relationships, authorised live-place retrieval, destructive cleanup, and display-name fan-out.
-- Hide/Show is intentionally local to the viewer: the selected watched-owner
+- Hide/Show is local to the viewer for ordinary watched owners: selected owner
   IDs are stored in browser local storage and filtered from that viewer's map.
-  It does not mutate the shared relationship or require a profile-settings
-  save. Stop watching remains the relationship-changing operation.
+  SneakyOwl is the explicit exception: `showSneakyOwl` is stored on the
+  viewer's `tools/bite-trail/users/{uid}` document and controls both live and
+  static SneakyOwl data. Stop watching remains the relationship-changing
+  operation and does not clear this preference.
 - The separate Flask/Vercel backend is used for cross-owner or multi-step workflows, while preserving direct Firestore access where the operation is simple and safely owner-scoped.
 
 Firebase remains the lower-friction first choice for BiteTrail storage:

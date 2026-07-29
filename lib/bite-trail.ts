@@ -47,6 +47,7 @@ export type BiteTrailPreferences = {
   defaultCurrency: BiteTrailCurrency;
   hasCompletedTutorial: boolean;
   mapStart: BiteTrailMapStart;
+  showSneakyOwl: boolean;
 };
 
 export type BiteTrailFollowing = {
@@ -87,6 +88,7 @@ const DEFAULT_PREFERENCES: BiteTrailPreferences = {
   defaultCurrency: "SGD",
   hasCompletedTutorial: false,
   mapStart: "Singapore",
+  showSneakyOwl: true,
 };
 
 export const SNEAKY_OWL_UID = "AXOel5MZ8Yelb5a1bHgFcieT80y2";
@@ -102,7 +104,9 @@ export const getHiddenBiteTrailOwnerIds = (uid: string) => {
     const stored = window.localStorage.getItem(hiddenListsStorageKey(uid));
     const parsed = stored ? JSON.parse(stored) : [];
     return Array.isArray(parsed)
-      ? parsed.filter((ownerUid): ownerUid is string => typeof ownerUid === "string")
+      ? parsed.filter(
+          (ownerUid): ownerUid is string => typeof ownerUid === "string",
+        )
       : [];
   } catch {
     return [] as string[];
@@ -189,7 +193,8 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
     });
   } else if (
     existingPreferences.data().defaultCurrency !== "SGD" ||
-    typeof existingPreferences.data().hasCompletedTutorial !== "boolean"
+    typeof existingPreferences.data().hasCompletedTutorial !== "boolean" ||
+    typeof existingPreferences.data().showSneakyOwl !== "boolean"
   ) {
     await setDoc(
       preferences,
@@ -197,6 +202,7 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
         defaultCurrency: "SGD",
         hasCompletedTutorial:
           existingPreferences.data().hasCompletedTutorial === true,
+        showSneakyOwl: existingPreferences.data().showSneakyOwl !== false,
         updatedAt: serverTimestamp(),
       },
       { merge: true },
@@ -206,9 +212,7 @@ export const ensureBiteTrailProfile = async (db: Firestore, user: User) => {
 
 export const getBiteTrailProfile = async (db: Firestore, uid: string) => {
   const snapshot = await getDoc(profileRef(db, uid));
-  return snapshot.exists()
-    ? (snapshot.data() as BiteTrailProfile)
-    : null;
+  return snapshot.exists() ? (snapshot.data() as BiteTrailProfile) : null;
 };
 
 export const getBiteTrailPreferences = async (db: Firestore, uid: string) => {
@@ -225,7 +229,10 @@ export const getBiteTrailPreferences = async (db: Firestore, uid: string) => {
 export const saveBiteTrailPreferences = async (
   db: Firestore,
   uid: string,
-  preferences: Pick<BiteTrailPreferences, "defaultCurrency" | "mapStart">,
+  preferences: Pick<
+    BiteTrailPreferences,
+    "defaultCurrency" | "mapStart" | "showSneakyOwl"
+  >,
 ) => {
   await setDoc(
     preferencesRef(db, uid),

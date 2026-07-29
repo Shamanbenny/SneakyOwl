@@ -23,10 +23,13 @@ secrets.
 
 Successful new-place and visit writes update the visible map from the confirmed write payload without a second Firestore fetch. The map does not subscribe to external Firestore changes in realtime.
 
-The shared Profile page provides watch-list controls. Hide/Show is a per-user
-local preference applied immediately to the viewer's map and does not write to
-Firestore or require saving profile settings. Stop watching remains a
-Firestore-backed relationship change and removes the watched list.
+The shared Profile page provides watch-list controls. Hide/Show is local per
+user for ordinary watched lists. SneakyOwl has a durable `showSneakyOwl`
+preference on `tools/bite-trail/users/{uid}`, so it remains available even
+after a SneakyOwl relationship is removed. It controls both live visits for an
+existing relationship and the static snapshot fallback when no relationship
+exists. Stop watching remains a Firestore-backed relationship change and does
+not remove this preference.
 
 Profile also exposes Gmail-confirmed account deletion. The Flask backend removes
 the user's BiteTrail configuration, visits, reciprocal watch records, shared
@@ -102,7 +105,8 @@ are limited to 120 characters; ordered items to 500; comments to 2,000.
 User/list fields:
 
 - `users/{uid}`: shared `displayName` and `photoURL`
-- `tools/bite-trail/users/{uid}`: `defaultCurrency`, `mapStart`, `hasCompletedTutorial`
+- `tools/bite-trail/users/{uid}`: `defaultCurrency`, `mapStart`,
+  `hasCompletedTutorial`, `showSneakyOwl`
 - `tools/bite-trail/followings/{uid}/relationships/{friendUid}`: `friendUid`, `friendDisplayName`, `createdAt`
 
 Revocation temporarily removes both relationship documents; a later friend-link acceptance can restore the relationship.
@@ -128,8 +132,8 @@ Revocation temporarily removes both relationship documents; a later friend-link 
 - [x] Connect the map to Firestore-backed entries while retaining the static global source.
 - [x] Add share-link generation and QR rendering.
 - [x] Add friend-list import by link.
-- [x] Add basic watch-list management, including local hide/show and stopping
-      watching from the shared Profile page.
+- [x] Add basic watch-list management, including per-user hide/show and
+      stopping watching from the shared Profile page.
 - [x] Add Gmail-confirmed account deletion and cleanup of reciprocal watch-list
       records.
 - [ ] Add owner-side share revocation or code rotation.

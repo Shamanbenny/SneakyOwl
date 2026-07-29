@@ -118,7 +118,7 @@ const BiteTrailAuthPanel = () => {
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]">
             BiteTrail account
           </p>
-          <h2 className="text-[1.3rem] font-semibold text-[color:var(--site-text-strong)] max-sm:text-[1.15rem]">
+          <h2 className="xxl:text-[1.3rem] xl:text-[1.15rem] max-sm:text-[1rem] font-semibold text-[color:var(--site-text-strong)] max-sm:text-[1.15rem]">
             {!isAuthReady ? "Checking session..." : null}
             {isAuthReady && !user ? "Get started here" : null}
             {isAuthReady && user ? (

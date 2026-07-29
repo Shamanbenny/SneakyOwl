@@ -21,6 +21,7 @@ import {
 } from "react-icons/fa6";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import ConfirmationModal from "@/app/components/shared/feedback/ConfirmationModal";
 import {
   type BiteTrailCuisineGenre,
   type BiteTrailResolvedFoodEntry,
@@ -1633,16 +1634,6 @@ const BiteTrailMap = ({
     void onDeleteVisit?.(place, visit);
   };
 
-  useEffect(() => {
-    if (!pendingDelete) return;
-
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPendingDelete(null);
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [pendingDelete]);
-
   const focusAndAddEntry = (entry: VisibleBiteTrailPlace) => {
     setExpandedPanel("entries");
     focusEntry(entry);
@@ -1949,47 +1940,14 @@ const BiteTrailMap = ({
 
       {panel}
       {pendingDelete ? (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setPendingDelete(null);
-          }}
-        >
-          <div
-            className="site-surface-card w-full max-w-md rounded-[22px] border border-[color:var(--site-border-strong)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.5)]"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="bite-trail-delete-title"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <h2
-              id="bite-trail-delete-title"
-              className="m-0 text-xl font-semibold text-[color:var(--site-text-strong)]"
-            >
-              Delete your entry?
-            </h2>
-            <p className="mt-3 leading-6 text-[color:var(--site-text-muted)]">
-              This visit will be permanently deleted from your BiteTrail list.
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--site-border-strong)] px-4 font-semibold text-[color:var(--site-text-strong)] transition hover:border-[color:var(--site-accent-border-soft-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)]"
-                onClick={() => setPendingDelete(null)}
-              >
-                Keep entry
-              </button>
-              <button
-                type="button"
-                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--site-accent-red)] bg-[color:var(--site-accent-red)] px-4 font-semibold text-[color:var(--site-bg)] transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-red)]"
-                onClick={confirmDeleteVisit}
-              >
-                Delete entry
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Delete your entry?"
+          description="This visit will be permanently deleted from your BiteTrail list."
+          keepLabel="Keep entry"
+          confirmLabel="Delete entry"
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDeleteVisit}
+        />
       ) : null}
     </section>
   );

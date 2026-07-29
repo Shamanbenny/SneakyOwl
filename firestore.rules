@@ -65,13 +65,17 @@ service cloud.firestore {
       allow read: if owns(uid);
       allow create: if owns(uid)
         && request.resource.data.hasCompletedTutorial is bool
+        && request.resource.data.showSneakyOwl is bool
         && request.resource.data.keys().hasOnly([
-          'defaultCurrency', 'mapStart', 'hasCompletedTutorial', 'createdAt', 'updatedAt'
+          'defaultCurrency', 'mapStart', 'hasCompletedTutorial',
+          'showSneakyOwl', 'createdAt', 'updatedAt'
         ]);
       allow update: if owns(uid)
         && request.resource.data.hasCompletedTutorial is bool
+        && request.resource.data.showSneakyOwl is bool
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'defaultCurrency', 'mapStart', 'hasCompletedTutorial', 'updatedAt'
+          'defaultCurrency', 'mapStart', 'hasCompletedTutorial',
+          'showSneakyOwl', 'updatedAt'
         ]);
       allow delete: if false;
     }
@@ -80,7 +84,15 @@ service cloud.firestore {
     // needs only its own watch-list documents for Profile UI state.
     match /tools/bite-trail/followings/{uid}/relationships/{friendUid} {
       allow read: if owns(uid);
-      allow write: if false;
+      allow create, update: if owns(uid)
+        && friendUid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2'
+        && request.resource.data.friendUid == friendUid
+        && request.resource.data.friendDisplayName is string
+        && request.resource.data.keys().hasOnly([
+          'friendUid', 'friendDisplayName', 'createdAt'
+        ]);
+      allow delete: if owns(uid)
+        && friendUid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2';
     }
 
     // Place metadata is global and immutable after creation. Cross-owner

@@ -3,11 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  onAuthStateChanged,
-  signOut,
-  type User,
-} from "firebase/auth";
+import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { QRCodeSVG } from "qrcode.react";
 import {
   FaCheck,
@@ -28,6 +24,7 @@ import {
 import DropdownField from "@/app/components/shared/ui/DropdownField";
 import LoginRequiredPanel from "@/app/components/shared/account/LoginRequiredPanel";
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import ConfirmationModal from "@/app/components/shared/feedback/ConfirmationModal";
 import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import {
   ensureBiteTrailProfile,
@@ -39,6 +36,7 @@ import {
   listFollowing,
   normalizeBiteTrailDisplayName,
   saveBiteTrailPreferences,
+  SNEAKY_OWL_UID,
   type BiteTrailCurrency,
   type BiteTrailFollowing,
   type BiteTrailMapStart,
@@ -64,6 +62,7 @@ const ProfileSettings = () => {
   const [displayName, setDisplayName] = useState("");
   const [currency, setCurrency] = useState<BiteTrailCurrency>("SGD");
   const [mapStart, setMapStart] = useState<BiteTrailMapStart>("Singapore");
+  const [showSneakyOwl, setShowSneakyOwl] = useState(true);
   const [following, setFollowing] = useState<BiteTrailFollowing[]>([]);
   const [hiddenFriendIds, setHiddenFriendIds] = useState<Set<string>>(
     new Set(),
@@ -73,10 +72,13 @@ const ProfileSettings = () => {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [pendingStopFollowing, setPendingStopFollowing] =
+    useState<BiteTrailFollowing | null>(null);
   const [savedSettings, setSavedSettings] = useState<{
     displayName: string;
     currency: BiteTrailCurrency;
     mapStart: BiteTrailMapStart;
+    showSneakyOwl: boolean;
   } | null>(null);
   const { notify } = useNotifications();
 
@@ -93,13 +95,16 @@ const ProfileSettings = () => {
         setIsSigningOut(false);
         setIsDeletingAccount(false);
         setDeleteConfirmation("");
+        setPendingStopFollowing(null);
 
         if (!nextUser) {
           setDisplayName("");
           setSavedSettings(null);
           setFollowing([]);
+          setShowSneakyOwl(true);
           setHiddenFriendIds(new Set());
           setDeleteConfirmation("");
+          setPendingStopFollowing(null);
           setIsLoading(false);
           return;
         }
@@ -120,10 +125,12 @@ const ProfileSettings = () => {
             setDisplayName(nextDisplayName);
             setCurrency(preferences.defaultCurrency);
             setMapStart(preferences.mapStart);
+            setShowSneakyOwl(preferences.showSneakyOwl);
             setSavedSettings({
               displayName: nextDisplayName,
               currency: preferences.defaultCurrency,
               mapStart: preferences.mapStart,
+              showSneakyOwl: preferences.showSneakyOwl,
             });
             setFollowing(nextFollowing);
             setHiddenFriendIds(
@@ -137,6 +144,7 @@ const ProfileSettings = () => {
           setFollowing([]);
           setHiddenFriendIds(new Set());
           setDeleteConfirmation("");
+          setPendingStopFollowing(null);
           notify("We could not load your BiteTrail settings.", "error");
         } finally {
           setIsLoading(false);
@@ -194,9 +202,15 @@ const ProfileSettings = () => {
       await saveBiteTrailPreferences(firebaseClient.db, user.uid, {
         defaultCurrency: currency,
         mapStart,
+        showSneakyOwl,
       });
       setDisplayName(safeDisplayName);
-      setSavedSettings({ displayName: safeDisplayName, currency, mapStart });
+      setSavedSettings({
+        displayName: safeDisplayName,
+        currency,
+        mapStart,
+        showSneakyOwl,
+      });
       notify("Profile and BiteTrail preferences saved.");
     } catch {
       notify(
@@ -218,6 +232,7 @@ const ProfileSettings = () => {
     setDisplayName(savedSettings.displayName);
     setCurrency(savedSettings.currency);
     setMapStart(savedSettings.mapStart);
+    setShowSneakyOwl(savedSettings.showSneakyOwl);
     notify("Unsaved profile changes were discarded.");
   };
 
@@ -227,7 +242,10 @@ const ProfileSettings = () => {
     }
 
     if (deleteConfirmation.trim().toLowerCase() !== user.email.toLowerCase()) {
-      notify("Type your exact Gmail address to confirm account deletion.", "error");
+      notify(
+        "Type your exact Gmail address to confirm account deletion.",
+        "error",
+      );
       return;
     }
 
@@ -264,32 +282,61 @@ const ProfileSettings = () => {
     }
   };
 
-  const stopFollowing = async (ownerUid: string) => {
+  const stopFollowing = async (friend: BiteTrailFollowing) => {
     if (!firebaseClient || !user) {
       return;
     }
 
+    setPendingStopFollowing(null);
+    notify(`Removing ${friend.ownerDisplayName} from watch list...`, "info");
     try {
-      await removeBiteTrailFollowing(user, ownerUid);
+      await removeBiteTrailFollowing(user, friend.ownerUid);
       setFollowing((friends) =>
-        friends.filter((friend) => friend.ownerUid !== ownerUid),
+        friends.filter(
+          (currentFriend) => currentFriend.ownerUid !== friend.ownerUid,
+        ),
       );
-      const nextHiddenIds = new Set(hiddenFriendIds);
-      nextHiddenIds.delete(ownerUid);
-      setHiddenFriendIds(nextHiddenIds);
-      setHiddenBiteTrailOwnerIds(user.uid, Array.from(nextHiddenIds));
-      notify("You are no longer watching that BiteTrail list.");
+      if (friend.ownerUid !== SNEAKY_OWL_UID) {
+        const nextHiddenIds = new Set(hiddenFriendIds);
+        nextHiddenIds.delete(friend.ownerUid);
+        setHiddenFriendIds(nextHiddenIds);
+        setHiddenBiteTrailOwnerIds(user.uid, Array.from(nextHiddenIds));
+      }
+      notify(`${friend.ownerDisplayName} was removed from your watch list.`);
     } catch {
       notify("We could not remove that list. Please try again.", "error");
     }
   };
 
-  const toggleHiddenList = (friend: BiteTrailFollowing) => {
+  const toggleHiddenList = async (friend: BiteTrailFollowing) => {
     if (!user) {
       return;
     }
 
     const isHidden = hiddenFriendIds.has(friend.ownerUid);
+    if (friend.ownerUid === SNEAKY_OWL_UID) {
+      const nextShowSneakyOwl = !showSneakyOwl;
+      setShowSneakyOwl(nextShowSneakyOwl);
+      try {
+        await saveBiteTrailPreferences(firebaseClient!.db, user.uid, {
+          defaultCurrency: "SGD",
+          mapStart,
+          showSneakyOwl: nextShowSneakyOwl,
+        });
+        setSavedSettings((current) =>
+          current ? { ...current, showSneakyOwl: nextShowSneakyOwl } : current,
+        );
+        notify(
+          nextShowSneakyOwl
+            ? "SneakyOwl's list is no longer hidden"
+            : "SneakyOwl's list is now hidden",
+        );
+      } catch {
+        setShowSneakyOwl(!nextShowSneakyOwl);
+        notify("We could not save SneakyOwl's list preference.", "error");
+      }
+      return;
+    }
     const nextIds = new Set(hiddenFriendIds);
 
     if (isHidden) {
@@ -309,6 +356,21 @@ const ProfileSettings = () => {
 
   const isSignedIn = Boolean(user);
   const shareLink = user ? getBiteTrailShareLink(user.uid) : "";
+  const sneakyOwlFollowing = following.find(
+    (friend) => friend.ownerUid === SNEAKY_OWL_UID,
+  );
+  const displayedFollowing = sneakyOwlFollowing
+    ? following
+    : user?.uid === SNEAKY_OWL_UID
+      ? following
+      : [
+          {
+            ownerUid: SNEAKY_OWL_UID,
+            ownerDisplayName: "SneakyOwl",
+            status: "active" as const,
+          },
+          ...following,
+        ];
 
   if (isLoading) {
     return (
@@ -380,7 +442,7 @@ const ProfileSettings = () => {
                 </div>
               </div>
               <button
-                className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent)] bg-transparent px-4 text-[0.92rem] font-semibold text-[color:var(--site-accent)] transition hover:border-[color:var(--site-accent-soft)] hover:text-[color:var(--site-accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent)]/50 disabled:pointer-events-none disabled:opacity-55 lg:mt-0 lg:w-auto lg:shrink-0"
+                className="focus-visible:ring-[color:var(--site-accent)]/50 mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent)] bg-transparent px-4 text-[0.92rem] font-semibold text-[color:var(--site-accent)] transition hover:border-[color:var(--site-accent-soft)] hover:text-[color:var(--site-accent-soft)] focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-55 lg:mt-0 lg:w-auto lg:shrink-0"
                 type="button"
                 onClick={logout}
                 disabled={isSigningOut}
@@ -503,7 +565,9 @@ const ProfileSettings = () => {
                     Friends / watched lists
                   </h3>
                   <p className="mt-2 text-[0.82rem] leading-6 text-[color:var(--site-text-muted)]">
-                    Hide a list locally or stop watching it entirely.
+                    Hide a list locally or stop watching it entirely. SneakyOwl
+                    visibility is saved to your BiteTrail profile so it also
+                    applies when you are not directly watching SneakyOwl.
                     <span className="ml-1 inline-flex align-middle">
                       <InfoTooltip
                         ariaLabel="How hiding and stopping watching work"
@@ -520,64 +584,85 @@ const ProfileSettings = () => {
                 </div>
               </div>
               <div className="mt-4 grid gap-3">
-                {following.length > 0 ? (
-                  following.map((friend) => {
-                    const isHidden = hiddenFriendIds.has(friend.ownerUid);
+                {displayedFollowing.length > 0 ? (
+                  displayedFollowing.map((friend) => {
+                    const isHidden =
+                      friend.ownerUid === SNEAKY_OWL_UID
+                        ? !showSneakyOwl
+                        : hiddenFriendIds.has(friend.ownerUid);
+                    const canStopFollowing =
+                      friend.ownerUid !== SNEAKY_OWL_UID ||
+                      Boolean(sneakyOwlFollowing);
 
                     return (
-                    <div
-                      className={`flex items-center justify-between gap-3 rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] p-3 ${isHidden ? "opacity-70" : ""}`}
-                      key={friend.ownerUid}
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-[0.9rem] font-semibold text-[color:var(--site-text-strong)]">
-                          {friend.ownerDisplayName}
-                        </p>
-                        <p className="mt-1 text-[0.72rem] text-[color:var(--site-text-muted)]">
-                          {isHidden ? "List hidden" : "You are watching"}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1">
-                        <InfoTooltip
-                          ariaLabel={isHidden ? "Show list" : "Hide list"}
-                          preferredPlacement="top"
-                          panelClassName="text-[color:var(--site-text-strong)]"
-                          trigger={
-                            <button
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-[color:var(--site-bg-soft)] hover:text-[color:var(--site-accent-soft)]"
-                              type="button"
-                              aria-label={isHidden ? "Show list" : "Hide list"}
-                              onClick={() => toggleHiddenList(friend)}
+                      <div
+                        className={`flex items-center justify-between gap-3 rounded-xl border border-[color:var(--site-border)] bg-[color:var(--site-bg-strong)] p-3 ${isHidden ? "opacity-70" : ""}`}
+                        key={friend.ownerUid}
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-[0.9rem] font-semibold text-[color:var(--site-text-strong)]">
+                            {friend.ownerDisplayName}
+                          </p>
+                          <p className="mt-1 text-[0.72rem] text-[color:var(--site-text-muted)]">
+                            {isHidden ? "List hidden" : "You are watching"}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <InfoTooltip
+                            ariaLabel={isHidden ? "Show list" : "Hide list"}
+                            preferredPlacement="top"
+                            panelClassName="text-[color:var(--site-text-strong)]"
+                            trigger={
+                              <button
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-[color:var(--site-bg-soft)] hover:text-[color:var(--site-accent-soft)]"
+                                type="button"
+                                aria-label={
+                                  isHidden ? "Show list" : "Hide list"
+                                }
+                                onClick={() => toggleHiddenList(friend)}
+                              >
+                                {isHidden ? (
+                                  <FaEye
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <FaEyeSlash
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                  />
+                                )}
+                              </button>
+                            }
+                          >
+                            {isHidden ? "Show list" : "Hide list"}
+                          </InfoTooltip>
+                          {canStopFollowing ? (
+                            <InfoTooltip
+                              ariaLabel="Stop watching"
+                              preferredPlacement="top"
+                              panelClassName="text-[color:var(--site-text-strong)]"
+                              trigger={
+                                <button
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-red-500/10 hover:text-red-300"
+                                  type="button"
+                                  aria-label="Stop watching"
+                                  onClick={() =>
+                                    setPendingStopFollowing(friend)
+                                  }
+                                >
+                                  <FaUserMinus
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                              }
                             >
-                              {isHidden ? (
-                                <FaEye className="h-4 w-4" aria-hidden="true" />
-                              ) : (
-                                <FaEyeSlash className="h-4 w-4" aria-hidden="true" />
-                              )}
-                            </button>
-                          }
-                        >
-                          {isHidden ? "Show list" : "Hide list"}
-                        </InfoTooltip>
-                        <InfoTooltip
-                          ariaLabel="Stop watching"
-                          preferredPlacement="top"
-                          panelClassName="text-[color:var(--site-text-strong)]"
-                          trigger={
-                            <button
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--site-text-muted)] transition hover:bg-red-500/10 hover:text-red-300"
-                              type="button"
-                              aria-label="Stop watching"
-                              onClick={() => stopFollowing(friend.ownerUid)}
-                            >
-                              <FaUserMinus className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                          }
-                        >
-                          Stop watching
-                        </InfoTooltip>
+                              Stop watching
+                            </InfoTooltip>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
                     );
                   })
                 ) : (
@@ -590,6 +675,17 @@ const ProfileSettings = () => {
           </div>
         </article>
       </section>
+
+      {pendingStopFollowing ? (
+        <ConfirmationModal
+          title={`Stop watching ${pendingStopFollowing.ownerDisplayName}?`}
+          description={`This removes ${pendingStopFollowing.ownerDisplayName} from your watch list and removes your relationship from both sides. You will no longer see their BiteTrail entries, and they will no longer see your list through this relationship.`}
+          keepLabel="Keep watching"
+          confirmLabel="Stop watching"
+          onCancel={() => setPendingStopFollowing(null)}
+          onConfirm={() => void stopFollowing(pendingStopFollowing)}
+        />
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
         <article className="rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-5 sm:p-6">
@@ -663,8 +759,7 @@ const ProfileSettings = () => {
             </h2>
             <p className="mt-3 text-[0.9rem] leading-7 text-[color:var(--site-text-muted)]">
               This permanently deletes your personal tools data, preferences,
-              and SneakyOwl account. This cannot be
-              undone.
+              and SneakyOwl account. This cannot be undone.
             </p>
             <label
               className="mt-5 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[color:var(--site-text-muted)]"
@@ -687,7 +782,8 @@ const ProfileSettings = () => {
                 !isSignedIn ||
                 !user.email ||
                 isDeletingAccount ||
-                deleteConfirmation.trim().toLowerCase() !== user.email.toLowerCase()
+                deleteConfirmation.trim().toLowerCase() !==
+                  user.email.toLowerCase()
               }
               onClick={deleteAccount}
             >
