@@ -8,6 +8,7 @@ import {
   FaChevronRight,
   FaCalendarDays,
   FaPlus,
+  FaSpinner,
   FaTrashCan,
 } from "react-icons/fa6";
 
@@ -69,6 +70,26 @@ type VisitForm = {
   visitedAt: string;
 };
 
+export type BiteTrailSavedEntry = {
+  placeId: string;
+  visitId: string;
+  place: {
+    name: string;
+    locationLabel: string;
+    latitude: number;
+    longitude: number;
+    cuisineGenre: BiteTrailCuisineGenre;
+  } | null;
+  visit: {
+    ratingOutOf10: number;
+    costPerPerson: number;
+    currency: "SGD";
+    itemsBought: string;
+    comments: string;
+    visitedAt: string;
+  };
+};
+
 const emptyForm = (): VisitForm => ({
   name: "",
   locationLabel: "",
@@ -115,7 +136,7 @@ const BiteTrailDataPanel = ({
   onLocationChange: (latitude: string, longitude: string) => void;
   onDiscard: () => void;
   onRequestDiscard: () => void;
-  onSaved?: () => void;
+  onSaved?: (savedEntry: BiteTrailSavedEntry) => void;
 }) => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const { notify } = useNotifications();
@@ -265,32 +286,45 @@ const BiteTrailDataPanel = ({
         comments: trimmedComments,
         visitedAt: form.visitedAt,
       };
-      if (activePlace?.sourcePlaceId) {
-        await appendVisit(
-          firebaseClient.db,
-          user,
-          activePlace.sourcePlaceId,
-          crypto.randomUUID(),
-          visit,
-        );
-      } else {
-        await createPlaceWithVisit(
-          firebaseClient.db,
-          user,
-          crypto.randomUUID(),
-          crypto.randomUUID(),
-          {
+      const visitId = crypto.randomUUID();
+      const placeId = activePlace?.sourcePlaceId ?? crypto.randomUUID();
+      const place = activePlace
+        ? null
+        : {
             name: trimmedName,
             locationLabel: trimmedLocationLabel,
             latitude: parsedLatitude,
             longitude: parsedLongitude,
             cuisineGenre: form.cuisineGenre,
-          },
+          };
+      if (activePlace?.sourcePlaceId) {
+        await appendVisit(
+          firebaseClient.db,
+          user,
+          activePlace.sourcePlaceId,
+          visitId,
+          visit,
+        );
+      } else {
+        if (!place) {
+          throw new Error("A new place is required for this entry.");
+        }
+        await createPlaceWithVisit(
+          firebaseClient.db,
+          user,
+          placeId,
+          visitId,
+          place,
           visit,
         );
       }
+      notify(
+        activePlace
+          ? "Your new entry was added."
+          : "Your new place and entry were added.",
+      );
       resetFormState();
-      onSaved?.();
+      onSaved?.({ placeId, visitId, place, visit });
       onDiscard();
     } catch {
       setMessage(
@@ -330,316 +364,338 @@ const BiteTrailDataPanel = ({
           {user ? (
             <form
               ref={controlRef}
-              className="grid gap-4 lg:grid-cols-2"
+              className="relative grid gap-4 lg:grid-cols-2"
+              aria-busy={isSaving}
               onSubmit={submit}
             >
-              {(["name", "locationLabel"] as const).map((field) => (
-                <label
-                  key={field}
-                  className="grid gap-2 text-[0.78rem] font-semibold capitalize text-[color:var(--site-text-muted)]"
-                >
+              <fieldset disabled={isSaving} className="contents">
+                {(["name", "locationLabel"] as const).map((field) => (
+                  <label
+                    key={field}
+                    className="grid gap-2 text-[0.78rem] font-semibold capitalize text-[color:var(--site-text-muted)]"
+                  >
+                    <span className="inline-flex items-baseline gap-1">
+                      {field === "locationLabel"
+                        ? "Location label"
+                        : "Place name"}
+                      <RequiredMark />
+                    </span>
+                    <input
+                      className={inputClassName}
+                      maxLength={TEXT_LIMITS[field]}
+                      placeholder={
+                        field === "locationLabel"
+                          ? "E.g. Bugis+"
+                          : "E.g. ABC Western"
+                      }
+                      value={form[field]}
+                      disabled={Boolean(activePlace)}
+                      required
+                      onChange={(event) =>
+                        updateForm(field, event.target.value)
+                      }
+                    />
+                  </label>
+                ))}
+                <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
                   <span className="inline-flex items-baseline gap-1">
-                    {field === "locationLabel"
-                      ? "Location label"
-                      : "Place name"}
-                    <RequiredMark />
+                    Latitude <RequiredMark />
                   </span>
                   <input
                     className={inputClassName}
-                    maxLength={TEXT_LIMITS[field]}
-                    placeholder={
-                      field === "locationLabel"
-                        ? "E.g. Bugis+"
-                        : "E.g. ABC Western"
-                    }
-                    value={form[field]}
+                    type="number"
+                    inputMode="decimal"
+                    min="-90"
+                    max="90"
+                    step="any"
+                    value={formLatitude}
                     disabled={Boolean(activePlace)}
                     required
-                    onChange={(event) => updateForm(field, event.target.value)}
-                  />
-                </label>
-              ))}
-              <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                <span className="inline-flex items-baseline gap-1">
-                  Latitude <RequiredMark />
-                </span>
-                <input
-                  className={inputClassName}
-                  type="number"
-                  inputMode="decimal"
-                  min="-90"
-                  max="90"
-                  step="any"
-                  value={formLatitude}
-                  disabled={Boolean(activePlace)}
-                  required
-                  onChange={(event) =>
-                    onLocationChange(event.target.value, longitude)
-                  }
-                />
-              </label>
-              <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                <span className="inline-flex items-baseline gap-1">
-                  Longitude <RequiredMark />
-                </span>
-                <input
-                  className={inputClassName}
-                  type="number"
-                  inputMode="decimal"
-                  min="-180"
-                  max="180"
-                  step="any"
-                  value={formLongitude}
-                  disabled={Boolean(activePlace)}
-                  required
-                  onChange={(event) =>
-                    onLocationChange(latitude, event.target.value)
-                  }
-                />
-              </label>
-              <label className="relative grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                <span className="inline-flex items-baseline gap-1">
-                  Cuisine <RequiredMark />
-                </span>
-                <button
-                  className="bite-trail-control"
-                  type="button"
-                  disabled={Boolean(activePlace)}
-                  aria-haspopup="listbox"
-                  aria-expanded={openMenu === "cuisine"}
-                  onClick={() =>
-                    setOpenMenu(openMenu === "cuisine" ? null : "cuisine")
-                  }
-                >
-                  <span>{formatCuisineLabel(form.cuisineGenre)}</span>
-                  <FaChevronDown
-                    className={openMenu === "cuisine" ? "rotate-180" : ""}
-                    aria-hidden="true"
-                  />
-                </button>
-                {openMenu === "cuisine" ? (
-                  <div className="bite-trail-menu" role="listbox">
-                    {BITE_TRAIL_CUISINES.map((cuisine) => (
-                      <button
-                        className={`bite-trail-menu-option ${form.cuisineGenre === cuisine ? "bite-trail-menu-option--selected" : ""}`}
-                        key={cuisine}
-                        type="button"
-                        role="option"
-                        aria-selected={form.cuisineGenre === cuisine}
-                        onClick={() => {
-                          updateForm("cuisineGenre", cuisine);
-                          setOpenMenu(null);
-                        }}
-                      >
-                        {formatCuisineLabel(cuisine)}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </label>
-              <label className="relative grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                <span className="inline-flex items-baseline gap-1">
-                  Visited on <RequiredMark />
-                </span>
-                <button
-                  className="bite-trail-control"
-                  type="button"
-                  aria-haspopup="dialog"
-                  aria-expanded={openMenu === "date"}
-                  onClick={() => {
-                    setCalendarMonth(selectedDate);
-                    setOpenMenu(openMenu === "date" ? null : "date");
-                  }}
-                >
-                  <span>{formatDateLabel(form.visitedAt)}</span>
-                  <FaCalendarDays
-                    className="bite-trail-calendar-icon"
-                    aria-hidden="true"
-                  />
-                </button>
-                {openMenu === "date" ? (
-                  <div
-                    className="bite-trail-calendar"
-                    role="dialog"
-                    aria-label="Choose visit date"
-                  >
-                    <div className="bite-trail-calendar-header">
-                      <button
-                        type="button"
-                        aria-label="Previous month"
-                        onClick={() =>
-                          setCalendarMonth(
-                            (month) =>
-                              new Date(
-                                month.getFullYear(),
-                                month.getMonth() - 1,
-                                1,
-                              ),
-                          )
-                        }
-                      >
-                        <FaChevronLeft aria-hidden="true" />
-                      </button>
-                      <span>{formatMonthLabel(calendarMonth)}</span>
-                      <button
-                        type="button"
-                        aria-label="Next month"
-                        onClick={() =>
-                          setCalendarMonth(
-                            (month) =>
-                              new Date(
-                                month.getFullYear(),
-                                month.getMonth() + 1,
-                                1,
-                              ),
-                          )
-                        }
-                      >
-                        <FaChevronRight aria-hidden="true" />
-                      </button>
-                    </div>
-                    <div
-                      className="bite-trail-calendar-weekdays"
-                      aria-hidden="true"
-                    >
-                      {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-                        <span key={`${day}-${index}`}>{day}</span>
-                      ))}
-                    </div>
-                    <div className="bite-trail-calendar-grid">
-                      {calendarDays.map((day, index) => {
-                        if (!day) return <span key={`empty-${index}`} />;
-                        const dateValue = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                        const isSelected = dateValue === form.visitedAt;
-                        return (
-                          <button
-                            className={`bite-trail-calendar-day ${isSelected ? "bite-trail-calendar-day--selected" : ""}`}
-                            key={dateValue}
-                            type="button"
-                            aria-label={formatDateLabel(dateValue)}
-                            aria-pressed={isSelected}
-                            onClick={() => {
-                              updateForm("visitedAt", dateValue);
-                              setOpenMenu(null);
-                            }}
-                          >
-                            {day}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : null}
-              </label>
-              <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                <span className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2">
-                    <span className="inline-flex items-baseline gap-1">
-                      Rating (0–10) <RequiredMark />
-                    </span>
-                    <InfoTooltip
-                      ariaLabel="About rating"
-                      preferredPlacement="top"
-                    >
-                      <p className="m-0">
-                        The higher the rating, the better the bite! Do note that
-                        rating is entirely subjective so don&apos;t stress up
-                        over it.
-                      </p>
-                    </InfoTooltip>
-                  </span>
-                  <span className="text-[color:var(--site-text-strong)]">
-                    {form.ratingOutOf10} / 10
-                  </span>
-                </span>
-                <span className="relative mt-3 block h-5">
-                  <span className="absolute left-0 right-0 top-2 h-1 rounded-full bg-[color:var(--site-border-strong)]" />
-                  <span
-                    className="absolute left-0 top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
-                    style={{ width: `${Number(form.ratingOutOf10) * 10}%` }}
-                  />
-                  <input
-                    className="bite-trail-range absolute inset-0 h-5 w-full"
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="1"
-                    value={form.ratingOutOf10}
-                    aria-label="Rating from 0 to 10"
                     onChange={(event) =>
-                      updateForm("ratingOutOf10", event.target.value)
+                      onLocationChange(event.target.value, longitude)
                     }
                   />
-                </span>
-              </label>
-              <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                <span className="inline-flex items-baseline gap-1">
-                  Cost per person (SGD) <RequiredMark />
-                </span>
-                <input
-                  className={inputClassName}
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  step="0.01"
-                  value={form.costPerPerson}
-                  required
-                  onChange={(event) =>
-                    updateForm("costPerPerson", event.target.value)
-                  }
-                />
-              </label>
-              <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] lg:col-span-2">
-                <span className="inline-flex items-baseline gap-1">
-                  What did you order? <OptionalMark />
-                </span>
-                <input
-                  className={inputClassName}
-                  maxLength={TEXT_LIMITS.itemsBought}
-                  placeholder="E.g. Chicken chop rice, Cheesy fries"
-                  value={form.itemsBought}
-                  onChange={(event) =>
-                    updateForm("itemsBought", event.target.value)
-                  }
-                />
-              </label>
-              <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] lg:col-span-2">
-                <span className="inline-flex items-baseline gap-1">
-                  Comments <OptionalMark />
-                </span>
-                <textarea
-                  className={textAreaClassName}
-                  maxLength={TEXT_LIMITS.comments}
-                  placeholder="E.g. The fries was well seasoned, and the rice was very fragrant, even though the chicken chop was a little dry"
-                  value={form.comments}
-                  onChange={(event) =>
-                    updateForm("comments", event.target.value)
-                  }
-                />
-              </label>
-              <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
-                <button
-                  className="site-button-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-55"
-                  type="submit"
-                  disabled={isSaving || !isFormValid}
+                </label>
+                <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
+                  <span className="inline-flex items-baseline gap-1">
+                    Longitude <RequiredMark />
+                  </span>
+                  <input
+                    className={inputClassName}
+                    type="number"
+                    inputMode="decimal"
+                    min="-180"
+                    max="180"
+                    step="any"
+                    value={formLongitude}
+                    disabled={Boolean(activePlace)}
+                    required
+                    onChange={(event) =>
+                      onLocationChange(latitude, event.target.value)
+                    }
+                  />
+                </label>
+                <label className="relative grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
+                  <span className="inline-flex items-baseline gap-1">
+                    Cuisine <RequiredMark />
+                  </span>
+                  <button
+                    className="bite-trail-control"
+                    type="button"
+                    disabled={Boolean(activePlace)}
+                    aria-haspopup="listbox"
+                    aria-expanded={openMenu === "cuisine"}
+                    onClick={() =>
+                      setOpenMenu(openMenu === "cuisine" ? null : "cuisine")
+                    }
+                  >
+                    <span>{formatCuisineLabel(form.cuisineGenre)}</span>
+                    <FaChevronDown
+                      className={openMenu === "cuisine" ? "rotate-180" : ""}
+                      aria-hidden="true"
+                    />
+                  </button>
+                  {openMenu === "cuisine" ? (
+                    <div className="bite-trail-menu" role="listbox">
+                      {BITE_TRAIL_CUISINES.map((cuisine) => (
+                        <button
+                          className={`bite-trail-menu-option ${form.cuisineGenre === cuisine ? "bite-trail-menu-option--selected" : ""}`}
+                          key={cuisine}
+                          type="button"
+                          role="option"
+                          aria-selected={form.cuisineGenre === cuisine}
+                          onClick={() => {
+                            updateForm("cuisineGenre", cuisine);
+                            setOpenMenu(null);
+                          }}
+                        >
+                          {formatCuisineLabel(cuisine)}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </label>
+                <label className="relative grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
+                  <span className="inline-flex items-baseline gap-1">
+                    Visited on <RequiredMark />
+                  </span>
+                  <button
+                    className="bite-trail-control"
+                    type="button"
+                    aria-haspopup="dialog"
+                    aria-expanded={openMenu === "date"}
+                    onClick={() => {
+                      setCalendarMonth(selectedDate);
+                      setOpenMenu(openMenu === "date" ? null : "date");
+                    }}
+                  >
+                    <span>{formatDateLabel(form.visitedAt)}</span>
+                    <FaCalendarDays
+                      className="bite-trail-calendar-icon"
+                      aria-hidden="true"
+                    />
+                  </button>
+                  {openMenu === "date" ? (
+                    <div
+                      className="bite-trail-calendar"
+                      role="dialog"
+                      aria-label="Choose visit date"
+                    >
+                      <div className="bite-trail-calendar-header">
+                        <button
+                          type="button"
+                          aria-label="Previous month"
+                          onClick={() =>
+                            setCalendarMonth(
+                              (month) =>
+                                new Date(
+                                  month.getFullYear(),
+                                  month.getMonth() - 1,
+                                  1,
+                                ),
+                            )
+                          }
+                        >
+                          <FaChevronLeft aria-hidden="true" />
+                        </button>
+                        <span>{formatMonthLabel(calendarMonth)}</span>
+                        <button
+                          type="button"
+                          aria-label="Next month"
+                          onClick={() =>
+                            setCalendarMonth(
+                              (month) =>
+                                new Date(
+                                  month.getFullYear(),
+                                  month.getMonth() + 1,
+                                  1,
+                                ),
+                            )
+                          }
+                        >
+                          <FaChevronRight aria-hidden="true" />
+                        </button>
+                      </div>
+                      <div
+                        className="bite-trail-calendar-weekdays"
+                        aria-hidden="true"
+                      >
+                        {["S", "M", "T", "W", "T", "F", "S"].map(
+                          (day, index) => (
+                            <span key={`${day}-${index}`}>{day}</span>
+                          ),
+                        )}
+                      </div>
+                      <div className="bite-trail-calendar-grid">
+                        {calendarDays.map((day, index) => {
+                          if (!day) return <span key={`empty-${index}`} />;
+                          const dateValue = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                          const isSelected = dateValue === form.visitedAt;
+                          return (
+                            <button
+                              className={`bite-trail-calendar-day ${isSelected ? "bite-trail-calendar-day--selected" : ""}`}
+                              key={dateValue}
+                              type="button"
+                              aria-label={formatDateLabel(dateValue)}
+                              aria-pressed={isSelected}
+                              onClick={() => {
+                                updateForm("visitedAt", dateValue);
+                                setOpenMenu(null);
+                              }}
+                            >
+                              {day}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+                </label>
+                <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-2">
+                      <span className="inline-flex items-baseline gap-1">
+                        Rating (0–10) <RequiredMark />
+                      </span>
+                      <InfoTooltip
+                        ariaLabel="About rating"
+                        preferredPlacement="top"
+                      >
+                        <p className="m-0">
+                          The higher the rating, the better the bite! Do note
+                          that rating is entirely subjective so don&apos;t
+                          stress up over it.
+                        </p>
+                      </InfoTooltip>
+                    </span>
+                    <span className="text-[color:var(--site-text-strong)]">
+                      {form.ratingOutOf10} / 10
+                    </span>
+                  </span>
+                  <span className="relative mt-3 block h-5">
+                    <span className="absolute left-0 right-0 top-2 h-1 rounded-full bg-[color:var(--site-border-strong)]" />
+                    <span
+                      className="absolute left-0 top-2 h-1 rounded-full bg-[color:var(--site-accent)]"
+                      style={{ width: `${Number(form.ratingOutOf10) * 10}%` }}
+                    />
+                    <input
+                      className="bite-trail-range absolute inset-0 h-5 w-full"
+                      type="range"
+                      min="0"
+                      max="10"
+                      step="1"
+                      value={form.ratingOutOf10}
+                      aria-label="Rating from 0 to 10"
+                      onChange={(event) =>
+                        updateForm("ratingOutOf10", event.target.value)
+                      }
+                    />
+                  </span>
+                </label>
+                <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
+                  <span className="inline-flex items-baseline gap-1">
+                    Cost per person (SGD) <RequiredMark />
+                  </span>
+                  <input
+                    className={inputClassName}
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    value={form.costPerPerson}
+                    required
+                    onChange={(event) =>
+                      updateForm("costPerPerson", event.target.value)
+                    }
+                  />
+                </label>
+                <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] lg:col-span-2">
+                  <span className="inline-flex items-baseline gap-1">
+                    What did you order? <OptionalMark />
+                  </span>
+                  <input
+                    className={inputClassName}
+                    maxLength={TEXT_LIMITS.itemsBought}
+                    placeholder="E.g. Chicken chop rice, Cheesy fries"
+                    value={form.itemsBought}
+                    onChange={(event) =>
+                      updateForm("itemsBought", event.target.value)
+                    }
+                  />
+                </label>
+                <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] lg:col-span-2">
+                  <span className="inline-flex items-baseline gap-1">
+                    Comments <OptionalMark />
+                  </span>
+                  <textarea
+                    className={textAreaClassName}
+                    maxLength={TEXT_LIMITS.comments}
+                    placeholder="E.g. The fries was well seasoned, and the rice was very fragrant, even though the chicken chop was a little dry"
+                    value={form.comments}
+                    onChange={(event) =>
+                      updateForm("comments", event.target.value)
+                    }
+                  />
+                </label>
+                <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
+                  <button
+                    className="site-button-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-55"
+                    type="submit"
+                    disabled={isSaving || !isFormValid}
+                  >
+                    <FaPlus className="h-4 w-4" aria-hidden="true" />
+                    {isSaving
+                      ? "Saving..."
+                      : activePlace
+                        ? "Add entry"
+                        : "Save place and visit"}
+                  </button>
+                  <button
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent-red)] bg-transparent px-4 font-semibold text-[color:var(--site-accent-red)] transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 disabled:pointer-events-none disabled:opacity-55"
+                    type="button"
+                    onClick={onRequestDiscard}
+                    disabled={isSaving}
+                  >
+                    <FaTrashCan className="h-4 w-4" aria-hidden="true" />
+                    Discard
+                  </button>
+                </div>
+              </fieldset>
+              {isSaving ? (
+                <div
+                  className="bg-[color:var(--site-bg-chrome)]/85 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[0.75rem] text-center text-[color:var(--site-text-strong)]"
+                  role="status"
+                  aria-live="polite"
                 >
-                  <FaPlus className="h-4 w-4" aria-hidden="true" />
-                  {isSaving
-                    ? "Saving..."
-                    : activePlace
-                      ? "Add entry"
-                      : "Save place and visit"}
-                </button>
-                <button
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent-red)] bg-transparent px-4 font-semibold text-[color:var(--site-accent-red)] transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 disabled:pointer-events-none disabled:opacity-55"
-                  type="button"
-                  onClick={onRequestDiscard}
-                  disabled={isSaving}
-                >
-                  <FaTrashCan className="h-4 w-4" aria-hidden="true" />
-                  Discard
-                </button>
-              </div>
+                  <FaSpinner
+                    className="h-7 w-7 animate-spin text-[color:var(--site-accent-soft)]"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm font-semibold">
+                    Saving your entry... Please wait for confirmation.
+                  </span>
+                </div>
+              ) : null}
             </form>
           ) : (
             <p className="text-[color:var(--site-text-muted)]">

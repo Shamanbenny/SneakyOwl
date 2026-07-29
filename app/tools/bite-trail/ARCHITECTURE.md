@@ -276,7 +276,7 @@ The browser writes only simple owner-scoped configuration and new visit records.
 
 The map and list render one item per place. Owner and watch-list filtering happens before aggregation, so averages only include visible visits. Rating averages display one decimal place and cost averages display two decimal places. The selected place panel shows the aggregate summary followed by every visible visit fully expanded with contributor, date, rating, cost, ordered items, and comments. Firestore data refreshes replace only the entry-marker layer; the Leaflet map instance, viewport, current-location overlay, and draft pin remain in place.
 
-Closure reports are separate per-user signals with timestamps. They contribute to a future closure-likelihood indicator but never close or delete a place for everyone. The current map loads its data when authentication is ready and refreshes after successful writes. It is not a realtime listener for changes made elsewhere; a future refresh button can explicitly reload the current state.
+Closure reports are separate per-user signals with timestamps. They contribute to a future closure-likelihood indicator but never close or delete a place for everyone. The current map loads its data when authentication is ready and applies confirmed local write payloads without refetching after successful writes. It is not a realtime listener for changes made elsewhere; a future refresh button can explicitly reload the current state.
 
 ## Static Export Risk
 

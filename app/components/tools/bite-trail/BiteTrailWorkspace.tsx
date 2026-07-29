@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import BiteTrailDataPanel from "@/app/components/tools/bite-trail/BiteTrailDataPanel";
+import BiteTrailDataPanel, {
+  type BiteTrailSavedEntry,
+} from "@/app/components/tools/bite-trail/BiteTrailDataPanel";
 import BiteTrailMapData from "@/app/components/tools/bite-trail/BiteTrailMapData";
 import type { BiteTrailResolvedPlace } from "@/app/components/tools/bite-trail/mockFoodEntries";
 
@@ -19,7 +21,9 @@ const BiteTrailWorkspace = () => {
   const [activePlace, setActivePlace] = useState<BiteTrailResolvedPlace | null>(
     null,
   );
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [savedEntry, setSavedEntry] = useState<BiteTrailSavedEntry | null>(
+    null,
+  );
   const [discardRequest, setDiscardRequest] = useState<DiscardRequest | null>(
     null,
   );
@@ -100,7 +104,7 @@ const BiteTrailWorkspace = () => {
         onRequestStartNewLocation={() => setDiscardRequest("start-location")}
         startLocationPickerRequest={startLocationPickerRequest}
         onAddEntry={handleAddEntry}
-        refreshKey={refreshKey}
+        savedEntry={savedEntry}
       />
       <div ref={dataPanelRef} className="mt-6 scroll-mt-6">
         <BiteTrailDataPanel
@@ -112,7 +116,7 @@ const BiteTrailWorkspace = () => {
           activePlace={activePlace}
           onDiscard={discardEntry}
           onRequestDiscard={() => setDiscardRequest("entry")}
-          onSaved={() => setRefreshKey((current) => current + 1)}
+          onSaved={setSavedEntry}
         />
       </div>
       {discardRequest ? (

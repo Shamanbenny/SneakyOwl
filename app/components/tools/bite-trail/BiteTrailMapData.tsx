@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 
 import BiteTrailMap from "@/app/components/tools/bite-trail/BiteTrailMap";
+import type { BiteTrailSavedEntry } from "@/app/components/tools/bite-trail/BiteTrailDataPanel";
 import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import {
   mockFoodPlaces,
@@ -149,7 +150,7 @@ const BiteTrailMapData = ({
   onRequestStartNewLocation,
   startLocationPickerRequest,
   onAddEntry,
-  refreshKey,
+  savedEntry,
 }: {
   latitude: string;
   longitude: string;
@@ -159,7 +160,7 @@ const BiteTrailMapData = ({
   onRequestStartNewLocation: () => void;
   startLocationPickerRequest: number;
   onAddEntry: (place: BiteTrailResolvedPlace) => void;
-  refreshKey: number;
+  savedEntry: BiteTrailSavedEntry | null;
 }) => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
   const [user, setUser] = useState<User | null>(null);
@@ -243,9 +244,7 @@ const BiteTrailMapData = ({
         return;
       }
 
-      if (refreshKey === 0) {
-        notify("We’re fetching your latest BiteTrail data.", "info");
-      }
+      notify("We’re fetching your latest BiteTrail data.", "info");
       try {
         await withFirebaseSessionRetries(nextUser, async () => {
           await revalidateFirebaseSession(nextUser);
@@ -294,7 +293,85 @@ const BiteTrailMapData = ({
         setIsFollowingSneakyOwl(false);
       }
     });
-  }, [firebaseClient, notify, refreshKey]);
+  }, [firebaseClient, notify]);
+
+  useEffect(() => {
+    if (!savedEntry || !user) return;
+
+    setFirestorePlaces((currentPlaces) => {
+      if (savedEntry.place) {
+        if (
+          currentPlaces.some(
+            (currentPlace) =>
+              (currentPlace.sourcePlaceId ?? currentPlace.id) ===
+              savedEntry.placeId,
+          )
+        ) {
+          return currentPlaces;
+        }
+
+        const place: BiteTrailPlace = {
+          averageCost: savedEntry.visit.costPerPerson,
+          averageRating: savedEntry.visit.ratingOutOf10,
+          cuisineGenre: savedEntry.place.cuisineGenre,
+          currency: savedEntry.visit.currency,
+          id: savedEntry.placeId,
+          latitude: savedEntry.place.latitude,
+          longitude: savedEntry.place.longitude,
+          neighborhood: savedEntry.place.locationLabel,
+          placeName: savedEntry.place.name,
+          sourcePlaceId: savedEntry.placeId,
+          visits: [],
+        };
+        place.visits.push({
+          comments: savedEntry.visit.comments,
+          costPerPerson: savedEntry.visit.costPerPerson,
+          currency: savedEntry.visit.currency,
+          cuisineGenre: place.cuisineGenre,
+          id: savedEntry.visitId,
+          itemsBought: savedEntry.visit.itemsBought,
+          latitude: place.latitude,
+          longitude: place.longitude,
+          neighborhood: place.neighborhood,
+          ownerKind: "",
+          ownerName: currentUserName,
+          ownerUid: user.uid,
+          placeId: savedEntry.placeId,
+          placeName: place.placeName,
+          ratingOutOf10: savedEntry.visit.ratingOutOf10,
+          visitedAt: savedEntry.visit.visitedAt,
+        });
+        return [...currentPlaces, place];
+      }
+
+      return currentPlaces.map((place) => {
+        if (place.sourcePlaceId !== savedEntry.placeId) return place;
+        if (place.visits.some((visit) => visit.id === savedEntry.visitId)) {
+          return place;
+        }
+
+        const visit: BiteTrailFoodEntry = {
+          comments: savedEntry.visit.comments,
+          costPerPerson: savedEntry.visit.costPerPerson,
+          currency: savedEntry.visit.currency,
+          cuisineGenre: place.cuisineGenre,
+          id: savedEntry.visitId,
+          itemsBought: savedEntry.visit.itemsBought,
+          latitude: place.latitude,
+          longitude: place.longitude,
+          neighborhood: place.neighborhood,
+          ownerKind: "",
+          ownerName: currentUserName,
+          ownerUid: user.uid,
+          placeId: savedEntry.placeId,
+          placeName: place.placeName,
+          ratingOutOf10: savedEntry.visit.ratingOutOf10,
+          visitedAt: savedEntry.visit.visitedAt,
+        };
+        return { ...place, visits: [...place.visits, visit] };
+      });
+    });
+  }, [currentUserName, savedEntry, user]);
 
   if (!isStaticReady) {
     return (

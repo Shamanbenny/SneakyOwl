@@ -21,7 +21,7 @@ The snapshot workflow requires the `SNEAKYOWL_API_BASE_URL`,
 `FIREBASE_WEB_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT_JSON` GitHub Actions
 secrets.
 
-Successful new-place and visit writes refresh the visible Firestore data automatically. The map does not yet subscribe to external Firestore changes in realtime.
+Successful new-place and visit writes update the visible map from the confirmed write payload without a second Firestore fetch. The map does not subscribe to external Firestore changes in realtime.
 
 The shared Profile page provides watch-list controls. Hide/Show is a per-user
 local preference applied immediately to the viewer's map and does not write to
@@ -134,7 +134,7 @@ Revocation temporarily removes both relationship documents; a later friend-link 
       records.
 - [ ] Add owner-side share revocation or code rotation.
 - [ ] Add a non-destructive "Report store closure" signal and show the resulting likelihood indicator without closing the place for everyone.
-- [ ] Add a manual refresh control beside the map pins badge for externally changed Firestore data; successful local saves already refresh automatically.
+- [ ] Add a manual refresh control beside the map pins badge for externally changed Firestore data; successful local saves and deletes already update local map state without a second fetch.
 - [x] Add empty, loading, auth-required, permission-denied, and offline/error states.
 - [ ] Verify mobile map usability, especially GPS permission errors and bottom-sheet detail panels.
 
