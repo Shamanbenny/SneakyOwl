@@ -23,7 +23,7 @@ const unsignedToken = [
   base64Url(
     JSON.stringify({
       iss: serviceAccount.client_email,
-      sub: ownerUid,
+      sub: serviceAccount.client_email,
       aud: "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
       iat: issuedAt,
       exp: issuedAt + 3600,
@@ -47,8 +47,12 @@ const identityResponse = await fetch(
 );
 
 if (!identityResponse.ok) {
+  const errorPayload = await identityResponse.json().catch(() => null);
+  const firebaseError = errorPayload?.error;
   throw new Error(
-    `Firebase custom-token exchange failed (${identityResponse.status}).`,
+    `Firebase custom-token exchange failed (${identityResponse.status}): ${
+      firebaseError?.status || firebaseError?.message || "unknown Firebase error"
+    }`,
   );
 }
 
