@@ -108,7 +108,6 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
         setGlobalCount(0);
       }
     } catch (error) {
-      console.error("Failed to fetch Abacus count", error);
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +137,6 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
 
       window.localStorage.setItem(LOCAL_UNIQUE_VIEW_STORAGE_KEY, "1");
     } catch (error) {
-      console.error("Failed to register unique Abacus view", error);
     }
   }, []);
 
@@ -165,7 +163,6 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
           return currentValue;
         });
       } catch (error) {
-        console.error("Failed to parse Abacus stream event", error);
       }
     };
 
@@ -290,7 +287,6 @@ const CuriousCatClickTrap: React.FC<CuriousCatClickTrapProps> = ({
         setGlobalCount(data.value);
       }
     } catch (error) {
-      console.error("Failed to register Abacus click", error);
       writePersonalCount(Math.max(0, nextPersonalCount - 1));
       setGlobalCount((currentValue) => Math.max(0, currentValue - 1));
     }

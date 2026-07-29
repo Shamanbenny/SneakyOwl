@@ -1,7 +1,13 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import {
   FaCode,
   FaChess,
@@ -10,16 +16,26 @@ import {
   FaHistory,
   FaLaptopCode,
   FaQuoteLeft,
+  FaTools,
 } from "react-icons/fa";
-import { FaBookOpen } from "react-icons/fa6";
+import { FaBookOpen, FaMapLocationDot, FaUser } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
 import Dock, { type DockEntry } from "@/app/components/shared/navigation/Dock";
 import StaggeredMenu from "@/app/components/shared/navigation/StaggeredMenu";
+import { TOOL_ROUTES } from "@/app/components/tools/toolRegistry";
 
-const LANDING_SECTIONS = ["home", "projects", "skills", "timeline", "reviews"] as const;
+const LANDING_SECTIONS = [
+  "home",
+  "projects",
+  "skills",
+  "timeline",
+  "reviews",
+] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
-const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}`;
+const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(
+  "[SneakyOwl] Connection",
+)}`;
 const NAV_TOP_LOCK_OFFSET = 24;
 const NAV_HIDE_SCROLL_OFFSET = 96;
 const NAV_HIDE_DISTANCE = 48;
@@ -32,7 +48,14 @@ const SITE_COLORS = {
 } as const;
 
 type LandingSection = (typeof LANDING_SECTIONS)[number];
-type ActiveDockItem = LandingSection | "blog" | "chess" | null;
+type ActiveDockItem =
+  | LandingSection
+  | "blog"
+  | "chess"
+  | "tools"
+  | "biteTrail"
+  | "profile"
+  | null;
 type MobileMenuItem = {
   ariaLabel: string;
   className?: string;
@@ -79,7 +102,8 @@ const mobileMenuItemClass = (isActive: boolean, withSectionBreak = false) =>
     withSectionBreak && "sm-panel-itemWrap--sectionBreak",
   );
 
-const ResponsiveStaggeredMenu = StaggeredMenu as unknown as ComponentType<StaggeredMenuProps>;
+const ResponsiveStaggeredMenu =
+  StaggeredMenu as unknown as ComponentType<StaggeredMenuProps>;
 
 const NavBar = () => {
   const pathname = usePathname();
@@ -183,6 +207,24 @@ const NavBar = () => {
         return;
       }
 
+      if (
+        pathname === "/tools/bite-trail" ||
+        pathname.startsWith("/tools/bite-trail/")
+      ) {
+        setActiveDockItem("biteTrail");
+        return;
+      }
+
+      if (pathname === "/profile") {
+        setActiveDockItem("profile");
+        return;
+      }
+
+      if (pathname === "/tools" || pathname.startsWith("/tools/")) {
+        setActiveDockItem("tools");
+        return;
+      }
+
       setActiveDockItem(null);
       return;
     }
@@ -221,8 +263,10 @@ const NavBar = () => {
   };
 
   const scrollToSection = (section: HTMLElement) => {
-    const scrollMarginTop = Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
-    const top = window.scrollY + section.getBoundingClientRect().top - scrollMarginTop;
+    const scrollMarginTop =
+      Number.parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+    const top =
+      window.scrollY + section.getBoundingClientRect().top - scrollMarginTop;
 
     window.scrollTo({
       behavior: "smooth",
@@ -264,7 +308,28 @@ const NavBar = () => {
     router.push("/blog");
   };
 
+  const goToToolsPage = () => {
+    setActiveDockItem("tools");
+    router.push("/tools");
+  };
+
+  const goToBiteTrailPage = () => {
+    setActiveDockItem("biteTrail");
+    router.push("/tools/bite-trail");
+  };
+
+  const goToProfilePage = () => {
+    setActiveDockItem("profile");
+    router.push("/profile");
+  };
+
   const currentPageHasSections = pathname === "/";
+  const currentPageHasTools =
+    pathname === "/profile" ||
+    pathname.startsWith("/profile/") ||
+    pathname === "/tools" ||
+    pathname.startsWith("/tools/");
+  const hasMultipleTools = TOOL_ROUTES.length > 1;
   const sectionNavItems: SectionNavItem[] = currentPageHasSections
     ? [
         {
@@ -329,8 +394,47 @@ const NavBar = () => {
     {
       className: dockItemClass(activeDockItem === "chess"),
       icon: <FaChess size={20} />,
-      label: "Chess Page",
+      label: "Chess",
       onClick: goToChessPage,
+    },
+    ...(currentPageHasTools && hasMultipleTools
+      ? [{ type: "divider" as const }]
+      : []),
+    ...(hasMultipleTools
+      ? [
+          {
+            className: dockItemClass(activeDockItem === "tools"),
+            icon: <FaTools size={19} />,
+            label: "Tools",
+            onClick: goToToolsPage,
+          },
+        ]
+      : [
+          {
+            className: dockItemClass(activeDockItem === "biteTrail"),
+            icon: <FaMapLocationDot size={19} />,
+            label: "BiteTrail",
+            onClick: goToBiteTrailPage,
+          },
+        ]),
+    ...(currentPageHasTools && hasMultipleTools
+      ? [
+          {
+            className: dockItemClass(activeDockItem === "biteTrail"),
+            icon: <FaMapLocationDot size={19} />,
+            label: "BiteTrail",
+            onClick: goToBiteTrailPage,
+          },
+        ]
+      : []),
+    ...(currentPageHasTools && hasMultipleTools
+      ? [{ type: "divider" as const }]
+      : []),
+    {
+      className: dockItemClass(activeDockItem === "profile"),
+      icon: <FaUser size={18} />,
+      label: "Profile",
+      onClick: goToProfilePage,
     },
     {
       icon: <FaEnvelope size={18} />,
@@ -367,11 +471,44 @@ const NavBar = () => {
         label: "Chess Page",
         onClick: goToChessPage,
       },
+      ...(hasMultipleTools
+        ? [
+            {
+              ariaLabel: "Open the tools page",
+              className: mobileMenuItemClass(activeDockItem === "tools"),
+              label: "Tools",
+              onClick: goToToolsPage,
+            },
+          ]
+        : [
+            {
+              ariaLabel: "Open the BiteTrail tool",
+              className: mobileMenuItemClass(activeDockItem === "biteTrail"),
+              label: "BiteTrail",
+              onClick: goToBiteTrailPage,
+            },
+          ]),
+      ...(currentPageHasTools && hasMultipleTools
+        ? [
+            {
+              ariaLabel: "Open the BiteTrail tool",
+              className: mobileMenuItemClass(activeDockItem === "biteTrail"),
+              label: "> BiteTrail",
+              onClick: goToBiteTrailPage,
+            },
+          ]
+        : []),
     ],
     [
       {
+        ariaLabel: "Open my profile",
+        className: mobileMenuItemClass(activeDockItem === "profile", true),
+        label: "Profile",
+        onClick: goToProfilePage,
+      },
+      {
         ariaLabel: `Send an email to ${EMAIL_ADDRESS}`,
-        className: mobileMenuItemClass(false, true),
+        className: mobileMenuItemClass(false),
         label: "Email Me",
         onClick: openEmailComposer,
       },

@@ -2,6 +2,10 @@
   "schema_version": 2,
   "generated_from": "autoresearch/ATTEMPTS.md and autoresearch/approved_logs",
   "evaluation_opponents": {
+    "stockfish-1800": {
+      "name": "Stockfish",
+      "elo": 1800
+    },
     "stockfish-1350": {
       "name": "Stockfish",
       "elo": 1350
@@ -739,6 +743,1522 @@
           "text": "C# v3.16 scored 811.5/1000 against Stockfish (1350 Elo): 756 wins, 111 draws, 133 losses, score rate 0.8115."
         }
       }
+    },
+    {
+      "version": "v3.17",
+      "api_version": "v3_17",
+      "engine_file": "engine_csharp/src/Engine.Core/V3/V3_17Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A conservative depth-1 razoring shortcut at quiet non-check nodes will skip clearly hopeless full move generation while still searching captures through quiescence, improving effective search selectivity on top of v3.15's futility pruning."
+      ],
+      "summary": "Added a guarded depth-1 razoring check in negamax that reuses static evaluation, excludes check and pawns-and-king-only positions, and falls back to quiescence when static evaluation is safely below alpha.",
+      "implementation_summary": "Added a guarded depth-1 razoring check in negamax that reuses static evaluation, excludes check and pawns-and-king-only positions, and falls back to quiescence when static evaluation is safely below alpha.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1350": {
+          "games": 1000,
+          "wins": 778,
+          "draws": 102,
+          "losses": 120,
+          "score": 829.0,
+          "score_rate": 0.829,
+          "text": "C# v3.17 scored 829.0/1000 against Stockfish (1350 Elo): 778 wins, 102 draws, 120 losses, score rate 0.8290."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "V4.0",
+      "api_version": "V4_0",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_0Engine.cs",
+      "served": false,
+      "status": "approved",
+      "commit": "99698ba",
+      "hypotheses": [
+        "A capped side-aware quiet-history table for quiet beta-cutoff moves will improve v3.15-style killer/LMR/futility search ordering without changing evaluation or adding broad pruning risk."
+      ],
+      "summary": "Added a persistent quiet-history table to the V4.0 search context, scored quiet moves with a small capped history bonus below TT/capture/killer priority, and rewarded quiet beta cutoffs by remaining-depth-squared history increments while preserving the existing evaluation and pruning guards.",
+      "implementation_summary": "Added a persistent quiet-history table to the V4.0 search context, scored quiet moves with a small capped history bonus below TT/capture/killer priority, and rewarded quiet beta cutoffs by remaining-depth-squared history increments while preserving the existing evaluation and pruning guards.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_0Engine-99698ba-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 143,
+          "draws": 182,
+          "losses": 675,
+          "score": 234.0,
+          "score_rate": 0.234,
+          "evaluation_log_path": "autoresearch/approved_logs/v4_0Engine-Stockfish1800-result.csv",
+          "text": "C# V4.0 scored 234.0/1000 against Stockfish (1800 Elo): 143 wins, 182 draws, 675 losses, score rate 0.2340."
+        },
+        "stockfish-1350": {
+          "games": 1000,
+          "wins": 796,
+          "draws": 92,
+          "losses": 112,
+          "score": 842.0,
+          "score_rate": 0.842,
+          "text": "C# V4.0 scored 842.0/1000 against Stockfish (1350 Elo): 796 wins, 92 draws, 112 losses, score rate 0.8420."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.1",
+      "api_version": "v4_1",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_1Engine.cs",
+      "served": false,
+      "status": "approved",
+      "commit": "cdcc74f",
+      "hypotheses": [
+        "Quiet checking moves are tactically important enough that they should not be pruned by shallow quiet futility pruning or reduced by late-move reduction merely because they appear late in move ordering.",
+        "Exempting only quiet moves that give check should improve tactical coverage against stockfish-1800 while preserving the existing V4.0 evaluation, null-move, futility, killer, and quiet-history behavior for ordinary quiet moves."
+      ],
+      "summary": "Added a NativeBoard.MoveGivesCheck helper and used it to keep quiet checking moves out of shallow quiet futility pruning. Negamax now detects whether a searched move gives check after making it, and late-move reduction skips those checking moves while leaving the existing reduction policy unchanged for non-checking quiet moves.",
+      "implementation_summary": "Added a NativeBoard.MoveGivesCheck helper and used it to keep quiet checking moves out of shallow quiet futility pruning. Negamax now detects whether a searched move gives check after making it, and late-move reduction skips those checking moves while leaving the existing reduction policy unchanged for non-checking quiet moves.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_1Engine-v4_1-0620143922-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 191,
+          "draws": 207,
+          "losses": 602,
+          "score": 294.5,
+          "score_rate": 0.2945,
+          "text": "C# v4.1 scored 294.5/1000 against Stockfish (1800 Elo): 191 wins, 207 draws, 602 losses, score rate 0.2945, improvement_lcb95 0.0326 versus v4.0.",
+          "lcb95": 0.274,
+          "improvement_lcb95": 0.0326,
+          "reference_version": "v4.0",
+          "reference_score_rate": 0.234,
+          "max_plies_rate": 0.047,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 47
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Approved under the improvement-bound rule: quiet-check preservation raised score_rate from the v4.0 Stockfish-1800 reference 0.2340 to 0.2945 with improvement_lcb95=0.0326, zero failures, and acceptable max_plies_rate=0.0470. The tactical signal is real but modest, so future work should combine quiet-check protection with higher-impact search or quiescence changes rather than repeatedly retuning the same exemption."
+    },
+    {
+      "version": "v4.2",
+      "api_version": "v4_2",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_2Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A very small queen mobility term will improve queen activity and attacking move choice on top of v4.2's existing targeted piece-activity features.",
+        "Reusing the existing ray-mobility helper with a 1 centipawn per reachable queen square scale should keep evaluation overhead low enough for 100ms searches."
+      ],
+      "summary": "Added a QueenMobilityScale constant and scored queen ray mobility in evaluation using the existing bishop/rook ray mobility helper paths.",
+      "implementation_summary": "Added a QueenMobilityScale constant and scored queen ray mobility in evaluation using the existing bishop/rook ray mobility helper paths.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 194,
+          "draws": 190,
+          "losses": 616,
+          "score": 289.0,
+          "score_rate": 0.289,
+          "text": "C# v4.2 scored 289.0/1000 against Stockfish (1800 Elo): 194 wins, 190 draws, 616 losses, score rate 0.2890, improvement_lcb95 -0.0345 versus v4.1.",
+          "lcb95": 0.2685,
+          "improvement_lcb95": -0.0345,
+          "reference_version": "v4.1",
+          "reference_score_rate": 0.2945,
+          "max_plies_rate": 0.043,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 43
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Rejected under the advancing-reference improvement rule: although queen mobility remained above the original v4.0 calibration, it scored 0.2890 against Stockfish-1800 after v4.1 became the reference, below v4.1's 0.2945 with improvement_lcb95=-0.0345. The small generic queen-mobility term is not a useful successor to v4.1 and should not be promoted as a seed."
+    },
+    {
+      "version": "v4.3",
+      "api_version": "v4_3",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_3Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Quiet checking moves are tactically important enough that shallow quiet futility pruning should not discard them before search.",
+        "Skipping late-move reduction for quiet checking moves should improve tactical coverage against stockfish-1800 while preserving existing reductions for ordinary quiet moves."
+      ],
+      "summary": "Added a NativeBoard.MoveGivesCheck helper and used it to exempt quiet checking moves from shallow quiet futility pruning. Negamax now detects checking moves after making them and skips late-move reduction for those moves while preserving the existing V4.3 evaluation, null-move, reverse futility, killer, and quiet-history behavior.",
+      "implementation_summary": "Added a NativeBoard.MoveGivesCheck helper and used it to exempt quiet checking moves from shallow quiet futility pruning. Negamax now detects checking moves after making them and skips late-move reduction for those moves while preserving the existing V4.3 evaluation, null-move, reverse futility, killer, and quiet-history behavior.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 198,
+          "draws": 161,
+          "losses": 641,
+          "score": 278.5,
+          "score_rate": 0.2785,
+          "text": "C# v4.3 scored 278.5/1000 against Stockfish (1800 Elo): 198 wins, 161 draws, 641 losses, score rate 0.2785, improvement_lcb95 -0.0456 versus v4.1.",
+          "lcb95": 0.2571,
+          "improvement_lcb95": -0.0456,
+          "reference_version": "v4.1",
+          "reference_score_rate": 0.2945,
+          "max_plies_rate": 0.036,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 36
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Rejected under the advancing-reference improvement rule: this quiet-check pruning/LMR variant scored 0.2785 against Stockfish-1800 versus the newly approved v4.1 reference 0.2945, with improvement_lcb95=-0.0456. The repeated quiet-check exemption is directionally useful versus v4.0, but weaker than v4.1 and not worth promoting."
+    },
+    {
+      "version": "v4.4",
+      "api_version": "v4_4",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_4Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Quiet checking moves are tactically important enough against stockfish-1800 that they should not be discarded by shallow quiet futility pruning or weakened by late-move reduction.",
+        "A tightly limited quiet-check extension at remaining depths up to 2 can improve horizon tactical coverage more than the prior check-pruning exemption alone, while keeping the existing null-move, futility, killer, and quiet-history safeguards intact."
+      ],
+      "summary": "Added quiet-check awareness in negamax: searched moves now detect whether they give check after make-move, quiet checking moves are excluded from late-move reduction, shallow quiet futility pruning verifies and preserves checking moves, and quiet checks at remaining depths up to 2 receive a one-ply extension.",
+      "implementation_summary": "Added quiet-check awareness in negamax: searched moves now detect whether they give check after make-move, quiet checking moves are excluded from late-move reduction, shallow quiet futility pruning verifies and preserves checking moves, and quiet checks at remaining depths up to 2 receive a one-ply extension.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 199,
+          "draws": 200,
+          "losses": 601,
+          "score": 299.0,
+          "score_rate": 0.299,
+          "text": "C# v4.4 scored 299.0/1000 against Stockfish (1800 Elo): 199 wins, 200 draws, 601 losses, score rate 0.2990, improvement_lcb95 -0.0253 versus v4.1.",
+          "lcb95": 0.2774,
+          "improvement_lcb95": -0.0253,
+          "reference_version": "v4.1",
+          "reference_score_rate": 0.2945,
+          "max_plies_rate": 0.046,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 46
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Rejected under the advancing-reference improvement rule: the shallow quiet-check extension scored 0.2990, only slightly above v4.1's 0.2945, and its improvement_lcb95=-0.0253 did not clear the confidence gate. The extension may be directionally useful, but the measured gain over v4.1 is too small for approval."
+    },
+    {
+      "version": "v4.5",
+      "api_version": "v4_5",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_5Engine.cs",
+      "served": false,
+      "status": "approved",
+      "commit": "623800e",
+      "hypotheses": [
+        "The current quiescence losing-capture filter is too broad because it skips any non-promotion capture where the attacker is more valuable than the victim, even when the captured piece is loose.",
+        "Only pruning those high-attacker-value captures when the destination is actually defended by the opponent should recover tactical material wins against stockfish-1800 with a limited node-cost increase."
+      ],
+      "summary": "Changed IsObviouslyLosingCapture so quiescence keeps high-value-attacker captures of lower-value pieces unless the target square is defended by the opponent; promotions and non-captures remain unpruned by this helper.",
+      "implementation_summary": "Changed IsObviouslyLosingCapture so quiescence keeps high-value-attacker captures of lower-value pieces unless the target square is defended by the opponent; promotions and non-captures remain unpruned by this helper.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_5Engine-v4_5-0620160421-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 318,
+          "draws": 170,
+          "losses": 512,
+          "score": 403.0,
+          "score_rate": 0.403,
+          "text": "C# v4.5 scored 403.0/1000 against Stockfish (1800 Elo): 318 wins, 170 draws, 512 losses, score rate 0.4030, improvement_lcb95 0.0774 versus v4.1.",
+          "lcb95": 0.3796,
+          "improvement_lcb95": 0.0774,
+          "reference_version": "v4.1",
+          "reference_score_rate": 0.2945,
+          "max_plies_rate": 0.036,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 36
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Approved under the improvement-bound rule against the advancing v4.1 reference: the defender-aware quiescence losing-capture filter raised score_rate from 0.2945 to 0.4030 with improvement_lcb95=0.0774, zero failures, and acceptable max_plies_rate=0.0360. This is the strongest standalone V4 signal so far and should be preserved as a seed idea for future tactical-search work."
+    },
+    {
+      "version": "v4.6",
+      "api_version": "v4_6",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_6Engine.cs",
+      "served": false,
+      "status": "approved",
+      "commit": "04caa13",
+      "hypotheses": [
+        "Keeping the v4.5 defender-aware quiescence capture filter should recover material-winning captures that the older high-attacker-value filter pruned too broadly.",
+        "Protecting quiet checking moves from shallow quiet futility pruning and late-move reduction, with a one-ply extension only at remaining depths up to 2, should improve tactical horizon coverage while keeping the existing pruning stack bounded."
+      ],
+      "summary": "Changed quiescence losing-capture pruning to skip high-attacker-value captures only when the destination is opponent-defended. Added MoveGivesCheck and quiet-check-aware negamax handling: quiet checking moves are preserved from shallow quiet futility pruning, excluded from late-move reduction, and receive a one-ply shallow extension. Quiet move status is captured before MakeMove so late-move reduction uses the intended pre-move classification.",
+      "implementation_summary": "Changed quiescence losing-capture pruning to skip high-attacker-value captures only when the destination is opponent-defended. Added MoveGivesCheck and quiet-check-aware negamax handling: quiet checking moves are preserved from shallow quiet futility pruning, excluded from late-move reduction, and receive a one-ply shallow extension. Quiet move status is captured before MakeMove so late-move reduction uses the intended pre-move classification.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_6Engine-v4_6-0620162528-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 370,
+          "draws": 179,
+          "losses": 451,
+          "score": 459.5,
+          "score_rate": 0.4595,
+          "text": "C# v4.6 scored 459.5/1000 against Stockfish (1800 Elo): 370 wins, 179 draws, 451 losses, score rate 0.4595, improvement_lcb95 0.0226 versus v4.5.",
+          "lcb95": 0.435,
+          "improvement_lcb95": 0.0226,
+          "reference_version": "v4.5",
+          "reference_score_rate": 0.403,
+          "max_plies_rate": 0.036,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 36
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Approved under the improvement-bound rule against the advancing v4.5 reference: combining the defender-aware quiescence filter with quiet-check protection and a bounded shallow extension raised score_rate from 0.4030 to 0.4595 with improvement_lcb95=0.0226, zero failures, and acceptable max_plies_rate=0.0360. This is the best V4 result so far; future experiments should build from v4.6 and continue with guarded tactical-search improvements rather than generic static evaluation additions."
+    },
+    {
+      "version": "v4.7",
+      "api_version": "v4_7",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_7Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Combining the approved v4.1 quiet-check preservation with the approved v4.5 defender-aware quiescence capture filter and the approved v4.6 shallow quiet-check extension should improve tactical horizon coverage when the search reaches quiescence.",
+        "A single bounded quiet-check ply inside quiescence should let forcing non-capture checks interact with defender-aware capture pruning without opening the full quiet-move tree or materially increasing max-plies failures."
+      ],
+      "summary": "Cloned v4.6 into v4.7 and preserved the approved v4.1 quiet-check futility/LMR protection, v4.5 defender-aware quiescence capture filter, and v4.6 shallow quiet-check extension. Added one bounded quiet-check ply to quiescence: when not in check, quiescence still searches captures and promotions, but may also search quiet moves that give check, consuming a one-ply quiet-check budget so non-checking quiet moves remain excluded.",
+      "implementation_summary": "Cloned v4.6 into v4.7 and preserved the approved v4.1 quiet-check futility/LMR protection, v4.5 defender-aware quiescence capture filter, and v4.6 shallow quiet-check extension. Added one bounded quiet-check ply to quiescence: when not in check, quiescence still searches captures and promotions, but may also search quiet moves that give check, consuming a one-ply quiet-check budget so non-checking quiet moves remain excluded.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 226,
+          "draws": 186,
+          "losses": 588,
+          "score": 319.0,
+          "score_rate": 0.319,
+          "text": "C# v4.7 scored 319.0/1000 against Stockfish (1800 Elo): 226 wins, 186 draws, 588 losses, score rate 0.3190, improvement_lcb95 -0.1734 versus v4.6.",
+          "lcb95": 0.297,
+          "improvement_lcb95": -0.1734,
+          "reference_version": "v4.6",
+          "reference_score_rate": 0.4595,
+          "max_plies_rate": 0.045,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 45
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Rejected: adding a bounded quiet-check ply inside quiescence caused a major regression versus the approved v4.6 seed, dropping score_rate from 0.4595 to 0.3190 against stockfish-1800 with improvement_lcb95=-0.1734, zero failures, and max_plies_rate=0.0450. The canonical CSV shows average positions/nodes fell from v4.6's 6531.91 to 3329.59, matching the evaluator summary's visible node-rate collapse. The quiescence quiet-check pass appears to spend too much 100ms budget generating and testing quiet checking moves at horizon nodes, reducing effective main-search coverage. Future work should keep the approved v4.1/v4.5/v4.6 normal-search and defender-aware quiescence changes, but avoid broad quiet-check expansion in quiescence unless it is much more selective, ordered, or triggered only by concrete tactical conditions."
+    },
+    {
+      "version": "v4.8",
+      "api_version": "v4_8",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_8Engine.cs",
+      "served": true,
+      "status": "approved",
+      "commit": "<pending-manual-commit>",
+      "hypotheses": [
+        "Moving the non-check quiescence stand-pat beta cutoff before capture generation will recover 100ms search budget lost to unnecessary legal-capture generation and ordering in already-good horizon positions.",
+        "Keeping V4.6's approved defender-aware capture filter and normal-search quiet-check extension intact, while only optimizing quiescence control flow, should improve effective depth without repeating V4.7's broad quiet-check expansion failure."
+      ],
+      "summary": "Cloned v4.6 into v4.8 and preserved the approved V4.5 defender-aware quiescence capture filter plus V4.6 quiet-check futility/LMR protection and shallow extension. In quiescence, non-check nodes now evaluate stand-pat and return on beta cutoff before generating and ordering capture moves; in-check nodes still generate legal evasions before evaluation because stand-pat is not legal.",
+      "implementation_summary": "Cloned v4.6 into v4.8 and preserved the approved V4.5 defender-aware quiescence capture filter plus V4.6 quiet-check futility/LMR protection and shallow extension. In quiescence, non-check nodes now evaluate stand-pat and return on beta cutoff before generating and ordering capture moves; in-check nodes still generate legal evasions before evaluation because stand-pat is not legal.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_8Engine-385a585-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 382,
+          "draws": 195,
+          "losses": 423,
+          "score": 479.5,
+          "score_rate": 0.4795,
+          "text": "C# v4.8 scored 479.5/1000 against Stockfish (1800 Elo): 382 wins, 195 draws, 423 losses, score rate 0.4795, improvement_lcb95 -0.0139 versus v4.6.",
+          "lcb95": 0.456,
+          "improvement_lcb95": -0.0139,
+          "reference_version": "v4.6",
+          "reference_score_rate": 0.4595,
+          "max_plies_rate": 0.029,
+          "failure_counts": {
+            "crash": 0,
+            "illegal_move": 0,
+            "timeout": 0,
+            "harness": 0,
+            "max_plies": 29
+          }
+        }
+      },
+      "limitations": [],
+      "inferred_conclusion": "Approved by manual override: moving the non-check quiescence stand-pat beta cutoff before capture generation improved raw score_rate from v4.6's 0.4595 to 0.4795 and raised node throughput from 6531.91 to 7542.32 average positions/nodes, with zero failures and max_plies_rate=0.0290. This did not clear the normal statistical gate because improvement_lcb95=-0.0139, but it is being kept as the next seed to preserve the directionally positive combined changes before continuing autoresearch. Future work should treat v4.8 as a pragmatic seed, not as a statistically proven improvement, and pair this budget-saving quiescence change with another low-cost move-quality improvement."
+    },
+    {
+      "version": "v4.9",
+      "api_version": "v4_9",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_9Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Making quiescence losing-capture pruning less aggressive for near-equal defended captures will preserve tactical minor-piece exchanges while still skipping clearly bad high-value captures."
+      ],
+      "summary": "Added a 100 centipawn material-loss margin to the defender-aware quiescence losing-capture filter, so defended captures are pruned only when the attacker exceeds the captured material by at least that margin; near-equal defended captures such as bishop-for-knight exchanges remain searchable.",
+      "implementation_summary": "Added a 100 centipawn material-loss margin to the defender-aware quiescence losing-capture filter, so defended captures are pruned only when the attacker exceeds the captured material by at least that margin; near-equal defended captures such as bishop-for-knight exchanges remain searchable.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 357,
+          "draws": 195,
+          "losses": 448,
+          "score": 454.5,
+          "score_rate": 0.4545,
+          "text": "C# v4.9 scored 454.5/1000 against Stockfish (1800 Elo): 357 wins, 195 draws, 448 losses, score rate 0.4545."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.10",
+      "api_version": "v4_10",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_10Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Quiet checking moves are already tactically protected in v4.8, but when they are ordered late they can still consume extra search effort before receiving their extension.",
+        "Adding a bounded top-ply move-order bonus for quiet checking moves should improve tactical coverage without repeating v4.7's expensive quiescence quiet-check expansion."
+      ],
+      "summary": "Added a QuietCheckMoveOrderBonus and applied it only to quiet moves at plies within the existing quiet-check extension depth when MoveGivesCheck is true, preserving v4.8 quiescence behavior and all public APIs.",
+      "implementation_summary": "Added a QuietCheckMoveOrderBonus and applied it only to quiet moves at plies within the existing quiet-check extension depth when MoveGivesCheck is true, preserving v4.8 quiescence behavior and all public APIs.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 361,
+          "draws": 173,
+          "losses": 466,
+          "score": 447.5,
+          "score_rate": 0.4475,
+          "text": "C# v4.10 scored 447.5/1000 against Stockfish (1800 Elo): 361 wins, 173 draws, 466 losses, score rate 0.4475."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.11",
+      "api_version": "v4_11",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_11Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Scoring stalemate and already-drawn repetition/50-move nodes as exact draws will improve conversion and drawing defense versus v4.8, because the current search can treat stalemate as a material-winning or material-losing evaluated position instead of a terminal draw."
+      ],
+      "summary": "Added exact draw scoring for threefold/50-move positions in main search and quiescence, and changed no-legal-move non-check nodes to return a draw score instead of static evaluation.",
+      "implementation_summary": "Added exact draw scoring for threefold/50-move positions in main search and quiescence, and changed no-legal-move non-check nodes to return a draw score instead of static evaluation.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 376,
+          "draws": 181,
+          "losses": 443,
+          "score": 466.5,
+          "score_rate": 0.4665,
+          "text": "C# v4.11 scored 466.5/1000 against Stockfish (1800 Elo): 376 wins, 181 draws, 443 losses, score rate 0.4665."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.12",
+      "api_version": "v4_12",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_12Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A cheap king-race bonus for advanced passed pawns in endgames will improve conversion decisions on top of v4.8 without expanding quiescence or adding broad move-order overhead.",
+        "Restricting the passed-pawn blockade penalty to defended enemy blockaders should avoid undervaluing passers blocked by loose pieces that may be tactically removable."
+      ],
+      "summary": "Added a small endgame-weighted passed-pawn race bonus when the enemy king is too far from the promotion square, and changed the existing direct-front blockade penalty to apply only when the enemy blockader is defended.",
+      "implementation_summary": "Added a small endgame-weighted passed-pawn race bonus when the enemy king is too far from the promotion square, and changed the existing direct-front blockade penalty to apply only when the enemy blockader is defended.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 372,
+          "draws": 193,
+          "losses": 435,
+          "score": 468.5,
+          "score_rate": 0.4685,
+          "text": "C# v4.12 scored 468.5/1000 against Stockfish (1800 Elo): 372 wins, 193 draws, 435 losses, score rate 0.4685."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.13",
+      "api_version": "v4_13",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_13Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Allowing immediate non-capture pawn promotions in quiescence should fix a narrow horizon blind spot without repeating the expensive broad quiet-check expansion from v4.7."
+      ],
+      "summary": "Changed pawn move generation so capture-only/quiescence move lists still include one-square promotion pushes when the promotion square is empty, while preserving the existing exclusion of ordinary quiet pawn pushes and double pushes.",
+      "implementation_summary": "Changed pawn move generation so capture-only/quiescence move lists still include one-square promotion pushes when the promotion square is empty, while preserving the existing exclusion of ordinary quiet pawn pushes and double pushes.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 391,
+          "draws": 166,
+          "losses": 443,
+          "score": 474.0,
+          "score_rate": 0.474,
+          "text": "C# v4.13 scored 474.0/1000 against Stockfish (1800 Elo): 391 wins, 166 draws, 443 losses, score rate 0.4740."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.14",
+      "api_version": "v4_14",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_14Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A modest bishop-pair bonus should improve minor-piece trade and middlegame evaluation decisions on top of v4.8-derived piece activity without adding search overhead or widening quiescence."
+      ],
+      "summary": "Added a 24 centipawn bishop-pair positional bonus for each side when its existing evaluation scan counts at least two bishops.",
+      "implementation_summary": "Added a 24 centipawn bishop-pair positional bonus for each side when its existing evaluation scan counts at least two bishops.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 407,
+          "draws": 156,
+          "losses": 437,
+          "score": 485.0,
+          "score_rate": 0.485,
+          "text": "C# v4.14 scored 485.0/1000 against Stockfish (1800 Elo): 407 wins, 156 draws, 437 losses, score rate 0.4850."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.15",
+      "api_version": "v4_15",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_15Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A bishop-pair bonus should be more useful when enough pawns have been exchanged for the bishops' long-range mobility to matter.",
+        "Gating the bonus by total pawn count should retain the directionally positive v4.14 bishop-pair signal while avoiding a broad static bonus in closed positions."
+      ],
+      "summary": "Added a 28 centipawn bishop-pair bonus for each side only when the total pawn count is 12 or less, preserving v4.8-derived search and quiescence behavior.",
+      "implementation_summary": "Added a 28 centipawn bishop-pair bonus for each side only when the total pawn count is 12 or less, preserving v4.8-derived search and quiescence behavior.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 377,
+          "draws": 181,
+          "losses": 442,
+          "score": 467.5,
+          "score_rate": 0.4675,
+          "text": "C# v4.15 scored 467.5/1000 against Stockfish (1800 Elo): 377 wins, 181 draws, 442 losses, score rate 0.4675."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.16",
+      "api_version": "v4_16",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_16Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching the per-node static evaluation used by shallow quiet futility pruning will recover search budget at 100ms without changing move ordering, evaluation values, or pruning decisions."
+      ],
+      "summary": "Changed quiet futility pruning to receive the nullable static evaluation by reference and populate it once per node, so multiple quiet futility checks reuse the same evaluation instead of recomputing it for each candidate move.",
+      "implementation_summary": "Changed quiet futility pruning to receive the nullable static evaluation by reference and populate it once per node, so multiple quiet futility checks reuse the same evaluation instead of recomputing it for each candidate move.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 397,
+          "draws": 174,
+          "losses": 429,
+          "score": 484.0,
+          "score_rate": 0.484,
+          "text": "C# v4.16 scored 484.0/1000 against Stockfish (1800 Elo): 397 wins, 174 draws, 429 losses, score rate 0.4840."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.17",
+      "api_version": "v4_17",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_17Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching per-node static evaluation and the pawns-and-king-only guard across reverse futility, null-move gating, and quiet futility should recover 100ms search budget without changing pruning thresholds or evaluation semantics."
+      ],
+      "summary": "Negamax now keeps a nullable per-node only-pawns-and-king result alongside the existing nullable static evaluation. Reverse futility pruning, null-move pruning, and quiet futility pruning reuse those cached values; quiet futility now populates staticEval by reference so later quiet moves in the same node avoid recomputing evaluation.",
+      "implementation_summary": "Negamax now keeps a nullable per-node only-pawns-and-king result alongside the existing nullable static evaluation. Reverse futility pruning, null-move pruning, and quiet futility pruning reuse those cached values; quiet futility now populates staticEval by reference so later quiet moves in the same node avoid recomputing evaluation.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 368,
+          "draws": 187,
+          "losses": 445,
+          "score": 461.5,
+          "score_rate": 0.4615,
+          "text": "C# v4.17 scored 461.5/1000 against Stockfish (1800 Elo): 368 wins, 187 draws, 445 losses, score rate 0.4615."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.18",
+      "api_version": "v4_18",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_18Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching the per-node static evaluation used by shallow quiet futility pruning will avoid repeated evaluation work within the same node while preserving pruning thresholds and move semantics.",
+        "Combining that low-risk budget cleanup with the previously directionally positive 24 centipawn bishop-pair evaluation term may provide enough independent move-quality signal to improve over the v4.8 reference."
+      ],
+      "summary": "Changed quiet futility pruning to populate the nullable static evaluation by reference so later quiet futility checks in the same node reuse it, and added a 24 centipawn bishop-pair positional bonus for each side when the existing evaluation scan counts at least two bishops.",
+      "implementation_summary": "Changed quiet futility pruning to populate the nullable static evaluation by reference so later quiet futility checks in the same node reuse it, and added a 24 centipawn bishop-pair positional bonus for each side when the existing evaluation scan counts at least two bishops.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 410,
+          "draws": 163,
+          "losses": 427,
+          "score": 491.5,
+          "score_rate": 0.4915,
+          "text": "C# v4.18 scored 491.5/1000 against Stockfish (1800 Elo): 410 wins, 163 draws, 427 losses, score rate 0.4915."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.19",
+      "api_version": "v4_19",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_19Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching the per-node static evaluation used by shallow quiet futility pruning will avoid repeated evaluation work within the same node while preserving pruning thresholds and move semantics.",
+        "Trying eligible null-move pruning before full legal move generation will recover 100ms search budget on beta-cutoff nodes without widening quiescence or adding evaluation overhead."
+      ],
+      "summary": "Changed quiet futility pruning to populate the nullable static evaluation by reference so later quiet futility checks in the same node reuse it. Moved the existing null-move pruning block ahead of ordered legal move generation while preserving its depth, check, and pawns-only guards.",
+      "implementation_summary": "Changed quiet futility pruning to populate the nullable static evaluation by reference so later quiet futility checks in the same node reuse it. Moved the existing null-move pruning block ahead of ordered legal move generation while preserving its depth, check, and pawns-only guards.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 373,
+          "draws": 171,
+          "losses": 456,
+          "score": 458.5,
+          "score_rate": 0.4585,
+          "text": "C# v4.19 scored 458.5/1000 against Stockfish (1800 Elo): 373 wins, 171 draws, 456 losses, score rate 0.4585."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.20",
+      "api_version": "v4_20",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_20Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching the per-node static evaluation used by shallow quiet futility pruning will avoid repeated evaluation work within the same node while preserving pruning thresholds and move semantics.",
+        "Scoring only true stalemate nodes as exact draws should improve conversion and drawing defense without repeating the rejected broader exact repetition/50-move normalization."
+      ],
+      "summary": "Changed quiet futility pruning to populate the nullable static evaluation by reference so later quiet futility checks in the same node reuse it, and changed no-legal-move non-check nodes to return an exact draw score while leaving repetition and 50-move draw contempt behavior unchanged.",
+      "implementation_summary": "Changed quiet futility pruning to populate the nullable static evaluation by reference so later quiet futility checks in the same node reuse it, and changed no-legal-move non-check nodes to return an exact draw score while leaving repetition and 50-move draw contempt behavior unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 366,
+          "draws": 199,
+          "losses": 435,
+          "score": 465.5,
+          "score_rate": 0.4655,
+          "text": "C# v4.20 scored 465.5/1000 against Stockfish (1800 Elo): 366 wins, 199 draws, 435 losses, score rate 0.4655."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.21",
+      "api_version": "v4_21",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_21Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A modest bishop-pair bonus should preserve the directionally positive v4.14 signal while adding no search overhead or quiescence expansion.",
+        "Extending only safe checking captures at the final normal-search ply should improve tactical horizon coverage without repeating the costly quiet-check expansion failures."
+      ],
+      "summary": "Added a 24 centipawn bishop-pair positional bonus for each side and added a one-ply extension for checking captures at remaining depth 1 when the capture is not obviously losing, preserving v4.8-derived quiescence and pruning behavior.",
+      "implementation_summary": "Added a 24 centipawn bishop-pair positional bonus for each side and added a one-ply extension for checking captures at remaining depth 1 when the capture is not obviously losing, preserving v4.8-derived quiescence and pruning behavior.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 377,
+          "draws": 198,
+          "losses": 425,
+          "score": 476.0,
+          "score_rate": 0.476,
+          "text": "C# v4.21 scored 476.0/1000 against Stockfish (1800 Elo): 377 wins, 198 draws, 425 losses, score rate 0.4760."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.22",
+      "api_version": "v4_22",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_22Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A modest pawn-shield bonus for back-rank or second-rank kings while queens remain will improve king-safety decisions beyond the existing king piece-square table without adding search overhead.",
+        "Scaling the shield term out with endgame weight should avoid fighting the existing endgame king-centralization and mop-up logic."
+      ],
+      "summary": "Added middle-game-scaled pawn-shield scoring around each king using friendly pawns one and two ranks in front of the king, gated to queen-present positions and home-side king ranks.",
+      "implementation_summary": "Added middle-game-scaled pawn-shield scoring around each king using friendly pawns one and two ranks in front of the king, gated to queen-present positions and home-side king ranks.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 388,
+          "draws": 168,
+          "losses": 444,
+          "score": 472.0,
+          "score_rate": 0.472,
+          "text": "C# v4.22 scored 472.0/1000 against Stockfish (1800 Elo): 388 wins, 168 draws, 444 losses, score rate 0.4720."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.23",
+      "api_version": "v4_23",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_23Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching the per-node static evaluation used by shallow quiet futility pruning will avoid repeated evaluation work within the same node while preserving pruning thresholds, move ordering, and evaluation semantics."
+      ],
+      "summary": "Changed quiet futility pruning to receive the nullable static evaluation by reference and populate it once per node, so later quiet futility checks in the same node reuse the cached evaluation instead of recomputing it.",
+      "implementation_summary": "Changed quiet futility pruning to receive the nullable static evaluation by reference and populate it once per node, so later quiet futility checks in the same node reuse the cached evaluation instead of recomputing it.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 391,
+          "draws": 180,
+          "losses": 429,
+          "score": 481.0,
+          "score_rate": 0.481,
+          "text": "C# v4.23 scored 481.0/1000 against Stockfish (1800 Elo): 391 wins, 180 draws, 429 losses, score rate 0.4810."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.24",
+      "api_version": "v4_24",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_24Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Caching the per-node static evaluation used by shallow quiet futility pruning will avoid repeated evaluation work within the same node while preserving pruning thresholds, move ordering, and evaluation semantics."
+      ],
+      "summary": "Changed quiet futility pruning to receive the nullable static evaluation by reference and populate it once per node, so later quiet futility checks in the same node reuse the cached evaluation instead of recomputing it.",
+      "implementation_summary": "Changed quiet futility pruning to receive the nullable static evaluation by reference and populate it once per node, so later quiet futility checks in the same node reuse the cached evaluation instead of recomputing it.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 380,
+          "draws": 186,
+          "losses": 434,
+          "score": 473.0,
+          "score_rate": 0.473,
+          "text": "C# v4.24 scored 473.0/1000 against Stockfish (1800 Elo): 380 wins, 186 draws, 434 losses, score rate 0.4730."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.25",
+      "api_version": "v4_25",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_25Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A small side-to-move tempo bonus should improve initiative and move-choice discrimination on top of v4.8 without adding search overhead or touching quiescence behavior.",
+        "Disabling the tempo bonus in pure pawn endgames should avoid encouraging zugzwang-prone positions where having the move can be a liability."
+      ],
+      "summary": "Added an 8 centipawn tempo bonus to evaluation when either side still has non-pawn material, preserving v4.8-derived search, pruning, move generation, and quiescence behavior.",
+      "implementation_summary": "Added an 8 centipawn tempo bonus to evaluation when either side still has non-pawn material, preserving v4.8-derived search, pruning, move generation, and quiescence behavior.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 385,
+          "draws": 174,
+          "losses": 441,
+          "score": 472.0,
+          "score_rate": 0.472,
+          "text": "C# v4.25 scored 472.0/1000 against Stockfish (1800 Elo): 385 wins, 174 draws, 441 losses, score rate 0.4720."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.26",
+      "api_version": "v4_26",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_26Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Exempting existing killer moves from late-move reduction should let previously observed quiet beta-cutoff moves receive full-depth verification when they appear later in move order.",
+        "Exempting high quiet-history moves from late-move reduction should improve tactical search allocation at 100ms without changing evaluation or quiescence behavior."
+      ],
+      "summary": "Changed late-move reduction so quiet moves matching the current ply's primary/secondary killer or reaching at least half the quiet-history cap are searched at the normal child depth instead of the reduced probe depth.",
+      "implementation_summary": "Changed late-move reduction so quiet moves matching the current ply's primary/secondary killer or reaching at least half the quiet-history cap are searched at the normal child depth instead of the reduced probe depth.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 374,
+          "draws": 202,
+          "losses": 424,
+          "score": 475.0,
+          "score_rate": 0.475,
+          "text": "C# v4.26 scored 475.0/1000 against Stockfish (1800 Elo): 374 wins, 202 draws, 424 losses, score rate 0.4750."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.27",
+      "api_version": "v4_27",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_27Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Doubling the persistent transposition-table size from 2^18 to 2^19 entries will reduce collision churn across a game and improve move reuse at 100ms without changing evaluation, pruning thresholds, quiescence behavior, or move generation."
+      ],
+      "summary": "Increased TtSizeBits from 18 to 19, doubling the V4_27SearchContext transposition table from 262144 to 524288 entries while preserving all public APIs and search/evaluation semantics.",
+      "implementation_summary": "Increased TtSizeBits from 18 to 19, doubling the V4_27SearchContext transposition table from 262144 to 524288 entries while preserving all public APIs and search/evaluation semantics.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 385,
+          "draws": 173,
+          "losses": 442,
+          "score": 471.5,
+          "score_rate": 0.4715,
+          "text": "C# v4.27 scored 471.5/1000 against Stockfish (1800 Elo): 385 wins, 173 draws, 442 losses, score rate 0.4715."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.28",
+      "api_version": "v4_28",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_28Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Root-level quiet beta cutoffs are strong per-game ordering signals that should feed the existing side-aware quiet-history table, improving later move ordering without changing evaluation, pruning thresholds, quiescence behavior, or adding extra move generation."
+      ],
+      "summary": "Changed quiet beta-cutoff handling so ply-0 quiet cutoffs reward quiet history while still avoiding root killer-slot updates; non-root killer and quiet-history behavior is otherwise unchanged.",
+      "implementation_summary": "Changed quiet beta-cutoff handling so ply-0 quiet cutoffs reward quiet history while still avoiding root killer-slot updates; non-root killer and quiet-history behavior is otherwise unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 371,
+          "draws": 192,
+          "losses": 437,
+          "score": 467.0,
+          "score_rate": 0.467,
+          "text": "C# v4.28 scored 467.0/1000 against Stockfish (1800 Elo): 371 wins, 192 draws, 437 losses, score rate 0.4670."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.29",
+      "api_version": "v4_29",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_29Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Removing the make/unmake-based quiet-check veto from already-guarded shallow quiet futility pruning will recover 100ms search budget without touching evaluation, move ordering, quiescence generation, or the existing depth/non-check/pawn-endgame safety gates."
+      ],
+      "summary": "Changed CanFutilityPruneQuietMove so eligible shallow quiet moves are pruned directly when static evaluation plus the futility margin cannot reach alpha, instead of first calling MoveGivesCheck for each pruneable quiet move.",
+      "implementation_summary": "Changed CanFutilityPruneQuietMove so eligible shallow quiet moves are pruned directly when static evaluation plus the futility margin cannot reach alpha, instead of first calling MoveGivesCheck for each pruneable quiet move.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 369,
+          "draws": 188,
+          "losses": 443,
+          "score": 463.0,
+          "score_rate": 0.463,
+          "text": "C# v4.29 scored 463.0/1000 against Stockfish (1800 Elo): 369 wins, 188 draws, 443 losses, score rate 0.4630."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.30",
+      "api_version": "v4_30",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_30Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Quiescence delta pruning should preserve capture moves that give check, because these are concrete tactical forcing moves and can matter even when their immediate material swing is below alpha."
+      ],
+      "summary": "Changed quiescence delta-pruning so a capture that would otherwise be delta-pruned is still searched if making the move gives check, paying the make/unmake check test only for already-pruneable captures.",
+      "implementation_summary": "Changed quiescence delta-pruning so a capture that would otherwise be delta-pruned is still searched if making the move gives check, paying the make/unmake check test only for already-pruneable captures.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 378,
+          "draws": 150,
+          "losses": 472,
+          "score": 453.0,
+          "score_rate": 0.453,
+          "text": "C# v4.30 scored 453.0/1000 against Stockfish (1800 Elo): 378 wins, 150 draws, 472 losses, score rate 0.4530."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.31",
+      "api_version": "v4_31",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_31Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A small recapture move-ordering bonus should improve alpha-beta cutoff quality in tactical exchanges without changing evaluation, pruning thresholds, quiescence breadth, or legal move generation."
+      ],
+      "summary": "Tracked the previous real move destination through native board make/unmake state and added a 1200-point ordering bonus for captures landing on that square, preserving all public APIs and search/evaluation semantics.",
+      "implementation_summary": "Tracked the previous real move destination through native board make/unmake state and added a 1200-point ordering bonus for captures landing on that square, preserving all public APIs and search/evaluation semantics.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 358,
+          "draws": 169,
+          "losses": 473,
+          "score": 442.5,
+          "score_rate": 0.4425,
+          "text": "C# v4.31 scored 442.5/1000 against Stockfish (1800 Elo): 358 wins, 169 draws, 473 losses, score rate 0.4425."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.32",
+      "api_version": "v4_32",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_32Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Prioritizing quiet checking moves at the root and first two descendant plies will expose forcing queen/bishop checking nets earlier in alpha-beta without changing evaluation, pruning thresholds, or quiescence breadth.",
+        "Restricting the check-ordering bonus to early quiet moves should keep the overhead localized to tactically critical root continuations instead of repeating rejected broad quiet-check or quiescence expansions."
+      ],
+      "summary": "Added an early-ply quiet-check move-ordering bonus for quiet moves at ply 0-2 by reusing the existing MoveGivesCheck test during ordering; all evaluation, pruning, move generation, quiescence filtering, TT sizing, and public API shape are unchanged.",
+      "implementation_summary": "Added an early-ply quiet-check move-ordering bonus for quiet moves at ply 0-2 by reusing the existing MoveGivesCheck test during ordering; all evaluation, pruning, move generation, quiescence filtering, TT sizing, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 367,
+          "draws": 170,
+          "losses": 463,
+          "score": 452.0,
+          "score_rate": 0.452,
+          "text": "C# v4.32 scored 452.0/1000 against Stockfish (1800 Elo): 367 wins, 170 draws, 463 losses, score rate 0.4520."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.33",
+      "api_version": "v4_33",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_33Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A constrained shallow check-evasion extension will help the engine see repeated-check mating nets like the latest Bh2+/Bg3+/Qh2+ failure without broadening quiescence or adding make/unmake check scoring during ordering.",
+        "Gating the extension to in-check nodes with at most three legal evasions should focus extra depth on forcing defensive positions while preserving most of v4.8's node throughput and tuned move ordering."
+      ],
+      "summary": "Added a capped one-ply extension for shallow in-check nodes when there are at most three legal evasions, sharing the existing child-depth extension slot with quiet-check extension so the two conditions do not stack; evaluation, quiescence filtering, TT sizing, move ordering scores, and public API shape are unchanged.",
+      "implementation_summary": "Added a capped one-ply extension for shallow in-check nodes when there are at most three legal evasions, sharing the existing child-depth extension slot with quiet-check extension so the two conditions do not stack; evaluation, quiescence filtering, TT sizing, move ordering scores, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 284,
+          "draws": 217,
+          "losses": 499,
+          "score": 392.5,
+          "score_rate": 0.3925,
+          "text": "C# v4.33 scored 392.5/1000 against Stockfish (1800 Elo): 284 wins, 217 draws, 499 losses, score rate 0.3925."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.34",
+      "api_version": "v4_34",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_34Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A bounded queen-and-bishop king-contact danger term will reduce optimistic material-grabbing moves in positions like the latest repeated-check mating-net blunder without broadening quiescence, adding extensions, or perturbing move ordering throughput."
+      ],
+      "summary": "Added a phase-gated king-contact danger penalty during the existing evaluation snapshot: when enemy queens remain, penalize close queen contact, queen pressure on the king ring, bishop/queen diagonal pressure on the king ring, and low defender king mobility. Search, quiescence, pruning thresholds, TT sizing, move ordering, and public API shape are unchanged.",
+      "implementation_summary": "Added a phase-gated king-contact danger penalty during the existing evaluation snapshot: when enemy queens remain, penalize close queen contact, queen pressure on the king ring, bishop/queen diagonal pressure on the king ring, and low defender king mobility. Search, quiescence, pruning thresholds, TT sizing, move ordering, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 316,
+          "draws": 178,
+          "losses": 506,
+          "score": 405.0,
+          "score_rate": 0.405,
+          "text": "C# v4.34 scored 405.0/1000 against Stockfish (1800 Elo): 316 wins, 178 draws, 506 losses, score rate 0.4050."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.35",
+      "api_version": "v4_35",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_35Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A root-only immediate opponent mate-reply veto should prevent the engine from selecting optimistic material or queen moves that allow direct checkmate on the opponent's next move.",
+        "A small root-only penalty for opponent checking replies with one to three legal evasions should reduce repeated forcing-check collapses like the latest Bh2+/Bg3+/Qh2+ blunder without broadening quiescence, extensions, move ordering, or static evaluation.",
+        "Keeping the threat scan outside recursive search should preserve most of v4.8's tuned node throughput while changing only final root move choice in tactically exposed positions."
+      ],
+      "summary": "Added a root score adjustment after each searched root move: if the opponent has an immediate legal checking mate, the move is demoted to a losing mate score; otherwise legal opponent checking replies with at most three evasions apply a bounded root-only penalty. Recursive search, quiescence, pruning thresholds, move ordering, evaluation, TT sizing, and public API shape are unchanged.",
+      "implementation_summary": "Added a root score adjustment after each searched root move: if the opponent has an immediate legal checking mate, the move is demoted to a losing mate score; otherwise legal opponent checking replies with at most three evasions apply a bounded root-only penalty. Recursive search, quiescence, pruning thresholds, move ordering, evaluation, TT sizing, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 226,
+          "draws": 191,
+          "losses": 583,
+          "score": 321.5,
+          "score_rate": 0.3215,
+          "text": "C# v4.35 scored 321.5/1000 against Stockfish (1800 Elo): 226 wins, 191 draws, 583 losses, score rate 0.3215."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.36",
+      "api_version": "v4_36",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_36Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Verified null-move pruning at depth 4+ will preserve most of v4.8's throughput while reducing false fail-high cutoffs in tactical positions where passing a move hides forcing checks or mate threats.",
+        "Keeping the verification search zero-window and no-null keeps the change search-integrated and narrower than rejected root-wide checking-threat scans, check extensions, or static king-danger terms.",
+        "Only verifying deeper null-move cutoffs should avoid perturbing the tuned shallow futility, quiet-check protection, move ordering, and quiescence budget that prior attempts showed are sensitive."
+      ],
+      "summary": "Added a depth-gated verified null-move pruning path: null-move cutoffs at remaining depth 4 or more now require a same-node zero-window no-null verification search before returning beta; shallower null cutoffs and all evaluation, move ordering, quiescence, futility, LMR, TT sizing, and public API behavior remain unchanged.",
+      "implementation_summary": "Added a depth-gated verified null-move pruning path: null-move cutoffs at remaining depth 4 or more now require a same-node zero-window no-null verification search before returning beta; shallower null cutoffs and all evaluation, move ordering, quiescence, futility, LMR, TT sizing, and public API behavior remain unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 358,
+          "draws": 180,
+          "losses": 462,
+          "score": 448.0,
+          "score_rate": 0.448,
+          "text": "C# v4.36 scored 448.0/1000 against Stockfish (1800 Elo): 358 wins, 180 draws, 462 losses, score rate 0.4480."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.37",
+      "api_version": "v4_37",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_37Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A tightly capped quiescence search of quiet checking moves in queen-present, tactically imbalanced leaf positions can expose repeated-check mate nets that ordinary capture-only quiescence misses.",
+        "Gating quiet-check quiescence by absolute static score, queen presence, a two-check budget, and a four-move cap should preserve most v4.8 node throughput compared with prior broad root threat scans, check extensions, and king-danger evaluation terms.",
+        "Ordering the rare quiet-check quiescence candidates with the existing move-ordering stack should make the added search selective enough to improve tactical move choice without changing public APIs or static evaluation."
+      ],
+      "summary": "Added a queen-present, score-gated quiet-check quiescence path that searches at most four ordered quiet checking moves per eligible leaf and consumes a two-ply quiet-check budget across the quiescence line. Added NativeBoard helpers to detect queen presence and generate legal quiet checks while leaving evaluation, root search, TT sizing, pruning thresholds, and the public V4_37 API unchanged.",
+      "implementation_summary": "Added a queen-present, score-gated quiet-check quiescence path that searches at most four ordered quiet checking moves per eligible leaf and consumes a two-ply quiet-check budget across the quiescence line. Added NativeBoard helpers to detect queen presence and generate legal quiet checks while leaving evaluation, root search, TT sizing, pruning thresholds, and the public V4_37 API unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 312,
+          "draws": 170,
+          "losses": 518,
+          "score": 397.0,
+          "score_rate": 0.397,
+          "text": "C# v4.37 scored 397.0/1000 against Stockfish (1800 Elo): 312 wins, 170 draws, 518 losses, score rate 0.3970."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.38",
+      "api_version": "v4_38",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_38Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Recent blunders are dominated by optimistic material choices that allow queen-led forcing checks; disabling only optimistic fail-high pruning when an enemy queen is in close contact with the king may expose those tactics without broad threat scans or quiescence expansion.",
+        "Guarding reverse futility pruning in close queen-contact positions should prevent shallow static-eval cutoffs from hiding defensive resources or opponent checking continuations near the horizon.",
+        "Guarding null-move pruning under the same cheap queen-contact condition should reduce false fail-highs in exposed-king positions while preserving v4.8's tuned null-move behavior everywhere else."
+      ],
+      "summary": "Added a NativeBoard.EnemyQueenNearKing helper that detects an enemy queen within Chebyshev distance 2 of the side-to-move king. Negamax now skips reverse futility pruning and null-move pruning in that narrow condition, after transposition-table cutoff checks; evaluation, move ordering, quiescence, extensions, TT sizing, and public API shape are unchanged.",
+      "implementation_summary": "Added a NativeBoard.EnemyQueenNearKing helper that detects an enemy queen within Chebyshev distance 2 of the side-to-move king. Negamax now skips reverse futility pruning and null-move pruning in that narrow condition, after transposition-table cutoff checks; evaluation, move ordering, quiescence, extensions, TT sizing, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 380,
+          "draws": 162,
+          "losses": 458,
+          "score": 461.0,
+          "score_rate": 0.461,
+          "text": "C# v4.38 scored 461.0/1000 against Stockfish (1800 Elo): 380 wins, 162 draws, 458 losses, score rate 0.4610."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.39",
+      "api_version": "v4_39",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_39Engine.cs",
+      "served": false,
+      "status": "approved",
+      "commit": "8c16ab8",
+      "hypotheses": [
+        "An adaptive root aspiration window will reduce expensive fail-low/fail-high re-searches in volatile or materially imbalanced positions while preserving v4.8's tuned narrow window for quiet low-score positions.",
+        "Scaling the initial aspiration window from the previous completed iteration's absolute score should improve 100ms depth allocation without adding move generation, evaluation scans, quiescence breadth, extensions, pruning guards, or root threat heuristics.",
+        "Buying back root search time in high-confidence tactical positions may help avoid horizon-driven optimistic material choices more reliably than the rejected broad check-threat and king-safety experiments."
+      ],
+      "summary": "Added an InitialAspirationWindow helper that keeps the existing 40cp root aspiration window near equal positions, but widens it by up to 160cp based on the previous completed iteration's absolute evaluation before aspiration re-search begins. Search semantics, evaluation, move ordering, quiescence, pruning, TT sizing, and public API shape are otherwise unchanged.",
+      "implementation_summary": "Added an InitialAspirationWindow helper that keeps the existing 40cp root aspiration window near equal positions, but widens it by up to 160cp based on the previous completed iteration's absolute evaluation before aspiration re-search begins. Search semantics, evaluation, move ordering, quiescence, pruning, TT sizing, and public API shape are otherwise unchanged.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_39Engine-8c16ab8-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 408,
+          "draws": 161,
+          "losses": 431,
+          "score": 488.5,
+          "score_rate": 0.4885,
+          "text": "C# v4.39 scored 488.5/1000 against Stockfish (1800 Elo): 408 wins, 161 draws, 431 losses, score rate 0.4885."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.40",
+      "api_version": "v4_40",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_40Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "The latest blunder shows a quiet checking reply (Bd4+) starting a forced mate after a superficially winning move; prioritizing quiet checking moves near the search frontier should expose these tactical refutations earlier without broadening quiescence or adding static eval overhead."
+      ],
+      "summary": "Added a shallow move-ordering bonus for quiet moves that give check at remaining depth 4 or less, keeping captures, TT moves, existing pruning, and evaluation semantics unchanged.",
+      "implementation_summary": "Added a shallow move-ordering bonus for quiet moves that give check at remaining depth 4 or less, keeping captures, TT moves, existing pruning, and evaluation semantics unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 355,
+          "draws": 186,
+          "losses": 459,
+          "score": 448.0,
+          "score_rate": 0.448,
+          "text": "C# v4.40 scored 448.0/1000 against Stockfish (1800 Elo): 355 wins, 186 draws, 459 losses, score rate 0.4480."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.41",
+      "api_version": "v4_41",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_41Engine.cs",
+      "served": true,
+      "status": "approved",
+      "commit": "a8bfe1e",
+      "hypotheses": [
+        "The latest v4.39 blunder is a high-scoring quiet root move, f4, that misses a forcing bishop/queen checking net; a root-only verification probe for quiet moves that look clearly winning may catch this class of horizon failure without broad quiet-check ordering, quiescence broadening, or static king-danger scans.",
+        "Using a zero-window one-ply-deeper verification around a modest winning floor should be cheaper and less distorting than prior root-wide legal checking-threat scans, because it only runs for potential root-best quiet moves already evaluated above 700cp.",
+        "Bounding the verification to at most two quiet root-best candidates per root iteration should preserve most of v4.39's node throughput while reducing optimistic quiet material/position moves in volatile attacking positions."
+      ],
+      "summary": "Added a root-only high-score quiet-move verification path: when a potential root-best quiet move scores at least 700cp at depth 3 or deeper, the engine runs one extra-ply zero-window verification against a 250cp winning floor and demotes the move only if that probe fails low. The verification is capped at two quiet root-best candidates per root iteration; evaluation, quiescence, pruning thresholds, move ordering scores, TT sizing, adaptive aspiration windows, and public API shape are otherwise unchanged.",
+      "implementation_summary": "Added a root-only high-score quiet-move verification path: when a potential root-best quiet move scores at least 700cp at depth 3 or deeper, the engine runs one extra-ply zero-window verification against a 250cp winning floor and demotes the move only if that probe fails low. The verification is capped at two quiet root-best candidates per root iteration; evaluation, quiescence, pruning thresholds, move ordering scores, TT sizing, adaptive aspiration windows, and public API shape are otherwise unchanged.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_41Engine-a8bfe1e-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 395,
+          "draws": 203,
+          "losses": 402,
+          "score": 496.5,
+          "score_rate": 0.4965,
+          "text": "C# v4.41 scored 496.5/1000 against Stockfish (1800 Elo): 395 wins, 203 draws, 402 losses, score rate 0.4965."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.42",
+      "api_version": "v4_42",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_42Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "Restoring the V4.14/V4.18 24 centipawn bishop-pair bonus should recover a previously directionally positive minor-piece evaluation signal under the current raw approval gate without search overhead.",
+        "Passing the per-node static evaluation by reference into quiet futility pruning should preserve V4.16's intended repeated-evaluation cache and recover small 100ms search budget when reverse futility has not already populated the static eval.",
+        "Extending the existing high-score root verification from only quiet moves to quiet or capturing root moves should reduce optimistic tactical horizon misses like the latest ...Nxf4 into Qxh7+ mate overturn while limiting overhead to two high-score candidates."
+      ],
+      "summary": "Added a 24 centipawn bishop-pair positional bonus, changed quiet futility pruning to populate and reuse the nullable static eval by reference within a node, and broadened high-score root move verification to cover captures as well as quiet moves.",
+      "implementation_summary": "Added a 24 centipawn bishop-pair positional bonus, changed quiet futility pruning to populate and reuse the nullable static eval by reference within a node, and broadened high-score root move verification to cover captures as well as quiet moves.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 398,
+          "draws": 172,
+          "losses": 430,
+          "score": 484.0,
+          "score_rate": 0.484,
+          "text": "C# v4.42 scored 484.0/1000 against Stockfish (1800 Elo): 398 wins, 172 draws, 430 losses, score rate 0.4840."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.43",
+      "api_version": "v4_43",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_43Engine.cs",
+      "served": false,
+      "status": "approved",
+      "commit": "954dccd",
+      "hypotheses": [
+        "Restoring the V4.14/V4.18 24 centipawn bishop-pair bonus may recover a previously positive minor-piece evaluation signal on top of the stronger V4.41 search without adding move generation, quiescence, or root verification overhead.",
+        "Passing the nullable static evaluation by reference into shallow quiet futility pruning should implement the intended V4.16 cache, avoiding repeated evaluation calls within the same node while preserving pruning thresholds and move semantics.",
+        "Using only the V4.18 bishop-pair plus quiet-futility cache pair, without V4.42's broader high-score capture verification, may keep the positive old signal while avoiding the root-verification overhead that regressed the latest candidate."
+      ],
+      "summary": "Added a 24 centipawn bishop-pair positional bonus for each side, and changed quiet futility pruning to populate and reuse the per-node nullable static evaluation by reference. The V4.41 high-score root verification remains limited to quiet moves.",
+      "implementation_summary": "Added a 24 centipawn bishop-pair positional bonus for each side, and changed quiet futility pruning to populate and reuse the per-node nullable static evaluation by reference. The V4.41 high-score root verification remains limited to quiet moves.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_43Engine-954dccd-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 415,
+          "draws": 174,
+          "losses": 411,
+          "score": 502.0,
+          "score_rate": 0.502,
+          "text": "C# v4.43 scored 502.0/1000 against Stockfish (1800 Elo): 415 wins, 174 draws, 411 losses, score rate 0.5020."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.44",
+      "api_version": "v4_44",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_44Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "The latest v4.43 blunder is a high-scoring quiet root king move, ...Kg8, that passes the generic quiet-move verification floor while allowing Qh6 and a forced mate; quiet king moves need a stricter proof of retained advantage than ordinary quiet moves.",
+        "Applying a deeper zero-window verification only to high-scoring quiet root king moves should catch exposed-king horizon failures without repeating rejected broad capture verification, check generation, king-danger evaluation, or pruning guards.",
+        "Sharing the existing two-candidate high-score quiet verification cap should keep the added overhead rare while preserving the approved v4.43 bishop-pair, quiet-futility cache, adaptive aspiration, and ordinary quiet-root verification behavior."
+      ],
+      "summary": "Extended the existing high-score quiet root verification path so quiet king moves use a stricter 700cp verification floor and one additional verification ply, while ordinary quiet moves keep the v4.43 250cp one-extra-ply floor. Added a small IsKingMove helper; evaluation, move ordering scores, quiescence, pruning thresholds, TT sizing, capture handling, and public API shape are unchanged.",
+      "implementation_summary": "Extended the existing high-score quiet root verification path so quiet king moves use a stricter 700cp verification floor and one additional verification ply, while ordinary quiet moves keep the v4.43 250cp one-extra-ply floor. Added a small IsKingMove helper; evaluation, move ordering scores, quiescence, pruning thresholds, TT sizing, capture handling, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 396,
+          "draws": 171,
+          "losses": 433,
+          "score": 481.5,
+          "score_rate": 0.4815,
+          "text": "C# v4.44 scored 481.5/1000 against Stockfish (1800 Elo): 396 wins, 171 draws, 433 losses, score rate 0.4815."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.45",
+      "api_version": "v4_45",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_45Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "High-score quiet root moves that claim a large advantage should prove more than the fixed 250cp retained edge used by v4.43, because the latest blunder's ...Kg8 still passed that weak floor while allowing Qh6 and a forced mate.",
+        "Making the quiet-root verification floor proportional to the searched score, capped at a moderate 520cp, may catch optimistic exposed-king horizon moves without v4.44's extra verification ply or king-move special case.",
+        "Keeping the existing two-candidate cap, quiet-only gate, and one-ply-deeper zero-window probe should preserve v4.43's successful search shape better than broad capture verification, check scans, or static king-danger terms."
+      ],
+      "summary": "Changed the existing high-score quiet root verification to use an adaptive retained-advantage floor: max 520cp, min 250cp, equal to half the candidate move score within that range. The verification remains quiet-only, capped at two root candidates per iteration, and uses the existing search depth with no extra move generation, evaluation terms, pruning changes, TT changes, or public API changes.",
+      "implementation_summary": "Changed the existing high-score quiet root verification to use an adaptive retained-advantage floor: max 520cp, min 250cp, equal to half the candidate move score within that range. The verification remains quiet-only, capped at two root candidates per iteration, and uses the existing search depth with no extra move generation, evaluation terms, pruning changes, TT changes, or public API changes.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 396,
+          "draws": 176,
+          "losses": 428,
+          "score": 484.0,
+          "score_rate": 0.484,
+          "text": "C# v4.45 scored 484.0/1000 against Stockfish (1800 Elo): 396 wins, 176 draws, 428 losses, score rate 0.4840."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.46",
+      "api_version": "v4_46",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_46Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A narrow back-rank king exposure penalty for queen+bishop attacking material can reduce optimistic exposed-king choices like the latest ...Kg8 blunder without broad checking move generation or extra root verification probes.",
+        "Gating the penalty to home-rank kings with missing wing shelter and attacked corner/shield squares should target the recurring queen-bishop mating-net motif while preserving v4.43's approved search shape.",
+        "Scaling the penalty out in late endgames should avoid disrupting v4.43's existing endgame conversion and draw behavior."
+      ],
+      "summary": "Added a cheap BackRankMatingExposurePenalty to evaluation. It applies only when a home-rank king faces enemy queen+bishop material, uses already collected pawn-file and bishop/queen counts, penalizes missing wing/shield pawns plus attacked corner and shield squares, and tapers the penalty by endgame weight. Search, pruning, move ordering, TT behavior, root verification, and public API shape are unchanged.",
+      "implementation_summary": "Added a cheap BackRankMatingExposurePenalty to evaluation. It applies only when a home-rank king faces enemy queen+bishop material, uses already collected pawn-file and bishop/queen counts, penalizes missing wing/shield pawns plus attacked corner and shield squares, and tapers the penalty by endgame weight. Search, pruning, move ordering, TT behavior, root verification, and public API shape are unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 391,
+          "draws": 164,
+          "losses": 445,
+          "score": 473.0,
+          "score_rate": 0.473,
+          "text": "C# v4.46 scored 473.0/1000 against Stockfish (1800 Elo): 391 wins, 164 draws, 445 losses, score rate 0.4730."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.47",
+      "api_version": "v4_47",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_47Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "The approved v4.39 adaptive aspiration idea can be pushed slightly further on top of v4.43 by widening high-score root windows, reducing volatile fail-low/fail-high re-search churn in positions where the engine already believes it has a large advantage.",
+        "A modest divisor/cap retune should buy root search stability in exposed-king tactical positions without adding the broad check generation, stricter root verification, or static king-safety evaluation that recent rejected attempts showed were distorting.",
+        "Keeping the change limited to aspiration sizing preserves v4.43's bishop-pair bonus, quiet-futility eval cache, quiet-only high-score verification, pruning, move ordering, TT size, and public API shape."
+      ],
+      "summary": "Retuned the adaptive root aspiration window for high-score positions by changing the high-score divisor from 8 to 6 and the maximum extra window from 160cp to 220cp. No evaluation terms, pruning rules, move ordering, TT behavior, root verification gates, diagnostics, or public APIs were changed.",
+      "implementation_summary": "Retuned the adaptive root aspiration window for high-score positions by changing the high-score divisor from 8 to 6 and the maximum extra window from 160cp to 220cp. No evaluation terms, pruning rules, move ordering, TT behavior, root verification gates, diagnostics, or public APIs were changed.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 407,
+          "draws": 169,
+          "losses": 424,
+          "score": 491.5,
+          "score_rate": 0.4915,
+          "text": "C# v4.47 scored 491.5/1000 against Stockfish (1800 Elo): 407 wins, 169 draws, 424 losses, score rate 0.4915."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.48",
+      "api_version": "v4_48",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_48Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "A tiny queen mobility term can improve queen activity and queen-invasion move choice in the recurring tactical middlegames without adding search probes, check generation, or pruning changes.",
+        "Reusing the existing ray-mobility evaluator with a 1 centipawn per reachable queen square scale should keep evaluation overhead low while adding a more concrete activity signal than broad king-safety penalties.",
+        "Leaving v4.43's approved adaptive aspiration, quiet-root verification, bishop-pair bonus, quiet-futility eval cache, pruning, TT size, and quiescence behavior unchanged should avoid the regressions seen in recent broad tactical-search experiments."
+      ],
+      "summary": "Added a 1cp-per-square queen mobility evaluation term using the existing ray-mobility counting style. Search behavior, pruning thresholds, quiescence, root verification, aspiration settings, TT sizing, public API shape, bishop-pair scoring, and passed-pawn logic remain unchanged.",
+      "implementation_summary": "Added a 1cp-per-square queen mobility evaluation term using the existing ray-mobility counting style. Search behavior, pruning thresholds, quiescence, root verification, aspiration settings, TT sizing, public API shape, bishop-pair scoring, and passed-pawn logic remain unchanged.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 381,
+          "draws": 176,
+          "losses": 443,
+          "score": 469.0,
+          "score_rate": 0.469,
+          "text": "C# v4.48 scored 469.0/1000 against Stockfish (1800 Elo): 381 wins, 176 draws, 443 losses, score rate 0.4690."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.49",
+      "api_version": "v4_49",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_49Engine.cs",
+      "served": false,
+      "status": "rejected",
+      "commit": "<n/a>",
+      "hypotheses": [
+        "The latest v4.43 blunder is another exposed-king queen/bishop forcing-check collapse; null-move pruning may be letting cramped-king positions look falsely stable because the side to move can effectively pass despite urgent queen threats.",
+        "Disabling null-move pruning only when the opponent still has a queen and the moving king has at most two safe adjacent squares should expose more forcing replies without broad check generation, root verification changes, or static king-safety evaluation.",
+        "Keeping the guard limited to queen-on-board cramped-king nodes should preserve most of v4.43's approved search shape, bishop-pair evaluation, quiet-futility cache, aspiration settings, and quiet-root verification behavior."
+      ],
+      "summary": "Added a narrow null-move pruning guard: null moves are skipped when the opponent has a queen and the side to move's king has two or fewer safe adjacent destination squares. Added self-contained HasQueen and SafeKingMobility helpers using existing board attack logic; no public API, evaluation, move ordering, root verification, aspiration, quiescence, or TT changes.",
+      "implementation_summary": "Added a narrow null-move pruning guard: null moves are skipped when the opponent has a queen and the side to move's king has two or fewer safe adjacent destination squares. Added self-contained HasQueen and SafeKingMobility helpers using existing board attack logic; no public API, evaluation, move ordering, root verification, aspiration, quiescence, or TT changes.",
+      "evaluation_log_path": "<n/a>",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 404,
+          "draws": 158,
+          "losses": 438,
+          "score": 483.0,
+          "score_rate": 0.483,
+          "text": "C# v4.49 scored 483.0/1000 against Stockfish (1800 Elo): 404 wins, 158 draws, 438 losses, score rate 0.4830."
+        }
+      },
+      "limitations": []
+    },
+    {
+      "version": "v4.50",
+      "api_version": "v4_50",
+      "engine_file": "engine_csharp/src/Engine.Core/V4/V4_50Engine.cs",
+      "served": true,
+      "status": "approved",
+      "commit": "93185d4",
+      "hypotheses": [
+        "The remaining v4.43 blunders are still forcing-check horizon failures, but recent broad tactical scans and stricter root verification degraded aggregate strength; reducing fewer shallow quiet moves may expose critical quiet defenses or refutations without adding new move-generation scans.",
+        "Raising the late-move-reduction minimum depth from 3 to 4 preserves deeper-node reduction behavior while avoiding the most aggressive one-ply reduction at the first reducible depth.",
+        "Keeping evaluation, quiescence, aspiration, root verification, null-move pruning, TT sizing, and move ordering bonuses otherwise unchanged isolates whether the v4.43 search shape was over-reducing shallow quiet non-check continuations."
+      ],
+      "summary": "Raised LateMoveReductionMinDepth from 3 to 4, so quiet non-check late moves are no longer reduced at remaining depth 3. No public API, evaluation, quiescence, root verification, aspiration, null-move, TT, or move-order scoring changes were made.",
+      "implementation_summary": "Raised LateMoveReductionMinDepth from 3 to 4, so quiet non-check late moves are no longer reduced at remaining depth 3. No public API, evaluation, quiescence, root verification, aspiration, null-move, TT, or move-order scoring changes were made.",
+      "evaluation_log_path": "autoresearch/approved_logs/V4_50Engine-93185d4-result.csv",
+      "evaluation_opponents": {
+        "stockfish-1800": {
+          "games": 1000,
+          "wins": 419,
+          "draws": 169,
+          "losses": 412,
+          "score": 503.5,
+          "score_rate": 0.5035,
+          "text": "C# v4.50 scored 503.5/1000 against Stockfish (1800 Elo): 419 wins, 169 draws, 412 losses, score rate 0.5035."
+        }
+      },
+      "limitations": []
     }
   ]
 }

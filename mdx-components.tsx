@@ -22,6 +22,7 @@ import {
   RafflesGoSpecGrid,
   RafflesGoSpecTile,
   RafflesGoSwatch,
+  RafflesGoTestimonial,
 } from "@/app/components/blog/raffles-go/RafflesGoMdxComponents";
 import { Compare } from "@/app/components/shared/ui/compare";
 
@@ -40,6 +41,7 @@ export const mdxComponents: MDXComponents = {
   RafflesGoSpecGrid,
   RafflesGoSpecTile,
   RafflesGoSwatch,
+  RafflesGoTestimonial,
   ShowcaseRow,
   SpecGrid,
   SpecTile,

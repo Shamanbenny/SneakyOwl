@@ -3,7 +3,7 @@ name: Generate Commit Snake Animation
 on:
   # run automatically every 24 hours
   schedule:
-    - cron: "0 */24 * * *"
+    - cron: "17 0 * * *" # 8:17 AM Singapore time (UTC+8)
 
   # allows to manually run the job at any time
   workflow_dispatch:
@@ -12,6 +12,10 @@ on:
   push:
     branches:
       - main
+
+concurrency:
+  group: output-branch
+  cancel-in-progress: false
 
 jobs:
   generate:

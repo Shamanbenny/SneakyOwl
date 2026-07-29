@@ -122,7 +122,6 @@ export default function BlogPostFeedbackProvider({
         await hitAbacusCounter(getBlogMetricKey(slug, milestone));
         window.localStorage.setItem(storageKey, "1");
       } catch (error) {
-        console.error(`Failed to register ${milestone} milestone`, error);
       } finally {
         milestoneRequestsRef.current.delete(milestone);
       }
@@ -196,7 +195,6 @@ export default function BlogPostFeedbackProvider({
       setIsLiked(true);
       window.localStorage.setItem(likeStorageKey, "1");
     } catch (error) {
-      console.error("Failed to register blog like", error);
     } finally {
       setIsSubmittingLike(false);
     }
@@ -223,7 +221,6 @@ export default function BlogPostFeedbackProvider({
         setLikesCount(value);
       })
       .catch((error) => {
-        console.error("Failed to fetch blog likes", error);
       });
 
     if (!shouldBypassTimer()) {

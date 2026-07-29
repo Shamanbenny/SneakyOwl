@@ -1,18 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { FaHistory } from "react-icons/fa";
 import {
   FaArrowLeft,
   FaArrowUp,
   FaArrowUpRightFromSquare,
   FaBookOpen,
+  FaCalendarDays,
+  FaCheck,
+  FaChevronLeft,
+  FaChevronRight,
+  FaChevronDown,
+  FaCopy,
   FaGithub,
   FaHeart,
   FaLinkedin,
 } from "react-icons/fa6";
 import { FiFileText } from "react-icons/fi";
-import { SiDocker, SiFastify, SiFirebase, SiReact, SiTypescript } from "react-icons/si";
+import {
+  SiDocker,
+  SiFastify,
+  SiFirebase,
+  SiReact,
+  SiTypescript,
+} from "react-icons/si";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
 
@@ -20,46 +33,313 @@ import styles from "./design-component.module.css";
 
 const colorTokens = [
   { label: "Page", swatchClass: styles.swatchColorPage, token: "--site-bg" },
-  { label: "Chrome", swatchClass: styles.swatchColorChrome, token: "--site-bg-chrome" },
-  { label: "Chrome Layer", swatchClass: styles.swatchColorChromeLayer, token: "--site-bg-chrome-layer" },
-  { label: "Panel", swatchClass: styles.swatchColorPanel, token: "--site-bg-elevated" },
-  { label: "Strong Surface", swatchClass: styles.swatchColorStrongSurface, token: "--site-bg-strong" },
-  { label: "Soft Surface", swatchClass: styles.swatchColorSoftSurface, token: "--site-bg-soft" },
+  {
+    label: "Chrome",
+    swatchClass: styles.swatchColorChrome,
+    token: "--site-bg-chrome",
+  },
+  {
+    label: "Chrome Layer",
+    swatchClass: styles.swatchColorChromeLayer,
+    token: "--site-bg-chrome-layer",
+  },
+  {
+    label: "Panel",
+    swatchClass: styles.swatchColorPanel,
+    token: "--site-bg-elevated",
+  },
+  {
+    label: "Strong Surface",
+    swatchClass: styles.swatchColorStrongSurface,
+    token: "--site-bg-strong",
+  },
+  {
+    label: "Soft Surface",
+    swatchClass: styles.swatchColorSoftSurface,
+    token: "--site-bg-soft",
+  },
   { label: "Text", swatchClass: styles.swatchColorText, token: "--site-text" },
-  { label: "Text Strong", swatchClass: styles.swatchColorTextStrong, token: "--site-text-strong" },
-  { label: "Text Muted", swatchClass: styles.swatchColorTextMuted, token: "--site-text-muted" },
-  { label: "Text Faint", swatchClass: styles.swatchColorTextFaint, token: "--site-text-faint" },
-  { label: "Border", swatchClass: styles.swatchColorBorder, token: "--site-border" },
-  { label: "Border Strong", swatchClass: styles.swatchColorBorderStrong, token: "--site-border-strong" },
-  { label: "Overlay Border", swatchClass: styles.swatchColorOverlayBorder, token: "--site-border-overlay-light" },
-  { label: "Divider", swatchClass: styles.swatchColorDivider, token: "--site-divider" },
-  { label: "Accent", swatchClass: styles.swatchColorAccent, token: "--site-accent" },
-  { label: "Accent Strong", swatchClass: styles.swatchColorAccentStrong, token: "--site-accent-strong" },
-  { label: "Accent Soft", swatchClass: styles.swatchColorAccentSoft, token: "--site-accent-soft" },
-  { label: "Accent Teal", swatchClass: styles.swatchColorAccentTeal, token: "--site-accent-teal" },
-  { label: "Accent Cyan", swatchClass: styles.swatchColorAccentCyan, token: "--site-accent-cyan" },
-  { label: "Accent Border Soft", swatchClass: styles.swatchColorAccentBorderSoft, token: "--site-accent-border-soft" },
-  { label: "Accent Border Strong", swatchClass: styles.swatchColorAccentBorderStrong, token: "--site-accent-border-strong" },
-  { label: "Accent Border Subtle", swatchClass: styles.swatchColorAccentBorderSubtle, token: "--site-accent-border-subtle" },
-  { label: "Accent Border Hover", swatchClass: styles.swatchColorAccentBorderHover, token: "--site-accent-border-soft-hover" },
-  { label: "Focus Ring", swatchClass: styles.swatchColorFocusRing, token: "--site-accent-focus-ring" },
-  { label: "Accent Highlight", swatchClass: styles.swatchColorAccentHighlight, token: "--site-accent-highlight" },
-  { label: "Accent Glow Soft", swatchClass: styles.swatchColorAccentGlowSoft, token: "--site-accent-glow-soft" },
-  { label: "Accent Glow Faint", swatchClass: styles.swatchColorAccentGlowFaint, token: "--site-accent-glow-faint" },
-  { label: "Selection BG", swatchClass: styles.swatchColorSelectionBg, token: "--site-selection-bg" },
-  { label: "Selection Text", swatchClass: styles.swatchColorSelectionText, token: "--site-selection-text" },
+  {
+    label: "Text Strong",
+    swatchClass: styles.swatchColorTextStrong,
+    token: "--site-text-strong",
+  },
+  {
+    label: "Text Muted",
+    swatchClass: styles.swatchColorTextMuted,
+    token: "--site-text-muted",
+  },
+  {
+    label: "Text Faint",
+    swatchClass: styles.swatchColorTextFaint,
+    token: "--site-text-faint",
+  },
+  {
+    label: "Border",
+    swatchClass: styles.swatchColorBorder,
+    token: "--site-border",
+  },
+  {
+    label: "Border Strong",
+    swatchClass: styles.swatchColorBorderStrong,
+    token: "--site-border-strong",
+  },
+  {
+    label: "Overlay Border",
+    swatchClass: styles.swatchColorOverlayBorder,
+    token: "--site-border-overlay-light",
+  },
+  {
+    label: "Divider",
+    swatchClass: styles.swatchColorDivider,
+    token: "--site-divider",
+  },
+  {
+    label: "Accent",
+    swatchClass: styles.swatchColorAccent,
+    token: "--site-accent",
+  },
+  {
+    label: "Accent Strong",
+    swatchClass: styles.swatchColorAccentStrong,
+    token: "--site-accent-strong",
+  },
+  {
+    label: "Accent Soft",
+    swatchClass: styles.swatchColorAccentSoft,
+    token: "--site-accent-soft",
+  },
+  {
+    label: "Accent Red",
+    swatchClass: styles.swatchColorAccentRed,
+    token: "--site-accent-red",
+  },
+  {
+    label: "Accent Orange",
+    swatchClass: styles.swatchColorAccentOrange,
+    token: "--site-accent-orange",
+  },
+  {
+    label: "Accent Teal",
+    swatchClass: styles.swatchColorAccentTeal,
+    token: "--site-accent-teal",
+  },
+  {
+    label: "Accent Cyan",
+    swatchClass: styles.swatchColorAccentCyan,
+    token: "--site-accent-cyan",
+  },
+  {
+    label: "Accent Border Soft",
+    swatchClass: styles.swatchColorAccentBorderSoft,
+    token: "--site-accent-border-soft",
+  },
+  {
+    label: "Accent Border Strong",
+    swatchClass: styles.swatchColorAccentBorderStrong,
+    token: "--site-accent-border-strong",
+  },
+  {
+    label: "Accent Border Subtle",
+    swatchClass: styles.swatchColorAccentBorderSubtle,
+    token: "--site-accent-border-subtle",
+  },
+  {
+    label: "Accent Border Hover",
+    swatchClass: styles.swatchColorAccentBorderHover,
+    token: "--site-accent-border-soft-hover",
+  },
+  {
+    label: "Focus Ring",
+    swatchClass: styles.swatchColorFocusRing,
+    token: "--site-accent-focus-ring",
+  },
+  {
+    label: "Accent Highlight",
+    swatchClass: styles.swatchColorAccentHighlight,
+    token: "--site-accent-highlight",
+  },
+  {
+    label: "Accent Glow Soft",
+    swatchClass: styles.swatchColorAccentGlowSoft,
+    token: "--site-accent-glow-soft",
+  },
+  {
+    label: "Accent Glow Faint",
+    swatchClass: styles.swatchColorAccentGlowFaint,
+    token: "--site-accent-glow-faint",
+  },
+  {
+    label: "Selection BG",
+    swatchClass: styles.swatchColorSelectionBg,
+    token: "--site-selection-bg",
+  },
+  {
+    label: "Selection Text",
+    swatchClass: styles.swatchColorSelectionText,
+    token: "--site-selection-text",
+  },
 ];
 
 const specs = [
-  ["Container widths", "<640: 300px, <320: 230px, sm: 560px, md: 680px, lg: 910px, xl: 1160px, xxl: 1480px"],
-  ["Core surface radius", "8px for reference panels; route cards may use local established radii"],
+  [
+    "Container widths",
+    "<640: 300px, <320: 230px, sm: 560px, md: 680px, lg: 910px, xl: 1160px, xxl: 1480px",
+  ],
+  [
+    "Core surface radius",
+    "8px for reference panels; route cards may use local established radii",
+  ],
   ["Button schemes", "Emerald action and dark chrome/navigation"],
-  ["Redirect controls", "Utility buttons may pair a brand icon, text label, and outbound icon when linking away"],
-  ["Project tags", "Circular icon tags for FlowingMenu previews; text/icon pills for card metadata"],
-  ["Tooltip behavior", "Use InfoTooltip for explanatory hover/focus/click details and custom badge triggers"],
-  ["Letter spacing", "0.12em for CTA controls, 0.14em for filter chips, 0.16em for labels"],
-  ["Transition timing", "150ms for color, border, background, and small lift states"],
+  [
+    "Redirect controls",
+    "Utility buttons may pair a brand icon, text label, and outbound icon when linking away",
+  ],
+  [
+    "Project tags",
+    "Circular icon tags for FlowingMenu previews; text/icon pills for card metadata",
+  ],
+  [
+    "Tooltip behavior",
+    "Use InfoTooltip for explanatory hover/focus/click details and custom badge triggers",
+  ],
+  [
+    "Letter spacing",
+    "0.12em for CTA controls, 0.14em for filter chips, 0.16em for labels",
+  ],
+  [
+    "Transition timing",
+    "150ms for color, border, background, and small lift states",
+  ],
 ];
+
+const formatDesignDate = (value: string) =>
+  new Date(`${value}T00:00:00`).toLocaleDateString("en-SG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+const DesignErrorNotification = () => {
+  const [isCopied, setIsCopied] = useState(false);
+  const message = "We could not complete that action.";
+
+  const copyMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setIsCopied(true);
+      window.setTimeout(() => setIsCopied(false), 1500);
+    } catch {
+      // Clipboard access can be unavailable in insecure or restricted contexts.
+    }
+  };
+
+  return (
+    <div className="site-notification" data-type="error" role="alert">
+      <span>{message}</span>
+      <button
+        aria-label="Copy error message"
+        className={styles.notificationCopyButton}
+        onClick={() => void copyMessage()}
+        title={isCopied ? "Error message copied" : "Copy error message"}
+        type="button"
+      >
+        {isCopied ? (
+          <FaCheck aria-hidden="true" />
+        ) : (
+          <FaCopy aria-hidden="true" />
+        )}
+      </button>
+    </div>
+  );
+};
+
+const DesignCalendarInput = () => {
+  const initialDate = new Date().toISOString().slice(0, 10);
+  const [value, setValue] = useState(initialDate);
+  const [isOpen, setIsOpen] = useState(false);
+  const [month, setMonth] = useState(() => new Date());
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+  const daysInMonth = new Date(
+    month.getFullYear(),
+    month.getMonth() + 1,
+    0,
+  ).getDate();
+
+  return (
+    <div className={styles.calendarField}>
+      <label className={styles.inputLabel} htmlFor="design-calendar-input">
+        Visited on
+      </label>
+      <button
+        id="design-calendar-input"
+        className={styles.calendarTrigger}
+        type="button"
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        onClick={() => {
+          setMonth(new Date(`${value}T00:00:00`));
+          setIsOpen((open) => !open);
+        }}
+      >
+        <span>{formatDesignDate(value)}</span>
+        <FaCalendarDays aria-hidden="true" />
+      </button>
+      {isOpen ? (
+        <div className={styles.calendarPopover} role="dialog" aria-label="Choose visit date">
+          <div className={styles.calendarHeader}>
+            <button
+              type="button"
+              aria-label="Previous month"
+              onClick={() => setMonth((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
+            >
+              <FaChevronLeft aria-hidden="true" />
+            </button>
+            <span>
+              {month.toLocaleDateString("en-SG", { month: "long", year: "numeric" })}
+            </span>
+            <button
+              type="button"
+              aria-label="Next month"
+              onClick={() => setMonth((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))}
+            >
+              <FaChevronRight aria-hidden="true" />
+            </button>
+          </div>
+          <div className={styles.calendarWeekdays} aria-hidden="true">
+            {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
+              <span key={`${day}-${index}`}>{day}</span>
+            ))}
+          </div>
+          <div className={styles.calendarGrid}>
+            {Array.from({ length: firstDay }, (_, index) => (
+              <span key={`empty-${index}`} />
+            ))}
+            {Array.from({ length: daysInMonth }, (_, index) => {
+              const day = index + 1;
+              const dateValue = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const isSelected = value === dateValue;
+              return (
+                <button
+                  key={dateValue}
+                  className={`${styles.calendarDay} ${isSelected ? styles.calendarDaySelected : ""}`}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => {
+                    setValue(dateValue);
+                    setIsOpen(false);
+                  }}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 export default function DesignComponentPage() {
   return (
@@ -69,8 +349,9 @@ export default function DesignComponentPage() {
           <p className={styles.eyebrow}>Design Reference</p>
           <h1 className={styles.title}>SneakyOwl component styling</h1>
           <p className={styles.summary}>
-            A compact internal page for matching route-level UI to the landing page decisions:
-            dark-only surfaces, restrained chrome, emerald action states, and timeline-style filters.
+            A compact internal page for matching route-level UI to the landing
+            page decisions: dark-only surfaces, restrained chrome, emerald
+            action states, and timeline-style filters.
           </p>
         </header>
 
@@ -79,8 +360,9 @@ export default function DesignComponentPage() {
             Button Color Schemes
           </h2>
           <p className={styles.sectionIntro}>
-            Keep the site to two button color schemes. Use emerald for committed actions and
-            active states. Use dark chrome for navigation, utility controls, and idle filters.
+            Keep the site to two button color schemes. Use emerald for committed
+            actions and active states. Use dark chrome for navigation, utility
+            controls, and idle filters.
           </p>
 
           <div className={styles.grid}>
@@ -91,19 +373,31 @@ export default function DesignComponentPage() {
               </div>
               <div className={styles.buttonRow}>
                 <span className={styles.stateLabel}>Default</span>
-                <a className={`${styles.button} ${styles.buttonPrimary}`} href="/Lee%20Jia%20Quan_CV.pdf">
+                <a
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  href="/Lee%20Jia%20Quan_CV.pdf"
+                >
                   <FiFileText aria-hidden="true" />
                   Resume
                 </a>
-                <a className={`${styles.button} ${styles.buttonPrimary}`} href="#top">
+                <a
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  href="#top"
+                >
                   <FaArrowUp aria-hidden="true" />
                   Scroll to top
                 </a>
-                <a className={`${styles.button} ${styles.buttonSecondary}`} href="https://github.com/Shamanbenny">
+                <a
+                  className={`${styles.button} ${styles.buttonSecondary}`}
+                  href="https://github.com/Shamanbenny"
+                >
                   <FaGithub aria-hidden="true" />
                   GitHub
                 </a>
-                <a className={`${styles.button} ${styles.buttonSecondary}`} href="https://www.linkedin.com/in/lee-jia-quan/">
+                <a
+                  className={`${styles.button} ${styles.buttonSecondary}`}
+                  href="https://www.linkedin.com/in/lee-jia-quan/"
+                >
                   <FaLinkedin aria-hidden="true" />
                   LinkedIn
                 </a>
@@ -132,11 +426,17 @@ export default function DesignComponentPage() {
               </div>
               <div className={styles.buttonRow}>
                 <span className={styles.stateLabel}>Default</span>
-                <Link className={`${styles.button} ${styles.buttonChrome}`} href="/blog">
+                <Link
+                  className={`${styles.button} ${styles.buttonChrome}`}
+                  href="/blog"
+                >
                   <FaArrowLeft aria-hidden="true" />
                   Back to blog
                 </Link>
-                <button className={`${styles.button} ${styles.buttonChrome}`} type="button">
+                <button
+                  className={`${styles.button} ${styles.buttonChrome}`}
+                  type="button"
+                >
                   <FaBookOpen aria-hidden="true" />
                   Blog
                 </button>
@@ -166,8 +466,9 @@ export default function DesignComponentPage() {
             Form Inputs
           </h2>
           <p className={styles.sectionIntro}>
-            Search and text inputs use the shared dark soft surface with strong borders. Focus
-            states should remove browser blue outlines and use the emerald accent border and ring.
+            Search and text inputs use the shared dark soft surface with strong
+            borders. Focus states should remove browser blue outlines and use
+            the emerald accent border and ring.
           </p>
           <div className={styles.grid}>
             <article className={styles.surface}>
@@ -176,7 +477,10 @@ export default function DesignComponentPage() {
                 <span className={styles.meta}>Default</span>
               </div>
               <div className={styles.inputStack}>
-                <label className={styles.inputLabel} htmlFor="design-search-default">
+                <label
+                  className={styles.inputLabel}
+                  htmlFor="design-search-default"
+                >
                   Search
                 </label>
                 <input
@@ -194,7 +498,10 @@ export default function DesignComponentPage() {
                 <span className={styles.meta}>Focused</span>
               </div>
               <div className={styles.inputStack}>
-                <label className={styles.inputLabel} htmlFor="design-search-focus">
+                <label
+                  className={styles.inputLabel}
+                  htmlFor="design-search-focus"
+                >
                   Search
                 </label>
                 <input
@@ -207,6 +514,102 @@ export default function DesignComponentPage() {
               </div>
             </article>
           </div>
+          <div className={styles.grid}>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Calendar Input</h3>
+                <span className={styles.meta}>Interactive</span>
+              </div>
+              <p className={styles.sectionIntro}>
+                Click the field to preview the styled calendar view.
+              </p>
+              <DesignCalendarInput />
+            </article>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="dropdown-fields">
+          <h2 id="dropdown-fields" className={styles.sectionTitle}>
+            Dropdown Fields
+          </h2>
+          <p className={styles.sectionIntro}>
+            Dropdown fields use the BiteTrail filter treatment: a soft dark
+            trigger with a subtle border, compact uppercase labels, a chrome
+            menu surface, and restrained option rows. Checkbox-specific behavior
+            is intentionally not represented here.
+          </p>
+          <div className={styles.grid}>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Dropdown Field</h3>
+                <span className={styles.meta}>Default</span>
+              </div>
+              <div className={styles.dropdownField}>
+                <span className={styles.dropdownLabel}>Watch list</span>
+                <button
+                  className={styles.dropdownTrigger}
+                  type="button"
+                  aria-expanded="false"
+                  aria-haspopup="listbox"
+                >
+                  <span>All lists</span>
+                  <FaChevronDown aria-hidden="true" />
+                </button>
+              </div>
+            </article>
+
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Dropdown Field</h3>
+                <span className={styles.meta}>Scrollable menu</span>
+              </div>
+              <div className={styles.dropdownField}>
+                <span className={styles.dropdownLabel}>Cuisine</span>
+                <div className={styles.dropdownPreview}>
+                  <button
+                    className={`${styles.dropdownTrigger} ${styles.dropdownTriggerOpen}`}
+                    type="button"
+                    aria-expanded="true"
+                    aria-haspopup="listbox"
+                  >
+                    <span>All cuisines</span>
+                    <FaChevronDown aria-hidden="true" />
+                  </button>
+                  <div
+                    className={`${styles.dropdownMenu} ${styles.dropdownMenuScroll}`}
+                    role="listbox"
+                    aria-label="Scrollable cuisine options"
+                  >
+                    {[
+                      "All cuisines",
+                      "Cafe",
+                      "Chinese",
+                      "Dessert",
+                      "Fast food",
+                      "Hawker",
+                      "Indian",
+                      "Japanese",
+                      "Korean",
+                      "Malay",
+                      "Seafood",
+                      "Thai",
+                      "Western",
+                    ].map((cuisine) => (
+                      <button
+                        key={cuisine}
+                        className={styles.dropdownOption}
+                        type="button"
+                        role="option"
+                        aria-selected={cuisine === "All cuisines"}
+                      >
+                        {cuisine}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className={styles.section} aria-labelledby="filter-buttons">
@@ -214,12 +617,16 @@ export default function DesignComponentPage() {
             Filter Buttons
           </h2>
           <p className={styles.sectionIntro}>
-            Filters inherit the timeline chip structure: pill radius, uppercase label, muted idle
-            text, dark surface, and emerald strong background for the selected item.
+            Filters inherit the timeline chip structure: pill radius, uppercase
+            label, muted idle text, dark surface, and emerald strong background
+            for the selected item.
           </p>
           <div className={styles.chipRow}>
             <span className={styles.stateLabel}>Default and active</span>
-            <button className={`${styles.chip} ${styles.chipActive}`} type="button">
+            <button
+              className={`${styles.chip} ${styles.chipActive}`}
+              type="button"
+            >
               All
             </button>
             <button className={styles.chip} type="button">
@@ -232,7 +639,10 @@ export default function DesignComponentPage() {
               Project
             </button>
             <span className={styles.stateLabel}>Hover reference</span>
-            <button className={`${styles.chip} ${styles.chipHover}`} type="button">
+            <button
+              className={`${styles.chip} ${styles.chipHover}`}
+              type="button"
+            >
               Work
             </button>
           </div>
@@ -243,8 +653,9 @@ export default function DesignComponentPage() {
             Blog Feedback
           </h2>
           <p className={styles.sectionIntro}>
-            Blog posts use the same restrained chrome button with an emerald active state, paired
-            with a compact metric pill for likes and lightweight post stats.
+            Blog posts use the same restrained chrome button with an emerald
+            active state, paired with a compact metric pill for likes and
+            lightweight post stats.
           </p>
           <div className={styles.grid}>
             <article className={styles.surface}>
@@ -257,13 +668,17 @@ export default function DesignComponentPage() {
                   <FaHeart aria-hidden="true" />
                   237
                 </span>
-                <button className={`${styles.button} ${styles.buttonPrimary}`} type="button">
+                <button
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  type="button"
+                >
                   <FaHeart aria-hidden="true" />
                   Like post
                 </button>
                 <button
-                  className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonPrimaryHover}`}
+                  className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonPrimaryHover}  ${styles.buttonDisabled}`}
                   type="button"
+                  disabled
                 >
                   <FaHeart aria-hidden="true" />
                   Liked
@@ -278,9 +693,10 @@ export default function DesignComponentPage() {
             Tagging And Badges
           </h2>
           <p className={styles.sectionIntro}>
-            Project sections use two tagging treatments. FlowingMenu previews use compact circular
-            logo tags and an overflow count. Project cards use text-based tags with a leading icon.
-            Keep metadata badges separate from tags.
+            Project sections use two tagging treatments. FlowingMenu previews
+            use compact circular logo tags and an overflow count. Project cards
+            use text-based tags with a leading icon. Keep metadata badges
+            separate from tags.
           </p>
 
           <div className={styles.grid}>
@@ -294,20 +710,42 @@ export default function DesignComponentPage() {
                 <h4 className={styles.previewTitle}>Peer Prep</h4>
                 <div className={styles.tagRow}>
                   <span className={styles.stateLabel}>Idle</span>
-                  <span className={styles.logoTag} aria-label="React" title="React">
+                  <span
+                    className={styles.logoTag}
+                    aria-label="React"
+                    title="React"
+                  >
                     <SiReact aria-hidden="true" />
                   </span>
-                  <span className={styles.logoTag} aria-label="Docker" title="Docker">
+                  <span
+                    className={styles.logoTag}
+                    aria-label="Docker"
+                    title="Docker"
+                  >
                     <SiDocker aria-hidden="true" />
                   </span>
-                  <span className={styles.logoTagOverflow} aria-label="4 more technologies" title="AWS, Terraform, Redis, Firebase">
+                  <span
+                    className={styles.logoTagOverflow}
+                    aria-label="4 more technologies"
+                    title="AWS, Terraform, Redis, Firebase"
+                  >
                     +4
                   </span>
-                  <span className={styles.stateLabel}>Active / hovered row</span>
-                  <span className={`${styles.logoTag} ${styles.logoTagActive}`} aria-label="React" title="React">
+                  <span className={styles.stateLabel}>
+                    Active / hovered row
+                  </span>
+                  <span
+                    className={`${styles.logoTag} ${styles.logoTagActive}`}
+                    aria-label="React"
+                    title="React"
+                  >
                     <SiReact aria-hidden="true" />
                   </span>
-                  <span className={`${styles.logoTag} ${styles.logoTagActive}`} aria-label="Docker" title="Docker">
+                  <span
+                    className={`${styles.logoTag} ${styles.logoTagActive}`}
+                    aria-label="Docker"
+                    title="Docker"
+                  >
                     <SiDocker aria-hidden="true" />
                   </span>
                   <span
@@ -357,9 +795,10 @@ export default function DesignComponentPage() {
             Info Tooltips
           </h2>
           <p className={styles.sectionIntro}>
-            Use the shared InfoTooltip for compact explanatory detail that should be available by
-            hover, focus, and click. Prefer custom triggers when the tooltip explains a visible
-            badge or metadata label.
+            Use the shared InfoTooltip for compact explanatory detail that
+            should be available by hover, focus, and click. Prefer custom
+            triggers when the tooltip explains a visible badge or metadata
+            label.
           </p>
 
           <div className={styles.grid}>
@@ -369,14 +808,16 @@ export default function DesignComponentPage() {
                 <span className={styles.meta}>Default</span>
               </div>
               <div className={styles.tooltipSample}>
-                <span className={styles.tooltipSampleLabel}>Project architecture</span>
+                <span className={styles.tooltipSampleLabel}>
+                  Project architecture
+                </span>
                 <InfoTooltip
                   ariaLabel="Project architecture details"
                   panelClassName={styles.tooltipPanel}
                   preferredPlacement="top"
                 >
-                  Use this for short supporting context that clarifies a label without expanding
-                  the surrounding card or changing the layout.
+                  Use this for short supporting context that clarifies a label
+                  without expanding the surrounding card or changing the layout.
                 </InfoTooltip>
               </div>
             </article>
@@ -392,10 +833,13 @@ export default function DesignComponentPage() {
                   className={styles.tooltipBadgeTrigger}
                   panelClassName={styles.tooltipPanel}
                   preferredPlacement="left"
-                  trigger={<button type="button">Microservices Architecture</button>}
+                  trigger={
+                    <button type="button">Microservices Architecture</button>
+                  }
                 >
-                  Gateway-centered services split user, matching, collaboration, history, and AI
-                  responsibilities while sharing infrastructure through Redis and Docker Compose.
+                  Gateway-centered services split user, matching, collaboration,
+                  history, and AI responsibilities while sharing infrastructure
+                  through Redis and Docker Compose.
                 </InfoTooltip>
               </div>
             </article>
@@ -407,11 +851,16 @@ export default function DesignComponentPage() {
             Navigation Chrome
           </h2>
           <p className={styles.sectionIntro}>
-            Dock-inspired navigation uses the chrome shell, page-dark item surface, soft borders,
-            and emerald icon/text only for hover or active states.
+            Dock-inspired navigation uses the chrome shell, page-dark item
+            surface, soft borders, and emerald icon/text only for hover or
+            active states.
           </p>
           <div className={styles.buttonRow}>
-            <div className={styles.dockSample} aria-label="Dock color sample" role="group">
+            <div
+              className={styles.dockSample}
+              aria-label="Dock color sample"
+              role="group"
+            >
               <span className={styles.dockItem}>
                 <FaBookOpen aria-hidden="true" />
               </span>
@@ -419,6 +868,54 @@ export default function DesignComponentPage() {
                 <FaHistory aria-hidden="true" />
               </span>
             </div>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="notifications">
+          <h2 id="notifications" className={styles.sectionTitle}>
+            Notifications
+          </h2>
+          <p className={styles.sectionIntro}>
+            Use the shared notification stack for short-lived process feedback.
+            Success, error, warning, and informational messages each dismiss
+            automatically after five seconds and stack from the bottom upward.
+            Error notifications also include a copy button for safe debugging.
+          </p>
+          <div className={styles.grid}>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Success</h3>
+                <span className={styles.meta}>site-accent</span>
+              </div>
+              <div className="site-notification" data-type="success" role="status">
+                Friend added successfully.
+              </div>
+            </article>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Error</h3>
+                <span className={styles.meta}>site-accent-red</span>
+              </div>
+              <DesignErrorNotification />
+            </article>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Warning</h3>
+                <span className={styles.meta}>site-accent-orange</span>
+              </div>
+              <div className="site-notification" data-type="warning" role="status">
+                This action needs your attention.
+              </div>
+            </article>
+            <article className={styles.surface}>
+              <div className={styles.surfaceHeader}>
+                <h3 className={styles.label}>Info</h3>
+                <span className={styles.meta}>site-bg-elevated</span>
+              </div>
+              <div className="site-notification" data-type="info" role="status">
+                Your settings are already up to date.
+              </div>
+            </article>
           </div>
         </section>
 

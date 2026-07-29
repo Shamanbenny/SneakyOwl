@@ -1,0 +1,150 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function hasAllowedDisplayName() {
+      return request.resource.data.displayName is string
+        && request.resource.data.displayName != ''
+        && (request.resource.data.displayName != 'SneakyOwl'
+          || request.auth.uid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2');
+    }
+
+    function hasSafeRequiredText(value, maximumLength) {
+      return value is string
+        && value.size() > 0
+        && value.size() <= maximumLength
+        && value.matches('^[^\\x00-\\x1F\\x7F]*$');
+    }
+
+    function hasSafeOptionalText(value, maximumLength) {
+      return value is string
+        && value.size() <= maximumLength
+        && value.matches('^[^\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]*$');
+    }
+
+    function isBiteTrailCuisine(value) {
+      return value in [
+        'cafe', 'Chinese', 'dessert', 'fast food', 'hawker', 'Indian',
+        'Japanese', 'Korean', 'Malay', 'Others', 'seafood', 'Thai', 'western'
+      ];
+    }
+
+    function isVisitDate(value) {
+      return value is string
+        && value.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+
+    // Shared account profile. BiteTrail preferences and tutorial state are
+    // intentionally not stored here.
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if owns(uid)
+        && hasAllowedDisplayName()
+        && request.resource.data.keys().hasOnly([
+          'displayName', 'photoURL', 'createdAt', 'updatedAt'
+        ]);
+      allow update: if owns(uid)
+        && hasAllowedDisplayName()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName', 'photoURL', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // A single Firestore document scopes all BiteTrail collections:
+    // tools/bite-trail/{users,followings,places}/...
+    match /tools/bite-trail/users/{uid} {
+      allow read: if owns(uid);
+      allow create: if owns(uid)
+        && request.resource.data.hasCompletedTutorial is bool
+        && request.resource.data.showSneakyOwl is bool
+        && request.resource.data.keys().hasOnly([
+          'defaultCurrency', 'mapStart', 'hasCompletedTutorial',
+          'showSneakyOwl', 'createdAt', 'updatedAt'
+        ]);
+      allow update: if owns(uid)
+        && request.resource.data.hasCompletedTutorial is bool
+        && request.resource.data.showSneakyOwl is bool
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'defaultCurrency', 'mapStart', 'hasCompletedTutorial',
+          'showSneakyOwl', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Reciprocal relationship changes are coordinated by Flask. The client
+    // needs only its own watch-list documents for Profile UI state.
+    match /tools/bite-trail/followings/{uid}/relationships/{friendUid} {
+      allow read: if owns(uid);
+      allow create, update: if owns(uid)
+        && friendUid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2'
+        && request.resource.data.friendUid == friendUid
+        && request.resource.data.friendDisplayName is string
+        && request.resource.data.keys().hasOnly([
+          'friendUid', 'friendDisplayName', 'createdAt'
+        ]);
+      allow delete: if owns(uid)
+        && friendUid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2';
+    }
+
+    // Place metadata is global and immutable after creation. Cross-owner
+    // place/visit reads are deliberately served by Flask, where relationship
+    // filtering and parent-place assembly can be performed safely.
+    match /tools/bite-trail/places/{placeId} {
+      allow read: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'name', 'locationLabel', 'latitude', 'longitude', 'cuisineGenre',
+          'createdAt', 'updatedAt'
+        ])
+        && hasSafeRequiredText(request.resource.data.name, 120)
+        && hasSafeRequiredText(request.resource.data.locationLabel, 120)
+        && request.resource.data.latitude is number
+        && request.resource.data.latitude >= -90
+        && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number
+        && request.resource.data.longitude >= -180
+        && request.resource.data.longitude <= 180
+        && isBiteTrailCuisine(request.resource.data.cuisineGenre)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update, delete: if false;
+
+      match /visits/{visitId} {
+        allow read: if false;
+        allow create: if signedIn()
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerDisplayName
+            == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.displayName
+          && request.resource.data.keys().hasOnly([
+            'ownerUid', 'ownerDisplayName', 'ratingOutOf10', 'costPerPerson',
+            'currency', 'itemsBought', 'comments', 'visitedAt', 'createdAt'
+          ])
+          && request.resource.data.ownerDisplayName is string
+          && request.resource.data.ratingOutOf10 is int
+          && request.resource.data.ratingOutOf10 >= 0
+          && request.resource.data.ratingOutOf10 <= 10
+          && request.resource.data.costPerPerson is number
+          && request.resource.data.costPerPerson >= 0
+          && request.resource.data.currency == 'SGD'
+          && hasSafeOptionalText(request.resource.data.itemsBought, 500)
+          && hasSafeOptionalText(request.resource.data.comments, 2000)
+          && isVisitDate(request.resource.data.visitedAt)
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    match /auditEvents/{eventId} {
+      allow read, write: if false;
+    }
+  }
+}

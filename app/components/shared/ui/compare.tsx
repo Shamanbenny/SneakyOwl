@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
-import { SparklesCore } from "@/app/components/shared/ui/sparkles";
+import { SparklesCore } from "@/app/components/shared/display/Sparkles";
 
 interface CompareProps {
   firstImage?: string;
@@ -226,7 +226,6 @@ export const Compare = ({
         <div className="absolute left-0 top-1/2 h-1/2 w-10 -translate-y-1/2 bg-gradient-to-r from-[color:var(--site-accent)] via-transparent to-transparent opacity-90 [mask-image:radial-gradient(50px_at_left,white,transparent)]" />
         <div className="absolute -left-10 top-1/2 h-3/4 w-10 -translate-y-1/2 [mask-image:radial-gradient(100px_at_right,white,transparent)]">
           <MemoizedSparklesCore
-            background="transparent"
             minSize={0.4}
             maxSize={1}
             particleDensity={28}
@@ -236,7 +235,6 @@ export const Compare = ({
         </div>
         <div className="absolute -right-10 top-1/2 h-3/4 w-10 -translate-y-1/2 [mask-image:radial-gradient(100px_at_left,white,transparent)]">
           <MemoizedSparklesCore
-            background="transparent"
             minSize={0.4}
             maxSize={1}
             particleDensity={28}

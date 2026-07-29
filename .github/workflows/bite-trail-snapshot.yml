@@ -1,0 +1,50 @@
+name: Publish BiteTrail Snapshot
+
+on:
+  schedule:
+    - cron: "21 0 * * *" # 8:21 AM Singapore time (UTC+8)
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: output-branch
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Check out existing output assets
+        uses: actions/checkout@v4
+        with:
+          ref: output
+          path: output-branch
+
+      - name: Preserve existing output assets
+        run: |
+          mkdir -p dist
+          find output-branch -mindepth 1 -maxdepth 1 ! -name .git -exec cp -R {} dist/ \;
+
+      - name: Fetch SneakyOwl's BiteTrail data
+        env:
+          BITE_TRAIL_API_BASE_URL: ${{ secrets.SNEAKYOWL_API_BASE_URL }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: node .github/scripts/fetch-bite-trail-snapshot.mjs dist/bite-trail.json
+
+      - name: Publish output branch
+        uses: crazy-max/ghaction-github-pages@v3.1.0
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -47,7 +47,6 @@ export default function BlogAdminStats({ slug }: BlogAdminStatsProps) {
         });
       })
       .catch((error) => {
-        console.error("Failed to fetch blog admin stats", error);
       })
       .finally(() => {
         if (isActive) {
