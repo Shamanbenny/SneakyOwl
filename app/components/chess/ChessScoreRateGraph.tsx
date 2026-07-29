@@ -69,8 +69,7 @@ type ChessScoreRateGraphProps = {
   xAxisTitleClassName?: string;
 };
 
-const CHESS_METADATA_URL = "https://chess.sneakyowl.net/api/chess/metadata";
-const CHANGELOG_FALLBACK_URL = "/blog/autoresearch-chess/CHANGELOG.json";
+const CHANGELOG_URL = "/blog/autoresearch-chess/CHANGELOG.json";
 const GRAPH_STAGE_WIDTH = 1400;
 const GRAPH_STAGE_HEIGHT = 600;
 const Y_AXIS_GUTTER_WIDTH = 92;
@@ -310,10 +309,8 @@ const ChessScoreRateGraph = ({
       setIsLoading(true);
       setError(null);
 
-      let backendErrorMessage: string | null = null;
-
       try {
-        const response = await fetch(CHESS_METADATA_URL);
+        const response = await fetch(CHANGELOG_URL);
         if (!response.ok) {
           throw new Error(
             `${response.status} ${response.statusText || "response"}`,
@@ -324,32 +321,9 @@ const ChessScoreRateGraph = ({
         if (!cancelled) {
           setFetchedMetadata(nextMetadata);
         }
-      } catch (loadError) {
-        backendErrorMessage = "The primary chess metadata source was unavailable.";
-
-        try {
-          const fallbackResponse = await fetch(CHANGELOG_FALLBACK_URL);
-          if (!fallbackResponse.ok) {
-            throw new Error(
-              `${fallbackResponse.status} ${
-                fallbackResponse.statusText || "response"
-              }`,
-            );
-          }
-
-          const fallbackMetadata =
-            (await fallbackResponse.json()) as ChessMetadata;
-          if (!cancelled) {
-            setFetchedMetadata(fallbackMetadata);
-          }
-        } catch (fallbackError) {
-          if (!cancelled) {
-            const fallbackErrorMessage =
-              "The fallback chess metadata source was unavailable.";
-            setError(
-              `backend: ${backendErrorMessage}; fallback: ${fallbackErrorMessage}`,
-            );
-          }
+      } catch {
+        if (!cancelled) {
+          setError("The static chess changelog could not be loaded.");
         }
       } finally {
         if (!cancelled) {
