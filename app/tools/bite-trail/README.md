@@ -54,6 +54,8 @@ Implemented mechanics:
 - GPS uses `navigator.geolocation.getCurrentPosition` with high accuracy and a 10-second timeout.
 - The add-location control changes to a red trash icon with a "Clear new pin" tooltip while a draft pin exists.
 - Saved records remain read-only Leaflet markers; selecting a marker or cluster opens the BiteTrail detail/list panel.
+- Deleting your own visit requires confirmation, then shows a "Deleting entry..." progress toast before the request completes.
+- Clearing a draft pin, starting a new location while an entry is open, or discarding the entry form requires confirmation; Escape, clicking outside the dialog, or "Keep editing" cancels the discard.
 
 BiteTrail should reuse the same conceptual split:
 

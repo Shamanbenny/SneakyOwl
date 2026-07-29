@@ -143,13 +143,21 @@ const getMockPlacesForViewer = (isFollowingSneakyOwl: boolean) => {
 const BiteTrailMapData = ({
   latitude,
   longitude,
+  hasActiveEntry,
   onLocationChange,
+  onRequestClearDraft,
+  onRequestStartNewLocation,
+  startLocationPickerRequest,
   onAddEntry,
   refreshKey,
 }: {
   latitude: string;
   longitude: string;
+  hasActiveEntry: boolean;
   onLocationChange: (latitude: string, longitude: string) => void;
+  onRequestClearDraft: () => void;
+  onRequestStartNewLocation: () => void;
+  startLocationPickerRequest: number;
   onAddEntry: (place: BiteTrailResolvedPlace) => void;
   refreshKey: number;
 }) => {
@@ -235,7 +243,9 @@ const BiteTrailMapData = ({
         return;
       }
 
-      notify("We’re fetching your latest BiteTrail data.", "info");
+      if (refreshKey === 0) {
+        notify("We’re fetching your latest BiteTrail data.", "info");
+      }
       try {
         await withFirebaseSessionRetries(nextUser, async () => {
           await revalidateFirebaseSession(nextUser);
@@ -300,7 +310,11 @@ const BiteTrailMapData = ({
       mapStart={mapStart}
       draftLatitude={latitude}
       draftLongitude={longitude}
+      hasActiveEntry={hasActiveEntry}
       onDraftLocationChange={onLocationChange}
+      onRequestClearDraft={onRequestClearDraft}
+      onRequestStartNewLocation={onRequestStartNewLocation}
+      startLocationPickerRequest={startLocationPickerRequest}
       onAddEntry={onAddEntry}
       isAuthenticated={Boolean(user)}
       onDeleteVisit={async (place, visit) => {
@@ -311,6 +325,7 @@ const BiteTrailMapData = ({
         const visitId = visit.id.split(":").at(-1);
         if (!visitId) return;
 
+        notify("Deleting entry...", "info");
         try {
           await deleteBiteTrailVisit(user, place.sourcePlaceId, visitId);
           notify("Your visit was deleted.");

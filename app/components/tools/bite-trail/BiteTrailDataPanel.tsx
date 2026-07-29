@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa6";
 
 import InfoTooltip from "@/app/components/shared/feedback/InfoTooltip";
+import { useNotifications } from "@/app/components/shared/feedback/NotificationProvider";
 import {
   BITE_TRAIL_CUISINES,
   appendVisit,
@@ -105,6 +106,7 @@ const BiteTrailDataPanel = ({
   activePlace,
   onLocationChange,
   onDiscard,
+  onRequestDiscard,
   onSaved,
 }: {
   latitude: string;
@@ -112,9 +114,11 @@ const BiteTrailDataPanel = ({
   activePlace: BiteTrailResolvedPlace | null;
   onLocationChange: (latitude: string, longitude: string) => void;
   onDiscard: () => void;
+  onRequestDiscard: () => void;
   onSaved?: () => void;
 }) => {
   const firebaseClient = useMemo(() => getFirebaseClient(), []);
+  const { notify } = useNotifications();
   const [user, setUser] = useState<User | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -139,6 +143,7 @@ const BiteTrailDataPanel = ({
       Number.isInteger(ratingOutOf10) &&
       ratingOutOf10 >= 0 &&
       ratingOutOf10 <= 10 &&
+      form.costPerPerson.trim() !== "" &&
       Number.isFinite(costPerPerson) &&
       costPerPerson >= 0 &&
       isValidVisitDate(form.visitedAt) &&
@@ -245,6 +250,12 @@ const BiteTrailDataPanel = ({
 
     setIsSaving(true);
     setMessage(null);
+    notify(
+      activePlace
+        ? "We're adding your new entry..."
+        : "We're saving your new place and entry...",
+      "info",
+    );
     try {
       const visit = {
         ratingOutOf10,
@@ -608,7 +619,7 @@ const BiteTrailDataPanel = ({
               </label>
               <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
                 <button
-                  className="site-button-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-semibold disabled:opacity-55"
+                  className="site-button-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-55"
                   type="submit"
                   disabled={isSaving || !isFormValid}
                 >
@@ -622,7 +633,7 @@ const BiteTrailDataPanel = ({
                 <button
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--site-accent-red)] bg-transparent px-4 font-semibold text-[color:var(--site-accent-red)] transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 disabled:pointer-events-none disabled:opacity-55"
                   type="button"
-                  onClick={onDiscard}
+                  onClick={onRequestDiscard}
                   disabled={isSaving}
                 >
                   <FaTrashCan className="h-4 w-4" aria-hidden="true" />

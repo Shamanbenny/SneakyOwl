@@ -31,6 +31,17 @@ type ClusterEvent = L.LeafletEvent & {
   layer: L.MarkerCluster;
 };
 
+type LeafletApi = {
+  circle: typeof import("leaflet").circle;
+  divIcon: typeof import("leaflet").divIcon;
+  latLng: typeof import("leaflet").latLng;
+  marker: typeof import("leaflet").marker;
+  featureGroup: typeof import("leaflet").featureGroup;
+  stamp: typeof import("leaflet").stamp;
+  DomEvent: typeof import("leaflet").DomEvent;
+  markerClusterGroup: typeof L.markerClusterGroup;
+};
+
 const SINGAPORE_CENTER: [number, number] = [1.353, 103.822];
 const SINGAPORE_ZOOM = 12;
 const USER_LOCATION_ZOOM = 14;
@@ -322,7 +333,10 @@ const EntryDetailPanel = ({
                           className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[color:var(--site-text-muted)] transition-colors hover:bg-[color:var(--site-bg-strong)] hover:text-[color:var(--site-accent-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-red)]"
                           onClick={() => void onDeleteVisit(place, visit)}
                         >
-                          <FaTrashCan className="h-3.5 w-3.5" aria-hidden="true" />
+                          <FaTrashCan
+                            className="h-3.5 w-3.5"
+                            aria-hidden="true"
+                          />
                         </button>
                       }
                     >
@@ -341,20 +355,22 @@ const EntryDetailPanel = ({
                   </span>
                 </p>
               </div>
-              {visit.itemsBought ? (
+              {visit.itemsBought?.trim() ? (
                 <p className="mt-3 leading-6 text-[color:var(--site-text)]">
                   <span className="font-semibold text-[color:var(--site-accent-soft)]">
                     Ordered:{" "}
                   </span>
-                  {visit.itemsBought}
+                  {visit.itemsBought?.trim()}
                 </p>
               ) : null}
-              <p className="mt-3 leading-6 text-[color:var(--site-text)]">
-                <span className="font-semibold text-[color:var(--site-accent-soft)]">
-                  Comments:{" "}
-                </span>
-                {visit.comments}
-              </p>
+              {visit.comments?.trim() ? (
+                <p className="mt-3 leading-6 text-[color:var(--site-text)]">
+                  <span className="font-semibold text-[color:var(--site-accent-soft)]">
+                    Comments:{" "}
+                  </span>
+                  {visit.comments?.trim()}
+                </p>
+              ) : null}
             </article>
           ))}
       </div>
@@ -588,9 +604,7 @@ const FilterPanel = ({
                         onChange={() => toggleOwner(ownerName)}
                         className="h-4 w-4 accent-[color:var(--site-accent)]"
                       />
-                      <span>
-                        {ownerName}
-                      </span>
+                      <span>{ownerName}</span>
                     </label>
                   );
                 })}
@@ -788,7 +802,11 @@ const BiteTrailMap = ({
   mapStart = "Singapore",
   draftLatitude = "",
   draftLongitude = "",
+  hasActiveEntry = false,
   onDraftLocationChange,
+  onRequestClearDraft,
+  onRequestStartNewLocation,
+  startLocationPickerRequest = 0,
   onAddEntry,
   onDeleteVisit,
 }: {
@@ -797,7 +815,11 @@ const BiteTrailMap = ({
   mapStart?: BiteTrailMapStart;
   draftLatitude?: string;
   draftLongitude?: string;
+  hasActiveEntry?: boolean;
   onDraftLocationChange?: (latitude: string, longitude: string) => void;
+  onRequestClearDraft?: () => void;
+  onRequestStartNewLocation?: () => void;
+  startLocationPickerRequest?: number;
   onAddEntry?: (place: VisibleBiteTrailPlace) => void;
   onDeleteVisit?: DeleteVisitHandler;
 }) => {
@@ -854,12 +876,7 @@ const BiteTrailMap = ({
   );
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const leafletRef = useRef<{
-    circle: typeof import("leaflet").circle;
-    divIcon: typeof import("leaflet").divIcon;
-    latLng: typeof import("leaflet").latLng;
-    marker: typeof import("leaflet").marker;
-  } | null>(null);
+  const leafletRef = useRef<LeafletApi | null>(null);
   const markerRefs = useRef<Map<string, L.Marker>>(new Map());
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
   const userAccuracyCircleRef = useRef<L.Circle | null>(null);
@@ -887,6 +904,10 @@ const BiteTrailMap = ({
   );
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [clusterEntryIds, setClusterEntryIds] = useState<string[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<{
+    place: VisibleBiteTrailPlace;
+    visit: BiteTrailResolvedFoodEntry;
+  } | null>(null);
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
   const isLocationPickingRef = useRef(isLocationPicking);
   const onDraftLocationChangeRef = useRef(onDraftLocationChange);
@@ -1233,134 +1254,6 @@ const BiteTrailMap = ({
         updateWhenZooming: false,
       }).addTo(map);
 
-      const entryByMarker = new Map<number, VisibleBiteTrailPlace>();
-      const hasMarkerCluster = typeof L.markerClusterGroup === "function";
-      const markers: L.FeatureGroup | L.MarkerClusterGroup = hasMarkerCluster
-        ? L.markerClusterGroup({
-            iconCreateFunction: (cluster) =>
-              L.divIcon({
-                className: "bite-trail-cluster-icon",
-                html: createClusterIconHtml(
-                  cluster.getChildCount(),
-                  Boolean(
-                    selectedPlaceIdRef.current &&
-                      cluster
-                        .getAllChildMarkers()
-                        .some(
-                          (marker: L.Marker) =>
-                            entryByMarker.get(L.stamp(marker))?.id ===
-                            selectedPlaceIdRef.current,
-                        ),
-                  ),
-                ),
-                iconAnchor: [24, 52],
-                iconSize: [48, 54],
-              }),
-            maxClusterRadius: BITE_TRAIL_CLUSTER_RADIUS,
-            showCoverageOnHover: false,
-            spiderfyOnMaxZoom: false,
-            zoomToBoundsOnClick: false,
-          })
-        : L.featureGroup();
-
-      if (hasMarkerCluster) {
-        markerClusterGroupRef.current = markers as L.MarkerClusterGroup;
-      }
-
-      visibleEntries.forEach((entry) => {
-        const marker = L.marker([entry.latitude, entry.longitude], {
-          icon: L.divIcon({
-            className: "bite-trail-marker-icon",
-            html: createEntryIconHtml(
-              entry,
-              entry.id === selectedPlaceIdRef.current,
-            ),
-            iconAnchor: [12, 12],
-            iconSize: [24, 24],
-          }),
-          keyboard: true,
-          title: entry.placeName,
-        });
-
-        entryByMarker.set(L.stamp(marker), entry);
-        markerRegistry.set(entry.id, marker);
-        marker.bindTooltip(entry.placeName, {
-          className: "bite-trail-marker-tooltip",
-          direction: "bottom",
-          offset: [0, 12],
-        });
-        marker.on("click", (event: L.LeafletMouseEvent) => {
-          L.DomEvent.stopPropagation(event);
-          marker.closeTooltip();
-          setSelectedPlaceId(entry.id);
-          setClusterEntryIds([]);
-          setExpandedPanel("entries");
-        });
-        markers.addLayer(marker);
-      });
-
-      if (hasMarkerCluster) {
-        markers.on("clusterclick", (event) => {
-          const clusterEvent = event as ClusterEvent;
-          const originalEvent = (clusterEvent as L.LeafletMouseEvent)
-            .originalEvent;
-          if (originalEvent) {
-            L.DomEvent.stopPropagation(originalEvent);
-          }
-          const clusterGroup = markers as L.MarkerClusterGroup;
-          const childMarkers = clusterEvent.layer.getAllChildMarkers();
-          const nextClusterEntries = clusterEvent.layer
-            .getAllChildMarkers()
-            .map((marker: L.Marker) => entryByMarker.get(L.stamp(marker)))
-            .filter(
-              (
-                entry: VisibleBiteTrailPlace | undefined,
-              ): entry is VisibleBiteTrailPlace => Boolean(entry),
-            );
-
-          setClusterEntryIds(
-            nextClusterEntries.map((entry: VisibleBiteTrailPlace) => entry.id),
-          );
-          setSelectedPlaceId(null);
-          setExpandedPanel("entries");
-          const revealNextClusterLevel = () => {
-            const visibleParents = new Set(
-              childMarkers.map((marker: L.Marker) =>
-                clusterGroup.getVisibleParent(marker),
-              ),
-            );
-            const hasIndividualMarker = childMarkers.some(
-              (marker: L.Marker) =>
-                clusterGroup.getVisibleParent(marker) === marker,
-            );
-            const maxZoom = map.getMaxZoom();
-
-            if (
-              visibleParents.size > 1 ||
-              hasIndividualMarker ||
-              (Number.isFinite(maxZoom) && map.getZoom() >= maxZoom)
-            ) {
-              return;
-            }
-
-            map.once("moveend", revealNextClusterLevel);
-            map.setZoom(map.getZoom() + 1, {
-              animate: true,
-              duration: 0.45,
-            });
-          };
-
-          map.once("moveend", revealNextClusterLevel);
-          map.flyToBounds(clusterEvent.layer.getBounds(), {
-            animate: true,
-            duration: 0.75,
-            easeLinearity: 0.25,
-            padding: [42, 42],
-          });
-        });
-      }
-
-      markers.addTo(map);
       mapInstanceRef.current = map;
       setIsMapLoaded(true);
     };
@@ -1376,6 +1269,11 @@ const BiteTrailMap = ({
       isCancelled = true;
       setIsMapLoaded(false);
       markerRegistry.clear();
+      const markers = markerClusterGroupRef.current;
+      if (markers && mapInstanceRef.current?.hasLayer(markers)) {
+        markers.removeFrom(mapInstanceRef.current);
+      }
+      markers?.clearLayers();
       markerClusterGroupRef.current = null;
       activeTooltipMarkerRef.current?.closeTooltip();
       activeTooltipMarkerRef.current = null;
@@ -1393,7 +1291,155 @@ const BiteTrailMap = ({
       disposeDraftLocationIconRoot();
       draftLocationMarkerRef.current = null;
     };
-  }, [disposeDraftLocationIconRoot, visibleEntries]);
+  }, [disposeDraftLocationIconRoot]);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const leaflet = leafletRef.current;
+    if (!isMapLoaded || !map || !leaflet) {
+      return;
+    }
+
+    const entryByMarker = new Map<number, VisibleBiteTrailPlace>();
+    const markerRegistry = markerRefs.current;
+    const hasMarkerCluster = typeof leaflet.markerClusterGroup === "function";
+    const markers: L.FeatureGroup | L.MarkerClusterGroup = hasMarkerCluster
+      ? leaflet.markerClusterGroup({
+          iconCreateFunction: (cluster) =>
+            leaflet.divIcon({
+              className: "bite-trail-cluster-icon",
+              html: createClusterIconHtml(
+                cluster.getChildCount(),
+                Boolean(
+                  selectedPlaceIdRef.current &&
+                    cluster
+                      .getAllChildMarkers()
+                      .some(
+                        (marker: L.Marker) =>
+                          entryByMarker.get(leaflet.stamp(marker))?.id ===
+                          selectedPlaceIdRef.current,
+                      ),
+                ),
+              ),
+              iconAnchor: [24, 52],
+              iconSize: [48, 54],
+            }),
+          maxClusterRadius: BITE_TRAIL_CLUSTER_RADIUS,
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: false,
+          zoomToBoundsOnClick: false,
+        })
+      : leaflet.featureGroup();
+
+    markerRegistry.clear();
+    markerClusterGroupRef.current = hasMarkerCluster
+      ? (markers as L.MarkerClusterGroup)
+      : null;
+
+    visibleEntries.forEach((entry) => {
+      const marker = leaflet.marker([entry.latitude, entry.longitude], {
+        icon: leaflet.divIcon({
+          className: "bite-trail-marker-icon",
+          html: createEntryIconHtml(
+            entry,
+            entry.id === selectedPlaceIdRef.current,
+          ),
+          iconAnchor: [12, 12],
+          iconSize: [24, 24],
+        }),
+        keyboard: true,
+        title: entry.placeName,
+      });
+
+      entryByMarker.set(leaflet.stamp(marker), entry);
+      markerRegistry.set(entry.id, marker);
+      marker.bindTooltip(entry.placeName, {
+        className: "bite-trail-marker-tooltip",
+        direction: "bottom",
+        offset: [0, 12],
+      });
+      marker.on("click", (event: L.LeafletMouseEvent) => {
+        leaflet.DomEvent.stopPropagation(event);
+        marker.closeTooltip();
+        setSelectedPlaceId(entry.id);
+        setClusterEntryIds([]);
+        setExpandedPanel("entries");
+      });
+      markers.addLayer(marker);
+    });
+
+    if (hasMarkerCluster) {
+      markers.on("clusterclick", (event) => {
+        const clusterEvent = event as ClusterEvent;
+        const originalEvent = (clusterEvent as L.LeafletMouseEvent)
+          .originalEvent;
+        if (originalEvent) {
+          leaflet.DomEvent.stopPropagation(originalEvent);
+        }
+        const clusterGroup = markers as L.MarkerClusterGroup;
+        const childMarkers = clusterEvent.layer.getAllChildMarkers();
+        const nextClusterEntries = childMarkers
+          .map((marker: L.Marker) => entryByMarker.get(leaflet.stamp(marker)))
+          .filter(
+            (
+              entry: VisibleBiteTrailPlace | undefined,
+            ): entry is VisibleBiteTrailPlace => Boolean(entry),
+          );
+
+        setClusterEntryIds(
+          nextClusterEntries.map((entry: VisibleBiteTrailPlace) => entry.id),
+        );
+        setSelectedPlaceId(null);
+        setExpandedPanel("entries");
+        const revealNextClusterLevel = () => {
+          const visibleParents = new Set(
+            childMarkers.map((marker: L.Marker) =>
+              clusterGroup.getVisibleParent(marker),
+            ),
+          );
+          const hasIndividualMarker = childMarkers.some(
+            (marker: L.Marker) =>
+              clusterGroup.getVisibleParent(marker) === marker,
+          );
+          const maxZoom = map.getMaxZoom();
+
+          if (
+            visibleParents.size > 1 ||
+            hasIndividualMarker ||
+            (Number.isFinite(maxZoom) && map.getZoom() >= maxZoom)
+          ) {
+            return;
+          }
+
+          map.once("moveend", revealNextClusterLevel);
+          map.setZoom(map.getZoom() + 1, { animate: true, duration: 0.45 });
+        };
+
+        map.once("moveend", revealNextClusterLevel);
+        map.flyToBounds(clusterEvent.layer.getBounds(), {
+          animate: true,
+          duration: 0.75,
+          easeLinearity: 0.25,
+          padding: [42, 42],
+        });
+      });
+    }
+
+    markers.addTo(map);
+
+    return () => {
+      activeTooltipMarkerRef.current?.closeTooltip();
+      activeTooltipMarkerRef.current = null;
+      if (map.hasLayer(markers)) {
+        markers.removeFrom(map);
+      }
+      markers.clearLayers();
+      if (markerClusterGroupRef.current === markers) {
+        markerClusterGroupRef.current = null;
+      }
+      markerRegistry.clear();
+    };
+  }, [isMapLoaded, visibleEntries]);
 
   const recenterMap = () => {
     mapInstanceRef.current?.setView(SINGAPORE_CENTER, SINGAPORE_ZOOM);
@@ -1479,16 +1525,22 @@ const BiteTrailMap = ({
 
   const centerToUser = () => requestUserLocation(true);
 
-  const startLocationPicker = () => {
+  const startLocationPicker = useCallback(() => {
     setIsLocationPicking(true);
     requestUserLocation(true, (latitude, longitude) => {
       const [nextLatitude, nextLongitude] = formatCoordinates(
         latitude,
         longitude,
       );
-      onDraftLocationChange?.(nextLatitude, nextLongitude);
+      onDraftLocationChangeRef.current?.(nextLatitude, nextLongitude);
     });
-  };
+  }, [requestUserLocation]);
+
+  useEffect(() => {
+    if (startLocationPickerRequest > 0) {
+      startLocationPicker();
+    }
+  }, [startLocationPicker, startLocationPickerRequest]);
 
   const clearDraftLocation = () => {
     setIsLocationPicking(false);
@@ -1565,6 +1617,30 @@ const BiteTrailMap = ({
       easeLinearity: 0.25,
     });
   };
+
+  const requestDeleteVisit = (
+    place: VisibleBiteTrailPlace,
+    visit: BiteTrailResolvedFoodEntry,
+  ) => {
+    setPendingDelete({ place, visit });
+  };
+
+  const confirmDeleteVisit = () => {
+    if (!pendingDelete) return;
+    const { place, visit } = pendingDelete;
+    setPendingDelete(null);
+    void onDeleteVisit?.(place, visit);
+  };
+
+  useEffect(() => {
+    if (!pendingDelete) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPendingDelete(null);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [pendingDelete]);
 
   const focusAndAddEntry = (entry: VisibleBiteTrailPlace) => {
     setExpandedPanel("entries");
@@ -1680,7 +1756,7 @@ const BiteTrailMap = ({
               <EntryDetailPanel
                 place={selectedPlace}
                 onAddEntry={focusAndAddEntry}
-                onDeleteVisit={onDeleteVisit}
+                onDeleteVisit={onDeleteVisit ? requestDeleteVisit : undefined}
               />
             </div>
           ) : clusterEntries.length > 0 ? (
@@ -1729,7 +1805,11 @@ const BiteTrailMap = ({
                 <button
                   type="button"
                   onClick={
-                    draftCoordinates ? clearDraftLocation : startLocationPicker
+                    draftCoordinates
+                      ? (onRequestClearDraft ?? clearDraftLocation)
+                      : hasActiveEntry
+                        ? (onRequestStartNewLocation ?? startLocationPicker)
+                        : startLocationPicker
                   }
                   disabled={!isMapLoaded || isLocatingUser}
                   aria-label={
@@ -1855,6 +1935,49 @@ const BiteTrailMap = ({
       </div>
 
       {panel}
+      {pendingDelete ? (
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPendingDelete(null);
+          }}
+        >
+          <div
+            className="site-surface-card w-full max-w-md rounded-[22px] border border-[color:var(--site-border-strong)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.5)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bite-trail-delete-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <h2
+              id="bite-trail-delete-title"
+              className="m-0 text-xl font-semibold text-[color:var(--site-text-strong)]"
+            >
+              Delete your entry?
+            </h2>
+            <p className="mt-3 leading-6 text-[color:var(--site-text-muted)]">
+              This visit will be permanently deleted from your BiteTrail list.
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--site-border-strong)] px-4 font-semibold text-[color:var(--site-text-strong)] transition hover:border-[color:var(--site-accent-border-soft-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)]"
+                onClick={() => setPendingDelete(null)}
+              >
+                Keep entry
+              </button>
+              <button
+                type="button"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--site-accent-red)] bg-[color:var(--site-accent-red)] px-4 font-semibold text-[color:var(--site-bg)] transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-red)]"
+                onClick={confirmDeleteVisit}
+              >
+                Delete entry
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 };
