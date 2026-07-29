@@ -25,6 +25,17 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Check out existing output assets
+        uses: actions/checkout@v4
+        with:
+          ref: output
+          path: output-branch
+
+      - name: Preserve existing output assets
+        run: |
+          mkdir -p dist
+          find output-branch -mindepth 1 -maxdepth 1 ! -name .git -exec cp -R {} dist/ \;
+
       # generates a snake game from a github user (<github_user_name>) contributions graph, output a svg animation at <svg_out_path>
       - name: generate github-contribution-grid-snake.svg
         uses: Platane/snk/svg-only@v3
