@@ -2,8 +2,11 @@ import type { User } from "firebase/auth";
 
 import type { BiteTrailPlaceWithVisits } from "@/lib/bite-trail";
 
+const DEFAULT_API_BASE_URL = "https://flask.sneakyowl.net";
+
 const getApiBaseUrl = () =>
-  process.env.NEXT_PUBLIC_SNEAKYOWL_API_BASE_URL?.replace(/\/$/, "") || "";
+  process.env.NEXT_PUBLIC_SNEAKYOWL_API_BASE_URL?.replace(/\/$/, "") ||
+  DEFAULT_API_BASE_URL;
 
 const callApi = async (
   user: User,

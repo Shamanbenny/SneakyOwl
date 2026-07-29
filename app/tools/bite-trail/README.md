@@ -17,6 +17,8 @@ repository `output` branch. BiteTrail loads that static snapshot first so
 signed-out visitors do not need a database request. After Firebase restores a
 signed-in user, the browser asynchronously requests the authorised live feed
 and merges it by visit ID; the shared notification stack reports both stages.
+The browser uses `https://flask.sneakyowl.net` for that live feed by default;
+`NEXT_PUBLIC_SNEAKYOWL_API_BASE_URL` can override it for another deployment.
 The snapshot workflow requires the `SNEAKYOWL_API_BASE_URL`,
 `FIREBASE_WEB_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT_JSON` GitHub Actions
 secrets.
