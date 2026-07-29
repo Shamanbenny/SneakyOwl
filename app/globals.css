@@ -2163,6 +2163,16 @@ body *::selection {
     0 0 0 4px var(--site-accent-focus-ring);
 }
 
+.bite-trail-input[type="number"] {
+  appearance: textfield;
+}
+
+.bite-trail-input[type="number"]::-webkit-inner-spin-button,
+.bite-trail-input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
 .bite-trail-control {
   display: flex;
   min-height: 44px;

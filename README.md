@@ -100,7 +100,7 @@ The Firebase CLI uses [firebase.json](./firebase.json) to locate
 - [x] Add Gmail-confirmed account deletion that removes account data, deletes the Firebase Auth user, signs out, and returns to BiteTrail.
 - [ ] Add a non-destructive "Report store closure" signal that indicates closure likelihood without closing a place for everyone.
 - [ ] Add staged BiteTrail loading states so the map, filters, and View entries panel render before long async backend calls finish; show a spinner in the View entries panel while its data is pending.
-- [ ] Define and enforce the exact required and optional value validation rules for the new-entry form.
+- [x] Define and enforce the new-entry form rules: place name, location label, coordinates, cuisine, visit date, rating, and cost are required; only ordered items and comments are optional.
 - [ ] Lock the new-entry form while submitting; after a successful response, close the form and reset its values, and after a failed response, reopen the form for correction or retry.
 - [ ] Add a GitHub Action that fetches SneakyOwl visits into a separate branch as static JSON every day, then use that file for unregistered users on page load instead of querying Firestore.
 - [ ] Update BiteTrail's responsive design across the map, filters, View entries panel, and new-entry form.

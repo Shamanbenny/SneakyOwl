@@ -66,7 +66,7 @@ BiteTrail should reuse the same conceptual split:
 - As a signed-in user, I can add a food-place pin from my current GPS location.
 - As a signed-in user, I can click the map while location picking is active to place a pin manually.
 - As a signed-in user, I can drag a placed pin to correct its exact location.
-- As a signed-in user, I can store the place name, cost per person, rating out of 10, comments, and optionally what I bought.
+- As a signed-in user, I can store a place name, location label, coordinates, cuisine, visit date, cost per person, and a whole-number rating out of 10; only what I ordered and comments are optional.
 - As a signed-in user, I can append visits to an existing place and delete my own visits.
 - As a signed-in user, I can generate a share code/link/QR for my list.
 - As a signed-in user, I can add a friend's shared list to my watch list.
@@ -91,6 +91,11 @@ Visit fields:
 - `comments`
 - `visitedAt`
 - `createdAt`
+
+New-entry validation requires every place and visit field except `itemsBought` and
+`comments`. Required text is trimmed, text input rejects control characters, and
+React renders stored text as text rather than HTML. Place name and location label
+are limited to 120 characters; ordered items to 500; comments to 2,000.
 
 User/list fields:
 

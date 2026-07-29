@@ -27,6 +27,12 @@ const inputClassName =
   "bite-trail-input h-11 px-3 placeholder:text-[color:var(--site-text-faint)] disabled:cursor-not-allowed disabled:opacity-60";
 const textAreaClassName =
   "bite-trail-input min-h-24 p-3 placeholder:text-[color:var(--site-text-faint)]";
+const RequiredMark = () => (
+  <span className="text-[color:var(--site-accent-red)]" aria-hidden="true">
+    *
+  </span>
+);
+const OptionalMark = () => <span className="font-normal">(Optional)</span>;
 
 const formatCuisineLabel = (cuisine: BiteTrailCuisineGenre) =>
   cuisine.charAt(0).toUpperCase() + cuisine.slice(1);
@@ -73,6 +79,26 @@ const emptyForm = (): VisitForm => ({
   visitedAt: today(),
 });
 
+const TEXT_LIMITS = {
+  name: 120,
+  locationLabel: 120,
+  itemsBought: 500,
+  comments: 2000,
+} as const;
+
+const normalizeTextInput = (value: string) =>
+  value
+    .normalize("NFKC")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+
+const isValidVisitDate = (value: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return (
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
+};
+
 const BiteTrailDataPanel = ({
   latitude,
   longitude,
@@ -104,6 +130,39 @@ const BiteTrailDataPanel = ({
     : longitude;
   const calendarDays = getCalendarDays(calendarMonth);
   const selectedDate = new Date(`${form.visitedAt}T00:00:00`);
+  const isFormValid = (() => {
+    const ratingOutOf10 = Number(form.ratingOutOf10);
+    const costPerPerson = Number(form.costPerPerson);
+    const parsedLatitude = Number(formLatitude);
+    const parsedLongitude = Number(formLongitude);
+    const validVisit =
+      Number.isInteger(ratingOutOf10) &&
+      ratingOutOf10 >= 0 &&
+      ratingOutOf10 <= 10 &&
+      Number.isFinite(costPerPerson) &&
+      costPerPerson >= 0 &&
+      isValidVisitDate(form.visitedAt) &&
+      BITE_TRAIL_CUISINES.includes(form.cuisineGenre);
+    const validLocation =
+      Number.isFinite(parsedLatitude) &&
+      parsedLatitude >= -90 &&
+      parsedLatitude <= 90 &&
+      Number.isFinite(parsedLongitude) &&
+      parsedLongitude >= -180 &&
+      parsedLongitude <= 180;
+
+    return (
+      validVisit &&
+      (Boolean(activePlace) ||
+        (Boolean(form.name.trim()) &&
+          form.name.trim().length <= TEXT_LIMITS.name &&
+          Boolean(form.locationLabel.trim()) &&
+          form.locationLabel.trim().length <= TEXT_LIMITS.locationLabel &&
+          validLocation)) &&
+      form.itemsBought.trim().length <= TEXT_LIMITS.itemsBought &&
+      form.comments.trim().length <= TEXT_LIMITS.comments
+    );
+  })();
   const resetFormState = useCallback(() => {
     setForm(emptyForm());
     setMessage(null);
@@ -156,7 +215,16 @@ const BiteTrailDataPanel = ({
   }, [firebaseClient]);
 
   const updateForm = (field: keyof VisitForm, value: string) =>
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => ({
+      ...current,
+      [field]:
+        field === "name" ||
+        field === "locationLabel" ||
+        field === "itemsBought" ||
+        field === "comments"
+          ? normalizeTextInput(value)
+          : value,
+    }));
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -169,32 +237,11 @@ const BiteTrailDataPanel = ({
     const costPerPerson = Number(form.costPerPerson);
     const parsedLatitude = Number(formLatitude);
     const parsedLongitude = Number(formLongitude);
-    const validVisit =
-      Number.isInteger(ratingOutOf10) &&
-      ratingOutOf10 >= 0 &&
-      ratingOutOf10 <= 10 &&
-      Number.isFinite(costPerPerson) &&
-      costPerPerson >= 0;
-    const validLocation =
-      Number.isFinite(parsedLatitude) &&
-      parsedLatitude >= -90 &&
-      parsedLatitude <= 90 &&
-      Number.isFinite(parsedLongitude) &&
-      parsedLongitude >= -180 &&
-      parsedLongitude <= 180;
-
-    if (
-      !validVisit ||
-      (!activePlace &&
-        (!form.name.trim() || !form.locationLabel.trim() || !validLocation))
-    ) {
-      setMessage(
-        activePlace
-          ? "Enter a whole rating from 0 to 10 and a non-negative cost."
-          : "Enter a place, location, valid coordinates, a whole rating from 0 to 10, and a non-negative cost.",
-      );
-      return;
-    }
+    const trimmedName = form.name.trim();
+    const trimmedLocationLabel = form.locationLabel.trim();
+    const trimmedItemsBought = form.itemsBought.trim();
+    const trimmedComments = form.comments.trim();
+    if (!isFormValid) return;
 
     setIsSaving(true);
     setMessage(null);
@@ -203,13 +250,11 @@ const BiteTrailDataPanel = ({
         ratingOutOf10,
         costPerPerson,
         currency: "SGD" as const,
-        itemsBought: form.itemsBought.trim(),
-        comments: form.comments.trim(),
+        itemsBought: trimmedItemsBought,
+        comments: trimmedComments,
         visitedAt: form.visitedAt,
       };
-      if (
-        activePlace?.sourcePlaceId
-      ) {
+      if (activePlace?.sourcePlaceId) {
         await appendVisit(
           firebaseClient.db,
           user,
@@ -224,8 +269,8 @@ const BiteTrailDataPanel = ({
           crypto.randomUUID(),
           crypto.randomUUID(),
           {
-            name: form.name.trim(),
-            locationLabel: form.locationLabel.trim(),
+            name: trimmedName,
+            locationLabel: trimmedLocationLabel,
             latitude: parsedLatitude,
             longitude: parsedLongitude,
             cuisineGenre: form.cuisineGenre,
@@ -282,9 +327,15 @@ const BiteTrailDataPanel = ({
                   key={field}
                   className="grid gap-2 text-[0.78rem] font-semibold capitalize text-[color:var(--site-text-muted)]"
                 >
-                  {field === "locationLabel" ? "Location label" : "Place name"}
+                  <span className="inline-flex items-baseline gap-1">
+                    {field === "locationLabel"
+                      ? "Location label"
+                      : "Place name"}
+                    <RequiredMark />
+                  </span>
                   <input
                     className={inputClassName}
+                    maxLength={TEXT_LIMITS[field]}
                     placeholder={
                       field === "locationLabel"
                         ? "E.g. Bugis+"
@@ -292,36 +343,53 @@ const BiteTrailDataPanel = ({
                     }
                     value={form[field]}
                     disabled={Boolean(activePlace)}
+                    required
                     onChange={(event) => updateForm(field, event.target.value)}
                   />
                 </label>
               ))}
               <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                Latitude
+                <span className="inline-flex items-baseline gap-1">
+                  Latitude <RequiredMark />
+                </span>
                 <input
                   className={inputClassName}
+                  type="number"
                   inputMode="decimal"
+                  min="-90"
+                  max="90"
+                  step="any"
                   value={formLatitude}
                   disabled={Boolean(activePlace)}
+                  required
                   onChange={(event) =>
                     onLocationChange(event.target.value, longitude)
                   }
                 />
               </label>
               <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                Longitude
+                <span className="inline-flex items-baseline gap-1">
+                  Longitude <RequiredMark />
+                </span>
                 <input
                   className={inputClassName}
+                  type="number"
                   inputMode="decimal"
+                  min="-180"
+                  max="180"
+                  step="any"
                   value={formLongitude}
                   disabled={Boolean(activePlace)}
+                  required
                   onChange={(event) =>
                     onLocationChange(latitude, event.target.value)
                   }
                 />
               </label>
               <label className="relative grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                Cuisine
+                <span className="inline-flex items-baseline gap-1">
+                  Cuisine <RequiredMark />
+                </span>
                 <button
                   className="bite-trail-control"
                   type="button"
@@ -359,7 +427,9 @@ const BiteTrailDataPanel = ({
                 ) : null}
               </label>
               <label className="relative grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                Visited on
+                <span className="inline-flex items-baseline gap-1">
+                  Visited on <RequiredMark />
+                </span>
                 <button
                   className="bite-trail-control"
                   type="button"
@@ -453,7 +523,9 @@ const BiteTrailDataPanel = ({
               <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
                 <span className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2">
-                    <span>Rating (0–10)</span>
+                    <span className="inline-flex items-baseline gap-1">
+                      Rating (0–10) <RequiredMark />
+                    </span>
                     <InfoTooltip
                       ariaLabel="About rating"
                       preferredPlacement="top"
@@ -490,20 +562,29 @@ const BiteTrailDataPanel = ({
                 </span>
               </label>
               <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)]">
-                Cost per person (SGD)
+                <span className="inline-flex items-baseline gap-1">
+                  Cost per person (SGD) <RequiredMark />
+                </span>
                 <input
                   className={inputClassName}
+                  type="number"
                   inputMode="decimal"
+                  min="0"
+                  step="0.01"
                   value={form.costPerPerson}
+                  required
                   onChange={(event) =>
                     updateForm("costPerPerson", event.target.value)
                   }
                 />
               </label>
               <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] lg:col-span-2">
-                What did you order?
+                <span className="inline-flex items-baseline gap-1">
+                  What did you order? <OptionalMark />
+                </span>
                 <input
                   className={inputClassName}
+                  maxLength={TEXT_LIMITS.itemsBought}
                   placeholder="E.g. Chicken chop rice, Cheesy fries"
                   value={form.itemsBought}
                   onChange={(event) =>
@@ -512,9 +593,12 @@ const BiteTrailDataPanel = ({
                 />
               </label>
               <label className="grid gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] lg:col-span-2">
-                Comments
+                <span className="inline-flex items-baseline gap-1">
+                  Comments <OptionalMark />
+                </span>
                 <textarea
                   className={textAreaClassName}
+                  maxLength={TEXT_LIMITS.comments}
                   placeholder="E.g. The fries was well seasoned, and the rice was very fragrant, even though the chicken chop was a little dry"
                   value={form.comments}
                   onChange={(event) =>
@@ -526,7 +610,7 @@ const BiteTrailDataPanel = ({
                 <button
                   className="site-button-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-semibold disabled:opacity-55"
                   type="submit"
-                  disabled={isSaving}
+                  disabled={isSaving || !isFormValid}
                 >
                   <FaPlus className="h-4 w-4" aria-hidden="true" />
                   {isSaving

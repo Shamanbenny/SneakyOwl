@@ -17,6 +17,31 @@ service cloud.firestore {
           || request.auth.uid == 'AXOel5MZ8Yelb5a1bHgFcieT80y2');
     }
 
+    function hasSafeRequiredText(value, maximumLength) {
+      return value is string
+        && value.size() > 0
+        && value.size() <= maximumLength
+        && value.matches('^[^\\x00-\\x1F\\x7F]*$');
+    }
+
+    function hasSafeOptionalText(value, maximumLength) {
+      return value is string
+        && value.size() <= maximumLength
+        && value.matches('^[^\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]*$');
+    }
+
+    function isBiteTrailCuisine(value) {
+      return value in [
+        'cafe', 'Chinese', 'dessert', 'fast food', 'hawker', 'Indian',
+        'Japanese', 'Korean', 'Malay', 'Others', 'seafood', 'Thai', 'western'
+      ];
+    }
+
+    function isVisitDate(value) {
+      return value is string
+        && value.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+
     // Shared account profile. BiteTrail preferences and tutorial state are
     // intentionally not stored here.
     match /users/{uid} {
@@ -67,7 +92,18 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'name', 'locationLabel', 'latitude', 'longitude', 'cuisineGenre',
           'createdAt', 'updatedAt'
-        ]);
+        ])
+        && hasSafeRequiredText(request.resource.data.name, 120)
+        && hasSafeRequiredText(request.resource.data.locationLabel, 120)
+        && request.resource.data.latitude is number
+        && request.resource.data.latitude >= -90
+        && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number
+        && request.resource.data.longitude >= -180
+        && request.resource.data.longitude <= 180
+        && isBiteTrailCuisine(request.resource.data.cuisineGenre)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
       allow update, delete: if false;
 
       match /visits/{visitId} {
@@ -79,7 +115,18 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly([
             'ownerUid', 'ownerDisplayName', 'ratingOutOf10', 'costPerPerson',
             'currency', 'itemsBought', 'comments', 'visitedAt', 'createdAt'
-          ]);
+          ])
+          && request.resource.data.ownerDisplayName is string
+          && request.resource.data.ratingOutOf10 is int
+          && request.resource.data.ratingOutOf10 >= 0
+          && request.resource.data.ratingOutOf10 <= 10
+          && request.resource.data.costPerPerson is number
+          && request.resource.data.costPerPerson >= 0
+          && request.resource.data.currency == 'SGD'
+          && hasSafeOptionalText(request.resource.data.itemsBought, 500)
+          && hasSafeOptionalText(request.resource.data.comments, 2000)
+          && isVisitDate(request.resource.data.visitedAt)
+          && request.resource.data.createdAt == request.time;
         allow update, delete: if false;
       }
     }
