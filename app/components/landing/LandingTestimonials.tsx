@@ -147,7 +147,7 @@ I greatly value the experience of studying and working with him, and I am confid
         speed={500}
         initialSlide={0}
         centeredSlides={true}
-        autoHeight={false}
+        autoHeight={true}
         pagination={{
           clickable: true,
         }}
@@ -157,10 +157,12 @@ I greatly value the experience of studying and working with him, and I am confid
             spaceBetween: 10,
           },
           1024: {
+            autoHeight: false,
             slidesPerView: 1.5,
             spaceBetween: 30,
           },
           1600: {
+            autoHeight: false,
             slidesPerView: 1.5,
             spaceBetween: 30,
           },

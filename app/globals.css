@@ -3083,6 +3083,12 @@ body *::selection {
   width: 100%;
 }
 
+@media (max-width: 1023px) {
+  .landing-testimonials-swiper .site-surface-card {
+    height: auto;
+  }
+}
+
 /* ---------- [END] Landing Testimonials Swiper Button ---------- */
 
 /* ---------- [START] Landing Page Holo Card ---------- */
