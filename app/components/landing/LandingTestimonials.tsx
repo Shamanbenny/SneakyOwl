@@ -16,7 +16,7 @@ import {
 import { FaArrowUpRightFromSquare } from "react-icons/fa6";
 import { Fragment, useRef } from "react";
 
-const LandingReviews = () => {
+const LandingTestimonials = () => {
   const numOfReviews = 4;
   const mySwiper = useRef<SwiperRef>(null);
 
@@ -26,7 +26,7 @@ const LandingReviews = () => {
     }
   };
 
-  const reviewsData = [
+  const testimonialsData = [
     {
       profilePreview: "manuel_rigger.jpg",
       name: "Manuel Rigger",
@@ -166,9 +166,9 @@ I greatly value the experience of studying and working with him, and I am confid
           },
         }}
         modules={[Navigation, Pagination, Mousewheel]}
-        className="landing-reviews-swiper w-full py-10"
+        className="landing-testimonials-swiper w-full py-10"
       >
-        {reviewsData.map((data, index) => {
+        {testimonialsData.map((data, index) => {
           return (
             <SwiperSlide
               key={index}
@@ -240,4 +240,4 @@ I greatly value the experience of studying and working with him, and I am confid
   );
 };
 
-export default LandingReviews;
+export default LandingTestimonials;

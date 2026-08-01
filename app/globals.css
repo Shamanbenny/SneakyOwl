@@ -3055,7 +3055,7 @@ body *::selection {
 
 /* ---------- [END] /about: Hero Rotating Text + Bento ---------- */
 
-/* ---------- [START] Landing Reviews Swiper Button ---------- */
+/* ---------- [START] Landing Testimonials Swiper Button ---------- */
 .swiper-pagination-bullet-active {
   background-color: var(--site-accent-strong) !important;
 }
@@ -3064,25 +3064,25 @@ body *::selection {
   background-color: #e5e5e5 !important;
 }
 
-.landing-reviews-swiper .swiper-pagination {
+.landing-testimonials-swiper .swiper-pagination {
   bottom: auto !important;
   top: 0 !important;
 }
 
-.landing-reviews-swiper {
+.landing-testimonials-swiper {
   padding-top: 3rem !important;
 }
 
-.landing-reviews-swiper .swiper-slide {
+.landing-testimonials-swiper .swiper-slide {
   display: flex;
   height: auto;
 }
 
-.landing-reviews-swiper .site-surface-card {
+.landing-testimonials-swiper .site-surface-card {
   height: 100%;
   width: 100%;
 }
-/* ---------- [END] Landing Reviews Swiper Button ---------- */
+/* ---------- [END] Landing Testimonials Swiper Button ---------- */
 
 /* ---------- [START] Landing Page Holo Card ---------- */
 .holo-profile-shell {

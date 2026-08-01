@@ -5,7 +5,7 @@ import { FaAngleRight } from "react-icons/fa";
 import { FiFileText } from "react-icons/fi";
 import CuriousCatClickTrap from "@/app/components/landing/CuriousCatClickTrap";
 import GitHubCommitSnake from "@/app/components/landing/GitHubCommitSnake";
-import LandingReviews from "@/app/components/landing/LandingReviews";
+import LandingTestimonials from "@/app/components/landing/LandingTestimonials";
 import LandingTimeline from "@/app/components/landing/LandingTimeline";
 import type { TimelineFilter } from "@/app/components/landing/LandingTimeline";
 import LocationMapCard from "@/app/components/landing/LocationMapCard";
@@ -308,7 +308,7 @@ const LandingPage: React.FC = () => {
           >
             Testimonials
           </h1>
-          <LandingReviews />
+          <LandingTestimonials />
         </div>
         <GitHubCommitSnake />
       </div>
