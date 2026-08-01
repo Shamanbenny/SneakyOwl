@@ -10,7 +10,10 @@ import "./globals.css";
 const bodyFont = Ubuntu_Mono({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SneakyOwl",
+  title: {
+    default: "SneakyOwl",
+    template: "%s | SneakyOwl",
+  },
   icons: {
     icon: "/fevicon.png",
     shortcut: "/fevicon.png",

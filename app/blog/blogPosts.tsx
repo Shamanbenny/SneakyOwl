@@ -4,6 +4,7 @@ type BlogPostBaseMeta = {
   slug: string;
   type: BlogPostType;
   title: string;
+  shortTitle: string;
   summary: string;
   publishedAt: string;
   tags: string[];
@@ -42,6 +43,7 @@ export const BLOG_POSTS: BlogPostMeta[] = [
       githubRepoUrl: "https://github.com/Shamanbenny/autoresearch-chess",
     },
     slug: "autoresearch-chess",
+    shortTitle: "Autoresearch Chess",
     summary:
       "A practical look at adapting autoresearch into a constrained chess-engine experiment loop, where Codex proposes its own changes.",
     tags: ["Codex", "Autoresearch", "C#", "Chess Engine", "Python", "Experimentation", "Agentic Workflow"],
@@ -55,6 +57,7 @@ export const BLOG_POSTS: BlogPostMeta[] = [
       githubRepoUrl: "https://github.com/Shamanbenny/autoresearch-chess/blob/4b3a3a13a811314241e50b7dd9f7880e4f14da92/README.md",
     },
     slug: "chess-flask-coding-adventure",
+    shortTitle: "Chess Flask",
     summary:
       "Chess Flask began as a 'small' Flask backend for a portfolio chess bot, but became a practical study of search optimization and why board representation mattered more than expected.",
     tags: ["Python", "Flask", "C#", "Chess Engine", "Search", "Backend"],
@@ -68,6 +71,7 @@ export const BLOG_POSTS: BlogPostMeta[] = [
       githubRepoUrl: "https://github.com/CS3219-AY2526S2/peerprep-g18",
     },
     slug: "peer-prep-system-design",
+    shortTitle: "PeerPrep",
     summary:
       "Using PeerPrep as a case study, this post examines how early decisions around UI structure, service ownership, and deployment affected maintainability and scaling later on.",
     tags: ["React", "Redis", "Terraform", "AWS", "Microservice", "System Design"],
@@ -81,6 +85,7 @@ export const BLOG_POSTS: BlogPostMeta[] = [
       githubRepoUrl: "https://github.com/CS3213-2026-spring/rafflesgo-group-11",
     },
     slug: "raffles-go-conservation",
+    shortTitle: "RafflesGo",
     summary:
       "RafflesGo became most meaningful when the work stopped being about flashy features and started being about removing real friction for the volunteers and organisers supporting Singapore's langur conservation efforts.",
     tags: ["React", "Fastify", "OpenAPI", "Requirements Analysis", "Conservation"],

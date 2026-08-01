@@ -1,7 +1,12 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import BiteTrailAddPanel from "@/app/components/tools/bite-trail/BiteTrailAddPanel";
 import NavBar from "@/app/components/shared/navigation/NavBar";
+
+export const metadata: Metadata = {
+  title: "Add watchlist - BiteTrail",
+};
 
 export default function BiteTrailAddPage() {
   return (

@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
+
 import BiteTrailAuthPanel from "@/app/components/tools/bite-trail/BiteTrailAuthPanel";
 import BiteTrailSparklesTitle from "@/app/components/tools/bite-trail/BiteTrailSparklesTitle";
 import BiteTrailWorkspace from "@/app/components/tools/bite-trail/BiteTrailWorkspace";
 import NavBar from "@/app/components/shared/navigation/NavBar";
+
+export const metadata: Metadata = {
+  title: "BiteTrail",
+};
 
 export default function BiteTrailPage() {
   return (

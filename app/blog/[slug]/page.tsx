@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FaArrowLeft, FaTag } from "react-icons/fa6";
 
@@ -20,6 +21,15 @@ type BlogPostPageProps = {
 
 export async function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getBlogPostBySlug(slug);
+
+  return {
+    title: post ? `${post.shortTitle} Blog Post` : "Blog Post",
+  };
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {

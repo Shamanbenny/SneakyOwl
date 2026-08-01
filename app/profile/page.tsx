@@ -4,7 +4,7 @@ import ProfileSettings from "@/app/components/shared/account/ProfileSettings";
 import NavBar from "@/app/components/shared/navigation/NavBar";
 
 export const metadata: Metadata = {
-  title: "My Profile | SneakyOwl",
+  title: "My Profile",
   description: "Manage your SneakyOwl account details and tool preferences.",
 };
 

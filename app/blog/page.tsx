@@ -1,10 +1,15 @@
 import { Sarina } from "next/font/google";
+import type { Metadata } from "next";
 
 import BlogListingPage from "@/app/components/blog/BlogListingPage";
 import NavBar from "@/app/components/shared/navigation/NavBar";
 import { formatBlogDate, getAllBlogPosts, getAllBlogTags } from "@/app/blog/blogContent";
 
 const sarinaFont = Sarina({ weight: "400", subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Blog",
+};
 
 export default async function BlogPage() {
   const [posts, tags] = await Promise.all([getAllBlogPosts(), getAllBlogTags()]);

@@ -11,7 +11,7 @@ const contactEmailHref = `mailto:${contactEmail}?subject=${encodeURIComponent(
 )}`;
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | SneakyOwl",
+  title: "Privacy Policy",
   description:
     "Privacy policy for SneakyOwl, its shared profile, and its tools including BiteTrail.",
 };
