@@ -51,7 +51,7 @@ Overall, I consider Benny an excellent software engineer. Based on what I observ
         {
           type: "redirect",
           url: "/blog/raffles-go/Testimonial%20Letter%20for%20Benny.pdf",
-          text: "View Original Testimonial PDF",
+          text: "View Original PDF",
         },
       ],
     },
@@ -215,15 +215,15 @@ I greatly value the experience of studying and working with him, and I am confid
                     : data.reviewContent}
                   <FaQuoteRight className="inline-block h-[16px] w-[16px] pb-1 pl-1 text-[color:var(--site-text-muted)]" />
                 </p>
-                <div className="mt-auto flex">
+                <div className="mt-auto flex flex-col items-start gap-2 pt-5">
                   {data.link.map((link, index) => {
                     return (
                       <a
                         key={index}
                         href={link.url}
-                        className="site-link-accent mr-4 mt-5"
+                        className="site-link-accent w-full"
                       >
-                        <div className="flex">
+                        <div className="flex min-w-0 flex-wrap">
                           {handleLinkType(link.type)}
                           {link.text}
                         </div>
