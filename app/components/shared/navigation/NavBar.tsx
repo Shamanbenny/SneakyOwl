@@ -30,7 +30,7 @@ const LANDING_SECTIONS = [
   "projects",
   "skills",
   "timeline",
-  "reviews",
+  "testimonials",
 ] as const;
 const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(
@@ -360,13 +360,13 @@ const NavBar = () => {
           onClick: () => navigateToSection("timeline"),
         },
         {
-          activeKey: "reviews",
-          ariaLabel: "Jump to the reviews section",
-          className: mobileMenuItemClass(activeDockItem === "reviews"),
-          desktopLabel: "#Reviews",
+          activeKey: "testimonials",
+          ariaLabel: "Jump to the testimonials section",
+          className: mobileMenuItemClass(activeDockItem === "testimonials"),
+          desktopLabel: "#Testimonials",
           icon: <FaQuoteLeft size={18} />,
-          label: "Reviews",
-          onClick: () => navigateToSection("reviews"),
+          label: "Testimonials",
+          onClick: () => navigateToSection("testimonials"),
         },
       ]
     : [];

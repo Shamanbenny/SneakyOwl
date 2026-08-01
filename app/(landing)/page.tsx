@@ -297,7 +297,7 @@ const LandingPage: React.FC = () => {
           <LandingTimeline selectedFilter={selectedTimelineFilter} />
         </div>
         <div
-          id="reviews"
+          id="testimonials"
           className="mx-auto scroll-mt-[10px] pb-10
             max-sm:w-[300px] max-xs:w-[230px] sm:w-[560px] md:w-[680px]
             lg:w-[910px] xl:w-[1160px] xxl:w-[1480px]"
