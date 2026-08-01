@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FaBowlFood,
+  FaArrowLeft,
   FaChevronDown,
   FaFilter,
   FaFilterCircleXmark,
@@ -209,14 +210,26 @@ const EntryStat = ({
 
 const EntryDetailPanel = ({
   place,
+  onBack,
   onAddEntry,
   onDeleteVisit,
 }: {
   place: VisibleBiteTrailPlace;
+  onBack?: () => void;
   onAddEntry?: (place: VisibleBiteTrailPlace) => void;
   onDeleteVisit?: DeleteVisitHandler;
 }) => (
   <div className="flex min-h-full flex-col p-5">
+    {onBack ? (
+      <button
+        type="button"
+        onClick={onBack}
+        className="mb-4 inline-flex w-fit items-center gap-2 text-[0.78rem] font-semibold text-[color:var(--site-text-muted)] transition-colors hover:text-[color:var(--site-accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)]"
+      >
+        <FaArrowLeft className="h-3 w-3" aria-hidden="true" />
+        Go back
+      </button>
+    ) : null}
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
         {hasSponsoredVisit(place) ? (
@@ -906,14 +919,19 @@ const BiteTrailMap = ({
   );
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [clusterEntryIds, setClusterEntryIds] = useState<string[]>([]);
+  const [previousEntryListIds, setPreviousEntryListIds] = useState<string[]>(
+    [],
+  );
   const [pendingDelete, setPendingDelete] = useState<{
     place: VisibleBiteTrailPlace;
     visit: BiteTrailResolvedFoodEntry;
   } | null>(null);
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
+  const clusterEntryIdsRef = useRef(clusterEntryIds);
   const isLocationPickingRef = useRef(isLocationPicking);
   const onDraftLocationChangeRef = useRef(onDraftLocationChange);
   selectedPlaceIdRef.current = selectedPlaceId;
+  clusterEntryIdsRef.current = clusterEntryIds;
   isLocationPickingRef.current = isLocationPicking;
   onDraftLocationChangeRef.current = onDraftLocationChange;
   const draftCoordinates = useMemo(
@@ -939,6 +957,7 @@ const BiteTrailMap = ({
     setDraftFilters(defaultFilters);
     setAppliedFilters(defaultFilters);
     setSelectedPlaceId(null);
+    setPreviousEntryListIds([]);
   }, [defaultFilters]);
 
   const visibleEntries = useMemo(
@@ -1363,6 +1382,7 @@ const BiteTrailMap = ({
       marker.on("click", (event: L.LeafletMouseEvent) => {
         leaflet.DomEvent.stopPropagation(event);
         marker.closeTooltip();
+        setPreviousEntryListIds(clusterEntryIdsRef.current);
         setSelectedPlaceId(entry.id);
         setClusterEntryIds([]);
         setExpandedPanel("entries");
@@ -1550,6 +1570,7 @@ const BiteTrailMap = ({
   };
 
   const focusEntry = (entry: VisibleBiteTrailPlace) => {
+    setPreviousEntryListIds(clusterEntryIds);
     setSelectedPlaceId(entry.id);
     setClusterEntryIds([]);
 
@@ -1640,10 +1661,17 @@ const BiteTrailMap = ({
     onAddEntry?.(entry);
   };
 
+  const goBackToEntryList = () => {
+    setSelectedPlaceId(null);
+    setClusterEntryIds(previousEntryListIds);
+    setPreviousEntryListIds([]);
+  };
+
   const applyFilters = () => {
     setAppliedFilters(draftFilters);
     setSelectedPlaceId(null);
     setClusterEntryIds([]);
+    setPreviousEntryListIds([]);
     setExpandedPanel("entries");
   };
 
@@ -1652,6 +1680,7 @@ const BiteTrailMap = ({
     setAppliedFilters(defaultFilters);
     setSelectedPlaceId(null);
     setClusterEntryIds([]);
+    setPreviousEntryListIds([]);
     setExpandedPanel("entries");
   };
 
@@ -1747,6 +1776,7 @@ const BiteTrailMap = ({
             <div className="bite-trail-scrollbar min-h-0 flex-1 overflow-y-auto">
               <EntryDetailPanel
                 place={selectedPlace}
+                onBack={goBackToEntryList}
                 onAddEntry={focusAndAddEntry}
                 onDeleteVisit={onDeleteVisit ? requestDeleteVisit : undefined}
               />

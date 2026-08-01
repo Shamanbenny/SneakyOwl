@@ -4,6 +4,7 @@ import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa6";
 import BlogCodeBlock from "@/app/components/blog/BlogCodeBlock";
 import BlogPostHeading from "@/app/components/blog/BlogPostHeading";
 import BlogPostImage from "@/app/components/blog/BlogPostImage";
+import BlogTable from "@/app/components/blog/BlogTable";
 import BlogPostVideo from "@/app/components/blog/BlogPostVideo";
 import ChessScoreRateGraph from "@/app/components/chess/ChessScoreRateGraph";
 import {
@@ -46,6 +47,7 @@ export const mdxComponents: MDXComponents = {
   SpecGrid,
   SpecTile,
   Swatch,
+  table: BlogTable,
   h1: (props) => <BlogPostHeading as="h1" {...props} />,
   h2: (props) => <BlogPostHeading as="h2" {...props} />,
   h3: (props) => <BlogPostHeading as="h3" {...props} />,

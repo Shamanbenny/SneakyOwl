@@ -1421,8 +1421,16 @@ body *::selection {
   margin: 2rem 0;
 }
 
+.blog-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .blog-prose table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   overflow: hidden;
   border-radius: 18px;
