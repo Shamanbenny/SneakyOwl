@@ -198,7 +198,8 @@ export const RafflesGoRoleBadgeDemo = () => (
 );
 
 export const RafflesGoTestimonial = () => (
-  <div
+  <>
+    <div
     style={{
       margin: "1.5rem 0",
       padding: "1.4rem 1.35rem",
@@ -207,7 +208,110 @@ export const RafflesGoTestimonial = () => (
       background: "var(--site-bg-soft)",
     }}
   >
-    <div style={{ display: "grid", gap: "1rem", padding: "0 1.1rem" }}>
+      <div style={{ display: "grid", gap: "1rem", padding: "0 1.1rem" }}>
+      <p style={{ margin: 0 }}>
+        <FaQuoteLeft
+          aria-hidden="true"
+          style={{
+            display: "inline-block",
+            width: "0.8rem",
+            height: "0.8rem",
+            marginRight: "0.35rem",
+            transform: "translateY(-0.02rem)",
+            color: "var(--site-text-muted)",
+          }}
+        />
+        It was great to have Benny as part of CS3213! Academically, he was <em>one
+        of the strongest students in the class</em>, excelling in both the exams and
+        the group project.
+      </p>
+      <p style={{ margin: 0 }}>
+        The group project aimed to support a citizen-science effort in
+        collaboration with real stakeholders. Each student team met regularly
+        with a tutor, so I did not interact closely with the individual teams
+        during most of the semester. However, the tutor who worked with Benny
+        described him as highly active and <em>someone who naturally established
+        himself as a leader</em>. He led discussions, provided updates on the team&apos;s
+        progress, and coordinated the agendas for their meetings. At the same
+        time, he remained very hands-on and <em>made the most code contributions</em>
+        within his team.
+      </p>
+      <p style={{ margin: 0 }}>
+        It was thus not surprising that <strong>Benny&apos;s team was one of the three teams
+        we shortlisted</strong> out of eleven, as their solution closely matched the
+        needs of our collaborating stakeholder. After the course and project
+        formally ended, I could also see Benny&apos;s competence and enthusiasm
+        directly. He and a small group of other students voluntarily continued
+        developing the project, with the aim of deploying it in practice.
+      </p>
+      <p style={{ margin: 0 }}>
+        During a meeting that I attended with the project members, I saw what
+        the tutor had described. Benny led the discussion, made sure that
+        everyone had an opportunity to contribute, and moved the conversation
+        towards an actionable outcome. Importantly, he <em>combines strong
+        technical ability with distinct leadership and interpersonal skills</em>.
+      </p>
+      <p style={{ margin: 0 }}>
+        Overall, I consider Benny an <em>excellent software engineer</em>. Based on what
+        I observed, I expect that he will quickly take on significant technical
+        and leadership responsibilities in any team he joins.
+        <FaQuoteRight
+          aria-hidden="true"
+          style={{
+            display: "inline-block",
+            width: "0.8rem",
+            height: "0.8rem",
+            marginLeft: "0.35rem",
+            transform: "translateY(-0.02rem)",
+            color: "var(--site-text-muted)",
+          }}
+        />
+      </p>
+      <p
+        style={{
+          margin: "0.1rem 0 0",
+          fontSize: "0.95rem",
+          fontWeight: 700,
+          color: "var(--site-accent)",
+        }}
+      >
+        <a
+          href="https://www.manuelrigger.at/"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-border-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
+        >
+          Prof. Rigger
+        </a>
+        , 30 July 2026
+        <span
+          aria-hidden="true"
+          className="mx-2 inline-block text-[0.7rem] text-[color:var(--site-text-faint)]"
+        >
+          •
+        </span>
+        <a
+          href="/blog/raffles-go/Testimonial%20Letter%20for%20Benny.pdf"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 text-[color:var(--site-accent)] transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
+        >
+          View Testimonial PDF
+          <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
+        </a>
+      </p>
+      </div>
+    </div>
+    <div
+      style={{
+        margin: "1.5rem 0",
+        padding: "1.4rem 1.35rem",
+        borderLeft: "3px solid var(--site-accent-border-strong)",
+        borderRadius: "0 16px 16px 0",
+        background: "var(--site-bg-soft)",
+      }}
+    >
+      <div style={{ display: "grid", gap: "1rem", padding: "0 1.1rem" }}>
       <p style={{ margin: 0 }}>
         <FaQuoteLeft
           aria-hidden="true"
@@ -226,7 +330,7 @@ export const RafflesGoTestimonial = () => (
         Throughout the project, the group successfully fulfilled the key requirements and expectations that I briefly communicated at the start of the project. Additionally, suggestions raised during the demonstration sessions were implemented promptly, reflecting their technical competence and dedication to delivering a high-quality solution.
       </p>
       <p style={{ margin: 0 }}>
-        Under the leadership of <strong>Lee Jia Quan</strong>, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users.
+        <em>Under the leadership of Lee Jia Quan</em>, the team worked cohesively and efficiently while maintaining a strong focus on stakeholder needs. Their ability to balance technical execution with client requirements resulted in a product that was thoughtfully designed to serve its intended users.
       </p>
       <p style={{ margin: 0 }}>
         I am pleased to commend the team&apos;s professionalism, adaptability, and collaborative spirit. Their efforts exemplify the qualities of an effective software development team and showcase the practical impact that student-led projects can achieve when guided by a clear understanding of user needs.
@@ -250,7 +354,15 @@ export const RafflesGoTestimonial = () => (
           color: "var(--site-accent)",
         }}
       >
-        Dr. Andie, 14 June 2026
+        <a
+          href="https://www.dbs.nus.edu.sg/dr-andie-ang-2/"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-border-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
+        >
+          Dr. Andie
+        </a>
+        , 14 June 2026
         <span
           aria-hidden="true"
           className="mx-2 inline-block text-[0.7rem] text-[color:var(--site-text-faint)]"
@@ -267,8 +379,9 @@ export const RafflesGoTestimonial = () => (
           <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
         </a>
       </p>
+      </div>
     </div>
-  </div>
+  </>
 );
 
 export const RafflesGoDesignSpecStyles = () => (

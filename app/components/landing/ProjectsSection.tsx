@@ -50,6 +50,14 @@ type ProjectLinks = {
   deployedSiteUrl: string | null;
 };
 
+type TestimonialLinkData = {
+  height: number;
+  label: string;
+  pdfUrl: string;
+  thumbnail: string;
+  width: number;
+};
+
 type ProjectItem = FlowingMenuItemData & {
   architectureLabel: string;
   architectureSummary: string;
@@ -57,8 +65,7 @@ type ProjectItem = FlowingMenuItemData & {
   previewImage: string;
   projectType: string;
   tags: TechTag[];
-  testimonialPdfUrl?: string;
-  testimonialThumbnail?: string;
+  testimonialLinks?: TestimonialLinkData[];
 } & ProjectLinks;
 
 const FLOWING_MENU_VISIBLE_TAGS = {
@@ -308,8 +315,22 @@ const PROJECTS: ProjectItem[] = [
         priority: 4,
       },
     ],
-    testimonialPdfUrl: "/blog/raffles-go/Testimonial%20Letter%20for%20RafflesGo.pdf",
-    testimonialThumbnail: "/landing/Testimonial%20Thumbnail%20for%20RafflesGo.png",
+    testimonialLinks: [
+      {
+        height: 869,
+        label: "View Dr. Andie's Testimonial",
+        pdfUrl: "/blog/raffles-go/Testimonial%20Letter%20for%20RafflesGo.pdf",
+        thumbnail: "/landing/Testimonial%20Thumbnail%20for%20RafflesGo_1.png",
+        width: 784,
+      },
+      {
+        height: 590,
+        label: "View Prof. Rigger's Testimonial",
+        pdfUrl: "/blog/raffles-go/Testimonial%20Letter%20for%20Benny.pdf",
+        thumbnail: "/landing/Testimonial%20Thumbnail%20for%20RafflesGo_2.png",
+        width: 584,
+      },
+    ],
     text: "Raffles Go",
   },
   {
@@ -468,11 +489,9 @@ const PROJECTS: ProjectItem[] = [
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
 
 const TestimonialLink = ({
-  pdfUrl,
-  thumbnail,
+  testimonial,
 }: {
-  pdfUrl: string;
-  thumbnail: string;
+  testimonial: TestimonialLinkData;
 }) => {
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const suppressPreviewRef = useRef(false);
@@ -491,7 +510,7 @@ const TestimonialLink = ({
       }}
     >
     <a
-      href={pdfUrl}
+      href={testimonial.pdfUrl}
       target="_blank"
       rel="noreferrer"
       onClick={(event) => {
@@ -499,7 +518,7 @@ const TestimonialLink = ({
         suppressPreviewRef.current = true;
         event.currentTarget.blur();
         flushSync(() => setIsPreviewVisible(false));
-        window.open(pdfUrl, "_blank", "noopener,noreferrer");
+        window.open(testimonial.pdfUrl, "_blank", "noopener,noreferrer");
       }}
       onFocus={() => {
         if (!suppressPreviewRef.current) {
@@ -509,20 +528,20 @@ const TestimonialLink = ({
       onBlur={() => setIsPreviewVisible(false)}
       className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)] focus-visible:text-[color:var(--site-accent-soft)]"
     >
-      View Testimonial PDF
+      {testimonial.label}
       <FaArrowUpRightFromSquare className="h-3.5 w-3.5" />
     </a>
     <span
       aria-hidden="true"
-      className={`pointer-events-none absolute bottom-[calc(100%+0.75rem)] left-1/2 z-20 w-[min(260px,calc(100vw-2rem))] -translate-x-1/2 rounded-[14px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 shadow-[0_18px_45px_rgba(0,0,0,0.3)] transition-opacity duration-150 ${isPreviewVisible ? "opacity-100" : "opacity-0"}`}
+      className={`pointer-events-none absolute bottom-[calc(100%+0.75rem)] left-1/2 z-20 w-fit max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-[14px] border border-[color:var(--site-border-strong)] bg-[color:var(--site-bg-elevated)] p-2 shadow-[0_18px_45px_rgba(0,0,0,0.3)] transition-opacity duration-150 ${isPreviewVisible ? "opacity-100" : "opacity-0"}`}
     >
       <Image
-        src={thumbnail}
+        src={testimonial.thumbnail}
         alt=""
-        width={784}
-        height={869}
+        width={testimonial.width}
+        height={testimonial.height}
         sizes="260px"
-        className="h-auto w-full rounded-[9px]"
+        className="h-[360px] w-auto max-w-[calc(100vw-2rem)] rounded-[9px]"
       />
     </span>
     </span>
@@ -608,9 +627,9 @@ const ProjectPreviewCard = ({
               </a>
             </div>
           ))}
-          {project.testimonialPdfUrl && project.testimonialThumbnail ? (
-            <>
-              {ctas.length > 0 ? (
+          {project.testimonialLinks?.map((testimonial, index) => (
+            <div key={testimonial.pdfUrl} className="contents">
+              {ctas.length > 0 || index > 0 ? (
                 <span
                   aria-hidden="true"
                   className="text-[0.7rem] text-[color:var(--site-text-faint)]"
@@ -619,11 +638,10 @@ const ProjectPreviewCard = ({
                 </span>
               ) : null}
               <TestimonialLink
-                pdfUrl={project.testimonialPdfUrl}
-                thumbnail={project.testimonialThumbnail}
+                testimonial={testimonial}
               />
-            </>
-          ) : null}
+            </div>
+          ))}
         </div>
       </footer>
     </article>
@@ -691,9 +709,9 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
               </a>
             </div>
           ))}
-          {project.testimonialPdfUrl && project.testimonialThumbnail ? (
-            <>
-              {ctas.length > 0 ? (
+          {project.testimonialLinks?.map((testimonial, index) => (
+            <div key={testimonial.pdfUrl} className="contents">
+              {ctas.length > 0 || index > 0 ? (
                 <span
                   aria-hidden="true"
                   className="text-[0.7rem] text-[color:var(--site-text-faint)]"
@@ -702,11 +720,10 @@ const MobileProjectCollapsibleCard = ({ project }: { project: ProjectItem }) => 
                 </span>
               ) : null}
               <TestimonialLink
-                pdfUrl={project.testimonialPdfUrl}
-                thumbnail={project.testimonialThumbnail}
+                testimonial={testimonial}
               />
-            </>
-          ) : null}
+            </div>
+          ))}
         </div>
       </div>
     </CollapsibleCard>
