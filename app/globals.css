@@ -82,6 +82,18 @@ body *::selection {
   color: var(--site-text-strong);
 }
 
+@media (min-width: 320px) and (max-width: 639px) {
+  .landing-page-content > #home,
+  .landing-page-content > .landing-page-skeleton-hero,
+  .landing-page-content > section,
+  .landing-page-content > #timeline > section,
+  .landing-page-content > #testimonials {
+    width: 100% !important;
+    max-width: none !important;
+    padding-inline: 1rem;
+  }
+}
+
 .site-notification-stack {
   position: fixed;
   right: 1rem;

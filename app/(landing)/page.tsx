@@ -213,7 +213,7 @@ const LandingPage: React.FC = () => {
       <NavBar />
       <div
         aria-hidden={!isPageReady}
-        className={`site-page-shell z-[-1] min-h-screen
+        className={`site-page-shell landing-page-content z-[-1] min-h-screen
           transition-[opacity,visibility] duration-200 ease-linear
           ${isPageReady ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"}
           transition-colors duration-150 ease-linear xs:pt-[80px] sm:pt-[100px] xl:pt-[80px] xxl:pt-[130px]`}

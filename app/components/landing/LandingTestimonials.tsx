@@ -177,7 +177,7 @@ I greatly value the experience of studying and working with him, and I am confid
               className="pb-10"
               onClick={() => handleReviewClick(index)}
             >
-              <div className="site-surface-card flex flex-col rounded-2xl p-8">
+              <div className="site-surface-card flex flex-col rounded-2xl xs:p-4 sm:p-8">
                 <div className="flex">
                   <Image
                     src={`/reviewImages/${data.profilePreview}`}

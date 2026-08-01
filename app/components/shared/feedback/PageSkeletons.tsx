@@ -8,18 +8,18 @@ const sectionHeadingClassName =
 
 export const ProfileHoloCardSkeleton = () => (
   <div className="flex w-full max-w-[350px] flex-col items-center gap-5">
-    <Skeleton className="h-[450px] w-full rounded-[1.75rem] sm:h-[530px] xl:mt-[155px] xl:h-[470px] xxl:mt-12 xxl:h-[510px]" />
+    <Skeleton className="h-[530px] w-full rounded-[1.75rem] xl:mt-[155px] xl:h-[470px] xxl:mt-12 xxl:h-[510px]" />
     <Skeleton className="h-11 w-[110px] rounded-[0.75rem] xxl:h-14 xxl:w-[130px]" />
   </div>
 );
 
 export const LandingPageSkeleton = () => (
   <div
-    className="site-page-shell min-h-screen transition-colors duration-150 ease-linear xs:pt-[80px] sm:pt-[100px] xl:pt-[80px] xxl:pt-[130px]"
+    className="site-page-shell landing-page-content min-h-screen transition-colors duration-150 ease-linear xs:pt-[80px] sm:pt-[100px] xl:pt-[80px] xxl:pt-[130px]"
     aria-hidden="true"
   >
     <div
-      className="mx-auto grid w-full items-start gap-6 pb-10
+      className="landing-page-skeleton-hero mx-auto grid w-full items-start gap-6 pb-10
         max-sm:w-[300px] max-sm:grid-cols-1 max-xs:max-w-[230px]
         sm:max-w-[560px] sm:grid-cols-1 sm:px-5 md:max-w-[680px] md:px-5
         lg:max-w-[910px] lg:grid-cols-1 lg:px-10 xl:max-w-[1160px]
