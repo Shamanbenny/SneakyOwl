@@ -3063,6 +3063,25 @@ body *::selection {
 .swiper-pagination-bullet:not(.swiper-pagination-bullet-active) {
   background-color: #e5e5e5 !important;
 }
+
+.landing-reviews-swiper .swiper-pagination {
+  bottom: auto !important;
+  top: 0 !important;
+}
+
+.landing-reviews-swiper {
+  padding-top: 3rem !important;
+}
+
+.landing-reviews-swiper .swiper-slide {
+  display: flex;
+  height: auto;
+}
+
+.landing-reviews-swiper .site-surface-card {
+  height: 100%;
+  width: 100%;
+}
 /* ---------- [END] Landing Reviews Swiper Button ---------- */
 
 /* ---------- [START] Landing Page Holo Card ---------- */
