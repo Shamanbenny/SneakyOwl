@@ -32,6 +32,7 @@ const LANDING_CRITICAL_IMAGE_SOURCES = [
   "/landing/ChessFlask.jpg",
   "/reviewImages/gaanesh.jpg",
   "/reviewImages/anonymous.png",
+  "/reviewImages/luke_chong.jpg",
   "https://raw.githubusercontent.com/Shamanbenny/Shamanbenny.github.io/output/snake-dark.svg",
 ];
 

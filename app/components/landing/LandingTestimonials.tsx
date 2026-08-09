@@ -17,7 +17,7 @@ import { FaArrowUpRightFromSquare } from "react-icons/fa6";
 import { Fragment, useRef } from "react";
 
 const LandingTestimonials = () => {
-  const numOfReviews = 4;
+  const numOfReviews = 5;
   const mySwiper = useRef<SwiperRef>(null);
 
   const handleReviewClick = (index: number) => {
@@ -49,9 +49,28 @@ Overall, I consider Benny an excellent software engineer. Based on what I observ
           text: "manuelrigger.at",
         },
         {
+          type: "linkedin",
+          url: "https://www.linkedin.com/in/manuel-rigger/",
+          text: "@manuel-rigger",
+        },
+        {
           type: "redirect",
           url: "/blog/raffles-go/Testimonial%20Letter%20for%20Benny.pdf",
           text: "View Original PDF",
+        },
+      ],
+    },
+    {
+      profilePreview: "luke_chong.jpg",
+      name: "Luke Chong",
+      position: ["Masters in Computing"],
+      date: "6-Aug-2026",
+      reviewContent: `I met Benny in an algorithms class he was teaching. His energetic and bouyant personality made him very approachable. Since then, Benny has been the go-to person I chat with regarding even the tiniest of relevations or roadblocks in my personal journey in coding and mathematics. He is ever curious to learn and discuss even topics outside his area of expertise. We have learned from each other and shared knowledge over the years and he is now an indispensable friend, one that I know will always be open to indulge in nerdy conversations about computer science.`,
+      link: [
+        {
+          type: "linkedin",
+          url: "https://www.linkedin.com/in/luke-c-866615229/",
+          text: "@luke-c",
         },
       ],
     },
@@ -217,19 +236,26 @@ I greatly value the experience of studying and working with him, and I am confid
                     : data.reviewContent}
                   <FaQuoteRight className="inline-block h-[16px] w-[16px] pb-1 pl-1 text-[color:var(--site-text-muted)]" />
                 </p>
-                <div className="mt-auto flex flex-col items-start gap-2 pt-5">
+                <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-2 pt-5 text-[0.9rem] font-semibold">
                   {data.link.map((link, index) => {
                     return (
-                      <a
-                        key={index}
-                        href={link.url}
-                        className="site-link-accent w-full"
-                      >
-                        <div className="flex min-w-0 flex-wrap">
+                      <Fragment key={index}>
+                        {index > 0 ? (
+                          <span
+                            aria-hidden="true"
+                            className="text-[0.7rem] text-[color:var(--site-text-faint)]"
+                          >
+                            •
+                          </span>
+                        ) : null}
+                        <a
+                          href={link.url}
+                          className="site-link-accent inline-flex min-w-0 max-w-full items-center gap-1.5 transition-colors duration-150"
+                        >
                           {handleLinkType(link.type)}
-                          {link.text}
-                        </div>
-                      </a>
+                          <span className="min-w-0 break-words">{link.text}</span>
+                        </a>
+                      </Fragment>
                     );
                   })}
                 </div>
