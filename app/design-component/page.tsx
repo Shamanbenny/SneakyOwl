@@ -375,7 +375,7 @@ export default function DesignComponentPage() {
                 <span className={styles.stateLabel}>Default</span>
                 <a
                   className={`${styles.button} ${styles.buttonPrimary}`}
-                  href="/Lee%20Jia%20Quan_CV.pdf"
+                  href="/Lee_Jia_Quan_CV.pdf"
                 >
                   <FiFileText aria-hidden="true" />
                   Resume

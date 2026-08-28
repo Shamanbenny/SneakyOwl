@@ -282,8 +282,7 @@ const LandingPage: React.FC = () => {
               idCode="1337-5T4C-K9001"
             />
             <a
-              href="/Lee%20Jia%20Quan_CV.pdf"
-              download="Lee Jia Quan_CV.pdf"
+              href="/Lee_Jia_Quan_CV.pdf"
               className="relative z-10 inline-flex h-11 min-w-[6.9rem] items-center justify-center gap-2 rounded-[0.75rem] border border-[color:var(--site-accent-strong)] bg-[color:var(--site-accent)] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--site-selection-text)] transition duration-150 ease-linear hover:-translate-y-[1px] hover:border-[color:var(--site-accent-strong)] hover:bg-[color:var(--site-accent-strong)] focus-visible:-translate-y-[1px] focus-visible:border-[color:var(--site-accent-strong)] focus-visible:bg-[color:var(--site-accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--site-accent-focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--site-bg)] active:bg-[color:var(--site-accent-strong)] xxl:h-14 xxl:min-w-[8.1rem] xxl:text-[1rem]"
             >
               <FiFileText className="text-base" aria-hidden="true" />
