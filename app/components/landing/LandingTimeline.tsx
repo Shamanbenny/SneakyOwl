@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaBriefcase, FaFlag, FaGraduationCap } from "react-icons/fa";
@@ -11,7 +17,7 @@ type TimelineCategory = Exclude<TimelineFilter, "all">;
 
 type TimelineItem = {
   category: TimelineCategory;
-  details: string[];
+  details: ReactNode[];
   id: string;
   // Use `miscLabel` to show the actual misc subtype on the timeline card badge
   // (for example: Competition, Achievement, Certificate) while keeping the tab label as "Misc.".
@@ -59,13 +65,27 @@ const TIMELINE_ITEMS: TimelineItem[] = [
   {
     category: "work",
     details: [
-      "Credit-bearing internship under NUS ATAP.",
-      "More details soon...",
+      <>
+        Contributed to back-end services supporting{" "}
+        <a
+          href="https://www.synapxe.sg/media-releases/collaboration/healthcare-apps-unified-healthhub-2026"
+          target="_blank"
+          rel="noreferrer"
+          className="site-link-accent underline decoration-[rgba(110,231,183,0.45)] underline-offset-[3px]"
+        >
+          the aggregation of Singapore&apos;s public healthcare cluster
+          applications under the enhanced HealthHub platform
+        </a>
+        .
+      </>,
+      "Supported the project through final development, performance testing, release preparation, and production deployment activities.",
+      "Worked within a mature software development lifecycle, collaborating with developers, Business Analysts, and Quality Engineers under an Agile framework.",
+      "Handled live production data updates through approved cloud deployment pipelines.",
     ],
     id: "synapxe-intern",
     organization: "Synapxe",
-    period: "June 2026 - Dec 2026",
-    title: "Intern Software Engineer",
+    period: "Jun 2026 - Dec 2026",
+    title: "Software Engineer Intern",
   },
   {
     category: "education",
@@ -366,9 +386,9 @@ const LandingTimeline = ({
 
                     <div className="rounded-[10px] border border-[color:var(--site-border)] bg-[color:rgba(10,10,10,0.24)] px-4 py-3">
                       <div className="space-y-3">
-                        {item.details.map((detail) => (
+                        {item.details.map((detail, detailIndex) => (
                           <p
-                            key={`${item.id}-${detail}`}
+                            key={`${item.id}-${detailIndex}`}
                             className="relative pl-5 text-[0.96rem] leading-7 text-[color:var(--site-text-strong)]
                               before:absolute before:left-0 before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full before:bg-[color:var(--timeline-accent)] before:content-['']
                               sm:text-[1rem]"
