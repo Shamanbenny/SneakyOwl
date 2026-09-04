@@ -67,9 +67,11 @@ const LocationMapCard: React.FC = () => {
       }).setView(SINGAPORE_COORDINATES, SINGAPORE_ZOOM);
 
       L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=cb1_2vuv_1_5a9146b1782d55f3a7e73905",
         {
-          maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          maxZoom: 20,
           subdomains: "abcd",
           keepBuffer: 4,
           updateWhenIdle: false,
@@ -104,7 +106,7 @@ const LocationMapCard: React.FC = () => {
           <span className="hidden xxl:inline">Currently Based In</span>
         </span>
         <InfoTooltip
-          ariaLabel="Leaflet attribution"
+          ariaLabel="Map attribution"
           preferredPlacement="left"
           className="shrink-0"
         >
@@ -117,8 +119,23 @@ const LocationMapCard: React.FC = () => {
               className="site-link-accent underline decoration-[rgba(110,231,183,0.45)] underline-offset-[3px]"
             >
               Leaflet
-            </a>
-            .
+            </a>,{" "}
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noreferrer"
+              className="site-link-accent underline decoration-[rgba(110,231,183,0.45)] underline-offset-[3px]"
+            >
+              OpenStreetMap contributors
+            </a>, and{" "}
+            <a
+              href="https://carto.com/attributions"
+              target="_blank"
+              rel="noreferrer"
+              className="site-link-accent underline decoration-[rgba(110,231,183,0.45)] underline-offset-[3px]"
+            >
+              CARTO
+            </a>.
           </p>
         </InfoTooltip>
       </div>
