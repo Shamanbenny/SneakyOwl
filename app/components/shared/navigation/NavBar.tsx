@@ -32,7 +32,7 @@ const LANDING_SECTIONS = [
   "timeline",
   "testimonials",
 ] as const;
-const EMAIL_ADDRESS = "lee.jia.quan@u.nus.edu";
+const EMAIL_ADDRESS = "sneakyowl.official@gmail.com";
 const EMAIL_HREF = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(
   "[SneakyOwl] Connection",
 )}`;

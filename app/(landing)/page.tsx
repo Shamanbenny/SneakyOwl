@@ -50,7 +50,7 @@ const preloadImage = (src: string) =>
   });
 
 const LandingPage: React.FC = () => {
-  const emailHref = "mailto:lee.jia.quan@u.nus.edu";
+  const emailHref = "mailto:sneakyowl.official@gmail.com";
   const [isAliasHovered, setIsAliasHovered] = useState(false);
   const [isPageReady, setIsPageReady] = useState(false);
   const [selectedTimelineFilter, setSelectedTimelineFilter] =

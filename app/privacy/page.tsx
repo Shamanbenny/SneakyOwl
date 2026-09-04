@@ -5,7 +5,7 @@ import NavBar from "@/app/components/shared/navigation/NavBar";
 
 const privacyFont = Poppins({ weight: "400", subsets: ["latin"] });
 
-const contactEmail = "lee.jia.quan@u.nus.edu";
+const contactEmail = "sneakyowl.official@gmail.com";
 const contactEmailHref = `mailto:${contactEmail}?subject=${encodeURIComponent(
   "[SneakyOwl] Privacy Concerns",
 )}`;
