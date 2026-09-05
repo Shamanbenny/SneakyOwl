@@ -1,0 +1,154 @@
+{
+  "fetchedAt": "2026-09-05T04:35:23.220Z",
+  "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+  "places": [
+    {
+      "cuisineGenre": "Japanese",
+      "id": "2216119b-5bdf-422e-b07c-4522a569f7b8",
+      "latitude": 1.30695,
+      "locationLabel": "The Star Vista",
+      "longitude": 103.788789,
+      "name": "Watami Japanese Dining",
+      "visits": [
+        {
+          "comments": "The interior ambience is really nice, and the corporate discounts were a nice touch to a perfect experience. I really enjoyed the broth as it wasn't too overwhelming, and it was surprisingly filling as well!",
+          "costPerPerson": 15,
+          "currency": "SGD",
+          "id": "c5ee1901-466d-4b51-9ed4-886dfe8ca8a8",
+          "itemsBought": "Tonkotsu Shoyu Ramen set with Iced Coffee",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 9,
+          "visitedAt": "2026-06-15"
+        }
+      ]
+    },
+    {
+      "cuisineGenre": "hawker",
+      "id": "41430422-7d4d-4984-a126-d9cd17ec630f",
+      "latitude": 1.380536,
+      "locationLabel": "Bukit Panjang Plaza",
+      "longitude": 103.764188,
+      "name": "Hill Street Hainanese Curry Rice",
+      "visits": [
+        {
+          "comments": "They are quite generous with the sauce, the Braised Pork is tasty and not too hard, and they add fried egg and vegetables as well!",
+          "costPerPerson": 6.5,
+          "currency": "SGD",
+          "id": "8feade91-d13a-4b79-b20a-76eb91bbcd7d",
+          "itemsBought": "Braised Pork Belly Curry Rice",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 8,
+          "visitedAt": "2026-02-12"
+        }
+      ]
+    },
+    {
+      "cuisineGenre": "hawker",
+      "id": "5bacfc06-6abf-43b1-9ec7-80beef3851de",
+      "latitude": 1.306774,
+      "locationLabel": "Holland Close",
+      "longitude": 103.797307,
+      "name": "Joy Steaks",
+      "visits": [
+        {
+          "comments": "The Aglio Olio is very well flavored, but the chicken chop can feel a bit dry given that there's no usual saucing.",
+          "costPerPerson": 9,
+          "currency": "SGD",
+          "id": "51d1f4ae-0d89-437b-8697-e5717d690c26",
+          "itemsBought": "Chicken Chop Pasta (Aglio Olio)",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 7,
+          "visitedAt": "2026-07-14"
+        }
+      ]
+    },
+    {
+      "cuisineGenre": "Malay",
+      "id": "9005875b-0f21-48b8-b0f8-2fb501b3d3f3",
+      "latitude": 1.292908,
+      "locationLabel": "Supper Stretch",
+      "longitude": 103.768657,
+      "name": "Niqqi's Cheese Prata Shop",
+      "visits": [
+        {
+          "comments": "My first time trying Plaster Prata (egg on top of plain Prata) and I really enjoyed it! The yolk pouring out as I slice the prata, and then the Iced Kopiccino to pair the egg taste with coffee!",
+          "costPerPerson": 5.5,
+          "currency": "SGD",
+          "id": "55c721ea-103a-44b7-b53b-a063a7a5c257",
+          "itemsBought": "Single Plaster Prata with Iced Kopiccino",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 10,
+          "visitedAt": "2026-08-01"
+        }
+      ]
+    },
+    {
+      "cuisineGenre": "fast food",
+      "id": "c081e58a-030f-4e28-a9de-3a1e1bfd0eb0",
+      "latitude": 1.378329,
+      "locationLabel": "Hillion Mall",
+      "longitude": 103.763613,
+      "name": "Shiok Burger",
+      "visits": [
+        {
+          "comments": "The Classic Garlic Chicken Burger has the best flavor profile I've had in a burger (Loveee the sesame buns), and the Shiok Shiok Fries is a wonderful addition. Might be my first 10-out-of-10 meal ever!",
+          "costPerPerson": 10,
+          "currency": "SGD",
+          "id": "36695c77-61f8-4acb-aa0b-8c4ea2e847fb",
+          "itemsBought": "Classic Garlic Chicken Burger Set, Shiok Shiok Fries, Lemon Sprite",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 10,
+          "visitedAt": "2026-05-24"
+        }
+      ]
+    },
+    {
+      "cuisineGenre": "hawker",
+      "id": "e5d3f5f2-eb5d-4c0b-897d-31cda0cb867d",
+      "latitude": 1.280379,
+      "locationLabel": "Maxwell Food Centre",
+      "longitude": 103.844865,
+      "name": "Tian Tian Hainanese Chicken Rice",
+      "visits": [
+        {
+          "comments": "I think the reputation of the store precedes this post so this is merely just a note for myself that I would definitely come back for more!",
+          "costPerPerson": 6,
+          "currency": "SGD",
+          "id": "4a28afec-92bd-4927-9fc9-9d265cd93f30",
+          "itemsBought": "Roasted Chicken Rice (M)",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 10,
+          "visitedAt": "2026-08-30"
+        }
+      ]
+    },
+    {
+      "cuisineGenre": "Japanese",
+      "id": "feb7a0ca-b61f-4287-8045-159dd4bf48f2",
+      "latitude": 1.307024,
+      "locationLabel": "The Star Vista",
+      "longitude": 103.788149,
+      "name": "Ajisen Tanjiro",
+      "visits": [
+        {
+          "comments": "I bought the Lunch menu set (includes 1 side and 1 drink), and it was extremely filling!",
+          "costPerPerson": 14,
+          "currency": "SGD",
+          "id": "385bc5b6-16d2-49b2-a0ee-bd9cdd497f8a",
+          "itemsBought": "Ajisen Ramen w/ Hot Houji Tea and Original Gyoza",
+          "ownerDisplayName": "SneakyOwl",
+          "ownerUid": "AXOel5MZ8Yelb5a1bHgFcieT80y2",
+          "ratingOutOf10": 8,
+          "visitedAt": "2026-07-30"
+        }
+      ]
+    }
+  ],
+  "version": 1
+}
