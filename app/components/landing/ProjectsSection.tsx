@@ -117,11 +117,13 @@ const getFlowingMenuTagDisplay = (tags: TechTag[], visibleSlotCount: number) => 
 
 const getProjectCtas = ({ deployedSiteUrl, githubRepoUrl, infoUrl }: ProjectLinks) => {
   return [
-    {
-      href: infoUrl,
-      key: "info",
-      label: "View Blog Post",
-    },
+    infoUrl
+      ? {
+          href: infoUrl,
+          key: "info",
+          label: "View Blog Post",
+        }
+      : null,
     githubRepoUrl
       ? {
           href: githubRepoUrl,
@@ -334,6 +336,59 @@ const PROJECTS: ProjectItem[] = [
     text: "Raffles Go",
   },
   {
+    architectureLabel: "Autonomous Research Architecture",
+    architectureSummary:
+      "A Python controller gives an AI coding agent one bounded hypothesis at a time, evaluates isolated candidates with configured commands, applies a metric-based approval rule, and records experiment state.",
+    description: (
+      <>
+        An open-source experiment controller inspired by{" "}
+        <a
+          href="https://github.com/karpathy/autoresearch"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
+        >
+          Andrej Karpathy&apos;s autoresearch
+        </a>
+        . Sentinel was first developed for my{" "}
+        <a
+          href="https://www.sneakyowl.net/blog/autoresearch-chess"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
+        >
+          autoresearch-chess project
+        </a>
+        ; I extracted its reusable controller so other machine learning and
+        algorithm-optimization projects can use their own repeatable evaluators.
+        A simple maze pathfinder example demonstrates how to define an
+        evaluatable problem setup. The controller currently uses the Codex SDK.
+      </>
+    ),
+    deployedSiteUrl: null,
+    githubRepoUrl: "https://github.com/Shamanbenny/autoresearch-sentinel",
+    image: "/landing/AutoresearchSentinel.png",
+    infoUrl: null,
+    link: "https://github.com/Shamanbenny/autoresearch-sentinel",
+    previewImage: "/landing/AutoresearchSentinel.png",
+    projectType: "Open-source Project",
+    tags: [
+      {
+        icon: <SiPython className="h-4 w-4" />,
+        id: "python",
+        label: "Python",
+        priority: 1,
+      },
+      {
+        icon: <SiOpenai className="h-4 w-4" />,
+        id: "codex-sdk",
+        label: "Codex SDK",
+        priority: 2,
+      },
+    ],
+    text: "Autoresearch Sentinel",
+  },
+  {
     architectureLabel: "Client-Server Architecture",
     architectureSummary:
       "The original deployed chess system split responsibilities between a Flask API for move generation and a separate Next.js frontend that rendered the playable UI.",
@@ -483,7 +538,7 @@ const PROJECTS: ProjectItem[] = [
   },
 ].map((project) => ({
   ...project,
-  link: project.infoUrl,
+  link: project.infoUrl ?? project.githubRepoUrl ?? undefined,
 }));
 
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
