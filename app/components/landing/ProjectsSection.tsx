@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   useEffect,
   useRef,
@@ -12,6 +13,7 @@ import { flushSync } from "react-dom";
 import {
   FaArrowUpRightFromSquare,
   FaCode,
+  FaDatabase,
   FaReact,
 } from "react-icons/fa6";
 import {
@@ -29,6 +31,13 @@ import {
   SiNodedotjs,
   SiVite,
   SiFlask,
+  SiNextdotjs,
+  SiSupabase,
+  SiPostgresql,
+  SiTailwindcss,
+  SiLeaflet,
+  SiResend,
+  SiVitest,
 } from "react-icons/si";
 
 import FlowingMenu, {
@@ -45,6 +54,7 @@ type TechTag = {
 };
 
 type ProjectLinks = {
+  primaryUrl?: string;
   githubRepoUrl: string | null;
   infoUrl: string | null;
   deployedSiteUrl: string | null;
@@ -144,6 +154,104 @@ const getProjectCtas = ({ deployedSiteUrl, githubRepoUrl, infoUrl }: ProjectLink
 const isExternalUrl = (href: string) => /^https?:\/\//.test(href);
 
 const PROJECTS: ProjectItem[] = [
+    {
+    architectureLabel: "Next.js + Supabase",
+    architectureSummary:
+      "Next.js App Router combines server-rendered pages, server actions, and API routes with Supabase Auth, PostgreSQL row-level security, and Storage. IndexedDB supports local drafts and queued media for offline field use.",
+    description: (
+      <>
+        Primap is the deployed web app for volunteers taking part in the{" "}
+        <a
+          href="https://janegoodall.org.sg/our-programmes-and-campaigns/wildlife-environment/raffles-banded-langur/"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
+        >
+          Raffles&apos; Banded Langur Citizen Science Programme
+        </a>
+        , continuing the work begun with{" "}
+        <Link
+          href="/blog/raffles-go-conservation"
+          className="text-[color:var(--site-accent)] underline decoration-[color:var(--site-accent-soft)] underline-offset-2 transition-colors duration-150 hover:text-[color:var(--site-accent-soft)]"
+        >
+          RafflesGo
+        </Link>
+        . Volunteers participating in the programme will use it to join survey walks,
+        before submitting wildlife sightings and incident reports.
+      </>
+    ),
+    deployedSiteUrl: "https://www.primap.app",
+    githubRepoUrl: null,
+    image: "/landing/Primap_RafflesBandedLangur.jpg",
+    infoUrl: "/blog/primap-agentic-testing",
+    primaryUrl: "https://www.primap.app",
+    linkTarget: "_blank",
+    previewImage: "/landing/Primap.png",
+    projectType: "Full-Stack Project",
+    tags: [
+      {
+        icon: <FaReact className="h-4 w-4" />,
+        id: "react",
+        label: "React",
+        priority: 2,
+      },
+      {
+        icon: <SiNextdotjs className="h-4 w-4" />,
+        id: "nextjs",
+        label: "Next.js",
+        priority: 1,
+      },
+      {
+        icon: <SiTypescript className="h-4 w-4" />,
+        id: "typescript",
+        label: "TypeScript",
+        priority: 3,
+      },
+      {
+        icon: <SiSupabase className="h-4 w-4" />,
+        id: "supabase",
+        label: "Supabase",
+        priority: 4,
+      },
+      {
+        icon: <SiPostgresql className="h-4 w-4" />,
+        id: "postgresql",
+        label: "PostgreSQL",
+        priority: 5,
+      },
+      {
+        icon: <SiTailwindcss className="h-4 w-4" />,
+        id: "tailwindcss",
+        label: "Tailwind CSS",
+        priority: 6,
+      },
+      {
+        icon: <SiLeaflet className="h-4 w-4" />,
+        id: "leaflet",
+        label: "Leaflet",
+        priority: 7,
+      },
+      {
+        icon: <FaDatabase className="h-4 w-4" />,
+        id: "indexeddb",
+        label: "IndexedDB",
+        priority: 8,
+      },
+      {
+        icon: <SiResend className="h-4 w-4" />,
+        id: "resend",
+        label: "Resend",
+        priority: 9,
+      },
+      {
+        icon: <SiVitest className="h-4 w-4" />,
+        id: "vitest",
+        label: "Vitest",
+        priority: 10,
+      },
+    ],
+    text: "Primap",
+  },
   {
     architectureLabel: "Microservices Architecture",
     architectureSummary:
@@ -538,7 +646,7 @@ const PROJECTS: ProjectItem[] = [
   },
 ].map((project) => ({
   ...project,
-  link: project.infoUrl ?? project.githubRepoUrl ?? undefined,
+  link: project.primaryUrl ?? project.infoUrl ?? project.githubRepoUrl ?? undefined,
 }));
 
 const PROJECTS_DESKTOP_HEIGHT_CLASS = "lg:min-h-[34rem] xl:h-[750px] xxl:h-[875px]";
@@ -611,6 +719,18 @@ const ProjectPreviewCard = ({
   framed?: boolean;
 }) => {
   const ctas = getProjectCtas(project);
+  const preview = (
+    <div className="relative aspect-video w-full bg-[color:var(--site-bg)]">
+      <Image
+        src={project.previewImage}
+        alt={`${project.text} preview slide`}
+        fill
+        priority
+        sizes="(max-width: 1279px) 100vw, 58vw"
+        className="object-cover"
+      />
+    </div>
+  );
 
   return (
     <article
@@ -630,16 +750,17 @@ const ProjectPreviewCard = ({
             {project.architectureSummary}
           </InfoTooltip>
         </div>
-        <div className="relative aspect-video w-full bg-[color:var(--site-bg)]">
-          <Image
-            src={project.previewImage}
-            alt={`${project.text} preview slide`}
-            fill
-            priority
-            sizes="(max-width: 1279px) 100vw, 58vw"
-            className="object-cover"
-          />
-        </div>
+        {project.primaryUrl ? (
+          <Link
+            href={project.primaryUrl}
+            target={isExternalUrl(project.primaryUrl) ? "_blank" : undefined}
+            rel={isExternalUrl(project.primaryUrl) ? "noreferrer" : undefined}
+            aria-label={`Visit ${project.text}`}
+            className="block"
+          >
+            {preview}
+          </Link>
+        ) : preview}
       </div>
       <footer
         className="relative mt-3 flex flex-1 flex-col rounded-[20px] border border-[color:var(--site-border)] bg-[color:var(--site-bg-soft)] p-4 sm:p-5"

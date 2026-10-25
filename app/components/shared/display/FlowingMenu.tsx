@@ -16,6 +16,7 @@ const getSafeRepetitionCount = (count: number) => {
 export interface FlowingMenuItemData {
   image: string;
   link?: string;
+  linkTarget?: "_blank" | "_self";
   text: string;
 }
 
@@ -264,6 +265,8 @@ const MenuItem = <T extends FlowingMenuItemData>({
         <a
           className="flowing-menu__item-link"
           href={link}
+          target={item.linkTarget}
+          rel={item.linkTarget === "_blank" ? "noreferrer" : undefined}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onFocus={() => onItemHover?.(index)}
