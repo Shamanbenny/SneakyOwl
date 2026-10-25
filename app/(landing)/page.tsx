@@ -189,7 +189,7 @@ const LandingPage: React.FC = () => {
       onClick: navigateToProjects,
       content: renderDefaultCardContent({
         label: "Projects",
-        value: "3",
+        value: "5",
         description: "Completed Projects",
       }),
     },

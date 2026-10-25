@@ -185,7 +185,7 @@ const PROJECTS: ProjectItem[] = [
     image: "/landing/Primap_RafflesBandedLangur.jpg",
     infoUrl: "/blog/primap-agentic-testing",
     primaryUrl: "https://www.primap.app",
-    linkTarget: "_blank",
+    linkTarget: "_blank" as const,
     previewImage: "/landing/Primap.png",
     projectType: "Full-Stack Project",
     tags: [
