@@ -12,7 +12,6 @@ import {
   SiFirebase,
   SiFlask,
   SiGit,
-  SiHtml5,
   SiIntellijidea,
   SiJavascript,
   SiNodedotjs,
@@ -26,13 +25,16 @@ import {
   SiR,
   SiReact,
   SiRedis,
+  SiResend,
   SiScikitlearn,
   SiSocketdotio,
+  SiSupabase,
   SiTailwindcss,
   SiTerraform,
   SiTypescript,
   SiUnity,
   SiVite,
+  SiVitest,
 } from "react-icons/si";
 import { FaCode, FaMicrochip } from "react-icons/fa6";
 import { cloneElement, useEffect, useState, type ReactElement, type SVGProps } from "react";
@@ -234,6 +236,12 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
         showInLogoLoop: true,
       },
       {
+        icon: <SiSupabase className="h-4 w-4" />,
+        id: "supabase",
+        label: "Supabase",
+        showInLogoLoop: true,
+      },
+      {
         icon: <SiRedis className="h-4 w-4" />,
         id: "redis",
         label: "Redis",
@@ -243,6 +251,18 @@ const SKILL_CATEGORIES: SkillCategoryItem[] = [
         icon: <SiVite className="h-4 w-4" />,
         id: "vite",
         label: "Vite",
+        showInLogoLoop: true,
+      },
+      {
+        icon: <SiVitest className="h-4 w-4" />,
+        id: "vitest",
+        label: "Vitest",
+        showInLogoLoop: true,
+      },
+      {
+        icon: <SiResend className="h-4 w-4" />,
+        id: "resend",
+        label: "Resend",
         showInLogoLoop: true,
       },
       {

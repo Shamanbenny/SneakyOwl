@@ -39,4 +39,5 @@ next-env.d.ts
 .vscode/
 .agents/
 .codex/
-AGENTS.md
+.claude/.atomic-index/
+.claude/atomic.toml
