@@ -18,7 +18,7 @@ export type GeneralBlogPostMeta = BlogPostBaseMeta & {
 export type ProjectBlogPostMeta = BlogPostBaseMeta & {
   type: "project";
   project: {
-    githubRepoUrl: string;
+    githubRepoUrl?: string;
   };
 };
 
@@ -36,6 +36,18 @@ export type BlogPost = BlogPostMeta & {
 };
 
 export const BLOG_POSTS: BlogPostMeta[] = [
+  {
+    contentPath: "content/blog/primap-agentic-testing.mdx",
+    publishedAt: "2026-10-25",
+    project: {},
+    slug: "primap-agentic-testing",
+    shortTitle: "Primap Agentic Testing",
+    summary:
+      "How I used Playwright, parallel Codex agents, and Atomic's symbol graph to test Primap's deployed workflows and turn failures into reproducible GitHub issues.",
+    tags: ["Codex", "Playwright", "Agentic Workflow", "Testing", "Symbol Graph", "Conservation"],
+    title: "Primap: How I delegated feature and UI testing to a team of agents",
+    type: "project",
+  },
   {
     contentPath: "content/blog/autoresearch-chess.mdx",
     publishedAt: "2026-06-09",
